@@ -1,4 +1,5 @@
 source ../bd/axi_slave_helpers.tcl
+source ../bd/build_AXI_interconnect.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -29,35 +30,15 @@ create_bd_port -dir I -type rst $EXT_RESET
 #================================================================================
 [AXI_DEVICE_ADD myReg0  M00 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c40000 4K]
 [AXI_DEVICE_ADD myReg1  M01 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c41000 4K]
-#[AXI_DEVICE_ADD myReg0  M00 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x7AA00000 4K]
-#[AXI_DEVICE_ADD myReg1  M01 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x7AA01000 4K]
 
 #================================================================================
 #  Create an AXI interconnect
 #================================================================================
 puts "Building AXI C2C slave interconnect"
 
-#startgroup
-
 #create AXI clock & reset ports
 create_bd_port -dir I -type clk $AXI_MASTER_CLK
 create_bd_port -dir O -type rst $AXI_MASTER_RSTN
-
-
-#create an axi interconnect 
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 $AXI_INTERCONNECT_NAME
-#set_property CONFIG.NUM_SI 1                 [get_bd_cells $AXI_INTERCONNECT_NAME]
-set_property CONFIG.NUM_SI 2                 [get_bd_cells $AXI_INTERCONNECT_NAME]
-set AXI_DEVICE_COUNT [array size AXI_BUS_M]
-puts "Slave count: $AXI_DEVICE_COUNT"
-set_property CONFIG.NUM_MI $AXI_DEVICE_COUNT [get_bd_cells $AXI_INTERCONNECT_NAME]
-
-set AXIM_PORT_NAME $AXI_INTERCONNECT_NAME
-append AXIM_PORT_NAME "_AXIM"    
-
-
-#connect the interconnect clock to the AXI master clk
-connect_bd_net [get_bd_ports $AXI_MASTER_CLK] [get_bd_pins $AXI_INTERCONNECT_NAME/ACLK]
 
 #create the reset logic
 set SYS_RESETER sys_reseter
@@ -68,20 +49,9 @@ connect_bd_net [get_bd_ports $EXT_RESET] [get_bd_pins $SYS_RESETER/ext_reset_in]
 connect_bd_net [get_bd_ports $AXI_MASTER_CLK] [get_bd_pins $SYS_RESETER/slowest_sync_clk]
 
 
+set SYS_RESETER_AXI_RSTN $SYS_RESETER/interconnect_aresetn
 #create the reset to sys reseter and slave interconnect
-connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $SYS_RESETER/interconnect_aresetn]
-connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $AXI_INTERCONNECT_NAME/ARESETN]
-
-#expose the interconnect's axi slave port for c2c master
-connect_bd_net [get_bd_ports $AXI_MASTER_CLK]  [get_bd_pins $AXI_INTERCONNECT_NAME/S00_ACLK]
-connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $AXI_INTERCONNECT_NAME/S00_ARESETN]
-#same for interconnect axi lite slave
-connect_bd_net [get_bd_ports $AXI_MASTER_CLK]  [get_bd_pins $AXI_INTERCONNECT_NAME/S01_ACLK]
-connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $AXI_INTERCONNECT_NAME/S01_ARESETN]
-
-
-
-#endgroup
+connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $SYS_RESETER_AXI_RSTN]
 
 #================================================================================
 #  Configure chip 2 chip links
@@ -92,19 +62,14 @@ set C2C_PHY ${C2C}_phy
 #Create chip-2-chip ip core
 startgroup
 create_bd_cell -type ip -vlnv xilinx.com:ip:axi_chip2chip:5.0 $C2C
-#set_property CONFIG.C_NUM_OF_IO {84.0}          [get_bd_cells ${C2C}]
 set_property CONFIG.C_NUM_OF_IO {58.0}          [get_bd_cells ${C2C}]
 set_property CONFIG.C_INTERFACE_MODE {0}	[get_bd_cells ${C2C}]
 set_property CONFIG.C_MASTER_FPGA {0}		[get_bd_cells ${C2C}]
-#set_property CONFIG.C_AURORA_WIDTH {2.0}        [get_bd_cells ${C2C}]
 set_property CONFIG.C_AURORA_WIDTH {1.0}        [get_bd_cells ${C2C}]
 set_property CONFIG.C_EN_AXI_LINK_HNDLR {false} [get_bd_cells ${C2C}]
-#set_property CONFIG.C_AXI_STB_WIDTH     {8}     [get_bd_cells ${C2C}]
 set_property CONFIG.C_AXI_STB_WIDTH     {4}     [get_bd_cells ${C2C}]
-#set_property CONFIG.C_AXI_DATA_WIDTH    {64}    [get_bd_cells ${C2C}]
 set_property CONFIG.C_AXI_DATA_WIDTH    {32}    [get_bd_cells ${C2C}]
 set_property CONFIG.C_INTERFACE_TYPE {2}	[get_bd_cells ${C2C}]
-#set_property CONFIG.C_COMMON_CLK     {1}	[get_bd_cells ${C2C}]
 set_property CONFIG.C_INCLUDE_AXILITE {2}	[get_bd_cells ${C2C}]
 
 make_bd_pins_external       -name ${C2C}_aurora_do_cc                [get_bd_pins ${C2C}/aurora_do_cc]
@@ -129,7 +94,7 @@ set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.SupportLevel         {1}          [get_bd_cells ${C2C_PHY}]
 
 
-
+#expose debugging signals to top
 make_bd_pins_external       -name ${C2C_PHY}_power_down     [get_bd_pins ${C2C_PHY}/power_down]
 make_bd_pins_external       -name ${C2C_PHY}_gt_pll_lock    [get_bd_pins ${C2C_PHY}/gt_pll_lock]       
 make_bd_pins_external       -name ${C2C_PHY}_hard_err       [get_bd_pins ${C2C_PHY}/hard_err]  
@@ -143,7 +108,6 @@ connect_bd_intf_net [get_bd_intf_pins ${C2C}/AXIS_TX] [get_bd_intf_pins ${C2C_PH
 connect_bd_intf_net [get_bd_intf_pins ${C2C_PHY}/USER_DATA_M_AXIS_RX] [get_bd_intf_pins ${C2C}/AXIS_RX]
 connect_bd_net [get_bd_pins ${C2C_PHY}/user_clk_out]        [get_bd_pins ${C2C}/axi_c2c_phy_clk]
 connect_bd_net [get_bd_pins ${C2C_PHY}/channel_up]          [get_bd_pins ${C2C}/axi_c2c_aurora_channel_up]
-#connect_bd_net [get_bd_pins ${C2C_PHY}/init_clk]            [get_bd_pins ${C2C}/aurora_init_clk]
 connect_bd_net [get_bd_pins ${C2C_PHY}/mmcm_not_locked_out] [get_bd_pins ${C2C}/aurora_mmcm_not_locked]
 connect_bd_net [get_bd_pins ${C2C}/aurora_pma_init_out]     [get_bd_pins ${C2C_PHY}/pma_init]
 connect_bd_net [get_bd_pins ${C2C}/aurora_reset_pb]         [get_bd_pins ${C2C_PHY}/reset_pb]
@@ -153,11 +117,16 @@ make_bd_intf_pins_external  -name ${C2C_PHY}_refclk [get_bd_intf_pins ${C2C_PHY}
 make_bd_intf_pins_external  -name ${C2C_PHY}_Rx     [get_bd_intf_pins ${C2C_PHY}/GT_SERIAL_RX]
 make_bd_intf_pins_external  -name ${C2C_PHY}_Tx     [get_bd_intf_pins ${C2C_PHY}/GT_SERIAL_TX]
 
-
 #connect external 200Mhz clock to init clocks
 connect_bd_net [get_bd_ports $EXT_CLK]   [get_bd_pins ${C2C_PHY}/init_clk]  
 connect_bd_net [get_bd_ports $EXT_CLK]   [get_bd_pins ${C2C}/aurora_init_clk]
 
+
+#connect resets
+#connect_bd_net [get_bd_pins   ${C2C}/m_aresetn] [get_bd_pins sys_reseter/interconnect_aresetn]
+connect_bd_net [get_bd_pins   ${C2C}/m_aresetn] [get_bd_pins ${AXI_MASTER_RSTN}]
+connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_aclk]
+connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_axi_lite_aclk]
 
 endgroup
 
@@ -165,15 +134,20 @@ endgroup
 #================================================================================
 #  Connect C2C master port to interconnect slave port
 #================================================================================
-connect_bd_intf_net -boundary_type upper [get_bd_intf_pins ${AXI_INTERCONNECT_NAME}/S00_AXI] [get_bd_intf_pins ${C2C}/m_axi]
-connect_bd_net [get_bd_pins ${C2C}/m_aresetn] [get_bd_pins sys_reseter/interconnect_aresetn]
-connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_aclk]
+set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ]
+set mCLK [list ${AXI_MASTER_CLK} ${AXI_MASTER_CLK} ]
+set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN] 
+[BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
 
-connect_bd_intf_net -boundary_type upper [get_bd_intf_pins ${AXI_INTERCONNECT_NAME}/S01_AXI] [get_bd_intf_pins ${C2C}/m_axi_lite]
-connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_axi_lite_aclk]
+
+
+
+
+
+
+
 
 #global AXI_BUS_FREQ
-#set_property CONFIG.FREQ_HZ [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]] [get_bd_ports ${AXI_MASTER_CLK}]
 global AXI_BUS_FREQ
 puts $AXI_BUS_FREQ(myReg0)
 puts [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]]

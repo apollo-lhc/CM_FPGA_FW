@@ -106,50 +106,64 @@ begin  -- architecture structure
     end if;
   end process counter_proc;
 
-  blink_led: process (clk_200) is
-  begin  -- process blink_led
-    if clk_200'event and clk_200 = '1' then  -- rising clock edge
-      if counter(28 downto 0) = "1"&x"0000000" then
-        if debug(0) = '1' then
-          led_blue_local <= not led_blue_local;
-        else
-          led_blue_local <= '0';
-        end if;
 
-      end if;
-
-      if counter(26 downto 0) = "110"&x"000000" then
-        if debug(1) = '1' then
-          led_red_local <= not led_red_local;
-        else
-          led_red_local <= '0';
-        end if;
-      end if;
-
-      if counter(24 downto 0) = "1"&x"000000" then
-        if debug(2) = '0' then
-          led_green_local <= not led_green_local;
-        else
-          led_green_local <= '0';
-        end if;
-      end if;
-
-
-
-      if myreg1_test_vector(0) = '1' then
-        led_green_local <= '1';
-      end if;
-      if myreg1_test_vector(1) = '1' then
-        led_red_local <= '1';
-      end if;
-      if myreg2_test_vector(0) = '1' then
-        led_blue_local <= '1';
-      end if;
-
-
-
-    end if;
-  end process blink_led;
+  RGB_pwm_1: entity work.RGB_pwm
+    generic map (
+      CLKFREQ => 200000000,
+      RGBFREQ => 1000)
+    port map (
+      clk        => clk_200,
+      redcount   => myreg1_test_vector( 7 downto  0),
+      greencount => myreg1_test_vector(15 downto  8),
+      bluecount  => myreg1_test_vector(23 downto 16),
+      LEDred     => led_red_local,
+      LEDgreen   => led_green_local,
+      LEDblue    => led_blue_local);
+  
+--  blink_led: process (clk_200) is
+--  begin  -- process blink_led
+--    if clk_200'event and clk_200 = '1' then  -- rising clock edge
+--      if counter(28 downto 0) = "1"&x"0000000" then
+--        if debug(0) = '1' then
+--          led_blue_local <= not led_blue_local;
+--        else
+--          led_blue_local <= '0';
+--        end if;
+--
+--      end if;
+--
+--      if counter(26 downto 0) = "110"&x"000000" then
+--        if debug(1) = '1' then
+--          led_red_local <= not led_red_local;
+--        else
+--          led_red_local <= '0';
+--        end if;
+--      end if;
+--
+--      if counter(24 downto 0) = "1"&x"000000" then
+--        if debug(2) = '0' then
+--          led_green_local <= not led_green_local;
+--        else
+--          led_green_local <= '0';
+--        end if;
+--      end if;
+--
+--
+--
+--      if myreg1_test_vector(0) = '1' then
+--        led_green_local <= '1';
+--      end if;
+--      if myreg1_test_vector(1) = '1' then
+--        led_red_local <= '1';
+--      end if;
+--      if myreg2_test_vector(0) = '1' then
+--        led_blue_local <= '1';
+--      end if;
+--
+--
+--
+--    end if;
+--  end process blink_led;
 
   c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (

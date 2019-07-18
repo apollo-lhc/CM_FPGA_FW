@@ -12,6 +12,8 @@ set vhdl_files "\
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
      src/myReg/myReg.vhd \
+     src/misc/RGB_PWM.vhd \
+     src/misc/LED_PWM.vhd \
      "
 set xdc_files "\
     src/top_pins.xdc \
