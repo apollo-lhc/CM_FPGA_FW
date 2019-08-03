@@ -1,0 +1,22 @@
+#tempfiles
+*~
+make_log.txt
+
+#################################################################################
+## Vivado files
+#################################################################################
+#build direcotry
+proj/
+
+#all the vivado stuff in the cores directory execpt the xci files
+cores/*/*
+!cores/*/*.xci
+
+#anything sub directories in the bd directory
+bd/*/*
+
+#################################################################################
+## Output files
+#################################################################################
+bit
+os

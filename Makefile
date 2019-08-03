@@ -1,6 +1,7 @@
 #################################################################################
 # make stuff
 #################################################################################
+#output markup
 OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
 
 #################################################################################
@@ -9,7 +10,7 @@ OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
 VIVADO_VERSION=2018.2
 VIVADO_FLAGS=-notrace -mode batch
 VIVADO_SHELL="/opt/Xilinx/Vivado/"$(VIVADO_VERSION)"/settings64.sh"
-
+VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p os/hw && cd proj
 
 #################################################################################
 # TCL scripts
@@ -55,7 +56,7 @@ clean_bit:
 	@rm -rf $(BIT)
 clean_os:
 	@echo "Clean OS hw files"
-	@rm os/hw/*
+	@rm -f os/hw/*
 clean: clean_bd clean_ip clean_bit clean_os
 	@rm -rf ./proj/*
 	@echo "Cleaning up"
@@ -66,20 +67,16 @@ clean: clean_bd clean_ip clean_bit clean_os
 #################################################################################
 
 open_project : 
-	@source $(VIVADO_SHELL) &&\
-	cd proj &&\
+	@$(VIVADO_SETUP) &&\
 	vivado top.xpr
-open_synth : 
-	@source $(VIVADO_SHELL) &&\
-	cd proj &&\
+open_synth :
+	@$(VIVADO_SETUP) &&\
 	vivado post_synth.dcp
-open_impl : 
-	@source $(VIVADO_SHELL) &&\
-	cd proj &&\
+open_impl :
+	@$(VIVADO_SETUP) &&\
 	vivado post_route.dcp
 open_hw :
-	@source $(VIVADO_SHELL) &&\
-	cd proj &&\
+	@$(VIVADO_SETUP) &&\
 	vivado -source ../$(HW_TCL)
 
 
@@ -89,14 +86,10 @@ open_hw :
 bit	: $(BIT)
 
 interactive : 
-	@source $(VIVADO_SHELL) &&\
-	mkdir -p proj &&\
-	cd proj &&\
+	@$(VIVADO_SETUP) &&\
 	vivado -mode tcl
 $(BIT)	:
-	@source $(VIVADO_SHELL) &&\
-	mkdir -p proj &&\
-	cd proj &&\
+	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
 #################################################################################
 # Help 
