@@ -1,5 +1,6 @@
 source ../bd/axi_slave_helpers.tcl
 source ../bd/build_AXI_interconnect.tcl
+source ../bd/Xilinx_AXI_slaves.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -28,8 +29,9 @@ create_bd_port -dir I -type rst $EXT_RESET
 #================================================================================
 #  Add local AXI devices here
 #================================================================================
-[AXI_DEVICE_ADD myReg0  M00 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c40000 4K]
-[AXI_DEVICE_ADD myReg1  M01 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c41000 4K]
+[AXI_DEVICE_ADD myReg0          M00 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c40000 4K]
+[AXI_DEVICE_ADD myReg1          M01 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c41000 4K]
+[AXI_DEVICE_ADD KINTEX_SYS_MGMT M02 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c42000 4K]
 
 #================================================================================
 #  Create an AXI interconnect
@@ -164,6 +166,7 @@ puts $AXI_BUS_FREQ(myReg0)
 #expose the interconnect's axi master port for an axi slave
 puts "Adding user slaves"
 #AXI_PL_CONNECT creates all the PL slaves in the list passed to it.
+[AXI_IP_SYS_MGMT KINTEX_SYS_MGMT]
 [AXI_PL_CONNECT "myReg0 myReg1"]                                                      
 
 #========================================
