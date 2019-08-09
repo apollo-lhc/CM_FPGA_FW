@@ -1,11 +1,12 @@
 source ../bd/axi_slave_helpers.tcl
-proc AXI_IP_I2C {device_name} {
+proc AXI_IP_I2C {device_name  {local 1}} {
     global AXI_BUS_M
     global AXI_BUS_RST
     global AXI_BUS_CLK
     global AXI_MASTER_CLK
     global AXI_SLAVE_RSTN
-
+    global AXI_INTERCONNECT_NAME
+    
     create_bd_cell -type ip -vlnv xilinx.com:ip:axi_iic:2.0 $device_name
 
     #create external pins
@@ -16,20 +17,20 @@ proc AXI_IP_I2C {device_name} {
     make_bd_pins_external  -name ${device_name}_scl_t [get_bd_pins $device_name/scl_t]
     make_bd_pins_external  -name ${device_name}_sda_t [get_bd_pins $device_name/sda_t]
     #connect to AXI, clk, and reset between slave and mastre
-    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name)]
+    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name) $local]
     connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
     connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
-    #build the DTSI chunk for this device to be a UIO
-    [AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
     puts "Added Xilinx I2C AXI Slave: $device_name"
 }
 
-proc AXI_IP_XVC {device_name} {
+proc AXI_IP_XVC {device_name  {local 1}} {
     global AXI_BUS_M
     global AXI_BUS_RST
     global AXI_BUS_CLK
     global AXI_MASTER_CLK
     global AXI_SLAVE_RSTN
+    global AXI_INTERCONNECT_NAME
+    
     #Create a xilinx axi debug bridge
     create_bd_cell -type ip -vlnv xilinx.com:ip:debug_bridge:3.0 $device_name
     #configure the debug bridge to be 
@@ -37,7 +38,7 @@ proc AXI_IP_XVC {device_name} {
     set_property CONFIG.C_DESIGN_TYPE {0} [get_bd_cells $device_name]
 
     #connect to AXI, clk, and reset between slave and mastre
-    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name)]
+    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name) $local]
     connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
     connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
 
@@ -45,12 +46,10 @@ proc AXI_IP_XVC {device_name} {
     #generate ports for the JTAG signals
     make_bd_pins_external       [get_bd_cells $device_name]
     make_bd_intf_pins_external  [get_bd_cells $device_name]
-    #build the DTSI chunk for this device to be a UIO
-    [AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
     puts "Added Xilinx XVC AXI Slave: $device_name"
 }
 
-proc AXI_IP_LOCAL_XVC {device_name} {
+proc AXI_IP_LOCAL_XVC {device_name } {
     global AXI_BUS_M
     global AXI_BUS_RST
     global AXI_BUS_CLK
@@ -68,24 +67,24 @@ proc AXI_IP_LOCAL_XVC {device_name} {
     connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
     connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
 
-    #build the DTSI chunk for this device to be a UIO
-    [AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
     puts "Added Xilinx Local XVC AXI Slave: $device_name"
 }
 
-proc AXI_IP_UART {device_name baud_rate} {
+proc AXI_IP_UART {device_name baud_rate  {local 1}} {
     global AXI_BUS_M
     global AXI_BUS_RST
     global AXI_BUS_CLK
     global AXI_MASTER_CLK
     global AXI_SLAVE_RSTN
+    global AXI_INTERCONNECT_NAME
+    
     #Create a xilinx UART
     create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 $device_name
     #configure the debug bridge to be
     set_property CONFIG.C_BAUDRATE $baud_rate [get_bd_cells $device_name]
 
     #connect to AXI, clk, and reset between slave and mastre
-    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name)]
+    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name) $local]
     connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
     connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
 
@@ -94,8 +93,6 @@ proc AXI_IP_UART {device_name baud_rate} {
     make_bd_intf_pins_external  -name ${device_name} [get_bd_intf_pins $device_name/UART]
 
     
-    #build the DTSI chunk for this device to be a UIO
-    [AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
     puts "Added Xilinx UART AXI Slave: $device_name"
 }
 
@@ -171,7 +168,7 @@ proc AXI_C2C_MASTER {device_name} {
     set_property CONFIG.C_INCLUDE_AXILITE   {1}     [get_bd_cells $device_name]
 
     #axi interface
-    [AXI_DEV_CONNECT ${device_name} $AXI_BUS_M(${device_name}) $AXI_BUS_CLK(${device_name}) $AXI_BUS_RST(${device_name})]
+    [AXI_DEV_CONNECT ${device_name} $AXI_BUS_M(${device_name}) $AXI_BUS_CLK(${device_name}) $AXI_BUS_RST(${device_name}) -1]
     connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
     connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
 
@@ -194,12 +191,13 @@ proc AXI_C2C_MASTER {device_name} {
     puts "Added C2C master: $device_name"
 }
 
-proc AXI_IP_XADC {device_name} {
+proc AXI_IP_XADC {device_name {local 1}} {
     global AXI_BUS_M
     global AXI_BUS_RST
     global AXI_BUS_CLK
     global AXI_MASTER_CLK
     global AXI_SLAVE_RSTN
+    global AXI_INTERCONNECT_NAME
 
     #create XADC AXI slave 
     create_bd_cell -type ip -vlnv xilinx.com:ip:xadc_wiz:3.3 ${device_name}
@@ -209,7 +207,7 @@ proc AXI_IP_XADC {device_name} {
 
     
     #connect to interconnect
-    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name)]
+    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name) $local]
     connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
     connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
 
@@ -223,8 +221,6 @@ proc AXI_IP_XADC {device_name} {
     make_bd_pins_external   -name ${device_name}_vccddro_alarm     [get_bd_pins ${device_name}/vccddro_alarm_out]
     make_bd_pins_external   -name ${device_name}_overtemp_alarm    [get_bd_pins ${device_name}/ot_alarm_out]
 
-    #build the DTSI chunk for this device to be a UIO
-    [AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
     puts "Added Xilinx XADC AXI Slave: $device_name"
 
 }
@@ -237,7 +233,7 @@ proc AXI_IP_SYS_MGMT {device_name {local 1}} {
     global AXI_MASTER_CLK
     global AXI_SLAVE_RSTN
     global AXI_INTERCONNECT_NAME
-    global AXI_DTSI_CALLS
+
     
     #create system management AXIL lite slave
     create_bd_cell -type ip -vlnv xilinx.com:ip:system_management_wiz:1.3 ${device_name}
@@ -247,7 +243,7 @@ proc AXI_IP_SYS_MGMT {device_name {local 1}} {
 
     
     #connect to interconnect
-    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name)]
+    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name) $local]
 
     
     #expose alarms
@@ -256,16 +252,6 @@ proc AXI_IP_SYS_MGMT {device_name {local 1}} {
     make_bd_pins_external   -name ${device_name}_vccaux_alarm      [get_bd_pins ${device_name}/vccaux_alarm_out]
     make_bd_pins_external   -name ${device_name}_overtemp_alarm    [get_bd_pins ${device_name}/ot_out]
 
-    #build the DTSI chunk for this device to be a UIO
-    if {$local} {
-	#if this is a local Xilinx IP core, most info is done by Vivado
-#	[AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
-	set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_POST_CHUNK $device_name"
-    } else {
-	#if this is accessed via axi C2C, then we need to write a full dtsi entry
-#	[AXI_DEV_UIO_DTSI_CHUNK ${AXI_INTERCONNECT_NAME} $AXI_BUS_M($device_name) ${device_name}]
-	set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_CHUNK ${AXI_INTERCONNECT_NAME} $AXI_BUS_M($device_name) ${device_name}"
-    }
     puts "Added Xilinx XADC AXI Slave: $device_name"
 
 }

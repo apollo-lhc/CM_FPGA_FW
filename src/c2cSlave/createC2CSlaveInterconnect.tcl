@@ -166,12 +166,11 @@ puts "Adding user slaves"
 [AXI_IP_SYS_MGMT KINTEX_SYS_MGMT 0]
 [AXI_PL_CONNECT "myReg0 myReg1"]                                                      
 
-puts "Slave test"
+#generate the DTSI files  for the axi slaves
 foreach name [array names AXI_DTSI_CALLS] {
-    puts "Slave $name : $AXI_DTSI_CALLS($name)"
     eval $AXI_DTSI_CALLS($name)
 }
-puts "After Slave test"
+
 
 #========================================
 #  Finish up

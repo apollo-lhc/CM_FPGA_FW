@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<node id="TEMP"    address="0x100" premission="ro" mask="0x3FF"/>
+<node id="VCCINT"  address="0x101" premission="ro" mask="0x3FF"/>
+<node id="VCCAUX"  address="0x102" premission="ro" mask="0x3FF"/>
+<node id="VCCBRAM" address="0x107" premission="ro" mask="0x3FF"/>
+<node id="TEMP_MAX"   address="0x120" premission="ro" mask="0x3FF"/>
+<node id="VCCINT_MAX" address="0x121" premission="ro" mask="0x3FF"/>
+<node id="VCCAUX_MAX" address="0x122" premission="ro" mask="0x3FF"/>
+<node id="VCCBRAM_MAX"address="0x123" premission="ro" mask="0x3FF"/>
+<node id="TEMP_MIN"   address="0x124" premission="ro" mask="0x3FF"/>
+<node id="VCCINT_MIN" address="0x125" premission="ro" mask="0x3FF"/>
+<node id="VCCAUX_MIN" address="0x126" premission="ro" mask="0x3FF"/>
+<node id="VCCBRAM_MIN"address="0x127" premission="ro" mask="0x3FF"/>
+
