@@ -16,6 +16,7 @@ proc clear_global {variable} {
 [clear_global AXI_ADDR]
 [clear_global AXI_ADDR_RANGE]
 [clear_global AXI_BUS_FREQ]
+[clear_global AXI_DTSI_CALLS]
 
 
 array set AXI_BUS_M {}
@@ -24,6 +25,7 @@ array set AXI_BUS_RST {}
 array set AXI_BUS_FREQ {}
 array set AXI_ADDR {}
 array set AXI_ADDR_RANGE {}
+array set AXI_DTSI_CALLS {}
 
 #This function adds a axi slave and its paramters to a global list of axi devices
 #This list is used to set how many ports there are on the axi interconnect
@@ -101,9 +103,9 @@ proc AXI_PL_CONNECT {devices} {
 
     #this updates the address variables for dtsi_chunk generation, but can only be run after all AXI slaves are connected.
     validate_bd_design
-    foreach dev $devices {
-	[AXI_DEV_UIO_DTSI_CHUNK $AXI_INTERCONNECT_NAME $AXI_BUS_M($dev) $dev]
-    }
+#    foreach dev $devices {
+#	[AXI_DEV_UIO_DTSI_CHUNK $AXI_INTERCONNECT_NAME $AXI_BUS_M($dev) $dev]
+#    }
 }
 
 
@@ -126,7 +128,8 @@ proc AXI_PL_DEV_CONNECT {device_name} {
     global AXI_BUS_FREQ
     global AXI_ADDR
     global AXI_ADDR_RANGE
-
+    global AXI_DTSI_CALLS
+    
     startgroup
 
      #create axi port names
@@ -179,7 +182,8 @@ proc AXI_PL_DEV_CONNECT {device_name} {
 	assign_bd_address -verbose -range $AXI_ADDR_RANGE($device_name) -offset $AXI_ADDR($device_name) [get_bd_addr_segs $device_name/Reg]
 	
     }
-
+    set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_CHUNK $AXI_INTERCONNECT_NAME $AXI_BUS_M($device_name) $device_name]"
+    
     endgroup
 }
 
@@ -257,7 +261,7 @@ proc AXI_DEV_CONNECT {device_name axi_master axi_clk axi_rst} {
     #add addressing
     if {$AXI_ADDR($device_name) == -1} {
 	puts "Automatically setting $device_name address"
-	assign_bd_address [get_bd_addr_segs {$device_name/Reg }]
+	assign_bd_address [get_bd_addr_segs {$device_name/*/Reg }]
     } else {
 	puts "Manually setting $device_name address to $AXI_ADDR($device_name) $AXI_ADDR_RANGE($device_name)"	
 	assign_bd_address -verbose -range $AXI_ADDR_RANGE($device_name) -offset $AXI_ADDR($device_name) [get_bd_addr_segs $device_name/*/Reg]

@@ -92,8 +92,6 @@ proc AXI_IP_UART {device_name baud_rate} {
     
     #generate ports for the JTAG signals
     make_bd_intf_pins_external  -name ${device_name} [get_bd_intf_pins $device_name/UART]
-#    make_bd_pins_external  -name ${device_name}_rx [get_bd_pins $device_name/rx]
-#    make_bd_pins_external  -name ${device_name}_tx [get_bd_pins $device_name/tx]
 
     
     #build the DTSI chunk for this device to be a UIO
@@ -111,8 +109,8 @@ proc C2C_AURORA {device_name INIT_CLK} {
     set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.C_AURORA_LANES       {1}          [get_bd_cells ${C2C_PHY}]
     #set_property CONFIG.C_AURORA_LANES       {2}          [get_bd_cells ${C2C_PHY}]  
-    #    set_property CONFIG.C_LINE_RATE          {5}          [get_bd_cells ${C2C_PHY}]
-    set_property CONFIG.C_LINE_RATE          {10}          [get_bd_cells ${C2C_PHY}]  
+    set_property CONFIG.C_LINE_RATE          {5}          [get_bd_cells ${C2C_PHY}]
+#    set_property CONFIG.C_LINE_RATE          {10}          [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.C_REFCLK_FREQUENCY   {100.000}    [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.SupportLevel         {1}          [get_bd_cells ${C2C_PHY}]  
@@ -232,13 +230,15 @@ proc AXI_IP_XADC {device_name} {
 }
 
 
-proc AXI_IP_SYS_MGMT {device_name} {
+proc AXI_IP_SYS_MGMT {device_name {local 1}} {
     global AXI_BUS_M
     global AXI_BUS_RST
     global AXI_BUS_CLK
     global AXI_MASTER_CLK
     global AXI_SLAVE_RSTN
-
+    global AXI_INTERCONNECT_NAME
+    global AXI_DTSI_CALLS
+    
     #create system management AXIL lite slave
     create_bd_cell -type ip -vlnv xilinx.com:ip:system_management_wiz:1.3 ${device_name}
 
@@ -248,8 +248,6 @@ proc AXI_IP_SYS_MGMT {device_name} {
     
     #connect to interconnect
     [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name)]
-#    connect_bd_net [get_bd_pins $AXI_MASTER_CLK] [get_bd_pins $AXI_BUS_CLK($device_name)]
-#    connect_bd_net [get_bd_pins $AXI_SLAVE_RSTN] [get_bd_pins $AXI_BUS_RST($device_name)]
 
     
     #expose alarms
@@ -259,7 +257,15 @@ proc AXI_IP_SYS_MGMT {device_name} {
     make_bd_pins_external   -name ${device_name}_overtemp_alarm    [get_bd_pins ${device_name}/ot_out]
 
     #build the DTSI chunk for this device to be a UIO
-    [AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
+    if {$local} {
+	#if this is a local Xilinx IP core, most info is done by Vivado
+#	[AXI_DEV_UIO_DTSI_POST_CHUNK $device_name]
+	set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_POST_CHUNK $device_name"
+    } else {
+	#if this is accessed via axi C2C, then we need to write a full dtsi entry
+#	[AXI_DEV_UIO_DTSI_CHUNK ${AXI_INTERCONNECT_NAME} $AXI_BUS_M($device_name) ${device_name}]
+	set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_CHUNK ${AXI_INTERCONNECT_NAME} $AXI_BUS_M($device_name) ${device_name}"
+    }
     puts "Added Xilinx XADC AXI Slave: $device_name"
 
 }

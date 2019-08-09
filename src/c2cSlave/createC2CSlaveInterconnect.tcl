@@ -152,11 +152,8 @@ set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN]
 
 #global AXI_BUS_FREQ
 global AXI_BUS_FREQ
-puts $AXI_BUS_FREQ(myReg0)
-puts [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]]
 set AXI_BUS_FREQ(myReg0) [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]]
 set AXI_BUS_FREQ(myReg1) [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]]
-puts $AXI_BUS_FREQ(myReg0)
 
 
 #================================================================================
@@ -166,8 +163,15 @@ puts $AXI_BUS_FREQ(myReg0)
 #expose the interconnect's axi master port for an axi slave
 puts "Adding user slaves"
 #AXI_PL_CONNECT creates all the PL slaves in the list passed to it.
-[AXI_IP_SYS_MGMT KINTEX_SYS_MGMT]
+[AXI_IP_SYS_MGMT KINTEX_SYS_MGMT 0]
 [AXI_PL_CONNECT "myReg0 myReg1"]                                                      
+
+puts "Slave test"
+foreach name [array names AXI_DTSI_CALLS] {
+    puts "Slave $name : $AXI_DTSI_CALLS($name)"
+    eval $AXI_DTSI_CALLS($name)
+}
+puts "After Slave test"
 
 #========================================
 #  Finish up
