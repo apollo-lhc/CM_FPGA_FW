@@ -200,8 +200,9 @@ set_property PACKAGE_PIN  D22 [get_ports  from_tm4c ]
 set_property PACKAGE_PIN  H22 [get_ports  to_tm4c ]
 
 # WHAT TO DO ABOUT I2C PINS???
-#set_property PACKAGE_PIN  AL24 [get_ports  k_fpga_i2c_scl ]
-#set_property PACKAGE_PIN  AL25 [get_ports  k_fpga_i2c_sda ]
+set_property IOSTANDARD LVCMOS18 [get_ports k_fpga_i2c_*] 
+set_property PACKAGE_PIN  AL24 [get_ports  k_fpga_i2c_scl ]
+set_property PACKAGE_PIN  AL25 [get_ports  k_fpga_i2c_sda ]
 #-----------------------------------------------
 
 #-----------------------------------------------

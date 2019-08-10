@@ -38,6 +38,8 @@ entity top is
     n_mgt_k2z        : out std_logic_vector(1 downto 1);
     p_mgt_k2z        : out std_logic_vector(1 downto 1);
 
+    k_fpga_i2c_scl   : inout std_logic;
+    k_fpga_i2c_sda   : inout std_logic;
     
     -- tri-color LED
     led_red : out std_logic;
@@ -225,7 +227,9 @@ begin  -- architecture structure
       C2CLink_phy_link_reset_out          => open, 
       C2CLink_phy_mmcm_not_locked_out     => debug(2), 
       C2CLink_phy_power_down              => '0', 
-      C2CLink_phy_soft_err                => open 
+      C2CLink_phy_soft_err                => open,
+      KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
+      KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
 
 );
 
