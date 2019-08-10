@@ -89,6 +89,7 @@ interactive :
 	@$(VIVADO_SETUP) &&\
 	vivado -mode tcl
 $(BIT)	:
+	@mkdir -p bit
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
 #################################################################################

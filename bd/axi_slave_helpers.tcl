@@ -176,7 +176,7 @@ proc AXI_PL_DEV_CONNECT {device_name} {
 	assign_bd_address -verbose -range $AXI_ADDR_RANGE($device_name) -offset $AXI_ADDR($device_name) [get_bd_addr_segs $device_name/Reg]	
     }
     #add this to the queue of DTSI files we need to write.
-    set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_CHUNK $AXI_INTERCONNECT_NAME $AXI_BUS_M($device_name) $device_name]"
+    set AXI_DTSI_CALLS($device_name) "AXI_DEV_UIO_DTSI_CHUNK $AXI_INTERCONNECT_NAME $AXI_BUS_M($device_name) $device_name"
     
     endgroup
 }
