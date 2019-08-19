@@ -92,6 +92,10 @@ $(BIT)	:
 	@mkdir -p bit
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
+SVF	:
+	@$(VIVADO_SETUP) &&\
+	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+
 #################################################################################
 # Help 
 #################################################################################

@@ -3,6 +3,7 @@
 # run synthesis
 
 source ../scripts/settings.tcl
+source ../scripts/FW_info.tcl
 
 #################################################################################
 # STEP#0: define output directory area.
@@ -23,6 +24,9 @@ set_property target_language VHDL [current_project]
 #################################################################################
 # STEP#1: setup design sources and constraints
 #################################################################################
+
+#build the build timestamp file
+[build_fw_version ../src]
 
 #load list of vhd, xdc, and xci files
 source ../files.tcl
@@ -54,6 +58,9 @@ for {set j 0} {$j < [llength $bd_files ] } {incr j} {
 
 
 #Add vhdl files
+set timestamp_file ../src/fw_version.vhd
+read_vhdl ${timestamp_file}
+puts "Adding ${timestamp_file}"
 for {set j 0} {$j < [llength $vhdl_files ] } {incr j} {
     set filename "../[lindex $vhdl_files $j]"
     read_vhdl $filename

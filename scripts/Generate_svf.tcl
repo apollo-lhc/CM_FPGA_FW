@@ -4,6 +4,7 @@ source ../scripts/settings.tcl
 set SVF_TARGET svf_top
 
 
+
 #derived from walkthrough https://blog.xjtag.com/2016/07/creating-svf-files-using-xilinx-vivado/
 open_hw
 create_hw_target ${SVF_TARGET}

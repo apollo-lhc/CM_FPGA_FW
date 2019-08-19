@@ -14,6 +14,7 @@ set vhdl_files "\
      src/myReg/myReg.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
+     src/CM_K_info/CM_K_info.vhd \
      "
 set xdc_files "\
     src/top_pins.xdc \

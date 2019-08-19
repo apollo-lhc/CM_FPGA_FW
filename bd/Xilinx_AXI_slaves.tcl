@@ -106,12 +106,13 @@ proc C2C_AURORA {device_name INIT_CLK} {
     set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.C_AURORA_LANES       {1}          [get_bd_cells ${C2C_PHY}]
     #set_property CONFIG.C_AURORA_LANES       {2}          [get_bd_cells ${C2C_PHY}]  
-    set_property CONFIG.C_LINE_RATE          {5}          [get_bd_cells ${C2C_PHY}]
-#    set_property CONFIG.C_LINE_RATE          {10}          [get_bd_cells ${C2C_PHY}]  
+#    set_property CONFIG.C_LINE_RATE          {5}          [get_bd_cells ${C2C_PHY}]
+    set_property CONFIG.C_LINE_RATE          {10}          [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.C_REFCLK_FREQUENCY   {100.000}    [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.SupportLevel         {1}          [get_bd_cells ${C2C_PHY}]  
     set_property CONFIG.SINGLEEND_INITCLK    {true}       [get_bd_cells ${C2C_PHY}]  
+    set_property CONFIG.C_INCLUDE_AXILITE    {1}          [get_bd_cells ${C2C_PHY}]
 
 
     set_property -dict [list CONFIG.C_GT_CLOCK_1 {GTXQ3} CONFIG.C_GT_LOC_9 {X} CONFIG.C_GT_LOC_15 {1}]          [get_bd_cells ${C2C_PHY}]
@@ -146,6 +147,28 @@ proc C2C_AURORA {device_name INIT_CLK} {
     connect_bd_net [get_bd_ports ${INIT_CLK}]   [get_bd_pins ${C2C_PHY}/init_clk]       
     connect_bd_net [get_bd_ports ${INIT_CLK}]   [get_bd_pins ${C2C}/aurora_init_clk]
     connect_bd_net [get_bd_ports ${INIT_CLK}]   [get_bd_pins ${C2C_PHY}/drp_clk_in]    
+
+
+    #############################################################################
+    ### ibert testing
+    set ibert_name ${C2C_PHY}_ibert
+    create_bd_cell -type ip -vlnv xilinx.com:ip:in_system_ibert:1.0 ${ibert_name}
+    set_property -dict [list CONFIG.C_GTS_USED { X0Y0} CONFIG.C_ENABLE_INPUT_PORTS {false}] [get_bd_cells ${ibert_name}]
+    #modify ${C2C_PHY}
+    set_property -dict [list CONFIG.drp_mode {Native}] [get_bd_cells ${C2C_PHY}]
+    set_property -dict [list CONFIG.TransceiverControl {true}] [get_bd_cells ${C2C_PHY}]
+
+    #connect up the ibert
+    connect_bd_net [get_bd_ports clk50Mhz] [get_bd_pins ${ibert_name}/clk]
+    connect_bd_intf_net [get_bd_intf_pins ${ibert_name}/GT0_DRP] [get_bd_intf_pins ${C2C_PHY}/GT0_DRP]
+    connect_bd_net [get_bd_pins ${ibert_name}/eyescanreset_o] [get_bd_pins ${C2C_PHY}/gt_eyescanreset]
+    connect_bd_net [get_bd_pins ${ibert_name}/rxrate_o] [get_bd_pins ${C2C_PHY}/gt_rxrate]
+    connect_bd_net [get_bd_pins ${ibert_name}/txdiffctrl_o] [get_bd_pins ${C2C_PHY}/gt_txdiffctrl]
+    connect_bd_net [get_bd_pins ${ibert_name}/txprecursor_o] [get_bd_pins ${C2C_PHY}/gt_txprecursor]
+    connect_bd_net [get_bd_pins ${ibert_name}/txpostcursor_o] [get_bd_pins ${C2C_PHY}/gt_txpostcursor]
+    connect_bd_net [get_bd_pins ${ibert_name}/rxlpmen_o] [get_bd_pins ${C2C_PHY}/gt_rxlpmen]
+    connect_bd_net [get_bd_pins ${C2C_PHY}/user_clk_out] [get_bd_pins ${ibert_name}/rxoutclk_i]
+    #############################################################################
     
     endgroup      
 }
@@ -165,7 +188,6 @@ proc AXI_C2C_MASTER {device_name} {
     set_property CONFIG.C_INTERFACE_TYPE {2}	    [get_bd_cells $device_name]
     set_property CONFIG.C_AURORA_WIDTH {1.0}        [get_bd_cells $device_name]
     set_property CONFIG.C_EN_AXI_LINK_HNDLR {false} [get_bd_cells $device_name]
-    set_property CONFIG.C_INCLUDE_AXILITE   {1}     [get_bd_cells $device_name]
 
     #axi interface
     [AXI_DEV_CONNECT ${device_name} $AXI_BUS_M(${device_name}) $AXI_BUS_CLK(${device_name}) $AXI_BUS_RST(${device_name}) -1]
