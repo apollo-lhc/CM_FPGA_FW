@@ -67,4 +67,4 @@ write_checkpoint -force $outputDir/post_route
 # STEP#5: Generate files for os build
 #################################################################################
 source ../scripts/Generate_hwInfo.tcl
-#source ../scripts/Generate_svf.tcl
+source ../scripts/Generate_svf.tcl
