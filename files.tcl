@@ -1,4 +1,4 @@
-set bd_path bd
+set bd_path proj
 
 set bd_name c2cSlave
 

@@ -4,7 +4,7 @@ source ../bd/Xilinx_AXI_slaves.tcl
 #create a block design called "c2cSlave"
 #directory and name must be the same
 set bd_design_name "c2cSlave"
-create_bd_design -dir ../bd ${bd_design_name}
+create_bd_design -dir ./ ${bd_design_name}
 
 set EXT_CLK clk50Mhz
 set EXT_RESET reset_n
