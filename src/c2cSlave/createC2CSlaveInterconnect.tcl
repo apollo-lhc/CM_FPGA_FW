@@ -1,5 +1,4 @@
-source ../bd/axi_slave_helpers.tcl
-source ../bd/build_AXI_interconnect.tcl
+source ../bd/axi_helpers.tcl
 source ../bd/Xilinx_AXI_slaves.tcl
 
 #create a block design called "c2cSlave"
@@ -26,14 +25,6 @@ set_property CONFIG.FREQ_HZ 50000000 [get_bd_ports ${EXT_CLK}]
 create_bd_port -dir I -type rst $EXT_RESET
 
 
-#================================================================================
-#  Add local AXI devices here
-#================================================================================
-[AXI_DEVICE_ADD MYREG0          M00 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c40000 4K]
-[AXI_DEVICE_ADD MYREG1          M01 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c41000 4K]
-[AXI_DEVICE_ADD KINTEX_SYS_MGMT M02 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c42000 4K]
-[AXI_DEVICE_ADD CM_K_INFO       M03 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c43000 4K]
-[AXI_DEVICE_ADD TEST_BRAM       M04 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x7AA00000 8K]
 
 #================================================================================
 #  Create an AXI interconnect
@@ -168,32 +159,19 @@ set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN]
 
 
 
-
-
-
-
-#global AXI_BUS_FREQ
-global AXI_BUS_FREQ
-set AXI_BUS_FREQ(myReg0) [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]]
-set AXI_BUS_FREQ(myReg1) [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/m_axi]]
-
-
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
 
+
 #expose the interconnect's axi master port for an axi slave
 puts "Adding user slaves"
-#AXI_PL_CONNECT creates all the PL slaves in the list passed to it.
-[AXI_IP_SYS_MGMT KINTEX_SYS_MGMT 0]
-[AXI_IP_BRAM TEST_BRAM 0]
-[AXI_PL_CONNECT "MYREG0 MYREG1 CM_K_INFO"]
+[AXI_IP_SYS_MGMT KINTEX_SYS_MGMT  ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x43c42000 4K 0]
+[AXI_IP_BRAM TEST_BRAM            ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x7AA00000 8K 0]
 
-
-#generate the DTSI files  for the axi slaves
-foreach name [array names AXI_DTSI_CALLS] {
-    eval $AXI_DTSI_CALLS($name)
-}
+[AXI_PL_DEV_CONNECT MYREG0        ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x43c40000 4K]
+[AXI_PL_DEV_CONNECT MYREG1        ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x43c41000 4K]
+[AXI_PL_DEV_CONNECT CM_K_INFO     ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x43c43000 4K]
 
 
 #========================================
