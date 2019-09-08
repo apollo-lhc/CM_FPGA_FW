@@ -285,3 +285,24 @@ proc AXI_IP_SYS_MGMT {device_name {local 1}} {
 }
 
 
+proc AXI_IP_BRAM {device_name {local 1}} {
+    global AXI_BUS_M
+    global AXI_BUS_RST
+    global AXI_BUS_CLK
+    global AXI_MASTER_CLK
+    global AXI_SLAVE_RSTN
+    global AXI_INTERCONNECT_NAME
+
+    #create XADC AXI slave 
+    create_bd_cell -type ip -vlnv xilinx.com:ip:axi_bram_ctrl:4.0 ${device_name}
+
+    set_property CONFIG.SINGLE_PORT_BRAM {1} [get_bd_cells ${device_name}]
+
+    
+    #connect to interconnect
+    [AXI_DEV_CONNECT $device_name $AXI_BUS_M($device_name) $AXI_BUS_CLK($device_name) $AXI_BUS_RST($device_name) $local]
+   
+    puts "Added Xilinx blockram: $device_name"
+}
+
+

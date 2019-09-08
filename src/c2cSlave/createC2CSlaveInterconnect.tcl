@@ -33,6 +33,7 @@ create_bd_port -dir I -type rst $EXT_RESET
 [AXI_DEVICE_ADD MYREG1          M01 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c41000 4K]
 [AXI_DEVICE_ADD KINTEX_SYS_MGMT M02 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c42000 4K]
 [AXI_DEVICE_ADD CM_K_INFO       M03 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x43c43000 4K]
+[AXI_DEVICE_ADD TEST_BRAM       M04 $AXI_MASTER_CLK $AXI_MASTER_RSTN 50000000 0x7AA00000 8K]
 
 #================================================================================
 #  Create an AXI interconnect
@@ -90,8 +91,8 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:aurora_64b66b:11.2 ${C2C_PHY}
 set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.CHANNEL_ENABLE       {X0Y0}       [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_AURORA_LANES       {1}	      [get_bd_cells ${C2C_PHY}]
-set_property CONFIG.C_LINE_RATE          {5}	      [get_bd_cells ${C2C_PHY}]
 #set_property CONFIG.C_LINE_RATE          {10}	      [get_bd_cells ${C2C_PHY}]
+set_property CONFIG.C_LINE_RATE          {5}	      [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_REFCLK_FREQUENCY   {200}	      [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_GT_LOC_2           {X} 	      [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]
@@ -148,7 +149,7 @@ set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN]
     ### ibert testing
     set ibert_name ${C2C_PHY}_ibert
     create_bd_cell -type ip -vlnv xilinx.com:ip:in_system_ibert:1.0 ${ibert_name}
-    set_property -dict [list CONFIG.C_GTS_USED { X0Y0} CONFIG.C_ENABLE_INPUT_PORTS {false}] [get_bd_cells ${ibert_name}]
+    set_property -dict [list CONFIG.C_GTS_USED { X0Y0 X0Y1} CONFIG.C_ENABLE_INPUT_PORTS {false}] [get_bd_cells ${ibert_name}]
     #modify ${C2C_PHY}
     set_property -dict [list CONFIG.drp_mode {Native}] [get_bd_cells ${C2C_PHY}]
     set_property -dict [list CONFIG.TransceiverControl {true}] [get_bd_cells ${C2C_PHY}]
@@ -185,7 +186,9 @@ set AXI_BUS_FREQ(myReg1) [get_property CONFIG.FREQ_HZ [get_bd_intf_pins /${C2C}/
 puts "Adding user slaves"
 #AXI_PL_CONNECT creates all the PL slaves in the list passed to it.
 [AXI_IP_SYS_MGMT KINTEX_SYS_MGMT 0]
+[AXI_IP_BRAM TEST_BRAM 0]
 [AXI_PL_CONNECT "MYREG0 MYREG1 CM_K_INFO"]
+
 
 #generate the DTSI files  for the axi slaves
 foreach name [array names AXI_DTSI_CALLS] {

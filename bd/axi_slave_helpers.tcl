@@ -258,9 +258,12 @@ proc AXI_DEV_CONNECT {device_name axi_master axi_clk axi_rst {slave_local 1}} {
 	puts "Automatically setting $device_name address"
 	assign_bd_address [get_bd_addr_segs {$device_name/*/Reg }]
     } else {
-	puts "Manually setting $device_name address to $AXI_ADDR($device_name) $AXI_ADDR_RANGE($device_name)"	
-	assign_bd_address -verbose -range $AXI_ADDR_RANGE($device_name) -offset $AXI_ADDR($device_name) [get_bd_addr_segs $device_name/*/Reg]
-	
+	puts "Manually setting $device_name address to $AXI_ADDR($device_name) $AXI_ADDR_RANGE($device_name)"
+	if [llength [get_bd_addr_segs ${device_name}/*Reg*]] {
+	    assign_bd_address -verbose -range $AXI_ADDR_RANGE($device_name) -offset $AXI_ADDR($device_name) [get_bd_addr_segs $device_name/*/Reg*]
+	} else {
+	    assign_bd_address -verbose -range $AXI_ADDR_RANGE($device_name) -offset $AXI_ADDR($device_name) [get_bd_addr_segs $device_name/*/Mem*]
+	}
 	
     }
 
