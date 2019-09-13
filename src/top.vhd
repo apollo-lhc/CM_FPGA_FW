@@ -205,8 +205,16 @@ begin  -- architecture structure
       C2CLink_phy_power_down              => '0', 
       C2CLink_phy_soft_err                => open,
       KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
-      KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
-
+      KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl,
+      BRAM_PORTB_0_addr( 7 downto  0)     => myreg2_test_vector( 7 downto  0),
+      BRAM_PORTB_0_addr(31 downto  8)     => x"000000",
+      BRAM_PORTB_0_clk                    => AXI_CLK,
+      BRAM_PORTB_0_din(15 downto  0)      => myreg2_test_vector(23 downto  8),
+      BRAM_PORTB_0_din(31 downto 16)      => x"0000",
+      BRAM_PORTB_0_dout                   => open,
+      BRAM_PORTB_0_en                     => '1',
+      BRAM_PORTB_0_rst                    => '0',
+      BRAM_PORTB_0_we                     => myreg2_test_vector(27 downto 24)
 );
 
   myReg_1: entity work.myReg

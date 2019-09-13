@@ -66,6 +66,9 @@ set_property CONFIG.C_AXI_STB_WIDTH     {4}     [get_bd_cells ${C2C}]
 set_property CONFIG.C_AXI_DATA_WIDTH    {32}    [get_bd_cells ${C2C}]
 set_property CONFIG.C_INTERFACE_TYPE {2}	[get_bd_cells ${C2C}]
 set_property CONFIG.C_INCLUDE_AXILITE {2}	[get_bd_cells ${C2C}]
+set_property CONFIG.C_M_AXI_WUSER_WIDTH {0}     [get_bd_cells ${C2C}]
+set_property CONFIG.C_M_AXI_ID_WIDTH {0}        [get_bd_cells ${C2C}]
+
 
 make_bd_pins_external       -name ${C2C}_aurora_do_cc                [get_bd_pins ${C2C}/aurora_do_cc]
 make_bd_pins_external       -name ${C2C}_axi_c2c_config_error_out    [get_bd_pins ${C2C}/axi_c2c_config_error_out   ]  
