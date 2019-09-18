@@ -1,4 +1,5 @@
 #create bit file
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 write_bitstream -force ../bit/top.bit
 
 #create hwdef file
