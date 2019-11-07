@@ -63,12 +63,11 @@ architecture structure of top is
   signal clk_200         : std_logic;
   signal clk_50          : std_logic;
   signal reset           : std_logic;
-  signal counter         : unsigned(31 downto 0);
   signal locked_clk200   : std_logic;
 
-  signal led_blue_local  : std_logic;
-  signal led_red_local   : std_logic;
-  signal led_green_local : std_logic;
+  signal led_blue_local  : slv_8_t;
+  signal led_red_local   : slv_8_t;
+  signal led_green_local : slv_8_t;
 
   constant localAXISlaves    : integer := 2;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
@@ -78,10 +77,21 @@ architecture structure of top is
   signal AXI_CLK             : std_logic;
   signal AXI_RST_N           : std_logic;
 
-  signal debug : std_logic_vector(2 downto 0);
 
-  signal myreg1_test_vector : std_logic_vector(31 downto 0);
-  signal myreg2_test_vector : std_logic_vector(31 downto 0);
+
+  signal C2CLink_aurora_do_cc                : STD_LOGIC;
+  signal C2CLink_axi_c2c_config_error_out    : STD_LOGIC;
+  signal C2CLink_axi_c2c_link_status_out     : STD_LOGIC;
+  signal C2CLink_axi_c2c_multi_bit_error_out : STD_LOGIC;
+  signal C2CLink_phy_gt_pll_lock             : STD_LOGIC;
+  signal C2CLink_phy_hard_err                : STD_LOGIC;
+  signal C2CLink_phy_lane_up                 : STD_LOGIC_VECTOR ( 0 to 0 );
+  signal C2CLink_phy_link_reset_out          : STD_LOGIC;
+  signal C2CLink_phy_mmcm_not_locked_out     : STD_LOGIC;
+--  signal C2CLink_phy_power_down              : in  STD_LOGIC;
+  signal C2CLink_phy_soft_err                : STD_LOGIC;
+
+
   
 begin  -- architecture structure
 
@@ -96,31 +106,9 @@ begin  -- architecture structure
       locked    => locked_clk200,
       clk_in1_p => p_clk_200,
       clk_in1_n => n_clk_200);
-
-  led_blue  <= led_blue_local;
-  led_red   <= led_red_local;
-  led_green <= led_green_local;
   
-  counter_proc: process (clk_200) is
-  begin  -- process counter_proc
-    if clk_200'event and clk_200 = '1' then  -- rising clock edge
-      counter <= counter +1;
-    end if;
-  end process counter_proc;
+  
 
-
-  RGB_pwm_1: entity work.RGB_pwm
-    generic map (
-      CLKFREQ => 200000000,
-      RGBFREQ => 1000)
-    port map (
-      clk        => clk_200,
-      redcount   => myreg1_test_vector( 7 downto  0),
-      greencount => myreg1_test_vector(15 downto  8),
-      bluecount  => myreg1_test_vector(23 downto 16),
-      LEDred     => led_red_local,
-      LEDgreen   => led_green_local,
-      LEDblue    => led_blue_local);
   
 
   c2csslave_wrapper_1: entity work.c2cslave_wrapper
@@ -173,29 +161,72 @@ begin  -- architecture structure
       KINTEX_IPBUS_rvalid(0)   => local_AXI_ReadMISO(1).data_valid,           
       KINTEX_IPBUS_rready(0)   => local_AXI_ReadMOSI(1).ready_for_data,       
       reset_n                  => locked_clk200,--reset,
-      C2CLink_aurora_do_cc                => open, 
-      C2CLink_axi_c2c_config_error_out    => open, 
-      C2CLink_axi_c2c_link_status_out     => open, 
-      C2CLink_axi_c2c_multi_bit_error_out => open, 
-      C2CLink_phy_gt_pll_lock             => open,--debug(0), 
-      C2CLink_phy_hard_err                => open, 
-      C2CLink_phy_lane_up                 => open,--debug(1 downto 1), 
-      C2CLink_phy_link_reset_out          => open, 
-      C2CLink_phy_mmcm_not_locked_out     => open,--debug(0), 
+      C2CLink_aurora_do_cc                => C2CLink_aurora_do_cc, 
+      C2CLink_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out, 
+      C2CLink_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out, 
+      C2CLink_axi_c2c_multi_bit_error_out => C2CLink_axi_c2c_multi_bit_error_out, 
+      C2CLink_phy_gt_pll_lock             => C2CLink_phy_gt_pll_lock, 
+      C2CLink_phy_hard_err                => C2CLink_phy_hard_err, 
+      C2CLink_phy_lane_up                 => C2CLink_phy_lane_up(0), 
+      C2CLink_phy_link_reset_out          => C2CLink_phy_link_reset_out, 
+      C2CLink_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out, 
       C2CLink_phy_power_down              => '0', 
-      C2CLink_phy_soft_err                => open,
+      C2CLink_phy_soft_err                => C2CLink_phy_soft_err,
       KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
       KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
       );
 
 
-  CM_K_info_1: entity work.CM_K_info
+  RGB_pwm_1: entity work.RGB_pwm
+    generic map (
+      CLKFREQ => 200000000,
+      RGBFREQ => 1000)
+    port map (
+      clk        => clk_200,
+      redcount   => led_red_local,
+      greencount => led_green_local,
+      bluecount  => led_blue_local,
+      LEDred     => led_red,
+      LEDgreen   => led_green,
+      LEDblue    => led_blue);
+
+  K_IO: entity work.BoardIO
+    generic map (
+      REG_COUNT_PWR_OF_2 => 2,
+      REG_OUT_DEFAULTS   => (x"00000000", x"00000000", x"00000000", x"00000000"))
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
       readMOSI    => local_AXI_ReadMOSI(0),
       readMISO    => local_AXI_ReadMISO(0),
       writeMOSI   => local_AXI_WriteMOSI(0),
-      writeMISO   => local_AXI_WriteMISO(0));
+      writeMISO   => local_AXI_WriteMISO(0),
+      reg_out(0)( 7 downto  0)  => led_red_local,
+      reg_out(0)(15 downto  8)  => led_green_local,
+      reg_out(0)(23 downto 16)  => led_blue_local,
+      reg_out(0)(31 downto 24) => open,
+      reg_out(3 downto 1) => open,
+      reg_in(0)   => x"00000" & "00" &
+                      C2CLink_aurora_do_cc &               
+                      C2CLink_axi_c2c_config_error_out &   
+                      C2CLink_axi_c2c_link_status_out &    
+                      C2CLink_axi_c2c_multi_bit_error_out &
+                      C2CLink_phy_gt_pll_lock &            
+                      C2CLink_phy_hard_err &               
+                      C2CLink_phy_lane_up(0) &                
+                      C2CLink_phy_link_reset_out &         
+                      C2CLink_phy_mmcm_not_locked_out &    
+                      C2CLink_phy_soft_err,
+      reg_in(3 downto 1) => (others => x"00000000"));
+
+  CM_K_info_1: entity work.CM_K_info
+    port map (
+      clk_axi     => AXI_CLK,
+      reset_axi_n => AXI_RST_N,
+      readMOSI    => local_AXI_ReadMOSI(2),
+      readMISO    => local_AXI_ReadMISO(2),
+      writeMOSI   => local_AXI_WriteMOSI(2),
+      writeMISO   => local_AXI_WriteMISO(2));
+>>>>>>> First step in breaking FW up into top and submodule forms
   
 end architecture structure;
