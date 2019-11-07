@@ -8,27 +8,11 @@ use work.types.all;
 Library UNISIM;
 use UNISIM.vcomponents.all;
 
-entity top is
+entity sub_module is
   port (
     -- clocks
     p_clk_200 : in  std_logic;
     n_clk_200 : in  std_logic;                -- 200 MHz system clock
-
-    -- ATCA timing and control
-    --input p_atca_ttc_in, n_atca_ttc_in,        -- GTH input, combined clock and data
-    --output p_atca_tts_out, n_atca_tts_out,     -- GTH output
-    -- legacy AMC13 signals
---    p_amc13_clk_40 : in  std_logic;
---    n_amc13_clk_40 : in  std_logic;      -- extracted 40 MHz experimental clock
---    p_amc13_cdr_data : in std_logic;
---    n_amc13_cdr_data : in  std_logic;  -- extracted TTC data
---    p_amc13_tts_out : out std_logic;
---    n_amc13_tts_out : out std_logic;   -- encoded TTS 
---    -- 2 positions from 4 position DIP SWITCH
---    dip_sw          : in std_logic_vector(3 downto 2); -- dip_sw[2] = position 2 of 4, no defined use yet
-                                                       -- dip_sw[3] = position 3 of 4, no defined use yet
-                                                       -- position 1 = boot mode , 0=MASTER_SPI, 1 = JTAG ONLY
-                                                       -- position 4 = bit to TM4C
 
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
@@ -40,24 +24,21 @@ entity top is
 
     k_fpga_i2c_scl   : inout std_logic;
     k_fpga_i2c_sda   : inout std_logic;
+
+    ext_AXI_ReadMOSI  :  AXIReadMOSI_t;
+    ext_AXI_ReadMISO  :  AXIReadMISO_t;
+    ext_AXI_WriteMOSI : AXIWriteMOSI_t;
+    ext_AXI_WriteMISO : AXIWriteMISO_t;
+
     
     -- tri-color LED
     led_red : out std_logic;
     led_green : out std_logic;
     led_blue : out std_logic       -- assert to turn on
-    -- utility bits to/from TM4C
----    from_tm4c : in  std_logic;                           -- no defined use yet
----    to_tm4c   : out std_logic;                            -- no defined use yet
----    -- spare pairs from the VU7P, defined as inputs until an output is needed
----    p_kv_spare : in  std_logic_vector(12 downto 0);
----    n_kv_spare : in  std_logic_vector(12 downto 0); -- no defined use yet
----    -- test connector on bottom side of board, defined as inputs until an output is needed
----    p_test_conn : in std_logic_vector(5 downto 0);
----    n_test_conn : in std_logic_vector(5 downto 0) -- no defined use yet	
     );    
-end entity top;
+end entity sub_module;
 
-architecture structure of top is
+architecture structure of sub_module is
 
   signal clk_200_raw     : std_logic;
   signal clk_200         : std_logic;
@@ -158,25 +139,25 @@ begin  -- architecture structure
       CM_K_INFO_wready(0)                 => local_AXI_WriteMISO(2).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(2).data_write_strobe,   
       CM_K_INFO_wvalid(0)                 => local_AXI_WriteMOSI(2).data_valid,          
-      IPBUS_KINTEX_araddr                 => open,
-      IPBUS_KINTEX_arprot                 => open,
-      IPBUS_KINTEX_arready(0)             => '0',      
-      IPBUS_KINTEX_arvalid(0)             => open,
-      IPBUS_KINTEX_awaddr                 => open,
-      IPBUS_KINTEX_awprot                 => open,
-      IPBUS_KINTEX_awready(0)             => '0',
-      IPBUS_KINTEX_awvalid(0)             => open,
-      IPBUS_KINTEX_bready(0)              => open,
-      IPBUS_KINTEX_bresp                  => "00",
-      IPBUS_KINTEX_bvalid(0)              => '0',
-      IPBUS_KINTEX_rdata                  => x"00000000",
-      IPBUS_KINTEX_rready(0)              => open,
-      IPBUS_KINTEX_rresp                  => "00",
-      IPBUS_KINTEX_rvalid(0)              => '0',
-      IPBUS_KINTEX_wdata                  => open,
-      IPBUS_KINTEX_wready(0)              => '0',
-      IPBUS_KINTEX_wstrb                  => open,
-      IPBUS_KINTEX_wvalid(0)              => open,      
+      IPBUS_araddr                        => ext_AXI_ReadMOSI.address,              
+      IPBUS_arprot                        => ext_AXI_ReadMOSI.protection_type,      
+      IPBUS_arready(0)                    => ext_AXI_ReadMISO.ready_for_address,    
+      IPBUS_arvalid(0)                    => ext_AXI_ReadMOSI.address_valid,        
+      IPBUS_awaddr                        => ext_AXI_WriteMOSI.address,             
+      IPBUS_awprot                        => ext_AXI_WriteMOSI.protection_type,     
+      IPBUS_awready(0)                    => ext_AXI_WriteMISO.ready_for_address,   
+      IPBUS_awvalid(0)                    => ext_AXI_WriteMOSI.address_valid,       
+      IPBUS_bready(0)                     => ext_AXI_WriteMOSI.ready_for_response,  
+      IPBUS_bresp                         => ext_AXI_WriteMISO.response,            
+      IPBUS_bvalid(0)                     => ext_AXI_WriteMISO.response_valid,      
+      IPBUS_rdata                         => ext_AXI_ReadMISO.data,                 
+      IPBUS_rready(0)                     => ext_AXI_ReadMOSI.ready_for_data,       
+      IPBUS_rresp                         => ext_AXI_ReadMISO.response,             
+      IPBUS_rvalid(0)                     => ext_AXI_ReadMISO.data_valid,           
+      IPBUS_wdata                         => ext_AXI_WriteMOSI.data,                
+      IPBUS_wready(0)                     => ext_AXI_WriteMISO.ready_for_data,       
+      IPBUS_wstrb                         => ext_AXI_WriteMOSI.data_write_strobe,   
+      IPBUS_wvalid(0)                     => ext_AXI_WriteMOSI.data_valid,          
       reset_n                             => locked_clk200,--reset,
       C2CLink_aurora_do_cc                => C2CLink_aurora_do_cc,               
       C2CLink_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,   
