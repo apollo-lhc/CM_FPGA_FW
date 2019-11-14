@@ -11,8 +11,7 @@ use UNISIM.vcomponents.all;
 entity sub_module is
   port (
     -- clocks
-    p_clk_200 : in  std_logic;
-    n_clk_200 : in  std_logic;                -- 200 MHz system clock
+    clk_200 : in  std_logic;     -- 200 MHz system clock
 
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
@@ -29,7 +28,6 @@ entity sub_module is
     ext_AXI_ReadMISO  :  AXIReadMISO_t;
     ext_AXI_WriteMOSI : AXIWriteMOSI_t;
     ext_AXI_WriteMISO : AXIWriteMISO_t;
-
     
     -- tri-color LED
     led_red : out std_logic;

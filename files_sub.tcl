@@ -7,7 +7,7 @@ set bd_files "\
     "
 
 set vhdl_files "\
-     src/top.vhd \
+     src/sub_module.vhd \
      src/misc/types.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
@@ -16,13 +16,3 @@ set vhdl_files "\
      src/misc/LED_PWM.vhd \
      src/CM_K_info/CM_K_info.vhd \
      "
-set xdc_files "\
-    src/top_pins.xdc \
-    src/top_timing.xdc	\
-    "	    
-
-set xci_files "\
-    	      cores/Local_Clocking/Local_Clocking.xci \
-    	      "
-
-#	      cores/LHC/LHC.xci \
