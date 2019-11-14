@@ -2,7 +2,7 @@
 source ../scripts/settings.tcl
 
 #add the device info for the uC
-set device-info-file ../scripts/CM_uC_dev_info.csv
+#set device-info-file ../scripts/CM_uC_dev_info.csv
 
 set SVF_TARGET svf_top
 
@@ -14,7 +14,7 @@ create_hw_target ${SVF_TARGET}
 open_hw_target [get_hw_targets -regexp .*/${SVF_TARGET}]
 
 #add the uC to the chain
-create_hw_device -idcode 4BA00477
+#create_hw_device -idcode 4BA00477
 
 #add the kintex to the chain
 set DEVICE [create_hw_device -part ${FPGA_part}]
