@@ -92,6 +92,8 @@ set_property CONFIG.C_GT_LOC_2           {X} 	      [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.SupportLevel         {1}          [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_USE_CHIPSCOPE      {true}       [get_bd_cells ${C2C_PHY}]
+set_property CONFIG.drp_mode             {AXI4_LITE}  [get_bd_cells ${C2C_PHY}]
+
 
 #expose debugging signals to top
 make_bd_pins_external       -name ${C2C_PHY}_power_down     [get_bd_pins ${C2C_PHY}/power_down]
@@ -137,28 +139,7 @@ set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ]
 set mCLK [list ${AXI_MASTER_CLK} ${AXI_MASTER_CLK} ]
 set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN] 
 [BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
-
-
-    #############################################################################
-    ### ibert testing
-    set ibert_name ${C2C_PHY}_ibert
-    create_bd_cell -type ip -vlnv xilinx.com:ip:in_system_ibert:1.0 ${ibert_name}
-    set_property -dict [list CONFIG.C_GTS_USED { X0Y0 X0Y1} CONFIG.C_ENABLE_INPUT_PORTS {false}] [get_bd_cells ${ibert_name}]
-    #modify ${C2C_PHY}
-    set_property -dict [list CONFIG.drp_mode {Native}] [get_bd_cells ${C2C_PHY}]
-    set_property -dict [list CONFIG.TransceiverControl {true}] [get_bd_cells ${C2C_PHY}]
-
-    #connect up the ibert
-    connect_bd_net [get_bd_ports clk50Mhz] [get_bd_pins ${ibert_name}/clk]
-    connect_bd_intf_net [get_bd_intf_pins ${ibert_name}/GT0_DRP] [get_bd_intf_pins ${C2C_PHY}/GT0_DRP]
-    connect_bd_net [get_bd_pins ${ibert_name}/eyescanreset_o] [get_bd_pins ${C2C_PHY}/gt_eyescanreset]
-    connect_bd_net [get_bd_pins ${ibert_name}/rxrate_o] [get_bd_pins ${C2C_PHY}/gt_rxrate]
-    connect_bd_net [get_bd_pins ${ibert_name}/txdiffctrl_o] [get_bd_pins ${C2C_PHY}/gt_txdiffctrl]
-    connect_bd_net [get_bd_pins ${ibert_name}/txprecursor_o] [get_bd_pins ${C2C_PHY}/gt_txprecursor]
-    connect_bd_net [get_bd_pins ${ibert_name}/txpostcursor_o] [get_bd_pins ${C2C_PHY}/gt_txpostcursor]
-    connect_bd_net [get_bd_pins ${ibert_name}/rxlpmen_o] [get_bd_pins ${C2C_PHY}/gt_rxlpmen]
-    connect_bd_net [get_bd_pins ${C2C_PHY}/user_clk_out] [get_bd_pins ${ibert_name}/rxoutclk_i]
-    #############################################################################
+[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x43c44000 4K 0]
 
 
 

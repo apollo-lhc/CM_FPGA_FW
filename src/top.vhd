@@ -14,21 +14,6 @@ entity top is
     p_clk_200 : in  std_logic;
     n_clk_200 : in  std_logic;                -- 200 MHz system clock
 
-    -- ATCA timing and control
-    --input p_atca_ttc_in, n_atca_ttc_in,        -- GTH input, combined clock and data
-    --output p_atca_tts_out, n_atca_tts_out,     -- GTH output
-    -- legacy AMC13 signals
---    p_amc13_clk_40 : in  std_logic;
---    n_amc13_clk_40 : in  std_logic;      -- extracted 40 MHz experimental clock
---    p_amc13_cdr_data : in std_logic;
---    n_amc13_cdr_data : in  std_logic;  -- extracted TTC data
---    p_amc13_tts_out : out std_logic;
---    n_amc13_tts_out : out std_logic;   -- encoded TTS 
---    -- 2 positions from 4 position DIP SWITCH
---    dip_sw          : in std_logic_vector(3 downto 2); -- dip_sw[2] = position 2 of 4, no defined use yet
-                                                       -- dip_sw[3] = position 3 of 4, no defined use yet
-                                                       -- position 1 = boot mode , 0=MASTER_SPI, 1 = JTAG ONLY
-                                                       -- position 4 = bit to TM4C
 
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
@@ -46,14 +31,6 @@ entity top is
     led_green : out std_logic;
     led_blue : out std_logic       -- assert to turn on
     -- utility bits to/from TM4C
----    from_tm4c : in  std_logic;                           -- no defined use yet
----    to_tm4c   : out std_logic;                            -- no defined use yet
----    -- spare pairs from the VU7P, defined as inputs until an output is needed
----    p_kv_spare : in  std_logic_vector(12 downto 0);
----    n_kv_spare : in  std_logic_vector(12 downto 0); -- no defined use yet
----    -- test connector on bottom side of board, defined as inputs until an output is needed
----    p_test_conn : in std_logic_vector(5 downto 0);
----    n_test_conn : in std_logic_vector(5 downto 0) -- no defined use yet	
     );    
 end entity top;
 
@@ -70,10 +47,10 @@ architecture structure of top is
   signal led_green_local : slv_8_t;
 
   constant localAXISlaves    : integer := 3;
-  signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1);
-  signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1);
-  signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1);
-  signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1);
+  signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
+  signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
+  signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
+  signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMISO);
   signal AXI_CLK             : std_logic;
   signal AXI_RST_N           : std_logic;
 
@@ -88,7 +65,6 @@ architecture structure of top is
   signal C2CLink_phy_lane_up                 : STD_LOGIC_VECTOR ( 0 to 0 );
   signal C2CLink_phy_link_reset_out          : STD_LOGIC;
   signal C2CLink_phy_mmcm_not_locked_out     : STD_LOGIC;
---  signal C2CLink_phy_power_down              : in  STD_LOGIC;
   signal C2CLink_phy_soft_err                : STD_LOGIC;
 
 
@@ -158,25 +134,25 @@ begin  -- architecture structure
       CM_K_INFO_wready(0)                 => local_AXI_WriteMISO(2).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(2).data_write_strobe,   
       CM_K_INFO_wvalid(0)                 => local_AXI_WriteMOSI(2).data_valid,          
-      IPBUS_KINTEX_araddr                 => open,
-      IPBUS_KINTEX_arprot                 => open,
-      IPBUS_KINTEX_arready(0)             => '0',      
-      IPBUS_KINTEX_arvalid(0)             => open,
-      IPBUS_KINTEX_awaddr                 => open,
-      IPBUS_KINTEX_awprot                 => open,
-      IPBUS_KINTEX_awready(0)             => '0',
-      IPBUS_KINTEX_awvalid(0)             => open,
-      IPBUS_KINTEX_bready(0)              => open,
-      IPBUS_KINTEX_bresp                  => "00",
-      IPBUS_KINTEX_bvalid(0)              => '0',
-      IPBUS_KINTEX_rdata                  => x"00000000",
-      IPBUS_KINTEX_rready(0)              => open,
-      IPBUS_KINTEX_rresp                  => "00",
-      IPBUS_KINTEX_rvalid(0)              => '0',
-      IPBUS_KINTEX_wdata                  => open,
-      IPBUS_KINTEX_wready(0)              => '0',
-      IPBUS_KINTEX_wstrb                  => open,
-      IPBUS_KINTEX_wvalid(0)              => open,      
+      IPBUS_KINTEX_araddr                 => local_AXI_ReadMOSI(1).address,              
+      IPBUS_KINTEX_arprot                 => local_AXI_ReadMOSI(1).protection_type,      
+      IPBUS_KINTEX_arready(0)             => local_AXI_ReadMISO(1).ready_for_address,         
+      IPBUS_KINTEX_arvalid(0)             => local_AXI_ReadMOSI(1).address_valid,        
+      IPBUS_KINTEX_awaddr                 => local_AXI_WriteMOSI(1).address,             
+      IPBUS_KINTEX_awprot                 => local_AXI_WriteMOSI(1).protection_type,     
+      IPBUS_KINTEX_awready(0)             => local_AXI_WriteMISO(1).ready_for_address,   
+      IPBUS_KINTEX_awvalid(0)             => local_AXI_WriteMOSI(1).address_valid,       
+      IPBUS_KINTEX_bready(0)              => local_AXI_WriteMOSI(1).ready_for_response,  
+      IPBUS_KINTEX_bresp                  => local_AXI_WriteMISO(1).response,            
+      IPBUS_KINTEX_bvalid(0)              => local_AXI_WriteMISO(1).response_valid,      
+      IPBUS_KINTEX_rdata                  => local_AXI_ReadMISO(1).data,                 
+      IPBUS_KINTEX_rready(0)              => local_AXI_ReadMOSI(1).ready_for_data,       
+      IPBUS_KINTEX_rresp                  => local_AXI_ReadMISO(1).response,             
+      IPBUS_KINTEX_rvalid(0)              => local_AXI_ReadMISO(1).data_valid,           
+      IPBUS_KINTEX_wdata                  => local_AXI_WriteMOSI(1).data,                
+      IPBUS_KINTEX_wready(0)              => local_AXI_WriteMISO(1).ready_for_data,      
+      IPBUS_KINTEX_wstrb                  => local_AXI_WriteMOSI(1).data_write_strobe,   
+      IPBUS_KINTEX_wvalid(0)              => local_AXI_WriteMOSI(1).data_valid,          
       reset_n                             => locked_clk200,--reset,
       C2CLink_aurora_do_cc                => C2CLink_aurora_do_cc,               
       C2CLink_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,   
