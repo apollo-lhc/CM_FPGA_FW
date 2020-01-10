@@ -25,6 +25,15 @@ entity top is
 
     k_fpga_i2c_scl   : inout std_logic;
     k_fpga_i2c_sda   : inout std_logic;
+
+    --TCDS
+    p_util_clk_chan0 : in std_logic;
+    n_util_clk_chan0 : in std_logic;
+    p_atca_tts_out   : out std_logic;
+    n_atca_tts_out   : out std_logic;
+    p_atca_ttc_in    : in  std_logic;
+    n_atca_ttc_in    : in  std_logic;
+
     
     -- tri-color LED
     led_red : out std_logic;
@@ -227,5 +236,16 @@ begin  -- architecture structure
       readMISO    => local_AXI_ReadMISO(1),
       writeMOSI   => local_AXI_WriteMOSI(1),
       writeMISO   => local_AXI_WriteMISO(1));
+
+  TCDS_1: entity work.TCDS
+    port map (
+      sys_clk  => AXI_CLK,
+      reset_n  => AXI_RST_N,
+      refclk_p => p_util_clk_chan0,
+      refclk_n => n_util_clk_chan0,
+      tx_p     => p_atca_tts_out  ,
+      tx_n     => n_atca_tts_out  ,
+      rx_p     => p_atca_ttc_in   ,
+      rx_n     => n_atca_ttc_in   );
   
 end architecture structure;
