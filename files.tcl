@@ -16,6 +16,8 @@ set vhdl_files "\
      src/misc/LED_PWM.vhd \
      src/CM_K_info/CM_K_info.vhd \
      src/TCDS/TCDS.vhd \
+     src/TCDS/TCDS_map.vhd \
+     src/TCDS/TCDS_PKG.vhd \
      "
 set xdc_files "\
     src/top_pins.xdc \
@@ -25,4 +27,10 @@ set xdc_files "\
 set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
     	      cores/TCDS_TxRx/TCDS_TxRx.xci  \
+	      cores/AXI_DRP/AXI_DRP.xci \
     	      "
+
+#DRP ip
+set ip_repo_path /opt/Xilinx/IP
+set_property  ip_repo_paths ${ip_repo_path}  [current_project]
+update_ip_catalog

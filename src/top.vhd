@@ -55,7 +55,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 2;
+  constant localAXISlaves    : integer := 4;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -151,6 +151,48 @@ begin  -- architecture structure
       CM_K_INFO_wready(0)                 => local_AXI_WriteMISO(1).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_K_INFO_wvalid(0)                 => local_AXI_WriteMOSI(1).data_valid,          
+      KINTEX_TCDS_DRP_araddr                     => local_AXI_ReadMOSI(2).address,
+      KINTEX_TCDS_DRP_arprot                     => local_AXI_ReadMOSI(2).protection_type,
+      KINTEX_TCDS_DRP_arready                    => local_AXI_ReadMISO(2).ready_for_address,
+      KINTEX_TCDS_DRP_arvalid                    => local_AXI_ReadMOSI(2).address_valid,
+      KINTEX_TCDS_DRP_awaddr                     => local_AXI_WriteMOSI(2).address,
+      KINTEX_TCDS_DRP_awprot                     => local_AXI_WriteMOSI(2).protection_type,
+      KINTEX_TCDS_DRP_awready                    => local_AXI_WriteMISO(2).ready_for_address,
+      KINTEX_TCDS_DRP_awvalid                    => local_AXI_WriteMOSI(2).address_valid,
+      KINTEX_TCDS_DRP_bready                     => local_AXI_WriteMOSI(2).ready_for_response,
+      KINTEX_TCDS_DRP_bresp                      => local_AXI_WriteMISO(2).response,
+      KINTEX_TCDS_DRP_bvalid                     => local_AXI_WriteMISO(2).response_valid,
+      KINTEX_TCDS_DRP_rdata                      => local_AXI_ReadMISO(2).data,
+      KINTEX_TCDS_DRP_rready                     => local_AXI_ReadMOSI(2).ready_for_data,
+      KINTEX_TCDS_DRP_rresp                      => local_AXI_ReadMISO(2).response,
+      KINTEX_TCDS_DRP_rvalid                     => local_AXI_ReadMISO(2).data_valid,
+      KINTEX_TCDS_DRP_wdata                      => local_AXI_WriteMOSI(2).data,
+      KINTEX_TCDS_DRP_wready                     => local_AXI_WriteMISO(2).ready_for_data,
+      KINTEX_TCDS_DRP_wstrb                      => local_AXI_WriteMOSI(2).data_write_strobe,
+      KINTEX_TCDS_DRP_wvalid                     => local_AXI_WriteMOSI(2).data_valid,
+                                          
+      KINTEX_TCDS_araddr                         => local_AXI_ReadMOSI(3).address,
+      KINTEX_TCDS_arprot                         => local_AXI_ReadMOSI(3).protection_type,
+      KINTEX_TCDS_arready                        => local_AXI_ReadMISO(3).ready_for_address,
+      KINTEX_TCDS_arvalid                        => local_AXI_ReadMOSI(3).address_valid,
+      KINTEX_TCDS_awaddr                         => local_AXI_WriteMOSI(3).address,
+      KINTEX_TCDS_awprot                         => local_AXI_WriteMOSI(3).protection_type,
+      KINTEX_TCDS_awready                        => local_AXI_WriteMISO(3).ready_for_address,
+      KINTEX_TCDS_awvalid                        => local_AXI_WriteMOSI(3).address_valid,
+      KINTEX_TCDS_bready                         => local_AXI_WriteMOSI(3).ready_for_response,
+      KINTEX_TCDS_bresp                          => local_AXI_WriteMISO(3).response,
+      KINTEX_TCDS_bvalid                         => local_AXI_WriteMISO(3).response_valid,
+      KINTEX_TCDS_rdata                          => local_AXI_ReadMISO(3).data,
+      KINTEX_TCDS_rready                         => local_AXI_ReadMOSI(3).ready_for_data,
+      KINTEX_TCDS_rresp                          => local_AXI_ReadMISO(3).response,
+      KINTEX_TCDS_rvalid                         => local_AXI_ReadMISO(3).data_valid,
+      KINTEX_TCDS_wdata                          => local_AXI_WriteMOSI(3).data,
+      KINTEX_TCDS_wready                         => local_AXI_WriteMISO(3).ready_for_data,
+      KINTEX_TCDS_wstrb                          => local_AXI_WriteMOSI(3).data_write_strobe,
+      KINTEX_TCDS_wvalid                         => local_AXI_WriteMOSI(3).data_valid,
+
+
+
       IPBUS_KINTEX_araddr                 => ext_AXI_ReadMOSI.address,              
       IPBUS_KINTEX_arprot                 => ext_AXI_ReadMOSI.protection_type,      
       IPBUS_KINTEX_arready(0)             => ext_AXI_ReadMISO.ready_for_address,    
@@ -239,8 +281,16 @@ begin  -- architecture structure
 
   TCDS_1: entity work.TCDS
     port map (
-      sys_clk  => AXI_CLK,
-      reset_n  => AXI_RST_N,
+      clk_axi              => AXI_CLK,
+      reset_axi_n          => AXI_RST_N,
+      readMOSI             => local_AXI_readMOSI(3),
+      readMISO             => local_AXI_readMISO(3),
+      writeMOSI            => local_AXI_writeMOSI(3),
+      writeMISO            => local_AXI_writeMISO(3),
+      DRP_readMOSI         => local_AXI_readMOSI(2),
+      DRP_readMISO         => local_AXI_readMISO(2),
+      DRP_writeMOSI        => local_AXI_writeMOSI(2),
+      DRP_writeMISO        => local_AXI_writeMISO(2),
       refclk_p => p_util_clk_chan0,
       refclk_n => n_util_clk_chan0,
       tx_p     => p_atca_tts_out  ,
