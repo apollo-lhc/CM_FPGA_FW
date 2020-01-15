@@ -8,7 +8,10 @@ set bd_files "\
 
 set vhdl_files "\
      src/top.vhd \
+     src/misc/pass_time_domain.vhd \
+     src/misc/pacd.vhd \
      src/misc/types.vhd \
+     src/misc/capture_CDC.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
      src/BoardIO/BoardIO.vhd \

@@ -28,8 +28,8 @@ architecture behavioral of TCDS_interface is
   signal localRdAck         : std_logic;
 
 
-  signal reg_data :  slv32_array_t(integer range 0 to 49);
-  constant Default_reg_data : slv32_array_t(integer range 0 to 49) := (others => x"00000000");
+  signal reg_data :  slv32_array_t(integer range 0 to 71);
+  constant Default_reg_data : slv32_array_t(integer range 0 to 71) := (others => x"00000000");
 begin  -- architecture behavioral
 
   -------------------------------------------------------------------------------
@@ -65,13 +65,17 @@ begin  -- architecture behavioral
     localRdData <= x"00000000";
     if localRdReq = '1' then
       localRdAck  <= '1';
-      case localAddress(5 downto 0) is
+      case localAddress(6 downto 0) is
         when x"0" =>
           localRdData( 1)            <=  Mon.CLOCKING.POWER_GOOD;           --
           localRdData( 9)            <=  Mon.CLOCKING.RX_CDR_STABLE;        --
         when x"20" =>
           localRdData( 1)            <=  Mon.TX.PMA_RESET_DONE;             --
           localRdData( 4)            <=  Mon.TX.PWR_GOOD;                   --
+        when x"42" =>
+          localRdData( 3 downto  0)  <=  reg_data(66)( 3 downto  0);        --
+        when x"44" =>
+          localRdData(31 downto  0)  <=  Mon.DEBUG.CAPTURE_D;               --
         when x"5" =>
           localRdData( 0)            <=  reg_data( 5)( 0);                  --
           localRdData( 4)            <=  reg_data( 5)( 4);                  --
@@ -89,6 +93,8 @@ begin  -- architecture behavioral
           localRdData( 6)            <=  reg_data(33)( 6);                  --
         when x"8" =>
           localRdData( 2 downto  0)  <=  reg_data( 8)( 2 downto  0);        --
+        when x"47" =>
+          localRdData( 3 downto  0)  <=  reg_data(71)( 3 downto  0);        --
         when x"10" =>
           localRdData( 1)            <=  Mon.RX.PMA_RESET_DONE;             --
           localRdData( 7 downto  4)  <=  Mon.RX.BAD_CHAR;                   --
@@ -98,6 +104,10 @@ begin  -- architecture behavioral
           localRdData( 5)            <=  reg_data(17)( 5);                  --
         when x"31" =>
           localRdData( 0)            <=  reg_data(49)( 0);                  --
+        when x"46" =>
+          localRdData(31 downto  0)  <=  reg_data(70)(31 downto  0);        --
+        when x"45" =>
+          localRdData( 3 downto  0)  <=  Mon.DEBUG.CAPTURE_K;               --
         when others =>
           localRdData <= x"00000000";
       end case;
@@ -119,6 +129,9 @@ begin  -- architecture behavioral
   Ctrl.TX.INHIBIT              <=  reg_data(33)( 5);               
   Ctrl.TX.USER_CLK_READY       <=  reg_data(33)( 6);               
   Ctrl.EYESCAN.RESET           <=  reg_data(49)( 0);               
+  Ctrl.DEBUG.MODE              <=  reg_data(66)( 3 downto  0);     
+  Ctrl.DEBUG.FIXED_SEND_D      <=  reg_data(70)(31 downto  0);     
+  Ctrl.DEBUG.FIXED_SEND_K      <=  reg_data(71)( 3 downto  0);     
 
 
 
@@ -130,29 +143,38 @@ begin  -- architecture behavioral
       Ctrl.RX.PRBS_RESET <= '0';
       Ctrl.TX.PRBS_FORCE_ERROR <= '0';
       Ctrl.EYESCAN.TRIGGER <= '0';
+      Ctrl.DEBUG.CAPTURE <= '0';
       
       if localWrEn = '1' then
-        case localAddress(5 downto 0) is
-        when x"8" =>
-          reg_data( 8)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
-        when x"11" =>
-          Ctrl.RX.PRBS_RESET          <=  localWrData( 4);               
-          reg_data(17)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
-          reg_data(17)( 5)            <=  localWrData( 5);                --
-        when x"31" =>
-          reg_data(49)( 0)            <=  localWrData( 0);                --
-          Ctrl.EYESCAN.TRIGGER        <=  localWrData( 4);               
+        case localAddress(6 downto 0) is
+        when x"40" =>
+          Ctrl.DEBUG.CAPTURE          <=  localWrData( 0);               
+        when x"21" =>
+          Ctrl.TX.PRBS_FORCE_ERROR    <=  localWrData( 4);               
+          reg_data(33)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
+          reg_data(33)( 5)            <=  localWrData( 5);                --
+          reg_data(33)( 6)            <=  localWrData( 6);                --
+        when x"42" =>
+          reg_data(66)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
         when x"5" =>
           reg_data( 5)( 0)            <=  localWrData( 0);                --
           reg_data( 5)( 4)            <=  localWrData( 4);                --
           reg_data( 5)( 5)            <=  localWrData( 5);                --
           reg_data( 5)( 8)            <=  localWrData( 8);                --
           reg_data( 5)( 9)            <=  localWrData( 9);                --
-        when x"21" =>
-          Ctrl.TX.PRBS_FORCE_ERROR    <=  localWrData( 4);               
-          reg_data(33)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
-          reg_data(33)( 5)            <=  localWrData( 5);                --
-          reg_data(33)( 6)            <=  localWrData( 6);                --
+        when x"46" =>
+          reg_data(70)(31 downto  0)  <=  localWrData(31 downto  0);      --
+        when x"31" =>
+          reg_data(49)( 0)            <=  localWrData( 0);                --
+          Ctrl.EYESCAN.TRIGGER        <=  localWrData( 4);               
+        when x"8" =>
+          reg_data( 8)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
+        when x"47" =>
+          reg_data(71)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
+        when x"11" =>
+          Ctrl.RX.PRBS_RESET          <=  localWrData( 4);               
+          reg_data(17)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
+          reg_data(17)( 5)            <=  localWrData( 5);                --
           when others => null;
         end case;
       end if;

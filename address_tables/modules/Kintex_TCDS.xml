@@ -51,5 +51,12 @@
     <node id="RESET"            address="0x001" mask="0x00000001" permission="rw"/>
     <node id="TRIGGER"          address="0x001" mask="0x00000010" permission="w"/>
   </node>
-
+  <node id="DEBUG"              address="0x040">
+    <node id="CAPTURE"          address="0x000" mask="0x00000001" permission="w"/>
+    <node id="MODE"             address="0x002" mask="0x0000000F" permission="rw"/>
+    <node id="CAPTURE_D"        address="0x004" mask="0xFFFFFFFF" permission="r"/>
+    <node id="CAPTURE_K"        address="0x005" mask="0x0000000F" permission="r"/>
+    <node id="FIXED_SEND_D"     address="0x006" mask="0xFFFFFFFF" permission="rw"/>
+    <node id="FIXED_SEND_K"     address="0x007" mask="0x0000000F" permission="rw"/>   
+  </node>
 </node>

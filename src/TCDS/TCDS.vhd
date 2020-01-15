@@ -32,12 +32,14 @@ entity TCDS is
 end entity TCDS;
 
 architecture behavioral of TCDS is
+  signal reset : std_logic;
   signal refclk : std_logic;
 
-  signal clk_rx_int     : std_logic;
-  signal clk_rx_int_raw : std_logic;
   signal clk_tx_int     : std_logic;
   signal clk_tx_int_raw : std_logic;
+  signal clk_rx_int     : std_logic;
+  signal clk_rx_int_raw : std_logic;
+
   
   type DRP_t is record
     en   : STD_LOGIC;
@@ -56,9 +58,19 @@ architecture behavioral of TCDS is
   signal rx_data : slv_32_t;
   signal tx_k_data : slv_4_t;
   signal rx_k_data : slv_4_t;
+
+  signal tx_k_data_fixed : slv_4_t;
+  signal tx_data_fixed : slv_32_t;
+  signal rx_data_cap : slv_32_t;
+  signal rx_k_data_Cap : slv_4_t;
+
+  signal mode : slv_4_t;
+  signal capture_data : std_logic;
   
 begin  -- architecture TCDS
+  reset <= not reset_axi_n;
 
+  
   reflk_buf : IBUFDS_GTE4
     generic map (
       REFCLK_EN_TX_PATH => '0',
@@ -210,4 +222,73 @@ begin  -- architecture TCDS
       drp0_do       => drp_intf.do,
       drp0_rdy      => drp_intf.rdy);
 
+
+  pass_std_logic_vector_1: entity work.pass_std_logic_vector
+    generic map (
+      DATA_WIDTH => 4)
+    port map (
+      clk_in   => clk_axi,
+      clk_out  => clk_tx_int,
+      reset    => reset,
+      pass_in  => Ctrl.DEBUG.MODE,
+      pass_out => mode);
+
+  --pass fixed data to the txrx domain for sending
+  pass_std_logic_vector_2: entity work.pass_std_logic_vector
+    generic map (
+      DATA_WIDTH => 36)
+    port map (
+      clk_in   => clk_axi,
+      clk_out  => clk_tx_int,
+      reset    => reset,
+      pass_in(31 downto  0)  => Ctrl.DEBUG.FIXED_SEND_D,
+      pass_in(35 downto 32)  => Ctrl.DEBUG.FIXED_SEND_K,
+      pass_out(31 downto  0) => tx_data_fixed,
+      pass_out(35 downto 32) => tx_k_data_fixed);
+  
+
+  --Capture rx data from the txrx domain via a capture pulse
+  pacd_1: entity work.pacd
+    port map (
+      iPulseA => Ctrl.DEBUG.CAPTURE,
+      iClkA   => clk_axi,
+      iRSTAn  => reset_axi_n,
+      iClkB   => clk_tx_int,
+      iRSTBn  => reset_axi_n,
+      oPulseB => capture_data);
+  capture_CDC_1: entity work.capture_CDC
+    generic map (
+      WIDTH => 36)
+    port map (
+      clkA               => clk_tx_int,
+      clkB               => clk_axi,
+      inA(31 downto  0)  => rx_data,
+      inA(35 downto 32)  => rx_k_data,
+      inA_valid          => capture_data,
+      outB(31 downto  0) => Mon.DEBUG.CAPTURE_D,
+      outB(35 downto 32) => Mon.DEBUG.CAPTURE_K,
+      outB_valid => open);
+  
+  data_proc: process (clk_tx_int, reset) is
+  begin  -- process data_proc
+    if reset = '1' then               -- asynchronous reset (active high)
+      tx_data <= x"BCBCBCBC";
+      tx_k_data <= x"F";      
+    elsif clk_tx_int'event and clk_tx_int = '1' then  -- rising clock edge
+      case mode is
+        when x"0"  => 
+          tx_data <= rx_data;
+          tx_k_data <= rx_k_data;
+        when x"1" =>
+          tx_data <= x"BCBCBCBC";
+          tx_k_data <= x"F";
+        when x"2" =>
+          tx_data <= tx_data_fixed;
+          tx_k_data <= tx_k_data_fixed;
+        when others =>
+          tx_data <= x"BCBCBCBC";
+          tx_k_data <= x"F";
+      end case;
+    end if;
+  end process data_proc;
 end architecture behavioral;

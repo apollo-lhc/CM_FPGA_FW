@@ -54,14 +54,28 @@ package TCDS_CTRL is
     TRIGGER                    : std_logic;   
   end record TCDS_EYESCAN_CTRL_t;
 
+  type TCDS_DEBUG_MON_t is record
+    CAPTURE_D                  : std_logic_vector(31 downto  0);
+    CAPTURE_K                  : std_logic_vector( 3 downto  0);
+  end record TCDS_DEBUG_MON_t;
+
+  type TCDS_DEBUG_CTRL_t is record
+    CAPTURE                    : std_logic;                     
+    FIXED_SEND_D               : std_logic_vector(31 downto  0);
+    FIXED_SEND_K               : std_logic_vector( 3 downto  0);
+    MODE                       : std_logic_vector( 3 downto  0);
+  end record TCDS_DEBUG_CTRL_t;
+
   type TCDS_MON_t is record
     CLOCKING                   : TCDS_CLOCKING_MON_t;
+    DEBUG                      : TCDS_DEBUG_MON_t;   
     RESETS                     : TCDS_RESETS_MON_t;  
     RX                         : TCDS_RX_MON_t;      
     TX                         : TCDS_TX_MON_t;      
   end record TCDS_MON_t;
 
   type TCDS_CTRL_t is record
+    DEBUG                      : TCDS_DEBUG_CTRL_t;             
     EYESCAN                    : TCDS_EYESCAN_CTRL_t;           
     LOOPBACK                   : std_logic_vector( 2 downto  0);
     RESETS                     : TCDS_RESETS_CTRL_t;            
