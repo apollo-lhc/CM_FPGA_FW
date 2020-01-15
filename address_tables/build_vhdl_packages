@@ -37,143 +37,6 @@ if (sys.version_info[0] > 2):
     xrange = range
 
         
-class BitArray:
-    
-    def __init__(self,value=0):
-        self.length = 32
-        if (value> (1<<self.length)-1):
-            raise Exception("Value '%d' too big. It does not fit in %d bits\n" % (value,self.length))
-        
-        self.bits = [value>>i & 1 for i in xrange(self.length)]
-
-    def __getitem__(self,index):
-        return self.bits[index]
-        
-    def __and__(self,other):
-        if not isinstance(other,BitArray):
-            raise Exception("BitArray.__and__ method requires BitArray")
-
-        result = BitArray()
-        result.bits = [x & y for (x,y) in zip(self.bits,other.bits)]
-        return result
-
-    def __or__(self,other):
-        if not isinstance(other,BitArray):
-            raise Exception("BitArray.__and__ method requires BitArray")
-
-        result = BitArray()
-        result.bits = [x | y for (x,y) in zip(self.bits,other.bits)]
-        return result
-    
-    def __invert__(self):
-        result = BitArray()
-        result.bits = [(x+1) % 2 for x in self.bits]
-        return result
-    
-    def __str__(self):
-        return "".join(map(lambda x: x and "1" or "0",self.bits[::-1]))
-
-    def uint(self):
-        result = 0
-        for i,x in enumerate(self.bits):
-            result += x << i
-            
-        return result
-
-    def hex(self):
-        return "0x%08x" % self.uint()
-
-class node(object):
-    
-    def __init__(self, name, ref, flag, width = None, desc = None):
-        self.name = name
-        self.ref = ref
-        self.flag = flag
-        if width is None:
-            self.width = 0
-        else:
-            self.width = width
-        self.desc = list()
-        if desc is not None: self.desc.append(desc)
-        
-    def sort(self):
-        self.desc = sorted(self.desc, key = lambda x: x.ref.getAddress())
-        
-class nodetree(object):
-	
-    def __init__(self):
-        self.root = node("TOP", None, False)
-        
-    def add(self, n):
-        np = self.root
-        m = n.name.split('.')
-        for i in range(len(m) - 1):
-            name = '.'.join(m[: i + 1])
-            l = [x.name for x in np.desc]
-            if name not in l:
-                c = node(name, None, False)
-                np.desc.append(c)
-                np = c
-            else:
-                np = np.desc[l.index(name)]
-        l = [x.name for x in np.desc]
-        if n.name not in l:
-            np.desc.append(n)
-        else:
-            np.desc[l.index(n.name)].ref = n.ref
-            np.desc[l.index(n.name)].flag = n.flag
-    
-    def __str__(self):
-        return self.dump(self.root, "")
-    
-    def dump(self, n, prefix):
-        s = ""
-        for i in n.desc:
-            s = s + prefix + i.name + " " + hex(i.ref.getAddress()) + " " + hex(i.width) + " " + str(i.flag) + "\n"
-            if i.desc: s = s + self.dump(i, prefix + "  ")
-        return s
-
-    def assign_width(self, n):
-        errors = []
-        self._assign_width(n, errors)
-        return len(errors) == 0
-
-    def _assign_width(self, n, errors_detected):
-        n.sort()
-        if n.ref is not None:
-            addr = n.ref.getAddress()
-        else:
-            addr = 0
-        max_addr = 0
-        top_addr = 0
-        if n.ref is not None and "width" in n.ref.getFirmwareInfo():
-            n.width = int(n.ref.getFirmwareInfo()["width"])
-        else:
-            if not n.desc:
-                log.error("Fatal error - no width parameter found for node: " + n.name)
-                raise SystemExit(1)
-            for i in n.desc:
-                saddr = i.ref.getAddress()
-                if saddr < max_addr:
-                    log.error("Overlap between nodes detected: " + i.name + " " + hex(saddr) + " "+ hex(max_addr))
-                    errors_detected.append(i.name)
-                max_addr = saddr + pow(2, self._assign_width(i, errors_detected))
-                if max_addr > top_addr:
-                    top_addr = max_addr
-            n.width = int(math.ceil(math.log(top_addr - addr,2)))
-        if addr % pow(2, n.width) != 0:
-            log.error("Node '" + n.name + "' at " + hex(addr) + ": Width, " + hex(n.width) + ", produces address mask " + hex(pow(2,n.width)) + " that is not aligned with node's base address")
-            errors_detected.append(n.name)
-        return n.width
-
-    def get_nodes(self, n):
-        l = list()
-        if n.flag:
-            l.append((n.name, n.ref.getAddress(), n.width))
-        elif n.desc:
-            for i in n.desc:
-                l.extend(self.get_nodes(i))
-        return l
 
 #===========================================================================================
 
@@ -527,11 +390,8 @@ def main():
     log.setLevel(logging.WARNING)
     uhal.setLogLevelTo(uhal.LogLevel.WARNING)
 
-    # options for verbosity level and VHDL template
-    nflag = False
-    template_fn = "/opt/cactus/etc/uhal/tools/ipbus_addr_decode.vhd"
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "vdnht:", ["verbose","debug","dry-run","help","template="])
+        opts, args = getopt.getopt(sys.argv[1:], "vdh:", ["verbose","debug","help"])
     except getopt.GetoptError as err:
         log.critical(__doc__)
         sys.exit(EXIT_CODE_ARG_PARSING_ERROR)
@@ -545,10 +405,6 @@ def main():
         elif o in ("-h", "--help"):
             print(__doc__)
             sys.exit(0)
-        elif o in ("-t", "--template"):
-            template_fn = a
-        elif o in ("-n", "--dry-run"):
-            nflag = True
 
     # make sure that exactly one argument was given, later assumed to be the xml file name
     if len(args) != 1:
@@ -560,7 +416,6 @@ def main():
     except Exception:
         raise Exception("File '%s' does not exist or has incorrect format" % args[0])
 
-    t = nodetree()
     for i in device.getNodes():
         d = device.getNode(i)
         if d.getPath().count('.') == 1:
