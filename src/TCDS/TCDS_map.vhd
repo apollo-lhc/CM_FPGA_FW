@@ -84,9 +84,9 @@ begin  -- architecture behavioral
           localRdData(10)            <=  Mon.RESETS.RX_RESET_DONE;          --
           localRdData(11)            <=  Mon.RESETS.RX_PMA_RESET_DONE;      --
         when x"21" =>
-          localRdData( 2 downto  0)  <=  reg_data(33)( 2 downto  0);        --
-          localRdData( 4)            <=  reg_data(33)( 4);                  --
+          localRdData( 3 downto  0)  <=  reg_data(33)( 3 downto  0);        --
           localRdData( 5)            <=  reg_data(33)( 5);                  --
+          localRdData( 6)            <=  reg_data(33)( 6);                  --
         when x"8" =>
           localRdData( 2 downto  0)  <=  reg_data( 8)( 2 downto  0);        --
         when x"10" =>
@@ -94,8 +94,8 @@ begin  -- architecture behavioral
           localRdData( 7 downto  4)  <=  Mon.RX.BAD_CHAR;                   --
           localRdData(11 downto  8)  <=  Mon.RX.DISP_ERROR;                 --
         when x"11" =>
-          localRdData( 2 downto  0)  <=  reg_data(17)( 2 downto  0);        --
-          localRdData( 4)            <=  reg_data(17)( 4);                  --
+          localRdData( 3 downto  0)  <=  reg_data(17)( 3 downto  0);        --
+          localRdData( 5)            <=  reg_data(17)( 5);                  --
         when x"31" =>
           localRdData( 0)            <=  reg_data(49)( 0);                  --
         when others =>
@@ -113,11 +113,11 @@ begin  -- architecture behavioral
   Ctrl.RESETS.RX_PLL_DATAPATH  <=  reg_data( 5)( 8);               
   Ctrl.RESETS.RX_DATAPATH      <=  reg_data( 5)( 9);               
   Ctrl.LOOPBACK                <=  reg_data( 8)( 2 downto  0);     
-  Ctrl.RX.PRBS_SEL             <=  reg_data(17)( 2 downto  0);     
-  Ctrl.RX.USER_CLK_READY       <=  reg_data(17)( 4);               
-  Ctrl.TX.PRBS_SEL             <=  reg_data(33)( 2 downto  0);     
-  Ctrl.TX.INHIBIT              <=  reg_data(33)( 4);               
-  Ctrl.TX.USER_CLK_READY       <=  reg_data(33)( 5);               
+  Ctrl.RX.PRBS_SEL             <=  reg_data(17)( 3 downto  0);     
+  Ctrl.RX.USER_CLK_READY       <=  reg_data(17)( 5);               
+  Ctrl.TX.PRBS_SEL             <=  reg_data(33)( 3 downto  0);     
+  Ctrl.TX.INHIBIT              <=  reg_data(33)( 5);               
+  Ctrl.TX.USER_CLK_READY       <=  reg_data(33)( 6);               
   Ctrl.EYESCAN.RESET           <=  reg_data(49)( 0);               
 
 
@@ -136,9 +136,9 @@ begin  -- architecture behavioral
         when x"8" =>
           reg_data( 8)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
         when x"11" =>
-          Ctrl.RX.PRBS_RESET          <=  localWrData( 3);               
-          reg_data(17)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
-          reg_data(17)( 4)            <=  localWrData( 4);                --
+          Ctrl.RX.PRBS_RESET          <=  localWrData( 4);               
+          reg_data(17)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
+          reg_data(17)( 5)            <=  localWrData( 5);                --
         when x"31" =>
           reg_data(49)( 0)            <=  localWrData( 0);                --
           Ctrl.EYESCAN.TRIGGER        <=  localWrData( 4);               
@@ -149,10 +149,10 @@ begin  -- architecture behavioral
           reg_data( 5)( 8)            <=  localWrData( 8);                --
           reg_data( 5)( 9)            <=  localWrData( 9);                --
         when x"21" =>
-          Ctrl.TX.PRBS_FORCE_ERROR    <=  localWrData( 3);               
-          reg_data(33)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
-          reg_data(33)( 4)            <=  localWrData( 4);                --
+          Ctrl.TX.PRBS_FORCE_ERROR    <=  localWrData( 4);               
+          reg_data(33)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
           reg_data(33)( 5)            <=  localWrData( 5);                --
+          reg_data(33)( 6)            <=  localWrData( 6);                --
           when others => null;
         end case;
       end if;

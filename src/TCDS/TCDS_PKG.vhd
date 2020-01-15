@@ -33,7 +33,7 @@ package TCDS_CTRL is
 
   type TCDS_RX_CTRL_t is record
     PRBS_RESET                 : std_logic;                     
-    PRBS_SEL                   : std_logic_vector( 2 downto  0);
+    PRBS_SEL                   : std_logic_vector( 3 downto  0);
     USER_CLK_READY             : std_logic;                     
   end record TCDS_RX_CTRL_t;
 
@@ -45,7 +45,7 @@ package TCDS_CTRL is
   type TCDS_TX_CTRL_t is record
     INHIBIT                    : std_logic;                     
     PRBS_FORCE_ERROR           : std_logic;                     
-    PRBS_SEL                   : std_logic_vector( 2 downto  0);
+    PRBS_SEL                   : std_logic_vector( 3 downto  0);
     USER_CLK_READY             : std_logic;                     
   end record TCDS_TX_CTRL_t;
 

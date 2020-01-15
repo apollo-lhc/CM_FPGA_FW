@@ -29,9 +29,9 @@
     <node id="BAD_CHAR"         address="0x000" mask="0x000000F0" permission="r"/>
     <node id="DISP_ERROR"       address="0x000" mask="0x00000F00" permission="r"/>    
     <!-- <node id="DMONITOR"         address="0x000" mask="0x0007F000" permission="ro"/> -->
-    <node id="PRBS_SEL"         address="0x001" mask="0x00000007" permission="rw"/>
-    <node id="PRBS_RESET"       address="0x001" mask="0x00000008" permission="w"/>
-    <node id="USER_CLK_READY"       address="0x001" mask="0x00000010" permission="rw"/>
+    <node id="PRBS_SEL"         address="0x001" mask="0x0000000F" permission="rw"/>
+    <node id="PRBS_RESET"       address="0x001" mask="0x00000010" permission="w"/>
+    <node id="USER_CLK_READY"       address="0x001" mask="0x00000020" permission="rw"/>
     <!-- <node id="DFELPM_RESET"     address="0x001" mask="0x00000020" permission="rw"/> -->
     <!-- <node id="MONITOR_SEL"      address="0x001" mask="0x00000300" permission="rw"/> -->
     <!-- <node id="RESET"            address="0x002" mask="0x00000001" permission="rw"/> -->
@@ -41,10 +41,10 @@
     <!-- <node id="RESET_DONE"       address="0x000" mask="0x00000002" permission="ro"/> -->
     <node id="PMA_RESET_DONE"        address="0x000" mask="0x00000002" permission="r"/> -->
     <node id="PWR_GOOD"       address="0x000" mask="0x00000010" permission="r"/>
-    <node id="PRBS_SEL"         address="0x001" mask="0x00000007" permission="rw"/> 
-    <node id="PRBS_FORCE_ERROR" address="0x001" mask="0x00000008" permission="w"/>
-    <node id="INHIBIT"          address="0x001" mask="0x00000010" permission="rw"/>
-    <node id="USER_CLK_READY"       address="0x001" mask="0x00000020" permission="rw"/>    
+    <node id="PRBS_SEL"         address="0x001" mask="0x0000000F" permission="rw"/> 
+    <node id="PRBS_FORCE_ERROR" address="0x001" mask="0x00000010" permission="w"/>
+    <node id="INHIBIT"          address="0x001" mask="0x00000020" permission="rw"/>
+    <node id="USER_CLK_READY"       address="0x001" mask="0x00000040" permission="rw"/>    
   </node>
   <node id="EYESCAN"            address="0x030">
     <!-- <node id="DATA_ERROR"       address="0x000" mask="0x00000001" permission="ro"/> -->

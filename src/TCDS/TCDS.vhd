@@ -42,9 +42,9 @@ architecture behavioral of TCDS is
   type DRP_t is record
     en   : STD_LOGIC;
     we   : STD_LOGIC;
-    addr : STD_LOGIC_VECTOR ( 8 downto 0 );
-    di   : STD_LOGIC_VECTOR ( 15 downto 0 );
-    do   : STD_LOGIC_VECTOR ( 15 downto 0 );
+    addr : STD_LOGIC_VECTOR ( 9 downto 0 );
+    di   : STD_LOGIC_VECTOR (15 downto 0 );
+    do   : STD_LOGIC_VECTOR (15 downto 0 );
     rdy  : STD_LOGIC;
   end record DRP_t;
   signal drp_intf : DRP_t;
@@ -52,6 +52,10 @@ architecture behavioral of TCDS is
   signal Mon              :  TCDS_Mon_t;
   signal Ctrl             :  TCDS_Ctrl_t;
 
+  signal tx_data : slv_32_t;
+  signal rx_data : slv_32_t;
+  signal tx_k_data : slv_4_t;
+  signal rx_k_data : slv_4_t;
   
 begin  -- architecture TCDS
 
@@ -117,14 +121,14 @@ begin  -- architecture TCDS
       gtwiz_reset_rx_done_out(0)            => Mon.RESETS.RX_RESET_DONE,
       gtwiz_userdata_tx_in               => tx_data,
       gtwiz_userdata_rx_out              => rx_data,    
-      gtrefclk00_in(0)                   => refclk,
-      qpll0outclk_out                    => open,
-      qpll0outrefclk_out                 => open,
+      gtrefclk01_in(0)                   => refclk,
+      qpll1outclk_out                    => open,
+      qpll1outrefclk_out                 => open,
       drpaddr_in                         => drp_intf.addr,
       drpclk_in(0)                       => clk_axi,
       drpdi_in                           => drp_intf.di,
-      drpen_in                           => drp_intf.en,
-      drpwe_in                           => drp_intf.we,
+      drpen_in(0)                        => drp_intf.en,
+      drpwe_in(0)                        => drp_intf.we,
       eyescanreset_in(0)                 => Ctrl.EYESCAN.RESET,
       eyescantrigger_in(0)               => Ctrl.EYESCAN.TRIGGER,
       gthrxn_in(0)                       => rx_n,
@@ -138,25 +142,25 @@ begin  -- architecture TCDS
       rxprbscntreset_in(0)               => Ctrl.RX.PRBS_RESET,
       rxprbssel_in                       => Ctrl.RX.PRBS_SEL,
       rxrate_in                          => "000",
-      rxusrclk_in                        => clk_rx_int,
-      rxusrclk2_in                       => clk_rx_int,
+      rxusrclk_in(0)                     => clk_rx_int,
+      rxusrclk2_in(0)                    => clk_rx_int,
       tx8b10ben_in                       => "1",
       txctrl0_in                         => x"0000",
       txctrl1_in                         => x"0000",
       txctrl2_in( 3 downto  0)           => tx_k_data,
-      txctrl2_in( 7 downto  0)           => (others => '0'),
+      txctrl2_in( 7 downto  4)           => (others => '0'),
       txdiffctrl_in                      => (others => 'X'),
       txinhibit_in(0)                    => Ctrl.TX.INHIBIT,
       txpostcursor_in                    => (others => 'X'),
       txprbsforceerr_in(0)               => Ctrl.TX.PRBS_FORCE_ERROR,
       txprbssel_in                       => Ctrl.TX.PRBS_SEL,
       txprecursor_in                     => (others => 'X'),
-      txusrclk_in                        => clk_tx_int,
-      txusrclk2_in                       => clk_tx_int,
+      txusrclk_in(0)                     => clk_tx_int,
+      txusrclk2_in(0)                    => clk_tx_int,
       drpdo_out                          => drp_intf.do,
-      drprdy_out                         => drp_intf.rdy,
-      gthtxn_out                         => tx_n,
-      gthtxp_out                         => tx_p,
+      drprdy_out(0)                      => drp_intf.rdy,
+      gthtxn_out(0)                      => tx_n,
+      gthtxp_out(0)                      => tx_p,
       gtpowergood_out(0)                 => Mon.CLOCKING.POWER_GOOD,
       rxbyteisaligned_out                => open,
       rxbyterealign_out                  => open,
@@ -169,10 +173,10 @@ begin  -- architecture TCDS
       rxctrl3_out( 3 downto  0)          => Mon.RX.BAD_CHAR,
       rxctrl3_out( 7 downto  4)          => open,
       rxdata_out                         => open, 
-      rxoutclk_out                       => clk_rx_int_raw,
-      rxpmaresetdone_out(0)              => Mon.RX_PMA_RESET_DONE,
-      txoutclk_out                       => clk_tx_int_raw,
-      txpmaresetdone_out(0)              => Mon.TX_PMA_RESET_DONE);
+      rxoutclk_out(0)                    => clk_rx_int_raw,
+      rxpmaresetdone_out(0)              => Mon.RESETS.RX_PMA_RESET_DONE,
+      txoutclk_out(0)                    => clk_tx_int_raw,
+      txpmaresetdone_out(0)              => Mon.RESETS.TX_PMA_RESET_DONE);
 
 
 
@@ -206,4 +210,4 @@ begin  -- architecture TCDS
       drp0_do       => drp_intf.do,
       drp0_rdy      => drp_intf.rdy);
 
-end architecture TCDS;
+end architecture behavioral;
