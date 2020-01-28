@@ -27,9 +27,6 @@ PL_PATH=../src
 BD_PATH=../bd
 CORES_PATH=../cores
 
-SYM_LNK_XMLS = $(shell find . -type l)
-MAP_OBJS = $(patsubst %.xml, %_map.vhd, $(SYM_LNK_XMLS))
-
 
 #################################################################################
 # Short build names
@@ -39,17 +36,14 @@ BIT=./bit/top.bit
 
 .SECONDARY:
 
-.PHONY: clean list bit automap
+.PHONY: clean list bit
 
-all: automap bit 
+all: bit 
 
 
 #################################################################################
 # Clean
 #################################################################################
-clean_vhd:
-	@echo "Cleaning up generated vhd files"
-	@rm -rf $(MAP_OBJS)
 clean_ip:
 	@echo "Cleaning up ip dcps"
 	@find ./cores -type f -name '*.dcp' -delete
@@ -63,7 +57,7 @@ clean_bit:
 clean_os:
 	@echo "Clean OS hw files"
 	@rm -f os/hw/*
-clean: clean_bd clean_ip clean_bit clean_os clean_vhd
+clean: clean_bd clean_ip clean_bit clean_os
 	@rm -rf ./proj/*
 	@echo "Cleaning up"
 
@@ -87,22 +81,6 @@ open_hw :
 
 
 #################################################################################
-# Generate MAP and PKG files automatically
-#################################################################################
-export LD_LIBRARY_PATH=/opt/cactus/lib
-SRC_PATH=src
-ADDR_PATH=address_tables
-
-automap : $(MAP_OBJS)
-# need to extract dir name and path name here
-
-%_map.vhd %_PKG.vhd : %.xml
-	cd $(dir $<) &&\
-	../../$(ADDR_PATH)/generate_test_xml $(basename $(notdir $<)) &&\
-	../../$(ADDR_PATH)/build_vhdl_packages test.xml
-
-
-#################################################################################
 # FPGA building
 #################################################################################
 bit	: $(BIT)
@@ -117,6 +95,13 @@ $(BIT)	:
 SVF	:
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+
+#################################################################################
+# Generate MAP and PKG files from address table
+#################################################################################
+ifneq ("$(wildcard xml_regmap/xml_regmap.mk)","")
+  include xml_regmap/xml_regmap.mk
+endif
 
 #################################################################################
 # Help 
