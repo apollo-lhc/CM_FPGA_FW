@@ -1,4 +1,4 @@
-<node>
+<node id="KINTEX_TCDS">
   <node id="CLOCKING"           address="0x000">
     <!-- <node id="FB_CLK_LOST"      address="0x000" mask="0x00000010" permission="ro"/> -->
     <!-- <node id="CLK_LOCKED"       address="0x000" mask="0x00000020" permission="ro"/> -->

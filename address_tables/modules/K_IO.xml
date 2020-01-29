@@ -1,4 +1,4 @@
-<node>
+<node id="K_IO">
   <node id="C2C" address="0x00000000">
     <node id="SOFT_ERR"        mask="0x00000001" permission="r"/>
     <node id="MMCM_NOT_LOCKED" mask="0x00000002" permission="r"/>

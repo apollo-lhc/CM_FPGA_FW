@@ -27,8 +27,9 @@ PL_PATH=../src
 BD_PATH=../bd
 CORES_PATH=../cores
 
-SYM_LNK_XMLS = $(shell find . -type l)
+SYM_LNK_XMLS = $(shell find ./ -type l)
 MAP_OBJS = $(patsubst %.xml, %_map.vhd, $(SYM_LNK_XMLS))
+PKG_OBJS = $(patsubst %.xml, %_PKG.vhd, $(SYM_LNK_XMLS))
 
 
 #################################################################################
@@ -48,8 +49,9 @@ all: automap bit
 # Clean
 #################################################################################
 clean_vhd:
-	@echo "Cleaning up generated vhd files"
-	@rm -rf $(MAP_OBJS)
+#	@echo "Cleaning up generated vhd files"
+#	@rm -rf $(MAP_OBJS)
+#	@rm -rf $(PKG_OBJS)
 clean_ip:
 	@echo "Cleaning up ip dcps"
 	@find ./cores -type f -name '*.dcp' -delete

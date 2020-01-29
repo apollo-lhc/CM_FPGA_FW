@@ -1,4 +1,4 @@
-<node>
+<node id="KINTEX_SYS_MGMT">
   <node id="TEMP"        address="0x100" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_5093140064_10240000000_0_2802308787_10000000;Status=1"/>
   <node id="VCCINT"      address="0x101" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=2"/>
   <node id="VCCAUX"      address="0x102" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=2"/>

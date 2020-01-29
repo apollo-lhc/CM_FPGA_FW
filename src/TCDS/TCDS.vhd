@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.axiRegPkg.all;
-use work.TCDS_Ctrl.all;
+use work.KINTEX_TCDS_Ctrl.all;
 use work.types.all;
 
 Library UNISIM;
@@ -51,8 +51,8 @@ architecture behavioral of TCDS is
   end record DRP_t;
   signal drp_intf : DRP_t;
 
-  signal Mon              :  TCDS_Mon_t;
-  signal Ctrl             :  TCDS_Ctrl_t;
+  signal Mon              :  KINTEX_TCDS_Mon_t;
+  signal Ctrl             :  KINTEX_TCDS_Ctrl_t;
 
   signal tx_data : slv_32_t;
   signal rx_data : slv_32_t;
@@ -107,7 +107,7 @@ begin  -- architecture TCDS
       O       => clk_rx_int);
 
 
-  TCDS_interface_1: entity work.TCDS_interface
+ TCDS_interface_1: entity work.KINTEX_TCDS_interface
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,

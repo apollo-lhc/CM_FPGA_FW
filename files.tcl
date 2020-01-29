@@ -19,8 +19,8 @@ set vhdl_files "\
      src/misc/LED_PWM.vhd \
      src/CM_K_info/CM_K_info.vhd \
      src/TCDS/TCDS.vhd \
-     src/TCDS/TCDS_map.vhd \
-     src/TCDS/TCDS_PKG.vhd \
+     src/TCDS/KINTEX_TCDS_map.vhd \
+     src/TCDS/KINTEX_TCDS_PKG.vhd \
      "
 set xdc_files "\
     src/top_pins.xdc \

@@ -5,8 +5,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.AXIRegPkg.all;
 use work.types.all;
-use work.TCDS_Ctrl.all;
-entity TCDS_interface is
+use work.KINTEX_TCDS_Ctrl.all;
+entity KINTEX_TCDS_interface is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -14,11 +14,11 @@ entity TCDS_interface is
     slave_readMISO   : out AXIReadMISO  := DefaultAXIReadMISO;
     slave_writeMOSI  : in  AXIWriteMOSI;
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
-    Mon              : in  TCDS_Mon_t;
-    Ctrl             : out TCDS_Ctrl_t
+    Mon              : in  KINTEX_TCDS_Mon_t;
+    Ctrl             : out KINTEX_TCDS_Ctrl_t
     );
-end entity TCDS_interface;
-architecture behavioral of TCDS_interface is
+end entity KINTEX_TCDS_interface;
+architecture behavioral of KINTEX_TCDS_interface is
   signal localAddress       : slv_32_t;
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;
