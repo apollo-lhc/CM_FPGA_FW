@@ -12,7 +12,7 @@ use UNISIM.vcomponents.all;
 entity TCDS is
   
   port (
-    clk_axi              : in  std_logic;
+    clk_axi              : in  std_logic; --50 MHz
     reset_axi_n          : in  std_logic;
     readMOSI             : in  AXIreadMOSI;
     readMISO             : out AXIreadMISO;
@@ -24,6 +24,8 @@ entity TCDS is
     DRP_writeMISO        : out AXIwriteMISO;
     refclk_p : in std_logic;
     refclk_n : in std_logic;
+    refclk1_p : in std_logic;
+    refclk1_n : in std_logic; 
     tx_p : out std_logic;
     tx_n : out std_logic;
     rx_p : in  std_logic;
@@ -34,6 +36,16 @@ end entity TCDS;
 architecture behavioral of TCDS is
   signal reset : std_logic;
   signal refclk : std_logic;
+  signal refclk1 : std_logic;
+  signal counts_refclk : std_logic_vector(31 downto 0);
+  signal counts_refclk1 : std_logic_vector(31 downto 0);
+  signal counts_refclk1_1 : std_logic_vector(31 downto 0);
+  signal counts_txoutclk : std_logic_vector(31 downto 0);
+  signal counts_refclk_atmax: std_logic;
+  signal counts_refclk1_atmax: std_logic;
+  signal counts_refclk1_1_atmax: std_logic;
+  signal counts_txoutclk_atmax: std_logic;
+--  signal out_refclk : std_logic;
 
   signal clk_tx_int     : std_logic;
   signal clk_tx_int_raw : std_logic;
@@ -83,7 +95,18 @@ begin  -- architecture TCDS
       O     => refclk,  
       ODIV2 => open);
 
-  
+  reflk1_buf : IBUFDS_GTE4
+    generic map (
+      REFCLK_EN_TX_PATH => '0',
+      REFCLK_HROW_CK_SEL => "00",
+      REFCLK_ICNTL_RX    => "00")
+    port map (
+      I     => refclk1_p,
+      IB    => refclk1_n,
+      CEB   => '0',
+      O     => refclk1,
+      ODIV2 => open);
+    
   --Convert QPLL clock to tx clocks
   --BUFG_GT
   clk_tx_int_buf : BUFG_GT
@@ -107,7 +130,7 @@ begin  -- architecture TCDS
       O       => clk_rx_int);
 
 
- TCDS_interface_1: entity work.KINTEX_TCDS_interface
+  TCDS_interface_1: entity work.TCDS_interface
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
@@ -133,10 +156,12 @@ begin  -- architecture TCDS
       gtwiz_reset_rx_done_out(0)            => Mon.RESETS.RX_RESET_DONE,
       gtwiz_userdata_tx_in               => tx_data,
       gtwiz_userdata_rx_out              => rx_data,    
-      gtrefclk01_in(0)                   => refclk,
+      gtrefclk00_in(0)                   => refclk,
+      gtrefclk01_in(0)                   => refclk1,
       qpll1outclk_out                    => open,
-      qpll1outrefclk_out                 => open,
-      drpaddr_in                         => drp_intf.addr,
+--      qpll1outrefclk_out                 => out_refclk,
+      qpll1refclksel_in                  => Ctrl.CLOCKING.REFCLK_SEL,
+      drpaddr_in                         => Ctrl.drp_intf.addr,
       drpclk_in(0)                       => clk_axi,
       drpdi_in                           => drp_intf.di,
       drpen_in(0)                        => drp_intf.en,
@@ -190,7 +215,25 @@ begin  -- architecture TCDS
       txoutclk_out(0)                    => clk_tx_int_raw,
       txpmaresetdone_out(0)              => Mon.RESETS.TX_PMA_RESET_DONE);
 
+  ----Monitoring Clock Synthesizer
+  count_refclk: entity work.counter_clock
+  port map (
+    clk0        => refclk,
+    clk1        => refclk1,
+    reset_sync  => reset,
+    enable      => "1",
+    count       => Mon.CLOCKING.COUNTS_REFCLK
+    );
 
+  count_txoutclk: entity work.counter_clock
+    port map (
+      clk0        => refclk,
+      clk1        => clk_tx_int,
+      reset_sync  => reset,
+      enable      => "1",
+      count       => Mon.CLOCKING.COUNTS_TXOUTCLK
+      );
+  
 
   AXI_DRP_1: entity work.AXI_DRP
     port map (

@@ -69,11 +69,12 @@ begin  -- architecture behavioral
         when 0 => --0x0
           localRdData( 1)            <=  Mon.CLOCKING.POWER_GOOD;           --
           localRdData( 9)            <=  Mon.CLOCKING.RX_CDR_STABLE;        --
-        when 32 => --0x20
-          localRdData( 1)            <=  Mon.TX.PMA_RESET_DONE;             --
-          localRdData( 4)            <=  Mon.TX.PWR_GOOD;                   --
-        when 66 => --0x42
-          localRdData( 3 downto  0)  <=  reg_data(66)( 3 downto  0);        --
+        when 1 => --0x1
+          localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_REFCLK;        --
+        when 2 => --0x2
+          localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_TXOUTCLK;      --
+        when 49 => --0x31
+          localRdData( 0)            <=  reg_data(49)( 0);                  --
         when 68 => --0x44
           localRdData(31 downto  0)  <=  Mon.DEBUG.CAPTURE_D;               --
         when 5 => --0x5
@@ -87,14 +88,15 @@ begin  -- architecture behavioral
           localRdData( 7)            <=  Mon.RESETS.TX_PMA_RESET_DONE;      --
           localRdData(10)            <=  Mon.RESETS.RX_RESET_DONE;          --
           localRdData(11)            <=  Mon.RESETS.RX_PMA_RESET_DONE;      --
-        when 33 => --0x21
-          localRdData( 3 downto  0)  <=  reg_data(33)( 3 downto  0);        --
-          localRdData( 5)            <=  reg_data(33)( 5);                  --
-          localRdData( 6)            <=  reg_data(33)( 6);                  --
+        when 32 => --0x20
+          localRdData( 1)            <=  Mon.TX.PMA_RESET_DONE;             --
+          localRdData( 4)            <=  Mon.TX.PWR_GOOD;                   --
         when 8 => --0x8
           localRdData( 2 downto  0)  <=  reg_data( 8)( 2 downto  0);        --
         when 71 => --0x47
           localRdData( 3 downto  0)  <=  reg_data(71)( 3 downto  0);        --
+        when 66 => --0x42
+          localRdData( 3 downto  0)  <=  reg_data(66)( 3 downto  0);        --
         when 16 => --0x10
           localRdData( 1)            <=  Mon.RX.PMA_RESET_DONE;             --
           localRdData( 7 downto  4)  <=  Mon.RX.BAD_CHAR;                   --
@@ -102,8 +104,10 @@ begin  -- architecture behavioral
         when 17 => --0x11
           localRdData( 3 downto  0)  <=  reg_data(17)( 3 downto  0);        --
           localRdData( 5)            <=  reg_data(17)( 5);                  --
-        when 49 => --0x31
-          localRdData( 0)            <=  reg_data(49)( 0);                  --
+        when 33 => --0x21
+          localRdData( 3 downto  0)  <=  reg_data(33)( 3 downto  0);        --
+          localRdData( 5)            <=  reg_data(33)( 5);                  --
+          localRdData( 6)            <=  reg_data(33)( 6);                  --
         when 70 => --0x46
           localRdData(31 downto  0)  <=  reg_data(70)(31 downto  0);        --
         when 69 => --0x45
@@ -140,6 +144,7 @@ begin  -- architecture behavioral
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
       reg_data <= default_reg_data;
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+      Ctrl.CLOCKING.REFCLK_SEL <= (others => '0');
       Ctrl.RX.PRBS_RESET <= '0';
       Ctrl.TX.PRBS_FORCE_ERROR <= '0';
       Ctrl.EYESCAN.TRIGGER <= '0';
@@ -156,6 +161,8 @@ begin  -- architecture behavioral
           reg_data(33)( 6)            <=  localWrData( 6);                --
         when 66 => --0x42
           reg_data(66)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
+        when 3 => --0x3
+          Ctrl.CLOCKING.REFCLK_SEL    <=  localWrData( 2 downto  0);     
         when 5 => --0x5
           reg_data( 5)( 0)            <=  localWrData( 0);                --
           reg_data( 5)( 4)            <=  localWrData( 4);                --

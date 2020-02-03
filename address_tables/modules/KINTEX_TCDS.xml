@@ -5,7 +5,9 @@
     <!-- <node id="RESET"            address="0x001" mask="0x00000001" permission="rw"/> -->
     <node id="RX_CDR_STABLE"    address="0x000" mask="0x00000200" permission="r"/>
     <node id="POWER_GOOD"    address="0x000" mask="0x00000002" permission="r"/>
-     
+    <node id="COUNTS_REFCLK"    address="0x001" permission="r"/>
+    <node id="COUNTS_TXOUTCLK"    address="0x002" permission="r"/> 
+    <node id="REFCLK_SEL"    address="0x003" mask="0x00000007" permission="w"/>
   </node>
   <node id="RESETS"             address="0x005">    
     <node id="RESET_ALL"         address="0x000" mask="0x00000001" permission="rw"/>
