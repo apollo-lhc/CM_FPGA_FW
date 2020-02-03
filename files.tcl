@@ -15,6 +15,8 @@ set vhdl_files "\
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
      src/BoardIO/BoardIO.vhd \
+     src/BoardIO/K_IO_PKG.vhd \
+     src/BoardIO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
      src/CM_K_info/CM_K_info.vhd \
@@ -34,6 +36,6 @@ set xci_files "\
     	      "
 
 #DRP ip
-set ip_repo_path /opt/Xilinx/IP
+set ip_repo_path bd/IP
 set_property  ip_repo_paths ${ip_repo_path}  [current_project]
 update_ip_catalog

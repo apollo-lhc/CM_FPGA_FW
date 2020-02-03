@@ -65,8 +65,8 @@ begin  -- architecture behavioral
     localRdData <= x"00000000";
     if localRdReq = '1' then
       localRdAck  <= '1';
-      case localAddress(8 downto 0) is
-        when x"0" =>
+      case to_integer(unsigned(localAddress(8 downto 0))) is
+        when 0 => --0x0
           localRdData( 0)            <=  Mon.C2C.SOFT_ERR;                 --
           localRdData( 1)            <=  Mon.C2C.MMCM_NOT_LOCKED;          --
           localRdData( 2)            <=  Mon.C2C.LINK_RESET;               --
@@ -77,7 +77,7 @@ begin  -- architecture behavioral
           localRdData( 7)            <=  Mon.C2C.LINK_STATUS;              --
           localRdData( 8)            <=  Mon.C2C.CONFIG_ERR;               --
           localRdData( 9)            <=  Mon.C2C.DO_CC;                    --
-        when x"100" =>
+        when 256 => --0x100
           localRdData( 7 downto  0)  <=  reg_data(256)( 7 downto  0);      --
           localRdData(15 downto  8)  <=  reg_data(256)(15 downto  8);      --
           localRdData(23 downto 16)  <=  reg_data(256)(23 downto 16);      --
@@ -103,8 +103,8 @@ begin  -- architecture behavioral
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       
       if localWrEn = '1' then
-        case localAddress(8 downto 0) is
-        when x"100" =>
+        case to_integer(unsigned(localAddress(8 downto 0))) is
+        when 256 => --0x100
           reg_data(256)( 7 downto  0)  <=  localWrData( 7 downto  0);      --
           reg_data(256)(15 downto  8)  <=  localWrData(15 downto  8);      --
           reg_data(256)(23 downto 16)  <=  localWrData(23 downto 16);      --

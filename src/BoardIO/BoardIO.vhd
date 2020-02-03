@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 use work.AXIRegPkg.all;
 
 use work.types.all;
+use work.K_IO_Ctrl.all;
 
 entity BoardIO is
   generic (
@@ -23,73 +24,38 @@ entity BoardIO is
 end entity BoardIO;
 
 architecture behavioral of BoardIO is
-  signal localAddress : slv_32_t;
-  signal localRdData  : slv_32_t;
-  signal localRdData_latch  : slv_32_t;
-  signal localWrData  : slv_32_t;
-  signal localWrEn    : std_logic;
-  signal localRdReq   : std_logic;
-  signal localRdAck   : std_logic;
-  
-
-  signal reg_data :  slv32_array_t(integer range 0 to (2**REG_COUNT_PWR_OF_2) -1);
+  signal Mon              :  K_IO_Mon_t;
+  signal Ctrl             :  K_IO_Ctrl_t;
 
 begin  -- architecture behavioral
-  
-  AXIRegBridge : entity work.axiLiteReg
+
+  K_IO_interface_1: entity work.K_IO_interface
     port map (
-      clk_axi     => clk_axi,
-      reset_axi_n => reset_axi_n,
-      readMOSI    => readMOSI,
-      readMISO    => readMISO,
-      writeMOSI   => writeMOSI,
-      writeMISO   => writeMISO,
-      address     => localAddress,
-      rd_data     => localRdData_latch,
-      wr_data     => localWrData,
-      write_en    => localWrEn,
-      read_req    => localRdReq,
-      read_ack    => localRdAck);
-
-
-  latch_reads: process (clk_axi) is
-  begin  -- process latch_reads
-    if clk_axi'event and clk_axi = '1' then  -- rising clock edge
-      if localRdReq = '1' then
-        localRdData_latch <= localRdData;        
-      end if;
-    end if;
-  end process latch_reads;
+      clk_axi         => clk_axi,
+      reset_axi_n     => reset_axi_n,
+      slave_readMOSI  => readMOSI,
+      slave_readMISO  => readMISO,
+      slave_writeMOSI => writeMOSI,
+      slave_writeMISO => writeMISO,
+      Mon             => Mon,
+      Ctrl            => Ctrl);
   
-  reads: process (localRdReq,localAddress,reg_data) is
-  begin  -- process reads
-    localRdAck  <= '0';
-    localRdData <= x"00000000";
-    if localRdReq = '1' then
-      localRdAck  <= '1';
-      if localAddress(REG_COUNT_PWR_OF_2) = '0' then
-        localRdData <= reg_in(to_integer(unsigned(localAddress(REG_COUNT_PWR_OF_2-1 downto 0))));
-      else
-        localRdData <= reg_data(to_integer(unsigned(localAddress(REG_COUNT_PWR_OF_2-1 downto 0))));
-      end if;
-    end if;
-  end process reads;
+  Mon.C2C.CONFIG_ERR      <= reg_in(0)(8);
+  Mon.C2C.DO_CC           <= reg_in(0)(9);
+  Mon.C2C.GT_PLL_LOCK     <= reg_in(0)(5);
+  Mon.C2C.HARD_ERR        <= reg_in(0)(4);
+  Mon.C2C.LANE_UP         <= reg_in(0)(3);
+  Mon.C2C.LINK_RESET      <= reg_in(0)(2);
+  Mon.C2C.LINK_STATUS     <= reg_in(0)(7);
+  Mon.C2C.MMCM_NOT_LOCKED <= reg_in(0)(1);
+  Mon.C2C.MULTIBIT_ERR    <= reg_in(0)(6);
+  Mon.C2C.SOFT_ERR        <= reg_in(0)(0);
 
-  reg_out <= reg_data;
-  reg_writes: process (clk_axi, reset_axi_n) is
-  begin  -- process reg_writes
-    if reset_axi_n = '0' then                 -- asynchronous reset (active high)
-      reg_data <= REG_OUT_DEFAULTS;
-    elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
-      if localWrEn = '1' then
-        if localAddress(REG_COUNT_PWR_OF_2) = '1' then
-          reg_data(to_integer(unsigned(localAddress(REG_COUNT_PWR_OF_2-1 downto 0)))) <= localWrData;
-        end if;
-      end if;
-    end if;
-  end process reg_writes;
-
-
+  reg_out(0)( 7 downto  0)  <= Ctrl.RGB.R;
+  reg_out(0)(15 downto  8)  <= Ctrl.RGB.G;
+  reg_out(0)(23 downto 16)  <= Ctrl.RGB.B;
+  reg_out(0)(31 downto 24)  <= x"00";
+  
   
 
   
