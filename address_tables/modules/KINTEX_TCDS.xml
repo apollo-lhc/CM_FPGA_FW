@@ -5,7 +5,7 @@
     <!-- <node id="RESET"            address="0x001" mask="0x00000001" permission="rw"/> -->
     <node id="RX_CDR_STABLE"    address="0x000" mask="0x00000200" permission="r"/>
     <node id="POWER_GOOD"    address="0x000" mask="0x00000002" permission="r"/>
-    
+     
   </node>
   <node id="RESETS"             address="0x005">    
     <node id="RESET_ALL"         address="0x000" mask="0x00000001" permission="rw"/>

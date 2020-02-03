@@ -10,7 +10,7 @@
     <node id="LINK_STATUS"     mask="0x00000080" permission="r"/>
     <node id="CONFIG_ERR"      mask="0x00000100" permission="r"/>    
     <node id="DO_CC"           mask="0x00000200" permission="r"/>
-  </node>
+  </node> 
   <node id="RGB"  address="0x00000100">
     <node id="R" mask="0xFF" permission="rw"/>
     <node id="G" mask="0xFF00" permission="rw"/>
