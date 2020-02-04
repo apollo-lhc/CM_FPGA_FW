@@ -14,9 +14,8 @@ set vhdl_files "\
      src/misc/capture_CDC.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
-     src/BoardIO/BoardIO.vhd \
-     src/BoardIO/K_IO_PKG.vhd \
-     src/BoardIO/K_IO_map.vhd \
+     src/K_IO/K_IO_PKG.vhd \
+     src/K_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
      src/CM_K_info/CM_K_info.vhd \

@@ -77,6 +77,8 @@ begin  -- architecture behavioral
           localRdData( 7)            <=  Mon.C2C.LINK_STATUS;              --
           localRdData( 8)            <=  Mon.C2C.CONFIG_ERR;               --
           localRdData( 9)            <=  Mon.C2C.DO_CC;                    --
+        when 16 => --0x10
+          localRdData( 0)            <=  Mon.CLK_200_LOCKED;               --
         when 256 => --0x100
           localRdData( 7 downto  0)  <=  reg_data(256)( 7 downto  0);      --
           localRdData(15 downto  8)  <=  reg_data(256)(15 downto  8);      --

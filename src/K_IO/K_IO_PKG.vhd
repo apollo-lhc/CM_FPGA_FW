@@ -26,6 +26,7 @@ package K_IO_CTRL is
 
   type K_IO_MON_t is record
     C2C                        : K_IO_C2C_MON_t;
+    CLK_200_LOCKED             : std_logic;     
   end record K_IO_MON_t;
 
   type K_IO_CTRL_t is record
