@@ -145,7 +145,7 @@ begin  -- architecture behavioral
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
       reg_data <= default_reg_data;
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
-      Ctrl.CLOCKING.REFCLK_SEL <= '0';
+      Ctrl.CLOCKING.REFCLK_SEL <= (others=>'0');
       Ctrl.RX.PRBS_RESET <= '0';
       Ctrl.TX.PRBS_FORCE_ERROR <= '0';
       Ctrl.EYESCAN.TRIGGER <= '0';
