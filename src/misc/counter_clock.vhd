@@ -22,7 +22,6 @@ entity counter_clock is
     clk0        : in  std_logic;
     clk1        : in std_logic;
     reset_sync  : in  std_logic;
-    enable      : in  std_logic;
     count       : out std_logic_vector(DATA_WIDTH-1 downto 0)
     );
 
@@ -52,24 +51,20 @@ begin  -- architecture behavioral
           count <= std_logic_vector(local_count_clk1);
         end if;
         -- count clk0
-        if enable = '1' then
-          if local_count_clk0 = max_count_clk0 then
-            local_count_clk0 <= min_count;
-          end if;
-        else
-          local_count_clk0 <= local_count_clk0 + 1;
+        if local_count_clk0 = max_count_clk0 then
+          local_count_clk0 <= min_count;
         end if;
+      else
+        local_count_clk0 <= local_count_clk0 + 1;
       end if;
     end if;
     -- count clk1
     if clk1'event and clk1 = '1' then
-      if enable = '1' then
-        if local_count_clk0 = max_count_clk0 or local_count_clk1 = max_count_clk1 then
-          local_count_clk1 <= min_count;
-        else
-          local_count_clk1 <= local_count_clk1 + 1;
-        end if;   
-      end if;
+      if local_count_clk0 = max_count_clk0 or local_count_clk1 = max_count_clk1 then
+        local_count_clk1 <= min_count;
+      else
+        local_count_clk1 <= local_count_clk1 + 1;
+      end if;   
     end if;
   end process event_counter;
 

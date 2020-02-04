@@ -221,7 +221,6 @@ begin  -- architecture TCDS
     clk0        => refclk,
     clk1        => refclk1,
     reset_sync  => reset,
-    enable      => "1",
     count       => Mon.CLOCKING.COUNTS_REFCLK
     );
 
@@ -230,7 +229,6 @@ begin  -- architecture TCDS
       clk0        => refclk,
       clk1        => clk_tx_int,
       reset_sync  => reset,
-      enable      => "1",
       count       => Mon.CLOCKING.COUNTS_TXOUTCLK
       );
   
