@@ -11,9 +11,10 @@
     <node id="CONFIG_ERR"      mask="0x00000100" permission="r"/>    
     <node id="DO_CC"           mask="0x00000200" permission="r"/>
   </node> 
+  <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
   <node id="RGB"  address="0x00000100">
-    <node id="R" mask="0xFF" permission="rw"/>
-    <node id="G" mask="0xFF00" permission="rw"/>
+    <node id="R" mask="0xFF"     permission="rw"/>
+    <node id="G" mask="0xFF00"   permission="rw"/>
     <node id="B" mask="0xFF0000" permission="rw"/>
   </node>
 </node>

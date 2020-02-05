@@ -1,3 +1,5 @@
 [submodule "bd"]
 	path = bd
-	url = git@github.com:dgastler/BU_BUILD.git
+	url = http://github.com/dgastler/BU_BUILD.git
+	branch = develop
+

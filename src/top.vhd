@@ -4,6 +4,8 @@ use ieee.numeric_std.all;
 
 use work.axiRegPkg.all;
 use work.types.all;
+use work.K_IO_Ctrl.all;
+
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -243,34 +245,29 @@ begin  -- architecture structure
       LEDgreen   => led_green,
       LEDblue    => led_blue);
 
-  K_IO: entity work.BoardIO
-    generic map (
-      REG_COUNT_PWR_OF_2 => 2,
-      REG_OUT_DEFAULTS   => (x"00000000", x"00000000", x"00000000", x"00000000"))
+  K_IO_interface_1: entity work.K_IO_interface
     port map (
-      clk_axi     => AXI_CLK,
-      reset_axi_n => AXI_RST_N,
-      readMOSI    => local_AXI_ReadMOSI(0),
-      readMISO    => local_AXI_ReadMISO(0),
-      writeMOSI   => local_AXI_WriteMOSI(0),
-      writeMISO   => local_AXI_WriteMISO(0),
-      reg_out(0)( 7 downto  0)  => led_red_local,
-      reg_out(0)(15 downto  8)  => led_green_local,
-      reg_out(0)(23 downto 16)  => led_blue_local,
-      reg_out(0)(31 downto 24) => open,
-      reg_out(3 downto 1) => open,
-      reg_in(0)   => x"00000" & "00" &
-                      C2CLink_aurora_do_cc &               
-                      C2CLink_axi_c2c_config_error_out &   
-                      C2CLink_axi_c2c_link_status_out &    
-                      C2CLink_axi_c2c_multi_bit_error_out &
-                      C2CLink_phy_gt_pll_lock &            
-                      C2CLink_phy_hard_err &               
-                      C2CLink_phy_lane_up(0) &                
-                      C2CLink_phy_link_reset_out &         
-                      C2CLink_phy_mmcm_not_locked_out &    
-                      C2CLink_phy_soft_err,
-      reg_in(3 downto 1) => (others => x"00000000"));
+      clk_axi         => AXI_CLK,
+      reset_axi_n     => AXI_RST_N,
+      slave_readMOSI  => local_AXI_readMOSI(0),
+      slave_readMISO  => local_AXI_readMISO(0),
+      slave_writeMOSI => local_AXI_writeMOSI(0),
+      slave_writeMISO => local_AXI_writeMISO(0),
+      Mon.C2C.CONFIG_ERR      => C2CLink_axi_c2c_config_error_out,
+      Mon.C2C.DO_CC           => C2CLink_aurora_do_cc,
+      Mon.C2C.GT_PLL_LOCK     => C2CLink_phy_gt_pll_lock,
+      Mon.C2C.HARD_ERR        => C2CLink_phy_hard_err,
+      Mon.C2C.LANE_UP         => C2CLink_phy_lane_up(0),
+      Mon.C2C.LINK_RESET      => C2CLink_phy_link_reset_out,
+      Mon.C2C.LINK_STATUS     => C2CLink_axi_c2c_link_status_out,
+      Mon.C2C.MMCM_NOT_LOCKED => C2CLink_phy_mmcm_not_locked_out,
+      Mon.C2C.MULTIBIT_ERR    => C2CLink_axi_c2c_multi_bit_error_out,
+      Mon.C2C.SOFT_ERR        => C2CLink_phy_soft_err,
+      Mon.CLK_200_LOCKED      => locked_clk200,
+      Ctrl.RGB.R              => led_red_local,
+      Ctrl.RGB.G              => led_green_local,
+      Ctrl.RGB.B              => led_blue_local
+      );
 
   CM_K_info_1: entity work.CM_K_info
     port map (
