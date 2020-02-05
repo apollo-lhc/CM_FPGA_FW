@@ -7,6 +7,7 @@ use IEEE.std_logic_1164.all;
 package KINTEX_TCDS_CTRL is
   type KINTEX_TCDS_CLOCKING_MON_t is record
     COUNTS_REFCLK              : std_logic_vector(31 downto  0);
+    COUNTS_REFCLK0             : std_logic_vector(31 downto  0);
     COUNTS_TXOUTCLK            : std_logic_vector(31 downto  0);
     POWER_GOOD                 : std_logic;                     
     RX_CDR_STABLE              : std_logic;                     

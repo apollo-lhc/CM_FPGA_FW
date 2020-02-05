@@ -71,13 +71,12 @@ begin  -- architecture behavioral
           localRdData( 9)            <=  Mon.CLOCKING.RX_CDR_STABLE;        --
         when 1 => --0x1
           localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_REFCLK;        --
-          localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_REFCLK;        --
         when 2 => --0x2
           localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_TXOUTCLK;      --
-        when 49 => --0x31
-          localRdData( 0)            <=  reg_data(49)( 0);                  --
-        when 68 => --0x44
-          localRdData(31 downto  0)  <=  Mon.DEBUG.CAPTURE_D;               --
+        when 3 => --0x3
+          localRdData( 2 downto  0)  <=  reg_data( 3)( 2 downto  0);        --
+        when 4 => --0x4
+          localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_REFCLK0;       --
         when 5 => --0x5
           localRdData( 0)            <=  reg_data( 5)( 0);                  --
           localRdData( 4)            <=  reg_data( 5)( 4);                  --
@@ -105,6 +104,10 @@ begin  -- architecture behavioral
         when 17 => --0x11
           localRdData( 3 downto  0)  <=  reg_data(17)( 3 downto  0);        --
           localRdData( 5)            <=  reg_data(17)( 5);                  --
+        when 49 => --0x31
+          localRdData( 0)            <=  reg_data(49)( 0);                  --
+        when 68 => --0x44
+          localRdData(31 downto  0)  <=  Mon.DEBUG.CAPTURE_D;               --
         when 33 => --0x21
           localRdData( 3 downto  0)  <=  reg_data(33)( 3 downto  0);        --
           localRdData( 5)            <=  reg_data(33)( 5);                  --
@@ -122,6 +125,7 @@ begin  -- architecture behavioral
 
 
   -- Register mapping to ctrl structures
+  Ctrl.CLOCKING.REFCLK_SEL     <=  reg_data( 3)( 2 downto  0);     
   Ctrl.RESETS.RESET_ALL        <=  reg_data( 5)( 0);               
   Ctrl.RESETS.TX_PLL_DATAPATH  <=  reg_data( 5)( 4);               
   Ctrl.RESETS.TX_DATAPATH      <=  reg_data( 5)( 5);               
@@ -145,7 +149,6 @@ begin  -- architecture behavioral
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
       reg_data <= default_reg_data;
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
-      Ctrl.CLOCKING.REFCLK_SEL <= (others=>'0');
       Ctrl.RX.PRBS_RESET <= '0';
       Ctrl.TX.PRBS_FORCE_ERROR <= '0';
       Ctrl.EYESCAN.TRIGGER <= '0';
@@ -163,7 +166,7 @@ begin  -- architecture behavioral
         when 66 => --0x42
           reg_data(66)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
         when 3 => --0x3
-          Ctrl.CLOCKING.REFCLK_SEL    <=  localWrData( 2 downto  0);     
+          reg_data( 3)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
         when 5 => --0x5
           reg_data( 5)( 0)            <=  localWrData( 0);                --
           reg_data( 5)( 4)            <=  localWrData( 4);                --
