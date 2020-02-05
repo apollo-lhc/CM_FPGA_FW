@@ -130,7 +130,7 @@ begin  -- architecture TCDS
       O       => clk_rx_int);
 
 
-  TCDS_interface_1: entity work.TCDS_interface
+  TCDS_interface_1: entity work.Kintex_TCDS_interface
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
@@ -161,7 +161,7 @@ begin  -- architecture TCDS
       qpll1outclk_out                    => open,
 --      qpll1outrefclk_out                 => out_refclk,
       qpll1refclksel_in                  => Ctrl.CLOCKING.REFCLK_SEL,
-      drpaddr_in                         => Ctrl.drp_intf.addr,
+      drpaddr_in                         => drp_intf.addr,
       drpclk_in(0)                       => clk_axi,
       drpdi_in                           => drp_intf.di,
       drpen_in(0)                        => drp_intf.en,
@@ -228,7 +228,7 @@ begin  -- architecture TCDS
     port map (
       clk0        => refclk,
       clk1        => refclk1,
-      resett_sync  => reset,
+      reset_sync  => reset,
       count       => Mon.CLOCKING.COUNTS_REFCLK
       );
 

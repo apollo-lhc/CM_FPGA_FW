@@ -27,9 +27,9 @@ entity counter_clock is
 
 end entity counter_clock;
 
-architecture behavioral of counter is
+architecture behavioral of counter_clock is
 
-  constant max_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := 200000000;--0X"0BEBC200"
+  constant max_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := to_unsigned(200000000,DATA_WIDTH);--0X"0BEBC200"
   constant max_count_clk1 : unsigned(DATA_WIDTH-1 downto 0) := unsigned(end_value(DATA_WIDTH-1 downto 0));
   constant min_count : unsigned(DATA_WIDTH-1 downto 0) := unsigned(start_value(DATA_WIDTH-1 downto 0));
   signal local_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := min_count;
@@ -49,18 +49,16 @@ begin  -- architecture behavioral
         --output current counter;
         if local_count_clk0 = max_count_clk0 then
           count <= std_logic_vector(local_count_clk1);
-        end if;
         -- count clk0
-        if local_count_clk0 = max_count_clk0 then
           local_count_clk0 <= min_count;
+        else
+          local_count_clk0 <= local_count_clk0 + 1;
         end if;
-      else
-        local_count_clk0 <= local_count_clk0 + 1;
       end if;
     end if;
     -- count clk1
     if clk1'event and clk1 = '1' then
-      if local_count_clk0 = max_count_clk0 or local_count_clk1 = max_count_clk1 then
+      if (local_count_clk0 = max_count_clk0) or (local_count_clk1 = max_count_clk1) then
         local_count_clk1 <= min_count;
       else
         local_count_clk1 <= local_count_clk1 + 1;
