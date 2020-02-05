@@ -13,6 +13,7 @@ entity TCDS is
   
   port (
     clk_axi              : in  std_logic; --50 MHz
+    clk_200              : in  std_logic;
     reset_axi_n          : in  std_logic;
     readMOSI             : in  AXIreadMOSI;
     readMISO             : out AXIreadMISO;
@@ -216,25 +217,25 @@ begin  -- architecture TCDS
       txpmaresetdone_out(0)              => Mon.RESETS.TX_PMA_RESET_DONE);
 
   ----Monitoring Clock Synthesizer
-  count_refclk0: entity work.counter_clock
-    port map (
-      clk0        => refclk,
-      clk1        => refclk1,
-      reset_sync  => reset,
-      count       => Mon.CLOCKING.COUNTS_REFCLK0
-      );
+  --count_refclk0: entity work.counter_clock
+  --  port map (
+  --    clk0        => clk_200,
+  --    clk1        => refclk1,
+  --    reset_sync  => reset,
+  --    count       => Mon.CLOCKING.COUNTS_REFCLK0
+  --    );
   
-  count_refclk: entity work.counter_clock
-    port map (
-      clk0        => refclk,
-      clk1        => refclk1,
-      reset_sync  => reset,
-      count       => Mon.CLOCKING.COUNTS_REFCLK
-      );
+  --count_refclk: entity work.counter_clock
+  --  port map (
+  --    clk0        => clk_200,
+  --    clk1        => refclk1,
+  --    reset_sync  => reset,
+  --    count       => Mon.CLOCKING.COUNTS_REFCLK
+  --    );
 
   count_txoutclk: entity work.counter_clock
     port map (
-      clk0        => refclk,
+      clk0        => clk_200,
       clk1        => clk_tx_int,
       reset_sync  => reset,
       count       => Mon.CLOCKING.COUNTS_TXOUTCLK

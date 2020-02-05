@@ -281,6 +281,7 @@ begin  -- architecture structure
   TCDS_1: entity work.TCDS
     port map (
       clk_axi              => AXI_CLK,
+      clk_200              => clk_200,
       reset_axi_n          => AXI_RST_N,
       readMOSI             => local_AXI_readMOSI(3),
       readMISO             => local_AXI_readMISO(3),
