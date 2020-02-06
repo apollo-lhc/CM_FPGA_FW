@@ -34,7 +34,6 @@ architecture behavioral of counter_clock is
   constant min_count : unsigned(DATA_WIDTH-1 downto 0) := unsigned(start_value(DATA_WIDTH-1 downto 0));
   signal local_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := min_count;
   signal local_count_clk1 : unsigned(DATA_WIDTH-1 downto 0) := min_count;
-  signal local_count_clk0_reg : unsigned(DATA_WIDTH-1 downto 0) := min_count;
   
 begin  -- architecture behavioral
 
@@ -44,31 +43,25 @@ begin  -- architecture behavioral
       if reset_sync = '1' then
         -- synchronous reset
         local_count_clk0 <= min_count;
+        count       <= std_logic_vector(min_count);
+        local_count_clk1 <= min_count;
       else
         if local_count_clk0 = max_count_clk0 then
         -- count clk0
           local_count_clk0 <= min_count;
+          count       <=std_logic_vector(local_count_clk1);
+          local_count_clk1 <= min_count;
         else
           local_count_clk0 <= local_count_clk0 + 1;
+          if clk1 = '1' then
+            if local_count_clk1 = max_count_clk1 then
+              local_count_clk1 <= min_count;
+            else
+              local_count_clk1 <= local_count_clk1 + 1;
+            end if;
+          end if;
         end if;
       end if;
-    end if;
-    -- count clk1
-    if clk1'event and clk1 = '1' then
-      if reset_sync = '1' then
-        local_count_clk1 <= min_count;
-        count       <= std_logic_vector(min_count);
-        local_count_clk0_reg <= min_count;
-      else
-        local_count_clk0_reg <= local_count_clk0;
-        if (local_count_clk1 = max_count_clk1) or (local_count_clk0_reg=min_count) then
-          local_count_clk1 <= min_count;
-         --output current counter; 
-          count       <=std_logic_vector(local_count_clk1);
-        else
-          local_count_clk1 <= local_count_clk1 + 1;
-        end if;   
-      end if;   
     end if;
   end process event_counter;
 

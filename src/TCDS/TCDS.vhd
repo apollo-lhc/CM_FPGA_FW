@@ -157,8 +157,8 @@ begin  -- architecture TCDS
       gtwiz_reset_rx_done_out(0)            => Mon.RESETS.RX_RESET_DONE,
       gtwiz_userdata_tx_in               => tx_data,
       gtwiz_userdata_rx_out              => rx_data,    
-      gtrefclk00_in(0)                   => refclk,
-      gtrefclk01_in(0)                   => refclk1,
+      gtrefclk01_in(0)                   => refclk,
+      gtrefclk11_in(0)                   => refclk1,
       qpll1outclk_out                    => open,
 --      qpll1outrefclk_out                 => out_refclk,
       qpll1refclksel_in                  => Ctrl.CLOCKING.REFCLK_SEL,
@@ -233,6 +233,35 @@ begin  -- architecture TCDS
   --    count       => Mon.CLOCKING.COUNTS_REFCLK
   --    );
 
+  --count_refclk0: entity work.counter
+  --  port map (    
+  --    clk         => clk_200,
+  --    reset_async => reset,
+  --    reset_sync  => reset,
+  --    enable      => '1',
+  --    event       => '1',--clk_200,
+  --    count       => Mon.CLOCKING.COUNTS_REFCLK0,
+  --    at_max      => open
+  --    );
+  count_refclk0: entity work.counter_clock
+    port map (
+      clk0        => clk_200,
+      clk1        => clk_200,
+      reset_sync  => reset,
+      count       => Mon.CLOCKING.COUNTS_REFCLK0
+      );
+  
+  count_refclk: entity work.counter
+    port map (
+      clk         => clk_200,
+      reset_async => reset,
+      reset_sync  => reset,
+      enable      => '1',
+      event       => clk_tx_int,
+      count       => Mon.CLOCKING.COUNTS_REFCLK,
+      at_max      => open
+      );        
+  
   count_txoutclk: entity work.counter_clock
     port map (
       clk0        => clk_200,
