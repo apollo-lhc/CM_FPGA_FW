@@ -138,7 +138,21 @@ begin  -- architecture behavioral
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data <= default_reg_data;
+           reg_data( 5)( 0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RESET_ALL;
+           reg_data( 5)( 4)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.TX_PLL_DATAPATH;
+           reg_data( 5)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.TX_DATAPATH;
+           reg_data( 5)( 8)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RX_PLL_DATAPATH;
+           reg_data( 5)( 9)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RX_DATAPATH;
+      reg_data( 8)( 2 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.LOOPBACK;
+      reg_data(17)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RX.PRBS_SEL;
+           reg_data(17)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RX.USER_CLK_READY;
+      reg_data(33)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.PRBS_SEL;
+           reg_data(33)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.INHIBIT;
+           reg_data(33)( 6)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.USER_CLK_READY;
+           reg_data(49)( 0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.EYESCAN.RESET;
+      reg_data(66)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.MODE;
+      reg_data(70)(31 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.FIXED_SEND_D;
+      reg_data(71)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.FIXED_SEND_K;
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       Ctrl.RX.PRBS_RESET <= '0';
       Ctrl.TX.PRBS_FORCE_ERROR <= '0';

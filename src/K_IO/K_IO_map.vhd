@@ -101,7 +101,9 @@ begin  -- architecture behavioral
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data <= default_reg_data;
+      reg_data(256)( 7 downto  0)  <= DEFAULT_K_IO_CTRL_t.RGB.R;
+      reg_data(256)(15 downto  8)  <= DEFAULT_K_IO_CTRL_t.RGB.G;
+      reg_data(256)(23 downto 16)  <= DEFAULT_K_IO_CTRL_t.RGB.B;
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       
       if localWrEn = '1' then

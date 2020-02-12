@@ -24,6 +24,11 @@ package K_IO_CTRL is
     R                          : std_logic_vector( 7 downto  0);
   end record K_IO_RGB_CTRL_t;
 
+  constant DEFAULT_K_IO_RGB_CTRL_t : K_IO_RGB_CTRL_t := (
+                                                         B => (others => '0'),
+                                                         R => (others => '0'),
+                                                         G => (others => '0')
+                                                        );
   type K_IO_MON_t is record
     C2C                        : K_IO_C2C_MON_t;
     CLK_200_LOCKED             : std_logic;     
@@ -33,6 +38,9 @@ package K_IO_CTRL is
     RGB                        : K_IO_RGB_CTRL_t;
   end record K_IO_CTRL_t;
 
+  constant DEFAULT_K_IO_CTRL_t : K_IO_CTRL_t := (
+                                                 RGB => DEFAULT_K_IO_RGB_CTRL_t
+                                                );
 
 
 end package K_IO_CTRL;

@@ -99,12 +99,15 @@ SVF	:
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
-#################################################################################
-# Generate MAP and PKG files from address table
-#################################################################################
-ifneq ("$(wildcard xml_regmap/xml_regmap.mk)","")
-  include xml_regmap/xml_regmap.mk
+################################################################################# 
+# Generate MAP and PKG files from address table 
+################################################################################# 
+XML2VHD_PATH=regmap_helper
+ifneq ("$(wildcard $(XML2VHD_PATH)/xml_regmap.mk)","")
+	include $(XML2VHD_PATH)/xml_regmap.mk
 endif
+
+
 
 #################################################################################
 # Help 

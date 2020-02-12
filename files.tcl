@@ -19,6 +19,8 @@ set vhdl_files "\
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
      src/CM_K_info/CM_K_info.vhd \
+     src/CM_K_info/FW_INFO_PKG.vhd \
+     src/CM_K_info/FW_INFO_map.vhd \
      src/TCDS/TCDS.vhd \
      src/TCDS/KINTEX_TCDS_map.vhd \
      src/TCDS/KINTEX_TCDS_PKG.vhd \
