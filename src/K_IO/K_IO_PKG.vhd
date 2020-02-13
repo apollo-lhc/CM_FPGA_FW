@@ -25,9 +25,9 @@ package K_IO_CTRL is
   end record K_IO_RGB_CTRL_t;
 
   constant DEFAULT_K_IO_RGB_CTRL_t : K_IO_RGB_CTRL_t := (
-                                                         B => (others => '0'),
-                                                         R => (others => '0'),
-                                                         G => (others => '0')
+                                                         B => x"ff",
+                                                         R => x"00",
+                                                         G => x"00"
                                                         );
   type K_IO_MON_t is record
     C2C                        : K_IO_C2C_MON_t;
