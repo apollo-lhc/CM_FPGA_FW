@@ -34,53 +34,48 @@ architecture behavioral of counter_clock is
   constant min_count : unsigned(DATA_WIDTH-1 downto 0) := unsigned(start_value(DATA_WIDTH-1 downto 0));
   signal local_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := min_count;
   signal local_count_clk1 : unsigned(DATA_WIDTH-1 downto 0) := min_count;
-  
+  signal local_count_clk1_reg : unsigned(DATA_WIDTH-1 downto 0) := min_count;
+  signal reset1 : std_logic;
 begin  -- architecture behavioral
 
-  event_counter : process (clk0,clk1)
+  event_counter0 : process (clk0)
   begin  -- process malformed_counter
     if clk0'event and clk0 = '1' then  -- rising clock edge
       if reset_sync = '1' then
         -- synchronous reset
         local_count_clk0 <= min_count;
-        count       <= std_logic_vector(min_count);
-        local_count_clk1 <= min_count;
+        reset1 <= '0';
       else
         if local_count_clk0 = max_count_clk0 then
         -- count clk0
           local_count_clk0 <= min_count;
-          count       <=std_logic_vector(local_count_clk1);
-          local_count_clk1 <= min_count;
+          reset1 <= '1';
         else
           local_count_clk0 <= local_count_clk0 + 1;
-          if clk1 = '1' then
-            if local_count_clk1 = max_count_clk1 then
-              local_count_clk1 <= min_count;
-            else
-              local_count_clk1 <= local_count_clk1 + 1;
-            end if;
-          end if;
+          reset1 <= '0';
         end if;
       end if;
     end if;
-  end process event_counter;
+  end process event_counter0;
 
-  --check_at_max : process (clk0) is
-  --begin  -- process check_at_max
-  --  if clk0'event and clk0 = '1' then
-  --    if reset_sync = '1' then
-  --      -- synchronous reset
-  --      at_max      <= '0';
-  --    else
-  --      -- reset at_max
-  --      at_max <= '0';
-  --      if local_count = max_count then
-  --        at_max <= '1';
-  --      end if;
-
-  --    end if;
-  --  end if;
-  --end process check_at_max;
+  event_counter1 : process (clk1,reset1)
+  begin
+    if reset1 = '1' then
+      count <= std_logic_vector(local_count_clk1_reg);
+      local_count_clk1 <= min_count;
+    elsif clk1'event and clk1 = '1' then
+      if reset_sync = '1' then
+        local_count_clk1 <= min_count;
+      else
+        if local_count_clk1 = max_count_clk1 then
+          local_count_clk1 <= min_count;
+        else
+          local_count_clk1 <= local_count_clk1 + 1;
+        end if;
+      end if;
+      local_count_clk1_reg <= local_count_clk1;
+    end if;
+  end process event_counter1;
 
 end architecture behavioral;
 
