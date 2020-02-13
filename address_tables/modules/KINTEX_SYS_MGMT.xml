@@ -1,0 +1,14 @@
+<node id="KINTEX_SYS_MGMT">
+  <node id="TEMP"        address="0x100" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_5093140064_10240000000_0_2802308787_10000000;Status=1"/>
+  <node id="VCCINT"      address="0x101" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=2"/>
+  <node id="VCCAUX"      address="0x102" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=2"/>
+  <node id="VCCBRAM"     address="0x107" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=2"/>
+  <node id="TEMP_MAX"    address="0x120" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_5093140064_10240000000_0_2802308787_10000000;Status=1"/>
+  <node id="VCCINT_MAX"  address="0x121" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=3"/>
+  <node id="VCCAUX_MAX"  address="0x122" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=3"/>
+  <node id="VCCBRAM_MAX" address="0x123" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=3"/>
+  <node id="TEMP_MIN"    address="0x124" permission="ro" mask="0xFFC0"  parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_5093140064_10240000000_0_2802308787_10000000;Status=1"/>
+  <node id="VCCINT_MIN"  address="0x125" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=3"/>
+  <node id="VCCAUX_MIN"  address="0x126" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=3"/>
+  <node id="VCCBRAM_MIN" address="0x127" permission="ro" mask="0xFFC0" parameters="Table=STATUS;Row=KINTEX;Column=_2;Format=m_1_28023087870_102400000000_1_0_1;Status=3"/>
+</node>

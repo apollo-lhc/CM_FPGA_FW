@@ -27,6 +27,9 @@ PL_PATH=../src
 BD_PATH=../bd
 CORES_PATH=../cores
 
+SYM_LNK_XMLS = $(shell find ./ -type l)
+MAP_OBJS = $(patsubst %.xml, %_map.vhd, $(SYM_LNK_XMLS))
+PKG_OBJS = $(patsubst %.xml, %_PKG.vhd, $(SYM_LNK_XMLS))
 
 #################################################################################
 # Short build names
@@ -96,11 +99,23 @@ SVF	:
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
+################################################################################# 
+# Generate MAP and PKG files from address table 
+################################################################################# 
+XML2VHD_PATH=regmap_helper
+ifneq ("$(wildcard $(XML2VHD_PATH)/xml_regmap.mk)","")
+	include $(XML2VHD_PATH)/xml_regmap.mk
+endif
+
+
+
 #################################################################################
 # Help 
 #################################################################################
 
 #list magic: https://stackoverflow.com/questions/4219255/how-do-you-get-the-list-of-targets-in-a-makefile
 list:
-	@$(MAKE) -pRrq -f $(lastword $(MAKEFILE_LIST)) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | column
+	@$(MAKE) -pRrq -f $(MAKEFILE_LIST) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | column
 
+init:
+	git submodule update --init --recursive

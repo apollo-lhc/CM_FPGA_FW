@@ -2,7 +2,7 @@
 source ../scripts/settings.tcl
 
 #add the device info for the uC
-set device-info-file ../scripts/CM_uC_dev_info.csv
+#set device-info-file ../scripts/CM_uC_dev_info.csv
 
 set SVF_TARGET svf_top
 
