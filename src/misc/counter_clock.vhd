@@ -14,7 +14,6 @@ use ieee.std_logic_misc.all;
 entity counter_clock is
 
   generic (
-    roll_over   : std_logic        := '1';
     end_value   : std_logic_vector(31 downto  0) := x"FFFFFFFF";
     start_value : std_logic_vector(31 downto  0) := x"00000000";
     DATA_WIDTH  : integer          := 32);
