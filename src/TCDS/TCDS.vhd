@@ -14,6 +14,8 @@ entity TCDS is
   port (
     clk_axi              : in  std_logic; --50 MHz
     clk_200              : in  std_logic;
+    clk_50               : in  std_logic;
+    clk_tx_c2c           : in  std_logic;
     reset_axi_n          : in  std_logic;
     readMOSI             : in  AXIreadMOSI;
     readMISO             : out AXIreadMISO;
@@ -42,17 +44,11 @@ architecture behavioral of TCDS is
   signal counts_refclk1 : std_logic_vector(31 downto 0);
   signal counts_refclk1_1 : std_logic_vector(31 downto 0);
   signal counts_txoutclk : std_logic_vector(31 downto 0);
-  signal counts_refclk_atmax: std_logic;
-  signal counts_refclk1_atmax: std_logic;
-  signal counts_refclk1_1_atmax: std_logic;
-  signal counts_txoutclk_atmax: std_logic;
---  signal out_refclk : std_logic;
 
   signal clk_tx_int     : std_logic;
   signal clk_tx_int_raw : std_logic;
   signal clk_rx_int     : std_logic;
   signal clk_rx_int_raw : std_logic;
-
   
   type DRP_t is record
     en   : STD_LOGIC;
@@ -157,11 +153,9 @@ begin  -- architecture TCDS
       gtwiz_reset_rx_done_out(0)            => Mon.RESETS.RX_RESET_DONE,
       gtwiz_userdata_tx_in               => tx_data,
       gtwiz_userdata_rx_out              => rx_data,    
-      gtrefclk01_in(0)                   => refclk,
-      gtrefclk11_in(0)                   => refclk1,
-      qpll1outclk_out                    => open,
---      qpll1outrefclk_out                 => out_refclk,
-      qpll1refclksel_in                  => Ctrl.CLOCKING.REFCLK_SEL,
+      gtrefclk00_in(0)                   => refclk1,
+--      gtrefclk10_in(0)                   => refclk1,
+      qpll0outclk_out                    => open,
       drpaddr_in                         => drp_intf.addr,
       drpclk_in(0)                       => clk_axi,
       drpdi_in                           => drp_intf.di,
@@ -217,47 +211,21 @@ begin  -- architecture TCDS
       txpmaresetdone_out(0)              => Mon.RESETS.TX_PMA_RESET_DONE);
 
   ----Monitoring Clock Synthesizer
-  --count_refclk0: entity work.counter_clock
-  --  port map (
-  --    clk0        => clk_200,
-  --    clk1        => refclk1,
-  --    reset_sync  => reset,
-  --    count       => Mon.CLOCKING.COUNTS_REFCLK0
-  --    );
-  
-  --count_refclk: entity work.counter_clock
-  --  port map (
-  --    clk0        => clk_200,
-  --    clk1        => refclk1,
-  --    reset_sync  => reset,
-  --    count       => Mon.CLOCKING.COUNTS_REFCLK
-  --    );
-
-  --count_refclk0: entity work.counter
-  --  port map (    
-  --    clk         => clk_200,
-  --    reset_async => reset,
-  --    reset_sync  => reset,
-  --    enable      => '1',
-  --    event       => '1',--clk_200,
-  --    count       => Mon.CLOCKING.COUNTS_REFCLK0,
-  --    at_max      => open
-  --    );
   count_refclk0: entity work.counter_clock
     port map (
       clk0        => clk_200,
-      clk1        => clk_200,
+      clk1        => clk_50,
       reset_sync  => reset,
       count       => Mon.CLOCKING.COUNTS_REFCLK0
       );
   
   count_refclk: entity work.counter
     port map (
-      clk         => clk_200,
+      clk         => clk_tx_int,
       reset_async => reset,
       reset_sync  => reset,
       enable      => '1',
-      event       => clk_tx_int,
+      event       => '1',
       count       => Mon.CLOCKING.COUNTS_REFCLK,
       at_max      => open
       );        

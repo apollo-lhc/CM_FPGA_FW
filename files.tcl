@@ -12,7 +12,8 @@ set vhdl_files "\
      src/misc/pacd.vhd \
      src/misc/types.vhd \
      src/misc/capture_CDC.vhd \
-     src/misc/counter_clock.vhd \ 
+     src/misc/counter.vhd \
+     src/misc/counter_clock.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
      src/K_IO/K_IO_PKG.vhd \
@@ -36,6 +37,6 @@ set xci_files "\
     	      "
 
 #DRP ip
-set ip_repo_path bd/IP
+set ip_repo_path ../bd/IP
 set_property  ip_repo_paths ${ip_repo_path}  [current_project]
 update_ip_catalog
