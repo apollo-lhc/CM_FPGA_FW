@@ -70,13 +70,13 @@ begin  -- architecture behavioral
           localRdData( 1)            <=  Mon.CLOCKING.POWER_GOOD;           --
           localRdData( 9)            <=  Mon.CLOCKING.RX_CDR_STABLE;        --
         when 1 => --0x1
-          localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_REFCLK;        --
-        when 2 => --0x2
           localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_TXOUTCLK;      --
-        when 3 => --0x3
-          localRdData( 2 downto  0)  <=  reg_data( 3)( 2 downto  0);        --
-        when 4 => --0x4
-          localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_REFCLK0;       --
+        when 66 => --0x42
+          localRdData( 3 downto  0)  <=  reg_data(66)( 3 downto  0);        --
+        when 49 => --0x31
+          localRdData( 0)            <=  reg_data(49)( 0);                  --
+        when 68 => --0x44
+          localRdData(31 downto  0)  <=  Mon.DEBUG.CAPTURE_D;               --
         when 5 => --0x5
           localRdData( 0)            <=  reg_data( 5)( 0);                  --
           localRdData( 4)            <=  reg_data( 5)( 4);                  --
@@ -95,8 +95,6 @@ begin  -- architecture behavioral
           localRdData( 2 downto  0)  <=  reg_data( 8)( 2 downto  0);        --
         when 71 => --0x47
           localRdData( 3 downto  0)  <=  reg_data(71)( 3 downto  0);        --
-        when 66 => --0x42
-          localRdData( 3 downto  0)  <=  reg_data(66)( 3 downto  0);        --
         when 16 => --0x10
           localRdData( 1)            <=  Mon.RX.PMA_RESET_DONE;             --
           localRdData( 7 downto  4)  <=  Mon.RX.BAD_CHAR;                   --
@@ -104,10 +102,6 @@ begin  -- architecture behavioral
         when 17 => --0x11
           localRdData( 3 downto  0)  <=  reg_data(17)( 3 downto  0);        --
           localRdData( 5)            <=  reg_data(17)( 5);                  --
-        when 49 => --0x31
-          localRdData( 0)            <=  reg_data(49)( 0);                  --
-        when 68 => --0x44
-          localRdData(31 downto  0)  <=  Mon.DEBUG.CAPTURE_D;               --
         when 33 => --0x21
           localRdData( 3 downto  0)  <=  reg_data(33)( 3 downto  0);        --
           localRdData( 5)            <=  reg_data(33)( 5);                  --
@@ -125,7 +119,6 @@ begin  -- architecture behavioral
 
 
   -- Register mapping to ctrl structures
-  Ctrl.CLOCKING.REFCLK_SEL     <=  reg_data( 3)( 2 downto  0);     
   Ctrl.RESETS.RESET_ALL        <=  reg_data( 5)( 0);               
   Ctrl.RESETS.TX_PLL_DATAPATH  <=  reg_data( 5)( 4);               
   Ctrl.RESETS.TX_DATAPATH      <=  reg_data( 5)( 5);               
@@ -165,8 +158,6 @@ begin  -- architecture behavioral
           reg_data(33)( 6)            <=  localWrData( 6);                --
         when 66 => --0x42
           reg_data(66)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
-        when 3 => --0x3
-          reg_data( 3)( 2 downto  0)  <=  localWrData( 2 downto  0);      --
         when 5 => --0x5
           reg_data( 5)( 0)            <=  localWrData( 0);                --
           reg_data( 5)( 4)            <=  localWrData( 4);                --
