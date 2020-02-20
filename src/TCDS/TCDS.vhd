@@ -10,7 +10,6 @@ use UNISIM.vcomponents.all;
 
 
 entity TCDS is
-  
   port (
     clk_axi              : in  std_logic; --50 MHz
     clk_200              : in  std_logic;
@@ -24,21 +23,25 @@ entity TCDS is
     DRP_readMISO         : out AXIreadMISO;
     DRP_writeMOSI        : in  AXIwriteMOSI;
     DRP_writeMISO        : out AXIwriteMISO;
-    refclk_p : in std_logic;
-    refclk_n : in std_logic;
+    refclk0_p : in std_logic;
+    refclk0_n : in std_logic;
     refclk1_p : in std_logic;
     refclk1_n : in std_logic; 
     tx_p : out std_logic;
     tx_n : out std_logic;
     rx_p : in  std_logic;
-    rx_n : in  std_logic);
+    rx_n : in  std_logic;
+    TxRx_clk_sel : in std_logic := '0'); -- '0' for refclk0, '1' for refclk1
 
 end entity TCDS;
 
 architecture behavioral of TCDS is
   signal reset : std_logic;
   signal refclk : std_logic;
+  signal refclk0 : std_logic;
   signal refclk1 : std_logic;
+  signal qpll0outclk : std_logic;
+  signal qpll0refclk : std_logic;
   signal counts_txoutclk : std_logic_vector(31 downto 0);
 
   signal clk_tx_int     : std_logic;
@@ -82,10 +85,10 @@ begin  -- architecture TCDS
       REFCLK_HROW_CK_SEL => "00",
       REFCLK_ICNTL_RX    => "00")
     port map (
-      I     => refclk_p,        
-      IB    => refclk_n,
+      I     => refclk0_p,        
+      IB    => refclk0_n,
       CEB   => '0',
-      O     => refclk,  
+      O     => refclk0,  
       ODIV2 => open);
 
   reflk1_buf : IBUFDS_GTE4
@@ -133,6 +136,8 @@ begin  -- architecture TCDS
       slave_writeMISO => writeMISO,
       Mon             => Mon,
       Ctrl            => Ctrl);
+
+  refclk <= refclk1 when TxRx_clk_sel = '1' else refclk0;
   
   TCDS_TxRx_2: entity work.TCDS_TxRx
     port map (
@@ -149,12 +154,11 @@ begin  -- architecture TCDS
       gtwiz_reset_rx_done_out(0)            => Mon.RESETS.RX_RESET_DONE,
       gtwiz_userdata_tx_in               => tx_data,
       gtwiz_userdata_rx_out              => rx_data,    
-      gtrefclk00_in(0)                   => refclk1,
- --     gtrefclk10_in(0)                   => refclk1,
---      qpll0refclksel_in(2 downto 0)      => Ctrl.CLOCKING.REFCLK_SEL, --'001'
-                                                                      --refclk
-                                                                      --'010' refclk1,
-      qpll0outclk_out                    => open,
+      gtrefclk00_in(0)                   => refclk,
+--      qpll0clk_in(0)                     => qpll0outclk,
+      qpll0outclk_out(0)                 => qpll0outclk,
+--      qpll0refclk_in(0)                  => qpll0refclk,
+      qpll0outrefclk_out(0)              => qpll0refclk,
       drpaddr_in                         => drp_intf.addr,
       drpclk_in(0)                       => clk_axi,
       drpdi_in                           => drp_intf.di,
