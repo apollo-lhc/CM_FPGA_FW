@@ -6,8 +6,9 @@ use IEEE.std_logic_1164.all;
 
 package KINTEX_TCDS_CTRL is
   type KINTEX_TCDS_CLOCKING_MON_t is record
-    POWER_GOOD                 : std_logic;   
-    RX_CDR_STABLE              : std_logic;   
+    COUNTS_TXOUTCLK            : std_logic_vector(31 downto  0);
+    POWER_GOOD                 : std_logic;                     
+    RX_CDR_STABLE              : std_logic;                     
   end record KINTEX_TCDS_CLOCKING_MON_t;
 
   type KINTEX_TCDS_RESETS_MON_t is record
