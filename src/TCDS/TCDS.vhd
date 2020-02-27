@@ -13,7 +13,6 @@ entity TCDS is
   port (
     clk_axi              : in  std_logic; --50 MHz
     clk_200              : in  std_logic;
-    clk_tx_c2c           : in  std_logic;
     reset_axi_n          : in  std_logic;
     readMOSI             : in  AXIreadMOSI;
     readMISO             : out AXIreadMISO;

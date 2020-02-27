@@ -291,13 +291,14 @@ begin  -- architecture structure
       DRP_readMISO         => local_AXI_readMISO(2),
       DRP_writeMOSI        => local_AXI_writeMOSI(2),
       DRP_writeMISO        => local_AXI_writeMISO(2),
-      refclk_p => p_clk0_chan0,
-      refclk_n => n_clk0_chan0,
+      refclk0_p => p_clk0_chan0,
+      refclk0_n => n_clk0_chan0,
       refclk1_p => p_clk1_chan0,
       refclk1_n => n_clk1_chan0,  
       tx_p     => p_atca_tts_out  ,
       tx_n     => n_atca_tts_out  ,
       rx_p     => p_atca_ttc_in   ,
-      rx_n     => n_atca_ttc_in   );
+      rx_n     => n_atca_ttc_in   ,
+      TxRx_clk_sel => '0'       );
   
 end architecture structure;
