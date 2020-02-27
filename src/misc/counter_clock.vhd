@@ -16,6 +16,7 @@ entity counter_clock is
   generic (
     end_value   : std_logic_vector(31 downto  0) := x"FFFFFFFF";
     start_value : std_logic_vector(31 downto  0) := x"00000000";
+    clk0_counts : std_logic_vector(31 downto  0) := x"0BEBC200";
     DATA_WIDTH  : integer          := 32);
   port (
     clk0        : in  std_logic;
@@ -28,7 +29,7 @@ end entity counter_clock;
 
 architecture behavioral of counter_clock is
 
-  constant max_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := to_unsigned(200000000,DATA_WIDTH);--0X"0BEBC200"
+  constant max_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := unsigned(clk0_counts(DATA_WIDTH-1 downto 0));
   constant max_count_clk1 : unsigned(DATA_WIDTH-1 downto 0) := unsigned(end_value(DATA_WIDTH-1 downto 0));
   constant min_count : unsigned(DATA_WIDTH-1 downto 0) := unsigned(start_value(DATA_WIDTH-1 downto 0));
   signal local_count_clk0 : unsigned(DATA_WIDTH-1 downto 0) := min_count;
