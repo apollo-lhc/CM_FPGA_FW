@@ -28,8 +28,8 @@ architecture behavioral of K_IO_interface is
   signal localRdAck         : std_logic;
 
 
-  signal reg_data :  slv32_array_t(integer range 0 to 256);
-  constant Default_reg_data : slv32_array_t(integer range 0 to 256) := (others => x"00000000");
+  signal reg_data :  slv32_array_t(integer range 0 to 515);
+  constant Default_reg_data : slv32_array_t(integer range 0 to 515) := (others => x"00000000");
 begin  -- architecture behavioral
 
   -------------------------------------------------------------------------------
@@ -65,7 +65,7 @@ begin  -- architecture behavioral
     localRdData <= x"00000000";
     if localRdReq = '1' then
       localRdAck  <= '1';
-      case to_integer(unsigned(localAddress(8 downto 0))) is
+      case to_integer(unsigned(localAddress(9 downto 0))) is
         when 0 => --0x0
           localRdData( 0)            <=  Mon.C2C.SOFT_ERR;                 --
           localRdData( 1)            <=  Mon.C2C.MMCM_NOT_LOCKED;          --
@@ -77,12 +77,18 @@ begin  -- architecture behavioral
           localRdData( 7)            <=  Mon.C2C.LINK_STATUS;              --
           localRdData( 8)            <=  Mon.C2C.CONFIG_ERR;               --
           localRdData( 9)            <=  Mon.C2C.DO_CC;                    --
-        when 16 => --0x10
-          localRdData( 0)            <=  Mon.CLK_200_LOCKED;               --
         when 256 => --0x100
           localRdData( 7 downto  0)  <=  reg_data(256)( 7 downto  0);      --
           localRdData(15 downto  8)  <=  reg_data(256)(15 downto  8);      --
           localRdData(23 downto 16)  <=  reg_data(256)(23 downto 16);      --
+        when 514 => --0x202
+          localRdData(31 downto  0)  <=  reg_data(514)(31 downto  0);      --
+        when 515 => --0x203
+          localRdData(31 downto  0)  <=  Mon.BRAM.RD_DATA;                 --
+        when 513 => --0x201
+          localRdData(14 downto  0)  <=  reg_data(513)(14 downto  0);      --
+        when 16 => --0x10
+          localRdData( 0)            <=  Mon.CLK_200_LOCKED;               --
         when others =>
           localRdData <= x"00000000";
       end case;
@@ -92,9 +98,11 @@ begin  -- architecture behavioral
 
 
   -- Register mapping to ctrl structures
-  Ctrl.RGB.R  <=  reg_data(256)( 7 downto  0);     
-  Ctrl.RGB.G  <=  reg_data(256)(15 downto  8);     
-  Ctrl.RGB.B  <=  reg_data(256)(23 downto 16);     
+  Ctrl.RGB.R         <=  reg_data(256)( 7 downto  0);     
+  Ctrl.RGB.G         <=  reg_data(256)(15 downto  8);     
+  Ctrl.RGB.B         <=  reg_data(256)(23 downto 16);     
+  Ctrl.BRAM.ADDR     <=  reg_data(513)(14 downto  0);     
+  Ctrl.BRAM.WR_DATA  <=  reg_data(514)(31 downto  0);     
 
 
 
@@ -104,14 +112,23 @@ begin  -- architecture behavioral
       reg_data(256)( 7 downto  0)  <= DEFAULT_K_IO_CTRL_t.RGB.R;
       reg_data(256)(15 downto  8)  <= DEFAULT_K_IO_CTRL_t.RGB.G;
       reg_data(256)(23 downto 16)  <= DEFAULT_K_IO_CTRL_t.RGB.B;
+      reg_data(513)(14 downto  0)  <= DEFAULT_K_IO_CTRL_t.BRAM.ADDR;
+      reg_data(514)(31 downto  0)  <= DEFAULT_K_IO_CTRL_t.BRAM.WR_DATA;
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+      Ctrl.BRAM.WRITE <= '0';
       
       if localWrEn = '1' then
-        case to_integer(unsigned(localAddress(8 downto 0))) is
+        case to_integer(unsigned(localAddress(9 downto 0))) is
         when 256 => --0x100
           reg_data(256)( 7 downto  0)  <=  localWrData( 7 downto  0);      --
           reg_data(256)(15 downto  8)  <=  localWrData(15 downto  8);      --
           reg_data(256)(23 downto 16)  <=  localWrData(23 downto 16);      --
+        when 512 => --0x200
+          Ctrl.BRAM.WRITE              <=  localWrData( 0);               
+        when 514 => --0x202
+          reg_data(514)(31 downto  0)  <=  localWrData(31 downto  0);      --
+        when 513 => --0x201
+          reg_data(513)(14 downto  0)  <=  localWrData(14 downto  0);      --
           when others => null;
         end case;
       end if;

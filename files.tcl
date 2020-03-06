@@ -34,6 +34,8 @@ set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
     	      cores/TCDS_TxRx/TCDS_TxRx.xci  \
 	      cores/AXI_DRP/AXI_DRP.xci \
+	      cores/AXI_BRAM/AXI_BRAM.xci \
+	      cores/DP_BRAM/DP_BRAM.xci \
     	      "
 
 #DRP ip

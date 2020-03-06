@@ -29,17 +29,35 @@ package K_IO_CTRL is
                                                          R => x"00",
                                                          G => x"00"
                                                         );
+  type K_IO_BRAM_MON_t is record
+    RD_DATA                    : std_logic_vector(31 downto  0);
+  end record K_IO_BRAM_MON_t;
+
+  type K_IO_BRAM_CTRL_t is record
+    ADDR                       : std_logic_vector(14 downto  0);
+    WRITE                      : std_logic;                     
+    WR_DATA                    : std_logic_vector(31 downto  0);
+  end record K_IO_BRAM_CTRL_t;
+
+  constant DEFAULT_K_IO_BRAM_CTRL_t : K_IO_BRAM_CTRL_t := (
+                                                           WRITE => '0',
+                                                           ADDR => (others => '0'),
+                                                           WR_DATA => (others => '0')
+                                                          );
   type K_IO_MON_t is record
-    C2C                        : K_IO_C2C_MON_t;
-    CLK_200_LOCKED             : std_logic;     
+    BRAM                       : K_IO_BRAM_MON_t;
+    C2C                        : K_IO_C2C_MON_t; 
+    CLK_200_LOCKED             : std_logic;      
   end record K_IO_MON_t;
 
   type K_IO_CTRL_t is record
-    RGB                        : K_IO_RGB_CTRL_t;
+    BRAM                       : K_IO_BRAM_CTRL_t;
+    RGB                        : K_IO_RGB_CTRL_t; 
   end record K_IO_CTRL_t;
 
   constant DEFAULT_K_IO_CTRL_t : K_IO_CTRL_t := (
-                                                 RGB => DEFAULT_K_IO_RGB_CTRL_t
+                                                 RGB => DEFAULT_K_IO_RGB_CTRL_t,
+                                                 BRAM => DEFAULT_K_IO_BRAM_CTRL_t
                                                 );
 
 
