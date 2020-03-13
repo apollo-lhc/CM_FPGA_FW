@@ -192,7 +192,7 @@ begin  -- architecture TCDS
 
 
 
-  AXI_DRP_1: entity work.AXI_DRP
+  TCDS_DRP_1: entity work.TCDS_DRP
     port map (
       AXI_aclk      => clk_axi,
       AXI_aresetn   => reset_axi_n,

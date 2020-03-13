@@ -10,6 +10,7 @@ set SVF_TARGET svf_top
 
 #derived from walkthrough https://blog.xjtag.com/2016/07/creating-svf-files-using-xilinx-vivado/
 open_hw
+delete_hw_target -quiet ${SVF_TARGET}
 create_hw_target ${SVF_TARGET}
 open_hw_target [get_hw_targets -regexp .*/${SVF_TARGET}]
 

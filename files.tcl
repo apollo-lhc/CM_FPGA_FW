@@ -33,12 +33,13 @@ set xdc_files "\
 set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
     	      cores/TCDS_TxRx/TCDS_TxRx.xci  \
-	      cores/AXI_DRP/AXI_DRP.xci \
+	      cores/TCDS_DRP/TCDS_DRP.xci \
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
     	      "
 
 #DRP ip
-set ip_repo_path bd/IP
+#set ip_repo_path ../bd/IP
+set ip_repo_path ../bd/IP/packaged_ip/
 set_property  ip_repo_paths ${ip_repo_path}  [current_project]
 update_ip_catalog
