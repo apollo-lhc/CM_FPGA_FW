@@ -29,8 +29,10 @@ entity top is
     k_fpga_i2c_sda   : inout std_logic;
 
     --TCDS
-    p_clk0_chan0     : in std_logic;
-    n_clk0_chan0     : in std_logic;
+    p_clk0_chan0     : in std_logic; -- 200 MHz system clock
+    n_clk0_chan0     : in std_logic; 
+    p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
+    n_clk1_chan0     : in std_logic;
     p_atca_tts_out   : out std_logic;
     n_atca_tts_out   : out std_logic;
     p_atca_ttc_in    : in  std_logic;
@@ -314,6 +316,7 @@ begin  -- architecture structure
   TCDS_1: entity work.TCDS
     port map (
       clk_axi              => AXI_CLK,
+      clk_200              => clk_200,
       reset_axi_n          => AXI_RST_N,
       readMOSI             => local_AXI_readMOSI(3),
       readMISO             => local_AXI_readMISO(3),
@@ -323,12 +326,15 @@ begin  -- architecture structure
       DRP_readMISO         => local_AXI_readMISO(2),
       DRP_writeMOSI        => local_AXI_writeMOSI(2),
       DRP_writeMISO        => local_AXI_writeMISO(2),
-      refclk_p => p_clk0_chan0,
-      refclk_n => n_clk0_chan0,
+      refclk0_p => p_clk0_chan0,
+      refclk0_n => n_clk0_chan0,
+      refclk1_p => p_clk1_chan0,
+      refclk1_n => n_clk1_chan0,  
       tx_p     => p_atca_tts_out  ,
       tx_n     => n_atca_tts_out  ,
       rx_p     => p_atca_ttc_in   ,
-      rx_n     => n_atca_ttc_in   );
+      rx_n     => n_atca_ttc_in   ,
+      TxRx_clk_sel => '0'       );
 
   AXI_RESET <= not AXI_RST_N;
   AXI_BRAM_1: entity work.AXI_BRAM
