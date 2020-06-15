@@ -153,11 +153,11 @@ begin  -- architecture TCDS
       gtwiz_reset_rx_done_out(0)            => Mon.RESETS.RX_RESET_DONE,
       gtwiz_userdata_tx_in               => tx_data,
       gtwiz_userdata_rx_out              => rx_data,    
-      gtrefclk00_in(0)                   => refclk,
+      gtrefclk01_in(0)                   => refclk,
 --      qpll0clk_in(0)                     => qpll0outclk,
-      qpll0outclk_out(0)                 => qpll0outclk,
+      qpll1outclk_out(0)                 => qpll0outclk,
 --      qpll0refclk_in(0)                  => qpll0refclk,
-      qpll0outrefclk_out(0)              => qpll0refclk,
+      qpll1outrefclk_out(0)              => qpll0refclk,
       drpaddr_in                         => drp_intf.addr,
       drpclk_in(0)                       => clk_axi,
       drpdi_in                           => drp_intf.di,
@@ -222,7 +222,7 @@ begin  -- architecture TCDS
       );
   
 
-  AXI_DRP_1: entity work.AXI_DRP
+  TCDS_DRP_1: entity work.TCDS_DRP
     port map (
       AXI_aclk      => clk_axi,
       AXI_aresetn   => reset_axi_n,
