@@ -1,3 +1,8 @@
 [submodule "bd"]
 	path = bd
-	url = git@github.com:dgastler/BU_BUILD.git
+	url = http://github.com/dgastler/BU_BUILD.git
+	branch = develop
+
+[submodule "regmap_helper"]
+	path = regmap_helper
+	url = https://github.com/BU-Tools/uHAL_AXI_regmap.git

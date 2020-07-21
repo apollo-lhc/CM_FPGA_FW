@@ -2,20 +2,19 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.FW_INFO_Ctrl.all;
 use work.AXIRegPkg.all;
 
 use work.types.all;
 use work.FW_TIMESTAMP.all;
 use work.FW_VERSION.all;
-
+use work.FW_INFO_Ctrl.all;
 
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
 
 
-entity CM_K_info is
+entity SM_info is
   
   port (
     clk_axi         : in  std_logic;
@@ -25,9 +24,9 @@ entity CM_K_info is
     writeMOSI       : in  AXIWriteMOSI;
     writeMISO       : out AXIWriteMISO := DefaultAXIWriteMISO
     );
-end entity CM_K_info;
+end entity SM_info;
 
-architecture behavioral of CM_K_info is
+architecture behavioral of SM_info is
   signal Mon              :  FW_INFO_Mon_t;
 
 begin  -- architecture behavioral

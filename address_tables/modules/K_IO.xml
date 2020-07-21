@@ -1,0 +1,26 @@
+<node id="K_IO">
+  <node id="C2C" address="0x00000000">
+    <node id="SOFT_ERR"        mask="0x00000001" permission="r"/>
+    <node id="MMCM_NOT_LOCKED" mask="0x00000002" permission="r"/>
+    <node id="LINK_RESET"      mask="0x00000004" permission="r"/>
+    <node id="LANE_UP"         mask="0x00000008" permission="r"/>
+    <node id="HARD_ERR"        mask="0x00000010" permission="r"/>
+    <node id="GT_PLL_LOCK"     mask="0x00000020" permission="r"/>
+    <node id="MULTIBIT_ERR"    mask="0x00000040" permission="r"/>
+    <node id="LINK_STATUS"     mask="0x00000080" permission="r"/>
+    <node id="CONFIG_ERR"      mask="0x00000100" permission="r"/>    
+    <node id="DO_CC"           mask="0x00000200" permission="r"/>
+  </node> 
+  <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
+  <node id="RGB"  address="0x00000100">
+    <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
+    <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>
+    <node id="B" mask="0xFF0000" permission="rw" parameters="default=0xFF"/>
+  </node>
+  <node id="BRAM" address="0x00000200">
+    <node id="WRITE"   address="0x0" mask="0x1"        permission="w"  />
+    <node id="ADDR"    address="0x1" mask="0x7FFF"     permission="rw" />
+    <node id="WR_DATA" address="0x2" mask="0xFFFFFFFF" permission="rw" />
+    <node id="RD_DATA" address="0x3" mask="0xFFFFFFFF" permission="r" />
+  </node>
+</node>

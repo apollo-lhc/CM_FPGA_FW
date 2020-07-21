@@ -41,22 +41,6 @@ source ../files.tcl
 #append bd_wrapper "_wrapper.vhd"
 #read_vhdl [get_files $bd_wrapper]
 
-#Add bd files
-for {set j 0} {$j < [llength $bd_files ] } {incr j} {
-    set filename "../[lindex $bd_files $j]"
-    source $filename
-    puts "Running $filename"
-    read_bd [get_files "../$bd_path/$bd_name/$bd_name.bd"]
-    open_bd_design [get_files "../$bd_path/$bd_name/$bd_name.bd"]
-    make_wrapper -files [get_files $bd_name.bd] -top -import -force
-    set bd_wrapper $bd_name
-    append bd_wrapper "_wrapper.vhd"
-    read_vhdl [get_files $bd_wrapper]
-
-}
-
-
-
 #Add vhdl files
 set timestamp_file ../src/fw_version.vhd
 read_vhdl ${timestamp_file}
@@ -79,6 +63,22 @@ for {set j 0} {$j < [llength $xci_files ] } {incr j} {
     set filename "../[lindex $xci_files $j]"
     read_ip $filename
     puts "Adding $filename"
+}
+
+check_syntax -fileset sources_1
+
+#Add bd files
+for {set j 0} {$j < [llength $bd_files ] } {incr j} {
+    set filename "../[lindex $bd_files $j]"
+    source $filename
+    puts "Running $filename"
+    read_bd [get_files "../$bd_path/$bd_name/$bd_name.bd"]
+    open_bd_design [get_files "../$bd_path/$bd_name/$bd_name.bd"]
+    make_wrapper -files [get_files $bd_name.bd] -top -import -force
+    set bd_wrapper $bd_name
+    append bd_wrapper "_wrapper.vhd"
+    read_vhdl [get_files $bd_wrapper]
+
 }
 
 #################################################################################
