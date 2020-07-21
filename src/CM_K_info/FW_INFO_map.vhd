@@ -65,6 +65,7 @@ begin  -- architecture behavioral
     if localRdReq = '1' then
       localRdAck  <= '1';
       case to_integer(unsigned(localAddress(4 downto 0))) is
+
         when 0 => --0x0
           localRdData( 1)            <=  Mon.GIT_VALID;             --
         when 1 => --0x1
@@ -85,11 +86,15 @@ begin  -- architecture behavioral
           localRdData( 7 downto  0)  <=  Mon.BUILD_TIME.SEC;        --
           localRdData(15 downto  8)  <=  Mon.BUILD_TIME.MIN;        --
           localRdData(23 downto 16)  <=  Mon.BUILD_TIME.HOUR;       --
+
+
         when others =>
           localRdData <= x"00000000";
       end case;
     end if;
   end process reads;
+
+
 
 
 

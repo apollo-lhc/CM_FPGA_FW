@@ -66,6 +66,7 @@ begin  -- architecture behavioral
     if localRdReq = '1' then
       localRdAck  <= '1';
       case to_integer(unsigned(localAddress(9 downto 0))) is
+
         when 0 => --0x0
           localRdData( 0)            <=  Mon.C2C.SOFT_ERR;                 --
           localRdData( 1)            <=  Mon.C2C.MMCM_NOT_LOCKED;          --
@@ -89,11 +90,14 @@ begin  -- architecture behavioral
           localRdData(14 downto  0)  <=  reg_data(513)(14 downto  0);      --
         when 16 => --0x10
           localRdData( 0)            <=  Mon.CLK_200_LOCKED;               --
+
+
         when others =>
           localRdData <= x"00000000";
       end case;
     end if;
   end process reads;
+
 
 
 
@@ -105,7 +109,6 @@ begin  -- architecture behavioral
   Ctrl.BRAM.WR_DATA  <=  reg_data(514)(31 downto  0);     
 
 
-
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
@@ -114,8 +117,11 @@ begin  -- architecture behavioral
       reg_data(256)(23 downto 16)  <= DEFAULT_K_IO_CTRL_t.RGB.B;
       reg_data(513)(14 downto  0)  <= DEFAULT_K_IO_CTRL_t.BRAM.ADDR;
       reg_data(514)(31 downto  0)  <= DEFAULT_K_IO_CTRL_t.BRAM.WR_DATA;
+
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       Ctrl.BRAM.WRITE <= '0';
+      
+
       
       if localWrEn = '1' then
         case to_integer(unsigned(localAddress(9 downto 0))) is
@@ -129,10 +135,12 @@ begin  -- architecture behavioral
           reg_data(514)(31 downto  0)  <=  localWrData(31 downto  0);      --
         when 513 => --0x201
           reg_data(513)(14 downto  0)  <=  localWrData(14 downto  0);      --
+
           when others => null;
         end case;
       end if;
     end if;
   end process reg_writes;
+
 
 end architecture behavioral;

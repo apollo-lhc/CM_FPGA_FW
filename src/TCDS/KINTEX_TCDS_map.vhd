@@ -66,6 +66,7 @@ begin  -- architecture behavioral
     if localRdReq = '1' then
       localRdAck  <= '1';
       case to_integer(unsigned(localAddress(6 downto 0))) is
+
         when 0 => --0x0
           localRdData( 1)            <=  Mon.CLOCKING.POWER_GOOD;           --
           localRdData( 9)            <=  Mon.CLOCKING.RX_CDR_STABLE;        --
@@ -110,6 +111,8 @@ begin  -- architecture behavioral
           localRdData(31 downto  0)  <=  reg_data(70)(31 downto  0);        --
         when 69 => --0x45
           localRdData( 3 downto  0)  <=  Mon.DEBUG.CAPTURE_K;               --
+
+
         when others =>
           localRdData <= x"00000000";
       end case;
@@ -118,13 +121,14 @@ begin  -- architecture behavioral
 
 
 
+
   -- Register mapping to ctrl structures
+  Ctrl.LOOPBACK                <=  reg_data( 8)( 2 downto  0);     
   Ctrl.RESETS.RESET_ALL        <=  reg_data( 5)( 0);               
   Ctrl.RESETS.TX_PLL_DATAPATH  <=  reg_data( 5)( 4);               
   Ctrl.RESETS.TX_DATAPATH      <=  reg_data( 5)( 5);               
   Ctrl.RESETS.RX_PLL_DATAPATH  <=  reg_data( 5)( 8);               
   Ctrl.RESETS.RX_DATAPATH      <=  reg_data( 5)( 9);               
-  Ctrl.LOOPBACK                <=  reg_data( 8)( 2 downto  0);     
   Ctrl.RX.PRBS_SEL             <=  reg_data(17)( 3 downto  0);     
   Ctrl.RX.USER_CLK_READY       <=  reg_data(17)( 5);               
   Ctrl.TX.PRBS_SEL             <=  reg_data(33)( 3 downto  0);     
@@ -132,34 +136,36 @@ begin  -- architecture behavioral
   Ctrl.TX.USER_CLK_READY       <=  reg_data(33)( 6);               
   Ctrl.EYESCAN.RESET           <=  reg_data(49)( 0);               
   Ctrl.DEBUG.MODE              <=  reg_data(66)( 3 downto  0);     
-  Ctrl.DEBUG.FIXED_SEND_D      <=  reg_data(70)(31 downto  0);     
   Ctrl.DEBUG.FIXED_SEND_K      <=  reg_data(71)( 3 downto  0);     
-
+  Ctrl.DEBUG.FIXED_SEND_D      <=  reg_data(70)(31 downto  0);     
 
 
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-           reg_data( 5)( 0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RESET_ALL;
-           reg_data( 5)( 4)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.TX_PLL_DATAPATH;
-           reg_data( 5)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.TX_DATAPATH;
-           reg_data( 5)( 8)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RX_PLL_DATAPATH;
-           reg_data( 5)( 9)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RX_DATAPATH;
       reg_data( 8)( 2 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.LOOPBACK;
+      reg_data( 5)( 0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RESET_ALL;
+      reg_data( 5)( 4)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.TX_PLL_DATAPATH;
+      reg_data( 5)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.TX_DATAPATH;
+      reg_data( 5)( 8)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RX_PLL_DATAPATH;
+      reg_data( 5)( 9)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RESETS.RX_DATAPATH;
       reg_data(17)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RX.PRBS_SEL;
-           reg_data(17)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RX.USER_CLK_READY;
+      reg_data(17)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.RX.USER_CLK_READY;
       reg_data(33)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.PRBS_SEL;
-           reg_data(33)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.INHIBIT;
-           reg_data(33)( 6)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.USER_CLK_READY;
-           reg_data(49)( 0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.EYESCAN.RESET;
+      reg_data(33)( 5)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.INHIBIT;
+      reg_data(33)( 6)  <= DEFAULT_KINTEX_TCDS_CTRL_t.TX.USER_CLK_READY;
+      reg_data(49)( 0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.EYESCAN.RESET;
       reg_data(66)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.MODE;
-      reg_data(70)(31 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.FIXED_SEND_D;
       reg_data(71)( 3 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.FIXED_SEND_K;
+      reg_data(70)(31 downto  0)  <= DEFAULT_KINTEX_TCDS_CTRL_t.DEBUG.FIXED_SEND_D;
+
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       Ctrl.RX.PRBS_RESET <= '0';
       Ctrl.TX.PRBS_FORCE_ERROR <= '0';
       Ctrl.EYESCAN.TRIGGER <= '0';
       Ctrl.DEBUG.CAPTURE <= '0';
+      
+
       
       if localWrEn = '1' then
         case to_integer(unsigned(localAddress(6 downto 0))) is
@@ -191,10 +197,12 @@ begin  -- architecture behavioral
           Ctrl.RX.PRBS_RESET          <=  localWrData( 4);               
           reg_data(17)( 3 downto  0)  <=  localWrData( 3 downto  0);      --
           reg_data(17)( 5)            <=  localWrData( 5);                --
+
           when others => null;
         end case;
       end if;
     end if;
   end process reg_writes;
+
 
 end architecture behavioral;
