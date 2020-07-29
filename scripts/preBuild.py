@@ -77,8 +77,10 @@ def LoadSlave(slave,tclFile,dtsiFile,addressFile,parentName):
     if 'XML' in slave:
       #update list dtsi files to look for (.dtsi_chunk or .dtsi_post_chunk)
       dtsiFile.write("  - SLAVE:\n")
+      dtsiFile.write("    NAME: "+slave['NAME']+"\n")
       #update the address table file
       addressFile.write("  - SLAVE:\n")
+      addressFile.write("    NAME: "+slave['NAME']+"\n")
       addressFile.write("    UHAL_BASE: 0x"+hex(slave['UHAL_BASE'])[2:].zfill(8)+"\n")
       addressFile.write("    XML: "+slave['XML']+"\n")      
     else:
@@ -123,7 +125,7 @@ def main():
   tclFile.write("#================================================================================\n")
   
   #dtsi yaml file
-  dtsiYAMLFile=open(args.addressTablePath+"/slaves.yaml","w")
+  dtsiYAMLFile=open(args.dtsiPath+"/slaves.yaml","w")
   dtsiYAMLFile.write("SLAVE:\n");
 
   #address table yaml file
