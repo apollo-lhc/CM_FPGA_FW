@@ -69,18 +69,18 @@ def LoadSlave(slave,tclFile,dtsiFile,addressFile,parentName):
   #Build HDL for this file
   if 'HDL' in slave:
     if 'XML' not in slave:
-      raise RuntimeError(slave['NAME']+" has HDL tag, but no XML tag\n")
-    GenerateHDL(slave['NAME'],slave['XML'],slave['HDL'])
+      raise RuntimeError(parentName+slave['NAME']+" has HDL tag, but no XML tag\n")
+    GenerateHDL(parentName+slave['NAME'],slave['XML'],slave['HDL'])
 
   #generate yaml for the kernel and centos build
   if 'UHAL_BASE' in slave:
     if 'XML' in slave:
       #update list dtsi files to look for (.dtsi_chunk or .dtsi_post_chunk)
       dtsiFile.write("  - SLAVE:\n")
-      dtsiFile.write("    NAME: "+slave['NAME']+"\n")
+      dtsiFile.write("    NAME: "+parentName+slave['NAME']+"\n")
       #update the address table file
       addressFile.write("  - SLAVE:\n")
-      addressFile.write("    NAME: "+slave['NAME']+"\n")
+      addressFile.write("    NAME: "+parentName+slave['NAME']+"\n")
       addressFile.write("    UHAL_BASE: 0x"+hex(slave['UHAL_BASE'])[2:].zfill(8)+"\n")
       addressFile.write("    XML: "+slave['XML']+"\n")      
     else:
