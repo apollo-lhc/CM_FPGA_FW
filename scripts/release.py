@@ -5,7 +5,7 @@ import re #decode local repo
 import requests #interact with github.com
 import json # parse github return
 import os
-
+import yaml
 
 #find files
 from os import listdir
