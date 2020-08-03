@@ -41,61 +41,61 @@ def main():
     args=parser.parse_args()
     
 
-#    #get the token for remote write access to the repo
-#    token=os.getenv("GH_TOKEN")
-#    if token == None:
-#        print "Missing github oath token"
-#        quit()
-#      
-#    
-#    #############################################################################
-#    # Load local repo and 
-#    #############################################################################
-#
-#    #open current path as repo
-#    localRepo = Repo("./")
-#    localRepoRemote=localRepo.remotes.origin.url
-#    #get remote info
-#    host=   re.search('(\@|https:\/\/)(.*):',localRepoRemote).group(2)           #match git@HOST:XXXXX or https://HOST:XXXX
-#    project=re.search('(\@|https:\/\/).*:(.*)\/',localRepoRemote).group(2)       #match XXXXhost:PROJECT/XXXXX
-#    repo=   re.search('(\@|https:\/\/).*:.*\/(.*).git',localRepoRemote).group(2) #match XXXXhost:project/REPO.git
-#    
-#    print "Repo is "+host+"/"+project+"/"+repo
-#    
-#    #get branch and check that it is a release branch
-#    branch=localRepo.active_branch.name
-#    #check if this is named release
-#    if branch.find("release-v") == -1:
-#        print "Not on a release branch!"
-#        quit()
-#    releaseVersion=branch[branch.find("release-v") + len("release-v"):]
-#    print "Release:"+ releaseVersion
-#    
-#    
-#    #############################################################################
-#    # Create a new release remotely
-#    #############################################################################
-#    
-#    #Create the new release
-#    GIT_API_URL="https://api."+host+"/repos/"+project+"/"+repo+"/releases"
-#    
-#    createReleaseData='\
-#        {\
-#    	"tag_name": "v'+releaseVersion+'",\
-#    	"target_commitish": "'+branch+'",\
-#    	"name": "v'+releaseVersion+'",\
-#    	"body": "v '+releaseVersion+' release of '+repo+'",\
-#    	"draft": false,\
-#    	"prerelease": false\
-#    	}'
-#    
-#    response=requests.post(GIT_API_URL,data=createReleaseData,headers = {"Authorization": "token "+token})
-#    if response.status_code != 201:
-#        print "Error: Creation failed with {0}".format(response.status_code)
-#        quit()
-#    else:
-#        print "Created draft release v{0}".format(releaseVersion)
-#    ReleaseJSON=json.loads(response.text)
+    #get the token for remote write access to the repo
+    token=os.getenv("GH_TOKEN")
+    if token == None:
+        print "Missing github oath token"
+        quit()
+      
+    
+    #############################################################################
+    # Load local repo and 
+    #############################################################################
+
+    #open current path as repo
+    localRepo = Repo("./")
+    localRepoRemote=localRepo.remotes.origin.url
+    #get remote info
+    host=   re.search('(\@|https:\/\/)(.*):',localRepoRemote).group(2)           #match git@HOST:XXXXX or https://HOST:XXXX
+    project=re.search('(\@|https:\/\/).*:(.*)\/',localRepoRemote).group(2)       #match XXXXhost:PROJECT/XXXXX
+    repo=   re.search('(\@|https:\/\/).*:.*\/(.*).git',localRepoRemote).group(2) #match XXXXhost:project/REPO.git
+    
+    print "Repo is "+host+"/"+project+"/"+repo
+    
+    #get branch and check that it is a release branch
+    branch=localRepo.active_branch.name
+    #check if this is named release
+    if branch.find("release-v") == -1:
+        print "Not on a release branch!"
+        quit()
+    releaseVersion=branch[branch.find("release-v") + len("release-v"):]
+    print "Release:"+ releaseVersion
+    
+    
+    #############################################################################
+    # Create a new release remotely
+    #############################################################################
+    
+    #Create the new release
+    GIT_API_URL="https://api."+host+"/repos/"+project+"/"+repo+"/releases"
+    
+    createReleaseData='\
+        {\
+    	"tag_name": "v'+releaseVersion+'",\
+    	"target_commitish": "'+branch+'",\
+    	"name": "v'+releaseVersion+'",\
+    	"body": "v '+releaseVersion+' release of '+repo+'",\
+    	"draft": false,\
+    	"prerelease": false\
+    	}'
+    
+    response=requests.post(GIT_API_URL,data=createReleaseData,headers = {"Authorization": "token "+token})
+    if response.status_code != 201:
+        print "Error: Creation failed with {0}".format(response.status_code)
+        quit()
+    else:
+        print "Created draft release v{0}".format(releaseVersion)
+    ReleaseJSON=json.loads(response.text)
     
 
 
@@ -107,7 +107,6 @@ def main():
     try:
         #dtsi files
         
-#        addressTableFiles=GetFilesToSend('address_tables/modules/','xml')
         
         
         #########################################################################
@@ -129,7 +128,7 @@ def main():
                 if len(dtsiFile[file]) > printPadding:                    
                     printPadding = len(dtsiFile[file])+1
         print "  Uploading: " + (dtsiSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
-        #releaseFile(ReleaseJSON,dtsiSlavesFile,uploadFile)
+        releaseFile(ReleaseJSON,dtsiSlavesFile,uploadFile)
         for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
             #since we don't know at the start that this is a dtsi_chunk or dtsi_post_chunk file
             #we use the name with a "." after it.   If it returns 0 or more than 1 files, then
@@ -138,7 +137,7 @@ def main():
             for file in dtsiFile:
                 uploadFile=uploadDir+file                
                 print "  Uploading:",(dtsiFile[file]).ljust(printPadding), "to",uploadFile 
-                #releaseFile(ReleaseJSON,dtsiFile[file],uploadFile)
+                releaseFile(ReleaseJSON,dtsiFile[file],uploadFile)
 
         #########################################################################
         # Address table files
@@ -157,12 +156,12 @@ def main():
                     printPadding = len(slave['XML'])+1
 
         print "  Uploading: " + (tableSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
-        #releaseFile(ReleaseJSON,tableSlavesFile,uploadFile)
+        releaseFile(ReleaseJSON,tableSlavesFile,uploadFile)
         for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
             if 'XML' in slave:
                 uploadFile=slave['XML']
                 print "  Uploading: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
-                #releaseFile(ReleaseJSON,slave['XML'],uploadFile)
+                releaseFile(ReleaseJSON,slave['XML'],uploadFile)
 
 
         #########################################################################
@@ -179,7 +178,7 @@ def main():
                 printPadding=len(bitFiles[file])+1
         for file in bitFiles:
             print "  Uploading: " + (bitFiles[file]).ljust(printPadding) + " to  "+bitFiles[file]
-            #releaseFile(ReleaseJSON,file,file)
+            releaseFile(ReleaseJSON,file,file)
             
             
     
