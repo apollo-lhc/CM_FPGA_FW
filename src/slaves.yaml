@@ -42,9 +42,3 @@ SLAVE:
     NAME: K_C2C_PHY
     XML: "address_tables/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x86000000
-
-  - SLAVE:
-    NAME: IPBUS_KINTEX
-    UHAL_BASE: 0x87000000
-    XML_MODE: "non-incremental"
-    XML_SIZE: 0x3F

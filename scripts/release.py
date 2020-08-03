@@ -25,12 +25,13 @@ def GetFilesToSend(path,match):
 
 
 def releaseFile(releaseJSON,localFile,uploadFile):
+    global token
     url=releaseJSON["upload_url"].replace("{?name,label}","?name="+uploadFile)
     uploadFile=open(localFile)
     response=requests.post(url,data=uploadFile,headers = {"Authorization": "token "+token,"Content-Type": "application/octet-stream"})    
     uploadFile.close()
     if response.status_code != 201:
-        raise Exception('Error ({0}) while uploading {1}'.format(response.status_code,localFile))
+        raise Exception('Error ({0}:{1}) while uploading {2}\n{3}'.format(response.status_code,response.reason,localFile,response.text))
 
 
 def main():
@@ -42,6 +43,7 @@ def main():
     
 
     #get the token for remote write access to the repo
+    global token
     token=os.getenv("GH_TOKEN")
     if token == None:
         print "Missing github oath token"
@@ -116,7 +118,7 @@ def main():
         print "Processing dtsi files"
         print "========================================"
         #upload dtsi files        
-        dtsiSlavesFile=args.dtsiPath+"/slaves.yaml"
+        dtsiSlavesFile=args.dtsiPath+"slaves.yaml"
         uploadDir="dtsi/"
         uploadFile=uploadDir+"slaves.yaml"
         printPadding=len(dtsiSlavesFile)
@@ -147,7 +149,7 @@ def main():
         print "Processing address table files"
         print "========================================"
         #address tables
-        tableSlavesFile=args.tablePath+"/slaves.yaml"
+        tableSlavesFile=args.tablePath+"slaves.yaml"
         uploadFile="address_table/slaves.yaml"
         printPadding=len(tableSlavesFile)
         for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
@@ -157,11 +159,16 @@ def main():
 
         print "  Uploading: " + (tableSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
         releaseFile(ReleaseJSON,tableSlavesFile,uploadFile)
-        for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
+        uploadXMLFileList=[]
+        for slave in yaml.load(open(tableSlavesFile))['SLAVE']:            
             if 'XML' in slave:
-                uploadFile=slave['XML']
-                print "  Uploading: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
-                releaseFile(ReleaseJSON,slave['XML'],uploadFile)
+                if slave['XML'] not in uploadXMLFileList:
+                    uploadFile=slave['XML']
+                    uploadXMLFileList.append(uploadFile)
+                    print "  Uploading: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
+                    releaseFile(ReleaseJSON,slave['XML'],uploadFile)
+                else:
+                    print "  Skipping duplicate: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
 
 
         #########################################################################
@@ -177,14 +184,15 @@ def main():
             if(len(bitFiles[file])>printPadding):
                 printPadding=len(bitFiles[file])+1
         for file in bitFiles:
-            print "  Uploading: " + (bitFiles[file]).ljust(printPadding) + " to  "+bitFiles[file]
-            releaseFile(ReleaseJSON,file,file)
+            print "  Uploading: " + (bitFiles[file]).ljust(printPadding) + " to  "+file
+            releaseFile(ReleaseJSON,bitFiles[file],file)
             
             
     
     except Exception as e:
-#        requests.delete(ReleaseJSON["url"],headers={"Authorization": "token "+token})
+        requests.delete(ReleaseJSON["url"],headers={"Authorization": "token "+token})
         print "Error! Deleting partial release"
+        print e
 
 
 if __name__ == "__main__":
