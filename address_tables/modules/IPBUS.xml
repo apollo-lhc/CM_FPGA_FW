@@ -1,0 +1,3 @@
+<node id="IPBUS">
+  <node id="MEM"                                                 address="0x00000000"  mode="non-incremental" size="0x3F"/>
+</node>
