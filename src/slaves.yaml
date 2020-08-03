@@ -2,43 +2,43 @@ SLAVE:
   - SLAVE:
     NAME: KINTEX_SYS_MGMT
     TCL_CALL: "[AXI_IP_SYS_MGMT KINTEX_SYS_MGMT         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c42000 4K 0]"
-    XML: "address_tables/modules/KINTEX_SYS_MGMT.xml"
+    XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
     
   - SLAVE:
     NAME: K_IO
     TCL_CALL: "[AXI_PL_DEV_CONNECT K_IO                 ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c40000 4K]"
-    XML: "address_tables/modules/K_IO.xml"
+    XML: "address_table/modules/K_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: "src/K_IO"    
 
   - SLAVE:
     NAME: CM_K_INFO
     TCL_CALL: "[AXI_PL_DEV_CONNECT CM_K_INFO            ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c43000 4K]"
-    XML: "address_tables/modules/FW_INFO.xml"
+    XML: "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: "src/CM_K_info"
                   
   - SLAVE:
     NAME: KINTEX_TCDS
     TCL_CALL: "[AXI_PL_DEV_CONNECT KINTEX_TCDS          ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c46000 4K]"
-    XML: "address_tables/modules/KINTEX_TCDS.xml"
+    XML: "address_table/modules/KINTEX_TCDS.xml"
     UHAL_BASE: 0x83000000
     HDL: "src/TCDS"
 
   - SLAVE:
     NAME: KINTEX_TCDS_DRP
     TCL_CALL: "[AXI_PL_DEV_CONNECT KINTEX_TCDS_DRP      ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c47000 4K]"
-    XML: "address_tables/modules/DRP_USP_GTY.xml"
+    XML: "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x84000000    
 
   - SLAVE:
     NAME: KINTEX_IPBUS
     TCL_CALL: "[AXI_PL_DEV_CONNECT KINTEX_IPBUS         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x8a000000 32M AXI4]"
-    XML: "address_tables/modules/IPBUS.xml"
+    XML: "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
 
   - SLAVE:
     NAME: K_C2C_PHY
-    XML: "address_tables/modules/DRP_USP_GTY.xml"
+    XML: "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x86000000
