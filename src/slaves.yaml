@@ -29,7 +29,7 @@ SLAVE:
   - SLAVE:
     NAME: KINTEX_TCDS_DRP
     TCL_CALL: "[AXI_PL_DEV_CONNECT KINTEX_TCDS_DRP      ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c47000 4K]"
-    XML: "address_tables/modules/KINTEX_TCDS.xml"
+    XML: "address_tables/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x84000000    
 
   - SLAVE:
@@ -40,7 +40,7 @@ SLAVE:
 
   - SLAVE:
     NAME: K_C2C_PHY
-    XML: "address_table/modules/DRP_GTY.xml"
+    XML: "address_tables/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x86000000
 
   - SLAVE:

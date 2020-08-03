@@ -127,7 +127,7 @@ def main():
   tclFile.write("#================================================================================\n")
   
   #dtsi yaml file
-  dtsiYAMLFile=open(args.addressTablePath+"/slaves.yaml","w")
+  dtsiYAMLFile=open(args.dtsiPath+"/slaves.yaml","w")
   dtsiYAMLFile.write("SLAVE:\n");
 
   #address table yaml file

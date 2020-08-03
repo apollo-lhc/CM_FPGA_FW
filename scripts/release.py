@@ -1,4 +1,5 @@
 #!/bin/env python
+import argparse
 
 from git import Repo #interact with local git repo
 import re #decode local repo
@@ -11,6 +12,8 @@ import yaml
 from os import listdir
 from os.path import isfile, join
 
+token=""
+
 def GetFilesToSend(path,match):
     files=dict()
     for f in listdir(path):
@@ -21,94 +24,169 @@ def GetFilesToSend(path,match):
     return files
 
 
-token=os.getenv("GH_TOKEN")
-if token == None:
-    print "Missing github oath token"
-    quit()
+def releaseFile(releaseJSON,localFile,uploadFile):
+    url=releaseJSON["upload_url"].replace("{?name,label}","?name="+uploadFile)
+    uploadFile=open(localFile)
+    response=requests.post(url,data=uploadFile,headers = {"Authorization": "token "+token,"Content-Type": "application/octet-stream"})    
+    uploadFile.close()
+    if response.status_code != 201:
+        raise Exception('Error ({0}) while uploading {1}'.format(response.status_code,localFile))
 
 
+def main():
 
-#open current path as repo
-localRepo = Repo("./")
-localRepoRemote=localRepo.remotes.origin.url
-#get remote info
-host=   re.search('(\@|https:\/\/)(.*):',localRepoRemote).group(2)           #match git@HOST:XXXXX or https://HOST:XXXX
-project=re.search('(\@|https:\/\/).*:(.*)\/',localRepoRemote).group(2)       #match XXXXhost:PROJECT/XXXXX
-repo=   re.search('(\@|https:\/\/).*:.*\/(.*).git',localRepoRemote).group(2) #match XXXXhost:project/REPO.git
-
-print "Repo is "+host+"/"+project+"/"+repo
-
-#get branch and check that it is a release branch
-branch=localRepo.active_branch.name
-#check if this is named release
-if branch.find("release-v") == -1:
-    print "Not on a release branch!"
-    quit()
-releaseVersion=branch[branch.find("release-v") + len("release-v"):]
-print "Release:"+ releaseVersion
-
-
-
-#Create the new release
-GIT_API_URL="https://api."+host+"/repos/"+project+"/"+repo+"/releases"
-
-createReleaseData='\
-    {\
-	"tag_name": "v'+releaseVersion+'",\
-	"target_commitish": "'+branch+'",\
-	"name": "v'+releaseVersion+'",\
-	"body": "v '+releaseVersion+' release of '+repo+'",\
-	"draft": false,\
-	"prerelease": false\
-	}'
-
-response=requests.post(GIT_API_URL,data=createReleaseData,headers = {"Authorization": "token "+token})
-if response.status_code != 201:
-    print "Error: Creation failed with {0}".format(response.status_code)
-    quit()
-else:
-    print "Created draft release v{0}".format(releaseVersion)
-ReleaseJSON=json.loads(response.text)
-
-
-##Upload files and finalize the release
-try:
-    #dtsi files
-    dtsiFiles=GetFilesToSend('os/hw','dtsi')
-    addressTableFiles=GetFilesToSend('address_tables/modules/','xml')
-    bitFiles=GetFilesToSend('bit/','top')
+    parser = argparse.ArgumentParser(description="Build address table.")
+    parser.add_argument("--dtsiPath","-d"      ,help="path for dtsi files")
+    parser.add_argument("--tablePath","-t"      ,help="path for address table files")
+    args=parser.parse_args()
     
-    #upload dtsi files
-    for file in dtsiFiles:
-        url=ReleaseJSON["upload_url"].replace("{?name,label}","?name=dtsi/"+file)
-        print "Uploading: "+dtsiFiles[file]
-        uploadFile=open(dtsiFiles[file])
-        response=requests.post(url,data=uploadFile,headers = {"Authorization": "token "+token,"Content-Type": "application/octet-stream"})    
-        uploadFile.close()
-        if response.status_code != 201:
-            raise Exception('Error ({0}) while uploading {1}'.format(response.status_code,file))
-	
-    #upload address table files        
-    for file in addressTableFiles:
-        url=ReleaseJSON["upload_url"].replace("{?name,label}","?name=modules/"+file)
-        print "Uploading: "+addressTableFiles[file]
-        uploadFile=open(addressTableFiles[file])
-        response=requests.post(url,data=uploadFile,headers = {"Authorization": "token "+token,"Content-Type": "application/octet-stream"})    
-        uploadFile.close()
-        if response.status_code != 201:
-            raise Exception('Error ({0}) while uploading {1}'.format(response.status_code,file))
-	
-    #Upload bit files
-    for file in bitFiles:
-        url=ReleaseJSON["upload_url"].replace("{?name,label}","?name="+file)
-        print "Uploading: "+bitFiles[file]
-        uploadFile=open(bitFiles[file])
-        response=requests.post(url,data=uploadFile,headers = {"Authorization": "token "+token,"Content-Type": "application/octet-stream"})    
-        uploadFile.close()
-        if response.status_code != 201:
-            raise Exception('Error ({0}) while uploading {1}'.format(response.status_code,file))
+
+#    #get the token for remote write access to the repo
+#    token=os.getenv("GH_TOKEN")
+#    if token == None:
+#        print "Missing github oath token"
+#        quit()
+#      
+#    
+#    #############################################################################
+#    # Load local repo and 
+#    #############################################################################
+#
+#    #open current path as repo
+#    localRepo = Repo("./")
+#    localRepoRemote=localRepo.remotes.origin.url
+#    #get remote info
+#    host=   re.search('(\@|https:\/\/)(.*):',localRepoRemote).group(2)           #match git@HOST:XXXXX or https://HOST:XXXX
+#    project=re.search('(\@|https:\/\/).*:(.*)\/',localRepoRemote).group(2)       #match XXXXhost:PROJECT/XXXXX
+#    repo=   re.search('(\@|https:\/\/).*:.*\/(.*).git',localRepoRemote).group(2) #match XXXXhost:project/REPO.git
+#    
+#    print "Repo is "+host+"/"+project+"/"+repo
+#    
+#    #get branch and check that it is a release branch
+#    branch=localRepo.active_branch.name
+#    #check if this is named release
+#    if branch.find("release-v") == -1:
+#        print "Not on a release branch!"
+#        quit()
+#    releaseVersion=branch[branch.find("release-v") + len("release-v"):]
+#    print "Release:"+ releaseVersion
+#    
+#    
+#    #############################################################################
+#    # Create a new release remotely
+#    #############################################################################
+#    
+#    #Create the new release
+#    GIT_API_URL="https://api."+host+"/repos/"+project+"/"+repo+"/releases"
+#    
+#    createReleaseData='\
+#        {\
+#    	"tag_name": "v'+releaseVersion+'",\
+#    	"target_commitish": "'+branch+'",\
+#    	"name": "v'+releaseVersion+'",\
+#    	"body": "v '+releaseVersion+' release of '+repo+'",\
+#    	"draft": false,\
+#    	"prerelease": false\
+#    	}'
+#    
+#    response=requests.post(GIT_API_URL,data=createReleaseData,headers = {"Authorization": "token "+token})
+#    if response.status_code != 201:
+#        print "Error: Creation failed with {0}".format(response.status_code)
+#        quit()
+#    else:
+#        print "Created draft release v{0}".format(releaseVersion)
+#    ReleaseJSON=json.loads(response.text)
+    
 
 
+    #############################################################################
+    # Upload files to the release
+    #############################################################################
+    
+    ##Upload files and finalize the release
+    try:
+        #dtsi files
+        
+#        addressTableFiles=GetFilesToSend('address_tables/modules/','xml')
+        
+        
+        #########################################################################
+        # DTSI files
+        #########################################################################
+        print "========================================"
+        print "Processing dtsi files"
+        print "========================================"
+        #upload dtsi files        
+        dtsiSlavesFile=args.dtsiPath+"/slaves.yaml"
+        uploadDir="dtsi/"
+        uploadFile=uploadDir+"slaves.yaml"
+        printPadding=len(dtsiSlavesFile)
+        for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
+            dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave['NAME']+".")    
+            if len(dtsiFile) != 1:
+                raise Exception('Too few or too many dtsi file matches!\nret:{0}\n'.format(dtsiFile))            
+            for file in dtsiFile:
+                if len(dtsiFile[file]) > printPadding:                    
+                    printPadding = len(dtsiFile[file])+1
+        print "  Uploading: " + (dtsiSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
+        #releaseFile(ReleaseJSON,dtsiSlavesFile,uploadFile)
+        for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
+            #since we don't know at the start that this is a dtsi_chunk or dtsi_post_chunk file
+            #we use the name with a "." after it.   If it returns 0 or more than 1 files, then
+            #we throw
+            dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave['NAME']+".")    
+            for file in dtsiFile:
+                uploadFile=uploadDir+file                
+                print "  Uploading:",(dtsiFile[file]).ljust(printPadding), "to",uploadFile 
+                #releaseFile(ReleaseJSON,dtsiFile[file],uploadFile)
 
-except Exception as e:
-    requests.delete(ReleaseJSON["url"],headers={"Authorization": "token "+token})
+        #########################################################################
+        # Address table files
+        #########################################################################
+        print ""
+        print "========================================"
+        print "Processing address table files"
+        print "========================================"
+        #address tables
+        tableSlavesFile=args.tablePath+"/slaves.yaml"
+        uploadFile="address_table/slaves.yaml"
+        printPadding=len(tableSlavesFile)
+        for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
+            if 'XML' in slave:
+                if len(slave['XML']) > printPadding:                    
+                    printPadding = len(slave['XML'])+1
+
+        print "  Uploading: " + (tableSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
+        #releaseFile(ReleaseJSON,tableSlavesFile,uploadFile)
+        for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
+            if 'XML' in slave:
+                uploadFile=slave['XML']
+                print "  Uploading: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
+                #releaseFile(ReleaseJSON,slave['XML'],uploadFile)
+
+
+        #########################################################################
+        # FW files
+        #########################################################################                
+        print
+        print "========================================"
+        print "Processing bit files"
+        print "========================================"
+        bitFiles=GetFilesToSend('bit/','top')
+        printPadding=0
+        for file in bitFiles:
+            if(len(bitFiles[file])>printPadding):
+                printPadding=len(bitFiles[file])+1
+        for file in bitFiles:
+            print "  Uploading: " + (bitFiles[file]).ljust(printPadding) + " to  "+bitFiles[file]
+            #releaseFile(ReleaseJSON,file,file)
+            
+            
+    
+    except Exception as e:
+#        requests.delete(ReleaseJSON["url"],headers={"Authorization": "token "+token})
+        print "Error! Deleting partial release"
+
+
+if __name__ == "__main__":
+    main()
