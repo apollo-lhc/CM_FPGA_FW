@@ -66,8 +66,8 @@ def GenerateHDL(name,XMLFile,HDLPath):
 #def LoadSlave(slave,tclFile,dtsiFile,addressFile,parentName):
 def LoadSlave(slave,tclFile,dtsiYAML,aTableYAML,parentName):
   
-  fullName=parentName+slave['NAME']
-
+  fullName=parentName+slave.keys()[0]
+  slave = slave[slave.keys()[0]]
   #update the AddSlaves.tcl file
   if 'TCL_CALL' in slave:
     tclFile.write("#"+fullName+"\n")
@@ -83,15 +83,14 @@ def LoadSlave(slave,tclFile,dtsiYAML,aTableYAML,parentName):
   if 'UHAL_BASE' in slave:
     if 'XML' in slave:
       #update list dtsi files to look for (.dtsi_chunk or .dtsi_post_chunk)
-      dtsiYAML.append({"SLAVE":{"NAME":fullName}})
+      dtsiYAML.append(fullName)
       #update the address table file
       aTableYAML.append(
         {
-          "SLAVE":
+          fullName:
           {
             "UHAL_BASE":"0x"+hex(slave['UHAL_BASE'])[2:].zfill(8),
-            "XML":slave['XML'],
-            "NAME":fullName
+            "XML":slave['XML']
           }
         }
       )
@@ -102,7 +101,7 @@ def LoadSlave(slave,tclFile,dtsiYAML,aTableYAML,parentName):
   if 'SLAVE' in slave:
     if slave['SUB_SLAVES'] != None:
       for subSlave in slave['SUB_SLAVES']:
-        LoadSlave(subSlave["SLAVE"],tclFile,dtsiYAML,aTableYAML,fullName)
+        LoadSlave(subSlave,tclFile,dtsiYAML,aTableYAML,fullName)
 
 
 
@@ -149,7 +148,7 @@ def main():
   slaves=yaml.load(slavesFile)
   for slave in slaves['AXI_SLAVES']:
     #update all the files for this slave
-    LoadSlave(slave['SLAVE'],
+    LoadSlave(slave,
               tclFile,
               dtsiYAML,
               aTableYAML,
