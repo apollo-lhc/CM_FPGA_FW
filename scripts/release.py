@@ -122,7 +122,8 @@ def main():
         uploadDir="dtsi/"
         uploadFile=uploadDir+"slaves.yaml"
         printPadding=len(dtsiSlavesFile)
-        for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
+        for slave in yaml.load(open(dtsiSlavesFile))['AXI_SLAVES']:
+            slave=slave["SLAVE"]
             dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave['NAME']+".")    
             if len(dtsiFile) != 1:
                 raise Exception('Too few or too many dtsi file matches!\nret:{0}\n'.format(dtsiFile))            
@@ -132,6 +133,7 @@ def main():
         print "  Uploading: " + (dtsiSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
         releaseFile(ReleaseJSON,dtsiSlavesFile,uploadFile)
         for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
+            slave = slave["SLAVE"]
             #since we don't know at the start that this is a dtsi_chunk or dtsi_post_chunk file
             #we use the name with a "." after it.   If it returns 0 or more than 1 files, then
             #we throw
