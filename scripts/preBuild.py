@@ -80,7 +80,7 @@ def LoadSlave(name,slave,tclFile,dtsiYAML,aTableYAML,parentName):
   if 'HDL' in slave:
     if 'XML' not in slave:
       raise RuntimeError(fullName+" has HDL tag, but no XML tag\n")
-    GenerateHDL(fullName,slave['XML'],slave['HDL'])
+    GenerateHDL(fullName,slave['XML'][0],slave['HDL'])
 
   #generate yaml for the kernel and centos build
   if 'UHAL_BASE' in slave:

@@ -155,8 +155,9 @@ def main():
         for slave in tableYAML['UHAL_MODULES']:
             slave = tableYAML['UHAL_MODULES'][slave]
             if 'XML' in slave:
-                if len(slave['XML']) > printPadding:                    
-                    printPadding = len(slave['XML'])+1
+                for xmlFile in slave['XML']:
+                    if len(xmlFile) > printPadding:                    
+                        printPadding = len(xmlFile)+1
 
         print "  Uploading: " + (tableSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
         releaseFile(ReleaseJSON,tableSlavesFile,uploadFile)
@@ -164,13 +165,14 @@ def main():
         for slave in tableYAML['UHAL_MODULES']:
             slave = tableYAML['UHAL_MODULES'][slave]
             if 'XML' in slave:
-                if slave['XML'] not in uploadXMLFileList:
-                    uploadFile=slave['XML']
-                    uploadXMLFileList.append(uploadFile)
-                    print "  Uploading: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
-                    releaseFile(ReleaseJSON,slave['XML'],uploadFile)
-                else:
-                    print "  Skipping:  " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
+                for xmlFile in slave['XML']:
+                    if xmlFile not in uploadXMLFileList:
+                        uploadFile=xmlFile
+                        uploadXMLFileList.append(xmlFile)
+                        print "  Uploading: " + (xmlFile).ljust(printPadding) + " to  "+uploadFile 
+                        releaseFile(ReleaseJSON,xmlFile,uploadFile)
+                    else:
+                        print "  Skipping:  " + (xmlFile).ljust(printPadding) + " to  "+uploadFile 
 
 
         #########################################################################
