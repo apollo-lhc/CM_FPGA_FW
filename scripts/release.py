@@ -25,12 +25,13 @@ def GetFilesToSend(path,match):
 
 
 def releaseFile(releaseJSON,localFile,uploadFile):
+    global token
     url=releaseJSON["upload_url"].replace("{?name,label}","?name="+uploadFile)
     uploadFile=open(localFile)
     response=requests.post(url,data=uploadFile,headers = {"Authorization": "token "+token,"Content-Type": "application/octet-stream"})    
     uploadFile.close()
     if response.status_code != 201:
-        raise Exception('Error ({0}) while uploading {1}'.format(response.status_code,localFile))
+        raise Exception('Error ({0}:{1}) while uploading {2}\n{3}'.format(response.status_code,response.reason,localFile,response.text))
 
 
 def main():
@@ -42,6 +43,7 @@ def main():
     
 
     #get the token for remote write access to the repo
+    global token
     token=os.getenv("GH_TOKEN")
     if token == None:
         print "Missing github oath token"
@@ -96,7 +98,6 @@ def main():
     else:
         print "Created draft release v{0}".format(releaseVersion)
     ReleaseJSON=json.loads(response.text)
-    
 
 
     #############################################################################
@@ -116,12 +117,12 @@ def main():
         print "Processing dtsi files"
         print "========================================"
         #upload dtsi files        
-        dtsiSlavesFile=args.dtsiPath+"/slaves.yaml"
+        dtsiSlavesFile=args.dtsiPath+"slaves.yaml"
         uploadDir="dtsi/"
         uploadFile=uploadDir+"slaves.yaml"
         printPadding=len(dtsiSlavesFile)
-        for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
-            dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave['NAME']+".")    
+        for slave in yaml.load(open(dtsiSlavesFile))['DTSI_CHUNKS']: 
+            dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave+".")    
             if len(dtsiFile) != 1:
                 raise Exception('Too few or too many dtsi file matches!\nret:{0}\n'.format(dtsiFile))            
             for file in dtsiFile:
@@ -129,11 +130,11 @@ def main():
                     printPadding = len(dtsiFile[file])+1
         print "  Uploading: " + (dtsiSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
         releaseFile(ReleaseJSON,dtsiSlavesFile,uploadFile)
-        for slave in yaml.load(open(dtsiSlavesFile))['SLAVE']:
+        for slave in yaml.load(open(dtsiSlavesFile))['DTSI_CHUNKS']:
             #since we don't know at the start that this is a dtsi_chunk or dtsi_post_chunk file
             #we use the name with a "." after it.   If it returns 0 or more than 1 files, then
             #we throw
-            dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave['NAME']+".")    
+            dtsiFile=GetFilesToSend(args.dtsiPath+"hw/",slave+".")    
             for file in dtsiFile:
                 uploadFile=uploadDir+file                
                 print "  Uploading:",(dtsiFile[file]).ljust(printPadding), "to",uploadFile 
@@ -147,21 +148,31 @@ def main():
         print "Processing address table files"
         print "========================================"
         #address tables
-        tableSlavesFile=args.tablePath+"/slaves.yaml"
+        tableSlavesFile=args.tablePath+"slaves.yaml"
         uploadFile="address_table/slaves.yaml"
         printPadding=len(tableSlavesFile)
-        for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
+        tableYAML = yaml.load(open(tableSlavesFile))
+        for slave in tableYAML['UHAL_MODULES']:
+            slave = tableYAML['UHAL_MODULES'][slave]
             if 'XML' in slave:
-                if len(slave['XML']) > printPadding:                    
-                    printPadding = len(slave['XML'])+1
+                for xmlFile in slave['XML']:
+                    if len(xmlFile) > printPadding:                    
+                        printPadding = len(xmlFile)+1
 
         print "  Uploading: " + (tableSlavesFile).ljust(printPadding) + " to  "+uploadFile+"\n" 
         releaseFile(ReleaseJSON,tableSlavesFile,uploadFile)
-        for slave in yaml.load(open(tableSlavesFile))['SLAVE']:
+        uploadXMLFileList=[]
+        for slave in tableYAML['UHAL_MODULES']:
+            slave = tableYAML['UHAL_MODULES'][slave]
             if 'XML' in slave:
-                uploadFile=slave['XML']
-                print "  Uploading: " + (slave['XML']).ljust(printPadding) + " to  "+uploadFile 
-                releaseFile(ReleaseJSON,slave['XML'],uploadFile)
+                for xmlFile in slave['XML']:
+                    if xmlFile not in uploadXMLFileList:
+                        uploadFile=xmlFile
+                        uploadXMLFileList.append(xmlFile)
+                        print "  Uploading: " + (xmlFile).ljust(printPadding) + " to  "+uploadFile 
+                        releaseFile(ReleaseJSON,xmlFile,uploadFile)
+                    else:
+                        print "  Skipping:  " + (xmlFile).ljust(printPadding) + " to  "+uploadFile 
 
 
         #########################################################################
@@ -177,14 +188,16 @@ def main():
             if(len(bitFiles[file])>printPadding):
                 printPadding=len(bitFiles[file])+1
         for file in bitFiles:
-            print "  Uploading: " + (bitFiles[file]).ljust(printPadding) + " to  "+bitFiles[file]
-            releaseFile(ReleaseJSON,file,file)
+            print "  Uploading: " + (bitFiles[file]).ljust(printPadding) + " to  "+file
+            releaseFile(ReleaseJSON,bitFiles[file],file)
             
             
     
     except Exception as e:
-#        requests.delete(ReleaseJSON["url"],headers={"Authorization": "token "+token})
+        requests.delete(ReleaseJSON["url"],headers={"Authorization": "token "+token})
+        requests.delete("https://api."+host+"/repos/"+project+"/"+repo+"/git/refs/tags/"+ReleaseJSON["tag_name"],headers={"Authorization": "token "+token})
         print "Error! Deleting partial release"
+        print e
 
 
 if __name__ == "__main__":
