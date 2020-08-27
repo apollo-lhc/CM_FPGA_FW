@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 #################################################################################
 # make stuff
 #################################################################################
@@ -7,11 +8,10 @@ OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
 #################################################################################
 # VIVADO stuff
 #################################################################################
-VIVADO_VERSION=2018.2
+VIVADO_VERSION=2019.2
 VIVADO_FLAGS=-notrace -mode batch
 VIVADO_SHELL="/opt/Xilinx/Vivado/"$(VIVADO_VERSION)"/settings64.sh"
-VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
-
+VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p os/hw && cd proj
 
 #################################################################################
 # TCL scripts
@@ -32,7 +32,7 @@ SYM_LNK_XMLS = $(shell find ./ -type l)
 MAP_OBJS = $(patsubst %.xml, %_map.vhd, $(SYM_LNK_XMLS))
 PKG_OBJS = $(patsubst %.xml, %_PKG.vhd, $(SYM_LNK_XMLS))
 
-################################################################################
+#################################################################################
 # Short build names
 #################################################################################
 
@@ -43,18 +43,6 @@ BIT=./bit/top.bit
 .PHONY: clean list bit
 
 all: bit 
-
-#################################################################################
-# preBuild 
-#################################################################################
-SLAVE_DEF_FILE=src/slaves.yaml
-ADDSLAVE_TCL_PATH=src/c2cSlave/
-ADDRESS_TABLE_CREATION_PATH=os/
-SLAVE_DTSI_PATH=kernel/
-
-ifneq ("$(wildcard mk/preBuild.mk)","")
-  include mk/preBuild.mk
-endif
 
 
 #################################################################################
@@ -72,7 +60,7 @@ clean_bit:
 	@rm -rf ./bit/*
 clean_os:
 	@echo "Clean OS hw files"
-	@rm -f kernel/hw/*
+	@rm -f os/hw/*
 clean: clean_bd clean_ip clean_bit clean_os
 	@rm -rf ./proj/*
 	@echo "Cleaning up"
@@ -111,6 +99,15 @@ $(BIT)	:
 SVF	:
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+
+################################################################################# 
+# Generate MAP and PKG files from address table 
+################################################################################# 
+XML2VHD_PATH=regmap_helper
+ifneq ("$(wildcard $(XML2VHD_PATH)/xml_regmap.mk)","")
+	include $(XML2VHD_PATH)/xml_regmap.mk
+endif
+
 
 
 #################################################################################

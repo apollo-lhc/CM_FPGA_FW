@@ -39,8 +39,8 @@ set_property INTERNAL_VREF 0.90 [get_iobanks 72]
 # 'input' clk_200: 200 MHz clock (schematic name is  "ac_*k_util_clk_chan2")
 set_property IOSTANDARD LVDS [get_ports *_clk_200]
 set_property DIFF_TERM_ADV TERM_100 [get_ports *_clk_200]
-set_property PACKAGE_PIN  G21 [get_ports  n_clk_200 ]
-set_property PACKAGE_PIN  G22 [get_ports  p_clk_200 ]
+set_property PACKAGE_PIN  AY15 [get_ports  n_clk_200 ]
+set_property PACKAGE_PIN  AY16 [get_ports  p_clk_200 ]
 #-------------------------------------------------
 
 #-----------------------------------------------
@@ -96,8 +96,8 @@ set_property PACKAGE_PIN  G23 [get_ports  p_amc13_tts_out ]
 # 'input' "clk1" programmable source
 
 # Quad A (224)
-set_property PACKAGE_PIN  AL11 [get_ports  n_util_clk_chan0 ]
-set_property PACKAGE_PIN  AL12 [get_ports  p_util_clk_chan0 ]
+set_property PACKAGE_PIN  AK9 [get_ports  n_util_clk_chan0 ]
+set_property PACKAGE_PIN  AK10 [get_ports  p_util_clk_chan0 ]
 
 # Quad C (226)
 set_property PACKAGE_PIN  AG11 [get_ports  n_clk0_chan0 ]
@@ -168,15 +168,15 @@ set_property PACKAGE_PIN  J34  [get_ports  {p_mgt_k2v[2]} ]
 # 'output' "k2z": links to the Zynq on the service board
 
 # Quad A (224)
-set_property PACKAGE_PIN  BA3  [get_ports  {n_mgt_z2k[1]} ]
-set_property PACKAGE_PIN  BA4  [get_ports  {p_mgt_z2k[1]} ]
-set_property PACKAGE_PIN  BB5  [get_ports  {n_mgt_z2k[2]} ]
-set_property PACKAGE_PIN  BB6  [get_ports  {p_mgt_z2k[2]} ]
+set_property PACKAGE_PIN  BB5  [get_ports  {n_mgt_z2k[1]} ]
+set_property PACKAGE_PIN  BB6  [get_ports  {p_mgt_z2k[1]} ]
+set_property PACKAGE_PIN  BA3  [get_ports  {n_mgt_z2k[2]} ]
+set_property PACKAGE_PIN  BA4  [get_ports  {p_mgt_z2k[2]} ]
 
-set_property PACKAGE_PIN  AV9  [get_ports  {n_mgt_k2z[1]} ]
-set_property PACKAGE_PIN  AV10 [get_ports  {p_mgt_k2z[1]} ]
-set_property PACKAGE_PIN  AW7  [get_ports  {n_mgt_k2z[2]} ]
-set_property PACKAGE_PIN  AW8  [get_ports  {p_mgt_k2z[2]} ]
+set_property PACKAGE_PIN  AW7  [get_ports  {n_mgt_k2z[1]} ]
+set_property PACKAGE_PIN  AW7 [get_ports  {p_mgt_k2z[1]} ]
+set_property PACKAGE_PIN  AV9  [get_ports  {n_mgt_k2z[2]} ]
+set_property PACKAGE_PIN  AV10  [get_ports  {p_mgt_k2z[2]} ]
 #-----------------------------------------------
 
 #-----------------------------------------------

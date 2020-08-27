@@ -26,23 +26,23 @@ entity top is
     p_mgt_k2z        : out std_logic_vector(1 downto 1);
 
     k_fpga_i2c_scl   : inout std_logic;
-    k_fpga_i2c_sda   : inout std_logic;
+    k_fpga_i2c_sda   : inout std_logic
 
     --TCDS
-    p_clk0_chan0     : in std_logic; -- 200 MHz system clock
-    n_clk0_chan0     : in std_logic; 
-    p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
-    n_clk1_chan0     : in std_logic;
-    p_atca_tts_out   : out std_logic;
-    n_atca_tts_out   : out std_logic;
-    p_atca_ttc_in    : in  std_logic;
-    n_atca_ttc_in    : in  std_logic;
+    --p_clk0_chan0     : in std_logic; -- 200 MHz system clock
+    --n_clk0_chan0     : in std_logic; 
+    --p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
+    --n_clk1_chan0     : in std_logic;
+    --p_atca_tts_out   : out std_logic;
+    --n_atca_tts_out   : out std_logic;
+    --p_atca_ttc_in    : in  std_logic;
+    --n_atca_ttc_in    : in  std_logic;
 
     
     -- tri-color LED
-    led_red : out std_logic;
-    led_green : out std_logic;
-    led_blue : out std_logic       -- assert to turn on
+    --led_red : out std_logic;
+    --led_green : out std_logic;
+    --led_blue : out std_logic       -- assert to turn on
     -- utility bits to/from TM4C
     );    
 end entity top;
@@ -59,7 +59,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 4;
+  constant localAXISlaves    : integer := 2;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -124,12 +124,12 @@ begin  -- architecture structure
     port map (
       AXI_CLK                             => AXI_CLK,
       AXI_RST_N(0)                        => AXI_RST_N,
-      K_C2C_phy_Rx_rxn                  => n_mgt_z2k,
-      K_C2C_phy_Rx_rxp                  => p_mgt_z2k,
-      K_C2C_phy_Tx_txn                  => n_mgt_k2z,
-      K_C2C_phy_Tx_txp                  => p_mgt_k2z,
-      K_C2C_phy_refclk_clk_n            => n_util_clk_chan0,
-      K_C2C_phy_refclk_clk_p            => p_util_clk_chan0,
+      K_C2CLink_phy_Rx_rxn                  => n_mgt_z2k,
+      K_C2CLink_phy_Rx_rxp                  => p_mgt_z2k,
+      K_C2CLink_phy_Tx_txn                  => n_mgt_k2z,
+      K_C2CLink_phy_Tx_txp                  => p_mgt_k2z,
+      K_C2CLink_phy_refclk_clk_n            => n_util_clk_chan0,
+      K_C2CLink_phy_refclk_clk_p            => p_util_clk_chan0,
       clk50Mhz                            => clk_50,
       K_IO_araddr                         => local_AXI_ReadMOSI(0).address,              
       K_IO_arprot                         => local_AXI_ReadMOSI(0).protection_type,      
@@ -169,96 +169,96 @@ begin  -- architecture structure
       CM_K_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
-      KINTEX_TCDS_DRP_araddr                     => local_AXI_ReadMOSI(2).address,
-      KINTEX_TCDS_DRP_arprot                     => local_AXI_ReadMOSI(2).protection_type,
-      KINTEX_TCDS_DRP_arready                 => local_AXI_ReadMISO(2).ready_for_address,
-      KINTEX_TCDS_DRP_arvalid                 => local_AXI_ReadMOSI(2).address_valid,
-      KINTEX_TCDS_DRP_awaddr                     => local_AXI_WriteMOSI(2).address,
-      KINTEX_TCDS_DRP_awprot                     => local_AXI_WriteMOSI(2).protection_type,
-      KINTEX_TCDS_DRP_awready                 => local_AXI_WriteMISO(2).ready_for_address,
-      KINTEX_TCDS_DRP_awvalid                 => local_AXI_WriteMOSI(2).address_valid,
-      KINTEX_TCDS_DRP_bready                  => local_AXI_WriteMOSI(2).ready_for_response,
-      KINTEX_TCDS_DRP_bresp                      => local_AXI_WriteMISO(2).response,
-      KINTEX_TCDS_DRP_bvalid                  => local_AXI_WriteMISO(2).response_valid,
-      KINTEX_TCDS_DRP_rdata                      => local_AXI_ReadMISO(2).data,
-      KINTEX_TCDS_DRP_rready                  => local_AXI_ReadMOSI(2).ready_for_data,
-      KINTEX_TCDS_DRP_rresp                      => local_AXI_ReadMISO(2).response,
-      KINTEX_TCDS_DRP_rvalid                  => local_AXI_ReadMISO(2).data_valid,
-      KINTEX_TCDS_DRP_wdata                      => local_AXI_WriteMOSI(2).data,
-      KINTEX_TCDS_DRP_wready                  => local_AXI_WriteMISO(2).ready_for_data,
-      KINTEX_TCDS_DRP_wstrb                      => local_AXI_WriteMOSI(2).data_write_strobe,
-      KINTEX_TCDS_DRP_wvalid                  => local_AXI_WriteMOSI(2).data_valid,
+      --KINTEX_TCDS_DRP_araddr                     => local_AXI_ReadMOSI(2).address,
+      --KINTEX_TCDS_DRP_arprot                     => local_AXI_ReadMOSI(2).protection_type,
+      --KINTEX_TCDS_DRP_arready                 => local_AXI_ReadMISO(2).ready_for_address,
+      --KINTEX_TCDS_DRP_arvalid                 => local_AXI_ReadMOSI(2).address_valid,
+      --KINTEX_TCDS_DRP_awaddr                     => local_AXI_WriteMOSI(2).address,
+      --KINTEX_TCDS_DRP_awprot                     => local_AXI_WriteMOSI(2).protection_type,
+      --KINTEX_TCDS_DRP_awready                 => local_AXI_WriteMISO(2).ready_for_address,
+      --KINTEX_TCDS_DRP_awvalid                 => local_AXI_WriteMOSI(2).address_valid,
+      --KINTEX_TCDS_DRP_bready                  => local_AXI_WriteMOSI(2).ready_for_response,
+      --KINTEX_TCDS_DRP_bresp                      => local_AXI_WriteMISO(2).response,
+      --KINTEX_TCDS_DRP_bvalid                  => local_AXI_WriteMISO(2).response_valid,
+      --KINTEX_TCDS_DRP_rdata                      => local_AXI_ReadMISO(2).data,
+      --KINTEX_TCDS_DRP_rready                  => local_AXI_ReadMOSI(2).ready_for_data,
+      --KINTEX_TCDS_DRP_rresp                      => local_AXI_ReadMISO(2).response,
+      --KINTEX_TCDS_DRP_rvalid                  => local_AXI_ReadMISO(2).data_valid,
+      --KINTEX_TCDS_DRP_wdata                      => local_AXI_WriteMOSI(2).data,
+      --KINTEX_TCDS_DRP_wready                  => local_AXI_WriteMISO(2).ready_for_data,
+      --KINTEX_TCDS_DRP_wstrb                      => local_AXI_WriteMOSI(2).data_write_strobe,
+      --KINTEX_TCDS_DRP_wvalid                  => local_AXI_WriteMOSI(2).data_valid,
                                           
-      KINTEX_TCDS_araddr                         => local_AXI_ReadMOSI(3).address,
-      KINTEX_TCDS_arprot                         => local_AXI_ReadMOSI(3).protection_type,
-      KINTEX_TCDS_arready                     => local_AXI_ReadMISO(3).ready_for_address,
-      KINTEX_TCDS_arvalid                     => local_AXI_ReadMOSI(3).address_valid,
-      KINTEX_TCDS_awaddr                         => local_AXI_WriteMOSI(3).address,
-      KINTEX_TCDS_awprot                         => local_AXI_WriteMOSI(3).protection_type,
-      KINTEX_TCDS_awready                     => local_AXI_WriteMISO(3).ready_for_address,
-      KINTEX_TCDS_awvalid                     => local_AXI_WriteMOSI(3).address_valid,
-      KINTEX_TCDS_bready                      => local_AXI_WriteMOSI(3).ready_for_response,
-      KINTEX_TCDS_bresp                          => local_AXI_WriteMISO(3).response,
-      KINTEX_TCDS_bvalid                      => local_AXI_WriteMISO(3).response_valid,
-      KINTEX_TCDS_rdata                          => local_AXI_ReadMISO(3).data,
-      KINTEX_TCDS_rready                      => local_AXI_ReadMOSI(3).ready_for_data,
-      KINTEX_TCDS_rresp                          => local_AXI_ReadMISO(3).response,
-      KINTEX_TCDS_rvalid                      => local_AXI_ReadMISO(3).data_valid,
-      KINTEX_TCDS_wdata                          => local_AXI_WriteMOSI(3).data,
-      KINTEX_TCDS_wready                      => local_AXI_WriteMISO(3).ready_for_data,
-      KINTEX_TCDS_wstrb                          => local_AXI_WriteMOSI(3).data_write_strobe,
-      KINTEX_TCDS_wvalid                      => local_AXI_WriteMOSI(3).data_valid,
+      --KINTEX_TCDS_araddr                         => local_AXI_ReadMOSI(3).address,
+      --KINTEX_TCDS_arprot                         => local_AXI_ReadMOSI(3).protection_type,
+      --KINTEX_TCDS_arready                     => local_AXI_ReadMISO(3).ready_for_address,
+      --KINTEX_TCDS_arvalid                     => local_AXI_ReadMOSI(3).address_valid,
+      --KINTEX_TCDS_awaddr                         => local_AXI_WriteMOSI(3).address,
+      --KINTEX_TCDS_awprot                         => local_AXI_WriteMOSI(3).protection_type,
+      --KINTEX_TCDS_awready                     => local_AXI_WriteMISO(3).ready_for_address,
+      --KINTEX_TCDS_awvalid                     => local_AXI_WriteMOSI(3).address_valid,
+      --KINTEX_TCDS_bready                      => local_AXI_WriteMOSI(3).ready_for_response,
+      --KINTEX_TCDS_bresp                          => local_AXI_WriteMISO(3).response,
+      --KINTEX_TCDS_bvalid                      => local_AXI_WriteMISO(3).response_valid,
+      --KINTEX_TCDS_rdata                          => local_AXI_ReadMISO(3).data,
+      --KINTEX_TCDS_rready                      => local_AXI_ReadMOSI(3).ready_for_data,
+      --KINTEX_TCDS_rresp                          => local_AXI_ReadMISO(3).response,
+      --KINTEX_TCDS_rvalid                      => local_AXI_ReadMISO(3).data_valid,
+      --KINTEX_TCDS_wdata                          => local_AXI_WriteMOSI(3).data,
+      --KINTEX_TCDS_wready                      => local_AXI_WriteMISO(3).ready_for_data,
+      --KINTEX_TCDS_wstrb                          => local_AXI_WriteMOSI(3).data_write_strobe,
+      --KINTEX_TCDS_wvalid                      => local_AXI_WriteMOSI(3).data_valid,
 
 
 
 
-      KINTEX_IPBUS_araddr                 => ext_AXI_ReadMOSI.address,              
-      KINTEX_IPBUS_arburst                => ext_AXI_ReadMOSI.burst_type,
-      KINTEX_IPBUS_arcache                => ext_AXI_ReadMOSI.cache_type,
-      KINTEX_IPBUS_arlen                  => ext_AXI_ReadMOSI.burst_length,
-      KINTEX_IPBUS_arlock(0)              => ext_AXI_ReadMOSI.lock_type,
-      KINTEX_IPBUS_arprot                 => ext_AXI_ReadMOSI.protection_type,      
-      KINTEX_IPBUS_arqos                  => ext_AXI_ReadMOSI.qos,
-      KINTEX_IPBUS_arready(0)             => ext_AXI_ReadMISO.ready_for_address,
-      KINTEX_IPBUS_arregion               => ext_AXI_ReadMOSI.region,
-      KINTEX_IPBUS_arsize                 => ext_AXI_ReadMOSI.burst_size,
-      KINTEX_IPBUS_arvalid(0)             => ext_AXI_ReadMOSI.address_valid,        
-      KINTEX_IPBUS_awaddr                 => ext_AXI_WriteMOSI.address,             
-      KINTEX_IPBUS_awburst                => ext_AXI_WriteMOSI.burst_type,
-      KINTEX_IPBUS_awcache                => ext_AXI_WriteMOSI.cache_type,
-      KINTEX_IPBUS_awlen                  => ext_AXI_WriteMOSI.burst_length,
-      KINTEX_IPBUS_awlock(0)              => ext_AXI_WriteMOSI.lock_type,
-      KINTEX_IPBUS_awprot                 => ext_AXI_WriteMOSI.protection_type,
-      KINTEX_IPBUS_awqos                  => ext_AXI_WriteMOSI.qos,
-      KINTEX_IPBUS_awready(0)             => ext_AXI_WriteMISO.ready_for_address,   
-      KINTEX_IPBUS_awregion               => ext_AXI_WriteMOSI.region,
-      KINTEX_IPBUS_awsize                 => ext_AXI_WriteMOSI.burst_size,
-      KINTEX_IPBUS_awvalid(0)             => ext_AXI_WriteMOSI.address_valid,       
-      KINTEX_IPBUS_bready(0)              => ext_AXI_WriteMOSI.ready_for_response,  
-      KINTEX_IPBUS_bresp                  => ext_AXI_WriteMISO.response,            
-      KINTEX_IPBUS_bvalid(0)              => ext_AXI_WriteMISO.response_valid,      
-      KINTEX_IPBUS_rdata                  => ext_AXI_ReadMISO.data,
-      KINTEX_IPBUS_rlast(0)               => ext_AXI_ReadMISO.last,
-      KINTEX_IPBUS_rready(0)              => ext_AXI_ReadMOSI.ready_for_data,       
-      KINTEX_IPBUS_rresp                  => ext_AXI_ReadMISO.response,             
-      KINTEX_IPBUS_rvalid(0)              => ext_AXI_ReadMISO.data_valid,           
-      KINTEX_IPBUS_wdata                  => ext_AXI_WriteMOSI.data,
-      KINTEX_IPBUS_wlast(0)               => ext_AXI_WriteMOSI.last,
-      KINTEX_IPBUS_wready(0)              => ext_AXI_WriteMISO.ready_for_data,       
-      KINTEX_IPBUS_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
-      KINTEX_IPBUS_wvalid(0)              => ext_AXI_WriteMOSI.data_valid,          
+      IPBUS_KINTEX_araddr                 => ext_AXI_ReadMOSI.address,              
+      IPBUS_KINTEX_arburst                => ext_AXI_ReadMOSI.burst_type,
+      IPBUS_KINTEX_arcache                => ext_AXI_ReadMOSI.cache_type,
+      IPBUS_KINTEX_arlen                  => ext_AXI_ReadMOSI.burst_length,
+      IPBUS_KINTEX_arlock(0)              => ext_AXI_ReadMOSI.lock_type,
+      IPBUS_KINTEX_arprot                 => ext_AXI_ReadMOSI.protection_type,      
+      IPBUS_KINTEX_arqos                  => ext_AXI_ReadMOSI.qos,
+      IPBUS_KINTEX_arready(0)             => ext_AXI_ReadMISO.ready_for_address,
+      IPBUS_KINTEX_arregion               => ext_AXI_ReadMOSI.region,
+      IPBUS_KINTEX_arsize                 => ext_AXI_ReadMOSI.burst_size,
+      IPBUS_KINTEX_arvalid(0)             => ext_AXI_ReadMOSI.address_valid,        
+      IPBUS_KINTEX_awaddr                 => ext_AXI_WriteMOSI.address,             
+      IPBUS_KINTEX_awburst                => ext_AXI_WriteMOSI.burst_type,
+      IPBUS_KINTEX_awcache                => ext_AXI_WriteMOSI.cache_type,
+      IPBUS_KINTEX_awlen                  => ext_AXI_WriteMOSI.burst_length,
+      IPBUS_KINTEX_awlock(0)              => ext_AXI_WriteMOSI.lock_type,
+      IPBUS_KINTEX_awprot                 => ext_AXI_WriteMOSI.protection_type,
+      IPBUS_KINTEX_awqos                  => ext_AXI_WriteMOSI.qos,
+      IPBUS_KINTEX_awready(0)             => ext_AXI_WriteMISO.ready_for_address,   
+      IPBUS_KINTEX_awregion               => ext_AXI_WriteMOSI.region,
+      IPBUS_KINTEX_awsize                 => ext_AXI_WriteMOSI.burst_size,
+      IPBUS_KINTEX_awvalid(0)             => ext_AXI_WriteMOSI.address_valid,       
+      IPBUS_KINTEX_bready(0)              => ext_AXI_WriteMOSI.ready_for_response,  
+      IPBUS_KINTEX_bresp                  => ext_AXI_WriteMISO.response,            
+      IPBUS_KINTEX_bvalid(0)              => ext_AXI_WriteMISO.response_valid,      
+      IPBUS_KINTEX_rdata                  => ext_AXI_ReadMISO.data,
+      IPBUS_KINTEX_rlast(0)               => ext_AXI_ReadMISO.last,
+      IPBUS_KINTEX_rready(0)              => ext_AXI_ReadMOSI.ready_for_data,       
+      IPBUS_KINTEX_rresp                  => ext_AXI_ReadMISO.response,             
+      IPBUS_KINTEX_rvalid(0)              => ext_AXI_ReadMISO.data_valid,           
+      IPBUS_KINTEX_wdata                  => ext_AXI_WriteMOSI.data,
+      IPBUS_KINTEX_wlast(0)               => ext_AXI_WriteMOSI.last,
+      IPBUS_KINTEX_wready(0)              => ext_AXI_WriteMISO.ready_for_data,       
+      IPBUS_KINTEX_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
+      IPBUS_KINTEX_wvalid(0)              => ext_AXI_WriteMOSI.data_valid,          
       reset_n                             => locked_clk200,--reset,
-      K_C2C_aurora_do_cc                => C2CLink_aurora_do_cc,               
-      K_C2C_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,   
-      K_C2C_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out,    
-      K_C2C_axi_c2c_multi_bit_error_out => C2CLink_axi_c2c_multi_bit_error_out,
-      K_C2C_phy_gt_pll_lock             => C2CLink_phy_gt_pll_lock,            
-      K_C2C_phy_hard_err                => C2CLink_phy_hard_err,               
-      K_C2C_phy_lane_up                 => C2CLink_phy_lane_up,                
-      K_C2C_phy_link_reset_out          => C2CLink_phy_link_reset_out,         
-      K_C2C_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out,    
-      K_C2C_phy_power_down              => '0',
-      K_C2C_phy_soft_err                => C2CLink_phy_soft_err,               
+      K_C2CLink_aurora_do_cc                => C2CLink_aurora_do_cc,               
+      K_C2CLink_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,   
+      K_C2CLink_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out,    
+      K_C2CLink_axi_c2c_multi_bit_error_out => C2CLink_axi_c2c_multi_bit_error_out,
+      K_C2CLink_phy_gt_pll_lock             => C2CLink_phy_gt_pll_lock,            
+      K_C2CLink_phy_hard_err                => C2CLink_phy_hard_err,               
+      K_C2CLink_phy_lane_up                 => C2CLink_phy_lane_up,                
+      K_C2CLink_phy_link_reset_out          => C2CLink_phy_link_reset_out,         
+      K_C2CLink_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out,    
+      K_C2CLink_phy_power_down              => '0',
+      K_C2CLink_phy_soft_err                => C2CLink_phy_soft_err,               
       KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
       KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
 );
@@ -272,9 +272,9 @@ begin  -- architecture structure
       redcount   => led_red_local,
       greencount => led_green_local,
       bluecount  => led_blue_local,
-      LEDred     => led_red,
-      LEDgreen   => led_green,
-      LEDblue    => led_blue);
+      LEDred     => open,
+      LEDgreen   => open,
+      LEDblue    => open);
 
   K_IO_interface_1: entity work.K_IO_interface
     port map (
@@ -313,28 +313,28 @@ begin  -- architecture structure
       writeMOSI   => local_AXI_WriteMOSI(1),
       writeMISO   => local_AXI_WriteMISO(1));
 
-  TCDS_1: entity work.TCDS
-    port map (
-      clk_axi              => AXI_CLK,
-      clk_200              => clk_200,
-      reset_axi_n          => AXI_RST_N,
-      readMOSI             => local_AXI_readMOSI(3),
-      readMISO             => local_AXI_readMISO(3),
-      writeMOSI            => local_AXI_writeMOSI(3),
-      writeMISO            => local_AXI_writeMISO(3),
-      DRP_readMOSI         => local_AXI_readMOSI(2),
-      DRP_readMISO         => local_AXI_readMISO(2),
-      DRP_writeMOSI        => local_AXI_writeMOSI(2),
-      DRP_writeMISO        => local_AXI_writeMISO(2),
-      refclk0_p => p_clk0_chan0,
-      refclk0_n => n_clk0_chan0,
-      refclk1_p => p_clk1_chan0,
-      refclk1_n => n_clk1_chan0,  
-      tx_p     => p_atca_tts_out  ,
-      tx_n     => n_atca_tts_out  ,
-      rx_p     => p_atca_ttc_in   ,
-      rx_n     => n_atca_ttc_in   ,
-      TxRx_clk_sel => '0'       );
+  --TCDS_1: entity work.TCDS
+  --  port map (
+  --    clk_axi              => AXI_CLK,
+  --    clk_200              => clk_200,
+  --    reset_axi_n          => AXI_RST_N,
+  --    readMOSI             => local_AXI_readMOSI(3),
+  --    readMISO             => local_AXI_readMISO(3),
+  --    writeMOSI            => local_AXI_writeMOSI(3),
+  --    writeMISO            => local_AXI_writeMISO(3),
+  --    DRP_readMOSI         => local_AXI_readMOSI(2),
+  --    DRP_readMISO         => local_AXI_readMISO(2),
+  --    DRP_writeMOSI        => local_AXI_writeMOSI(2),
+  --    DRP_writeMISO        => local_AXI_writeMISO(2),
+  --    refclk0_p => p_clk0_chan0,
+  --    refclk0_n => n_clk0_chan0,
+  --    refclk1_p => p_clk1_chan0,
+  --    refclk1_n => n_clk1_chan0,  
+  --    tx_p     => p_atca_tts_out  ,
+  --    tx_n     => n_atca_tts_out  ,
+  --    rx_p     => p_atca_ttc_in   ,
+  --    rx_n     => n_atca_ttc_in   ,
+  --    TxRx_clk_sel => '0'       );
 
   AXI_RESET <= not AXI_RST_N;
   AXI_BRAM_1: entity work.AXI_BRAM

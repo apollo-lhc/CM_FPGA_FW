@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-use work.CM_K_INFO_Ctrl.all;
+use work.FW_INFO_Ctrl.all;
 use work.AXIRegPkg.all;
 
 use work.types.all;
@@ -28,7 +28,7 @@ entity CM_K_info is
 end entity CM_K_info;
 
 architecture behavioral of CM_K_info is
-  signal Mon              :  CM_K_INFO_Mon_t;
+  signal Mon              :  FW_INFO_Mon_t;
 
 begin  -- architecture behavioral
 
@@ -36,7 +36,7 @@ begin  -- architecture behavioral
   -- AXI 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
-  CM_K_INFO_interface_1: entity work.CM_K_INFO_interface
+  FW_INFO_interface_1: entity work.FW_INFO_interface
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
