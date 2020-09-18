@@ -2,6 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use ieee.std_logic_misc.all;
+
 use work.axiRegPkg.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
@@ -384,19 +386,43 @@ begin  -- architecture structure
       bram_wrdata_a                => AXI_BRAM_DATA_IN,
       bram_rddata_a                => AXI_BRAM_DATA_OUT);
 
-  DP_BRAM_1: entity work.DP_BRAM
-    port map (
-      clka  => AXI_CLK,
-      ena   => AXI_BRAM_EN,
-      wea   => AXI_BRAM_we,
-      addra => AXI_BRAM_addr(11 downto 2),
-      dina  => AXI_BRAM_DATA_IN,
-      douta => AXI_BRAM_DATA_OUT,
-      clkb  => AXI_CLK,
-      enb   => '1',
-      web   => (others => BRAM_WRITE),
-      addrb => BRAM_ADDR,
-      dinb  => BRAM_WR_DATA,
-      doutb => BRAM_RD_DATA);
+--  DP_BRAM_1: entity work.DP_BRAM
+--    port map (
+--      clka  => AXI_CLK,
+--      ena   => AXI_BRAM_EN,
+--      wea   => AXI_BRAM_we,
+--      addra => AXI_BRAM_addr(11 downto 2),
+--      dina  => AXI_BRAM_DATA_IN,
+--      douta => AXI_BRAM_DATA_OUT,
+--      clkb  => AXI_CLK,
+--      enb   => '1',
+--      web   => (others => BRAM_WRITE),
+--      addrb => BRAM_ADDR,
+--      dinb  => BRAM_WR_DATA,
+--      doutb => BRAM_RD_DATA);
 
+  asym_ram_tdp_1: entity work.asym_ram_tdp
+    generic map (
+      WIDTHA     => 32,
+      SIZEA      => 4096,
+      ADDRWIDTHA => 12,
+      WIDTHB     => 32,
+      SIZEB      => 4096,
+      ADDRWIDTHB => 12)
+    port map (
+      clkA  => AXI_CLK,
+      clkB  => AXI_CLK,
+      enA   => AXI_BRAM_EN,
+      enB   => '1',
+      weA   => or_reduce(AXI_BRAM_we),
+      weB   => BRAM_WRITE,
+      addrA => AXI_BRAM_addr(11 downto 0),
+      addrB(11 downto 2) => BRAM_ADDR,
+      addrB( 1 downto 0) => "00",
+      diA   => AXI_BRAM_DATA_IN,
+      diB   => BRAM_WR_DATA,
+      doA   => AXI_BRAM_DATA_OUT,
+      doB   => BRAM_RD_DATA);
+
+  
 end architecture structure;

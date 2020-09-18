@@ -14,6 +14,7 @@ set vhdl_files "\
      src/misc/capture_CDC.vhd \
      src/misc/counter.vhd \
      src/misc/counter_clock.vhd \
+     src/misc/asym_dualport_ram.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
      src/K_IO/K_IO_PKG.vhd \
@@ -31,9 +32,8 @@ set xdc_files "\
 
 set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
-	      cores/AXI_BRAM/AXI_BRAM.xci \
-	      cores/DP_BRAM/DP_BRAM.xci \
-    	      "
+    	      cores/AXI_BRAM/AXI_BRAM.xci \
+   	      "
 
 #DRP ip
 #set ip_repo_path ../bd/IP
