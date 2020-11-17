@@ -37,10 +37,10 @@ set_property INTERNAL_VREF 0.90 [get_iobanks 72]
 # 200 MHz system clock on bank 72
 
 # 'input' clk_200: 200 MHz clock (schematic name is  "ac_*k_util_clk_chan2")
-set_property IOSTANDARD LVDS [get_ports *_clk_200]
-set_property DIFF_TERM_ADV TERM_100 [get_ports *_clk_200]
-set_property PACKAGE_PIN  AY15 [get_ports  n_clk_200 ]
-set_property PACKAGE_PIN  AY16 [get_ports  p_clk_200 ]
+set_property IOSTANDARD LVDS [get_ports *_clk_100]
+set_property DIFF_TERM_ADV TERM_100 [get_ports *_clk_100]
+set_property PACKAGE_PIN AY16 [get_ports p_clk_100]
+set_property PACKAGE_PIN AY15 [get_ports n_clk_100]
 #-------------------------------------------------
 
 #-----------------------------------------------

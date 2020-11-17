@@ -15,9 +15,8 @@ use UNISIM.vcomponents.all;
 entity top is
   port (
     -- clocks
-    p_clk_200 : in  std_logic;
-    n_clk_200 : in  std_logic;                -- 200 MHz system clock
-
+    p_clk_100 : in std_logic;
+    n_clk_100 : in std_logic;           -- 200 MHz system clock
 
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
@@ -115,10 +114,9 @@ begin  -- architecture structure
       clk_axi   => AXI_CLK,
       reset     => '0',
       locked    => locked_clk200,
-      clk_in1_p => p_clk_200,
-      clk_in1_n => n_clk_200);
-  
-  
+      clk_in1_p => p_clk_100,
+      clk_in1_n => n_clk_100);
+
 
   
 
