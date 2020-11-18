@@ -4,7 +4,6 @@
 
 #source ${apollo_root_path}/scripts/settings.tcl
 source ${apollo_root_path}/configs/${build_name}/settings.tcl
-source ${apollo_root_path}/configs/${build_name}/files.tcl
 source ${apollo_root_path}/scripts/FW_info.tcl
 
 #################################################################################
@@ -21,6 +20,8 @@ if {[file isfile $projectDir/$top.xpr]} {
 }
 create_project -force -part $FPGA_part $top $projectDir
 set_property target_language VHDL [current_project]
+
+source ${apollo_root_path}/configs/${build_name}/files.tcl
 
 #DRP ip
 set ip_repo_path ../bd/IP

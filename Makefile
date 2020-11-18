@@ -3,19 +3,19 @@ include mk/helpers.mk
 #################################################################################
 # VIVADO stuff
 #################################################################################
-VIVADO_VERSION=2018.2
 VIVADO_FLAGS=-notrace -mode batch
-VIVADO_SHELL="/opt/Xilinx/Vivado/"$(VIVADO_VERSION)"/settings64.sh"
-VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
+BUILD_VIVADO_VERSION=2018.2
+BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
+#VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
 
 
 #################################################################################
 # TCL scripts
 #################################################################################
-SETUP_TCL=scripts/Setup.tcl
-BUILD_TCL=scripts/Build.tcl
-SETUP_BUILD_TCL=scripts/SetupAndBuild.tcl
-HW_TCL=scripts/Run_hw.tcl
+SETUP_TCL=${MAKE_PATH}/scripts/Setup.tcl
+BUILD_TCL=${MAKE_PATH}/scripts/Build.tcl
+SETUP_BUILD_TCL=${MAKE_PATH}/scripts/SetupAndBuild.tcl
+HW_TCL=${MAKE_PATH}scripts/Run_hw.tcl
 
 #################################################################################
 # Source files
@@ -39,7 +39,7 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 # preBuild 
 #################################################################################
 SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
-ADDSLAVE_TCL_PATH=src/c2cSlave/
+ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/c2cSlave/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 
@@ -59,20 +59,26 @@ endif
 #################################################################################
 clean_ip:
 	@echo "Cleaning up ip dcps"
-	@find ./cores -type f -name '*.dcp' -delete
+	@find ${MAKE_PATH}/cores -type f -name '*.dcp' -delete
 clean_bd:
 	@echo "Cleaning up bd generated files"
-	@rm -rf ./bd/zynq_bd
-	@rm -rf ./bd/c2cSlave
+	@rm -rf ${MAKE_PATH}/bd/zynq_bd
+	@rm -rf ${MAKE_PATH}/bd/c2cSlave
 clean_bit:
 	@echo "Cleaning up bit files"
-	@rm -rf ./bit/*
-clean_os:
-	@echo "Clean OS hw files"
-	@rm -f kernel/hw/*
-clean: clean_bd clean_ip clean_bit clean_os
-	@rm -rf ./proj/*
+	@rm -rf ${MAKE_PATH}/bit/*
+clean_kernel:
+	@echo "Clean hw files"
+	@rm -f ${MAKE_PATH}/kernel/hw/*
+clean: clean_bd clean_ip clean_bit clean_kernel
+	@rm -rf ${MAKE_PATH}/proj/*
 	@echo "Cleaning up"
+clean_ip_%:
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
+	vivado $(VIVADO_FLAGS) -source ../scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+
+clean_everything: clean clean_remote clean_CM clean_prebuild
 
 
 #################################################################################
@@ -80,16 +86,20 @@ clean: clean_bd clean_ip clean_bit clean_os
 #################################################################################
 
 open_project : 
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado top.xpr
 open_synth :
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado post_synth.dcp
 open_impl :
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado post_route.dcp
 open_hw :
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado -source ../$(HW_TCL)
 
 

@@ -1,4 +1,4 @@
-set bd_path proj
+set bd_path proj/
 
 array set bd_files [list {c2cSlave} {src/c2cSlave/createC2CSlaveInterconnect.tcl} \
 			]
