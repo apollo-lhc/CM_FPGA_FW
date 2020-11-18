@@ -20,6 +20,7 @@ if {[file isfile $projectDir/$top.xpr]} {
 }
 create_project -force -part $FPGA_part $top $projectDir
 set_property target_language VHDL [current_project]
+puts "Using dir $projectDir for FPGA part $FPGA_part"
 
 source ${apollo_root_path}/configs/${build_name}/files.tcl
 
