@@ -1,8 +1,4 @@
-#################################################################################
-# make stuff
-#################################################################################
-#output markup
-OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
+include mk/helpers.mk
 
 #################################################################################
 # VIVADO stuff
@@ -24,38 +20,39 @@ HW_TCL=scripts/Run_hw.tcl
 #################################################################################
 # Source files
 #################################################################################
-PL_PATH=../src
-BD_PATH=../bd
-CORES_PATH=../cores
-
-SYM_LNK_XMLS = $(shell find ./ -type l)
-MAP_OBJS = $(patsubst %.xml, %_map.vhd, $(SYM_LNK_XMLS))
-PKG_OBJS = $(patsubst %.xml, %_PKG.vhd, $(SYM_LNK_XMLS))
+PL_PATH=${MAKE_PATH}/src
+BD_PATH=${MAKE_PATH}/bd
+CORES_PATH=${MAKE_PATH}/cores
+ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
 
 ################################################################################
 # Short build names
 #################################################################################
 
-BIT=./bit/top.bit
+BIT_BASE=${MAKE_PATH}/bit/top_
 
 .SECONDARY:
 
-.PHONY: clean list bit
-
-all: bit 
+.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init
 
 #################################################################################
 # preBuild 
 #################################################################################
-SLAVE_DEF_FILE=src/slaves.yaml
+SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
 ADDSLAVE_TCL_PATH=src/c2cSlave/
-ADDRESS_TABLE_CREATION_PATH=os/
-SLAVE_DTSI_PATH=kernel/
+ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
+SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 
-ifneq ("$(wildcard mk/preBuild.mk)","")
-  include mk/preBuild.mk
+ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
+  include ${MAKE_PATH}/mk/preBuild.mk
 endif
 
+#################################################################################
+# address tables
+#################################################################################
+ifneq ("$(wildcard ${MAKE_PATH}/mk/addrTable.mk)","")
+  include ${MAKE_PATH}/mk/addrTable.mk
+endif
 
 #################################################################################
 # Clean
@@ -99,27 +96,29 @@ open_hw :
 #################################################################################
 # FPGA building
 #################################################################################
-bit	: $(BIT)
+Cornell_rev1_Kintex	: 
+	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
 
 interactive : 
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	mkdir -p ${MAKE_PATH}/proj &&\
+	cd proj &&\
 	vivado -mode tcl
-$(BIT)	:
-	@mkdir -p bit
-	@$(VIVADO_SETUP) &&\
-	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
+
+$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves_%.tcl 
+	source $(BUILD_VIVADO_SHELL) &&\
+	mkdir -p ${MAKE_PATH}/kernel/hw &&\
+	mkdir -p ${MAKE_PATH}/proj &&\
+	mkdir -p ${MAKE_PATH}/bit &&\
+	cd proj &&\
+	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
+	$(MAKE) NOTIFY_DAN_GOOD
+bit	: $(BIT)
+
 SVF	:
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
-
-#################################################################################
-# Help 
-#################################################################################
-
-#list magic: https://stackoverflow.com/questions/4219255/how-do-you-get-the-list-of-targets-in-a-makefile
-list:
-	@$(MAKE) -pRrq -f $(MAKEFILE_LIST) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | column
 
 init:
 	git submodule update --init --recursive
