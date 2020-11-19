@@ -33,7 +33,7 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 
 .SECONDARY:
 
-.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init
+.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init Cornell_rev1_Kintex Cornell_rev1_Virtex
 
 #################################################################################
 # preBuild 
@@ -47,12 +47,6 @@ ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
   include ${MAKE_PATH}/mk/preBuild.mk
 endif
 
-#################################################################################
-# address tables
-#################################################################################
-ifneq ("$(wildcard ${MAKE_PATH}/mk/addrTable.mk)","")
-  include ${MAKE_PATH}/mk/addrTable.mk
-endif
 
 #################################################################################
 # Clean
@@ -109,6 +103,9 @@ open_hw :
 Cornell_rev1_Kintex	: 
 	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
 
+Cornell_rev1_Virtex	: 
+	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
+
 interactive : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -123,7 +120,6 @@ $(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves_%.tcl
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD
-bit	: $(BIT)
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
