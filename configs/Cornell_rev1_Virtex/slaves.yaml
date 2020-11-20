@@ -10,28 +10,15 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/V_IO.xml"
     UHAL_BASE: 0xC1000000
-    HDL: "src/V_IO"    
+    HDL: "src/CM_IO"    
   
   CM_V_INFO:
     TCL_CALL: "[AXI_PL_DEV_CONNECT CM_V_INFO            ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83D43000 4K]"
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
-    HDL: "src/CM_V_info"
-                
-  VIRTEX_TCDS:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT VIRTEX_TCDS          ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83D46000 4K]"
-    XML:
-      - "address_table/modules/VIRTEX_TCDS.xml"
-    UHAL_BASE: 0xC3000000
-    HDL: "src/TCDS"
-  
-  VIRTEX_TCDS_DRP:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT VIRTEX_TCDS_DRP      ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83D47000 4K]"
-    XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0xC4000000    
-  
+    HDL: "src/CM_FW_info"
+                  
   VIRTEX_IPBUS:
     TCL_CALL: "[AXI_PL_DEV_CONNECT VIRTEX_IPBUS         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x8C000000 32M AXI4]"
     XML:

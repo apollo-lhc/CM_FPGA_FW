@@ -1,6 +1,6 @@
 set bd_path proj
 
-array set bd_files [list {c2cSlave} {src/c2cSlave/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/Cornell_rev1_Virtex/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
@@ -15,16 +15,13 @@ set vhdl_files "\
      src/axiReg/axiRegWidthPkg_32.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
-     src/V_IO/V_IO_PKG.vhd \
-     src/V_IO/V_IO_map.vhd \
+     src/CM_IO/V_IO_PKG.vhd \
+     src/CM_IO/V_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
-     src/CM_V_info/CM_V_INFO.vhd \
-     src/CM_V_info/CM_V_INFO_PKG.vhd \
-     src/CM_V_info/CM_V_INFO_map.vhd \          
-     src/TCDS/TCDS.vhd \
-     src/TCDS/VIRTEX_TCDS_map.vhd \
-     src/TCDS/VIRTEX_TCDS_PKG.vhd \
+     src/CM_FW_info/CM_V_info.vhd \
+     src/CM_FW_info/CM_V_INFO_PKG.vhd \
+     src/CM_FW_info/CM_V_INFO_map.vhd \          
      src/misc/axi_bram_controller.vhd \
      src/misc/axi_bram_ctrl_v4_1_rfs.vhd \
      "
@@ -35,6 +32,4 @@ set xdc_files "\
 
 set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
-    	      cores/TCDS_TxRx/TCDS_TxRx.xci  \
-	      cores/TCDS_DRP/TCDS_DRP.xci \
     	      "

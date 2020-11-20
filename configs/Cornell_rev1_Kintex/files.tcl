@@ -1,6 +1,6 @@
 set bd_path proj/
 
-array set bd_files [list {c2cSlave} {src/c2cSlave/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/Cornell_rev1_Kintex/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
@@ -14,16 +14,13 @@ set vhdl_files "\
      src/axiReg/axiRegWidthPkg_32.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
-     src/K_IO/K_IO_PKG.vhd \
-     src/K_IO/K_IO_map.vhd \
+     src/CM_IO/K_IO_PKG.vhd \
+     src/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
-     src/CM_K_info/CM_K_info.vhd \
-     src/CM_K_info/CM_K_INFO_PKG.vhd \
-     src/CM_K_info/CM_K_INFO_map.vhd \
-     src/TCDS/TCDS.vhd \
-     src/TCDS/KINTEX_TCDS_map.vhd \
-     src/TCDS/KINTEX_TCDS_PKG.vhd \
+     src/CM_FW_info/CM_K_info.vhd \
+     src/CM_FW_info/CM_K_INFO_PKG.vhd \
+     src/CM_FW_info/CM_K_INFO_map.vhd \
      "
 set xdc_files "\
     configs/Cornell_rev1_Kintex/top_pins.xdc \
@@ -32,8 +29,6 @@ set xdc_files "\
 
 set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
-    	      cores/TCDS_TxRx/TCDS_TxRx.xci  \
-	      cores/TCDS_DRP/TCDS_DRP.xci \
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
     	      "

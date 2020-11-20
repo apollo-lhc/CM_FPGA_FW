@@ -33,10 +33,10 @@ entity top is
     n_clk0_chan0     : in std_logic; 
     p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
     n_clk1_chan0     : in std_logic;
-    p_atca_tts_out   : out std_logic;
-    n_atca_tts_out   : out std_logic;
-    p_atca_ttc_in    : in  std_logic;
-    n_atca_ttc_in    : in  std_logic;
+--    p_atca_tts_out   : out std_logic;
+--    n_atca_tts_out   : out std_logic;
+--    p_atca_ttc_in    : in  std_logic;
+--    n_atca_ttc_in    : in  std_logic;
 
     -- tri-color LED
     led_red : out std_logic;
@@ -176,45 +176,6 @@ begin  -- architecture structure
       CM_V_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_V_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
       
-      VIRTEX_TCDS_DRP_araddr                => local_AXI_ReadMOSI(2).address,
-      VIRTEX_TCDS_DRP_arprot                => local_AXI_ReadMOSI(2).protection_type,
-      VIRTEX_TCDS_DRP_arready               => local_AXI_ReadMISO(2).ready_for_address,
-      VIRTEX_TCDS_DRP_arvalid               => local_AXI_ReadMOSI(2).address_valid,
-      VIRTEX_TCDS_DRP_awaddr                => local_AXI_WriteMOSI(2).address,
-      VIRTEX_TCDS_DRP_awprot                => local_AXI_WriteMOSI(2).protection_type,
-      VIRTEX_TCDS_DRP_awready               => local_AXI_WriteMISO(2).ready_for_address,
-      VIRTEX_TCDS_DRP_awvalid               => local_AXI_WriteMOSI(2).address_valid,
-      VIRTEX_TCDS_DRP_bready                => local_AXI_WriteMOSI(2).ready_for_response,
-      VIRTEX_TCDS_DRP_bresp                 => local_AXI_WriteMISO(2).response,
-      VIRTEX_TCDS_DRP_bvalid                => local_AXI_WriteMISO(2).response_valid,
-      VIRTEX_TCDS_DRP_rdata                 => local_AXI_ReadMISO(2).data,
-      VIRTEX_TCDS_DRP_rready                => local_AXI_ReadMOSI(2).ready_for_data,
-      VIRTEX_TCDS_DRP_rresp                 => local_AXI_ReadMISO(2).response,
-      VIRTEX_TCDS_DRP_rvalid                => local_AXI_ReadMISO(2).data_valid,
-      VIRTEX_TCDS_DRP_wdata                 => local_AXI_WriteMOSI(2).data,
-      VIRTEX_TCDS_DRP_wready                => local_AXI_WriteMISO(2).ready_for_data,
-      VIRTEX_TCDS_DRP_wstrb                 => local_AXI_WriteMOSI(2).data_write_strobe,
-      VIRTEX_TCDS_DRP_wvalid                => local_AXI_WriteMOSI(2).data_valid,
-                                            
-      VIRTEX_TCDS_araddr                    => local_AXI_ReadMOSI(3).address,
-      VIRTEX_TCDS_arprot                    => local_AXI_ReadMOSI(3).protection_type,
-      VIRTEX_TCDS_arready                   => local_AXI_ReadMISO(3).ready_for_address,
-      VIRTEX_TCDS_arvalid                   => local_AXI_ReadMOSI(3).address_valid,
-      VIRTEX_TCDS_awaddr                    => local_AXI_WriteMOSI(3).address,
-      VIRTEX_TCDS_awprot                    => local_AXI_WriteMOSI(3).protection_type,
-      VIRTEX_TCDS_awready                   => local_AXI_WriteMISO(3).ready_for_address,
-      VIRTEX_TCDS_awvalid                   => local_AXI_WriteMOSI(3).address_valid,
-      VIRTEX_TCDS_bready                    => local_AXI_WriteMOSI(3).ready_for_response,
-      VIRTEX_TCDS_bresp                     => local_AXI_WriteMISO(3).response,
-      VIRTEX_TCDS_bvalid                    => local_AXI_WriteMISO(3).response_valid,
-      VIRTEX_TCDS_rdata                     => local_AXI_ReadMISO(3).data,
-      VIRTEX_TCDS_rready                    => local_AXI_ReadMOSI(3).ready_for_data,
-      VIRTEX_TCDS_rresp                     => local_AXI_ReadMISO(3).response,
-      VIRTEX_TCDS_rvalid                    => local_AXI_ReadMISO(3).data_valid,
-      VIRTEX_TCDS_wdata                     => local_AXI_WriteMOSI(3).data,
-      VIRTEX_TCDS_wready                    => local_AXI_WriteMISO(3).ready_for_data,
-      VIRTEX_TCDS_wstrb                     => local_AXI_WriteMOSI(3).data_write_strobe,
-      VIRTEX_TCDS_wvalid                    => local_AXI_WriteMOSI(3).data_valid,
 
       VIRTEX_IPBUS_araddr                   => ext_AXI_ReadMOSI.address,              
       VIRTEX_IPBUS_arburst                  => ext_AXI_ReadMOSI.burst_type,
@@ -317,28 +278,6 @@ begin  -- architecture structure
       writeMOSI   => local_AXI_WriteMOSI(1),
       writeMISO   => local_AXI_WriteMISO(1));
 
-  TCDS_1: entity work.TCDS
-    port map (
-      clk_axi              => AXI_CLK,
-      clk_200              => clk_200,
-      reset_axi_n          => AXI_RST_N,
-      readMOSI             => local_AXI_readMOSI(3),
-      readMISO             => local_AXI_readMISO(3),
-      writeMOSI            => local_AXI_writeMOSI(3),
-      writeMISO            => local_AXI_writeMISO(3),
-      DRP_readMOSI         => local_AXI_readMOSI(2),
-      DRP_readMISO         => local_AXI_readMISO(2),
-      DRP_writeMOSI        => local_AXI_writeMOSI(2),
-      DRP_writeMISO        => local_AXI_writeMISO(2),
-      refclk0_p => p_clk0_chan0,
-      refclk0_n => n_clk0_chan0,
-      refclk1_p => p_clk1_chan0,
-      refclk1_n => n_clk1_chan0,  
-      tx_p     => p_atca_tts_out  ,
-      tx_n     => n_atca_tts_out  ,
-      rx_p     => p_atca_ttc_in   ,
-      rx_n     => n_atca_ttc_in   ,
-      TxRx_clk_sel => '0'       );
 
   AXI_RESET <= not AXI_RST_N;
 
