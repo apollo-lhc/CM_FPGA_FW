@@ -106,6 +106,9 @@ Cornell_rev1_Kintex	:
 Cornell_rev1_Virtex	: 
 	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
 
+MPI_rev1_Kintex	: 
+	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
+
 interactive : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/proj &&\

@@ -16,6 +16,8 @@ clean_prebuild:
 #################################################################################
 
 $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDSLAVE_TCL_PATH)/AddSlaves_%.tcl : $(SLAVE_DEF_FILE_BASE)/%/slaves.yaml
+	@mkdir -p $(ADDRESS_TABLE_CREATION_PATH)
+	@mkdir -p $(SLAVE_DTSI_PATH)
 	LD_LIBRARY_PATH=$(CACTUS_LD_PATH) ./scripts/preBuild.py \
 			                     -s $^ \
 				             -t $(ADDSLAVE_TCL_PATH) \
