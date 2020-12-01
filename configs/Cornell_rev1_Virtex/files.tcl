@@ -1,10 +1,10 @@
 set bd_path proj
 
-array set bd_files [list {c2cSlave} {configs/Cornell_rev1_Virtex/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/Cornell_rev1_Virtex/src/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
-     configs/Cornell_rev1_Virtex/top.vhd \
+     configs/Cornell_rev1_Virtex/src/top.vhd \
      src/misc/pass_time_domain.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
@@ -26,8 +26,8 @@ set vhdl_files "\
      src/misc/axi_bram_ctrl_v4_1_rfs.vhd \
      "
 set xdc_files "\
-    configs/Cornell_rev1_Virtex/top_pins.xdc \
-    configs/Cornell_rev1_Virtex/top_timing.xdc	\
+    configs/Cornell_rev1_Virtex/src/top_pins.xdc \
+    configs/Cornell_rev1_Virtex/src/top_timing.xdc	\
     "	    
 
 set xci_files "\
