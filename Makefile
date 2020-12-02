@@ -115,7 +115,8 @@ interactive :
 	cd proj &&\
 	vivado -mode tcl
 
-$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves_%.tcl 
+#$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl 
+$(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
