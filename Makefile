@@ -33,7 +33,7 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 
 .SECONDARY:
 
-.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init Cornell_rev1_Kintex Cornell_rev1_Virtex
+.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init 
 
 #################################################################################
 # preBuild 
@@ -100,13 +100,13 @@ open_hw :
 #################################################################################
 # FPGA building
 #################################################################################
-Cornell_rev1_Kintex	: 
+Cornell_rev1_p1_KU15p-2	: 
 	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
 
-Cornell_rev1_Virtex	: 
+Cornell_rev1_p2_VU7p-1	: 
 	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
 
-MPI_rev1_Kintex	: 
+MPI_rev1_p1_KU15p-2	: 
 	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
 
 interactive : 
