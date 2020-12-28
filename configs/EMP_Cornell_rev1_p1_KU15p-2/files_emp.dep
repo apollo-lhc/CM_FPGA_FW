@@ -1,14 +1,15 @@
 setup ../../bd/AXI_DRP_include.tcl
 
-setup ../../configs/EMP_Cornell_rev1_p1_KU15p-2/createC2CSlaveInterconnect.tcl
+setup ../../configs/EMP_Cornell_rev1_p1_KU15p-2/src/createC2CSlaveInterconnect.tcl
 
-src ../../configs/EMP_Cornell_rev1_p1_KU15p-2/sub_module.vhd 
+src ../../configs/EMP_Cornell_rev1_p1_KU15p-2/src/sub_module.vhd 
 src ../../src/misc/pass_time_domain.vhd 
 src ../../src/misc/pacd.vhd 
 src ../../src/misc/types.vhd 
 src ../../src/misc/capture_CDC.vhd 
 src ../../src/misc/counter.vhd 
 src ../../src/misc/counter_clock.vhd 
+src ../../src/axiReg/axiRegWidthPkg_32.vhd
 src ../../src/axiReg/axiRegPkg.vhd 
 src ../../src/axiReg/axiReg.vhd 
 src ../../src/K_IO/K_IO_PKG.vhd 
