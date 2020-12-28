@@ -26,14 +26,19 @@ CORES_PATH=${MAKE_PATH}/cores
 ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
 
 ################################################################################
+# Configs
+#################################################################################
+#get a list of the subdirs in configs.  These are our FPGA builds
+CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
+
+define CONFIGS_template =
+ $(1):
+	time $(MAKE) $(BIT_BASE)$$@.bit || $(MAKE) NOTIFY_DAN_BAD
+endef
+################################################################################
 # Short build names
 #################################################################################
-
 BIT_BASE=${MAKE_PATH}/bit/top_
-
-.SECONDARY:
-
-.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init 
 
 #################################################################################
 # preBuild 
@@ -47,6 +52,10 @@ ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
   include ${MAKE_PATH}/mk/preBuild.mk
 endif
 
+
+.SECONDARY:
+
+.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init $(CONFIGS) $(PREBUILDS)
 
 #################################################################################
 # Clean
@@ -100,14 +109,8 @@ open_hw :
 #################################################################################
 # FPGA building
 #################################################################################
-Cornell_rev1_p1_KU15p-2	: 
-	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
-
-Cornell_rev1_p2_VU7p-1	: 
-	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
-
-MPI_rev1_p1_KU15p-2	: 
-	time $(MAKE) $(BIT_BASE)$@.bit || $(MAKE) NOTIFY_DAN_BAD
+#generate a build rule for each FPGA in the configs dir ($CONFIGS)c
+$(foreach config,$(CONFIGS),$(eval $(call CONFIGS_template,$(config))))
 
 interactive : 
 	source $(BUILD_VIVADO_SHELL) &&\
@@ -132,3 +135,7 @@ SVF	:
 
 init:
 	git submodule update --init --recursive
+
+
+make test :
+	@echo $(CONFIGS)
