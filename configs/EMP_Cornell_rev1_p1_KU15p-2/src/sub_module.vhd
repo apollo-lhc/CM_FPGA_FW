@@ -19,13 +19,13 @@ entity sub_module is
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
     p_util_clk_chan0 : in std_logic;
-    n_mgt_z2k        : in  std_logic_vector(1 downto 1);
-    p_mgt_z2k        : in  std_logic_vector(1 downto 1);
-    n_mgt_k2z        : out std_logic_vector(1 downto 1);
-    p_mgt_k2z        : out std_logic_vector(1 downto 1);
+    n_mgt_z2FPGA     : in  std_logic_vector(1 downto 1);
+    p_mgt_z2FPGA     : in  std_logic_vector(1 downto 1);
+    n_mgt_FPGA2z     : out std_logic_vector(1 downto 1);
+    p_mgt_FPGA2z     : out std_logic_vector(1 downto 1);
 
-    k_fpga_i2c_scl   : inout std_logic;
-    k_fpga_i2c_sda   : inout std_logic;
+    fpga_i2c_scl     : inout std_logic;
+    fpga_i2c_sda     : inout std_logic;
 
     clk_axi           : out std_logic;
     rst_n_axi         : out std_logic;
@@ -90,10 +90,10 @@ begin  -- architecture structure
     port map (
       AXI_CLK                             => AXI_CLK,
       AXI_RST_N(0)                        => AXI_RST_N,
-      K_C2C_phy_Rx_rxn                    => n_mgt_z2k,
-      K_C2C_phy_Rx_rxp                    => p_mgt_z2k,
-      K_C2C_phy_Tx_txn                    => n_mgt_k2z,
-      K_C2C_phy_Tx_txp                    => p_mgt_k2z,
+      K_C2C_phy_Rx_rxn                    => n_mgt_z2FPGA,
+      K_C2C_phy_Rx_rxp                    => p_mgt_z2FPGA,
+      K_C2C_phy_Tx_txn                    => n_mgt_FPGA2z,
+      K_C2C_phy_Tx_txp                    => p_mgt_FPGA2z,
       K_C2C_phy_refclk_clk_n              => n_util_clk_chan0,
       K_C2C_phy_refclk_clk_p              => p_util_clk_chan0,
       clk50Mhz                            => clk_50,
@@ -184,8 +184,8 @@ begin  -- architecture structure
       K_C2C_phy_mmcm_not_locked_out       => C2CLink_phy_mmcm_not_locked_out,    
       K_C2C_phy_power_down                => std_logic0,
       K_C2C_phy_soft_err                  => C2CLink_phy_soft_err,               
-      KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
-      KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
+      KINTEX_SYS_MGMT_sda                 => fpga_i2c_sda,
+      KINTEX_SYS_MGMT_scl                 => fpga_i2c_scl
 );
 
   RGB_pwm_1: entity work.RGB_pwm
