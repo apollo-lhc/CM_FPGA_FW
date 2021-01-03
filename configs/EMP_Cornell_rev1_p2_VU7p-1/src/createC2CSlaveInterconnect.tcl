@@ -1,5 +1,5 @@
-source ../bd/axi_helpers.tcl
-source ../bd/Xilinx_AXI_slaves.tcl
+source ${apollo_root_path}/bd/axi_helpers.tcl
+source ${apollo_root_path}/bd/Xilinx_AXI_slaves.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -37,7 +37,7 @@ create_bd_port -dir O -type rst $AXI_MASTER_RSTN
 
 #create the reset logic
 set SYS_RESETER sys_reseter
-create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 $SYS_RESETER
+create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == proc_sys_reset }] $SYS_RESETER
 #connect external reset
 connect_bd_net [get_bd_ports $EXT_RESET] [get_bd_pins $SYS_RESETER/ext_reset_in]
 #connect clock
@@ -56,7 +56,7 @@ set C2C_PHY ${C2C}_PHY
 
 #Create chip-2-chip ip core
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:axi_chip2chip:5.0 $C2C
+create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == axi_chip2chip }] $C2C
 set_property CONFIG.C_NUM_OF_IO {58.0}          [get_bd_cells ${C2C}]
 set_property CONFIG.C_INTERFACE_MODE {0}	[get_bd_cells ${C2C}]
 set_property CONFIG.C_MASTER_FPGA {0}		[get_bd_cells ${C2C}]
@@ -81,7 +81,7 @@ endgroup
 
 #create chip-2-chip aurora 
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:aurora_64b66b:11.2 ${C2C_PHY}
+create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == aurora_64b66b }] ${C2C_PHY}
 set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]
 #set_property CONFIG.CHANNEL_ENABLE       {X0Y0}       [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_AURORA_LANES       {1}	      [get_bd_cells ${C2C_PHY}]
@@ -131,27 +131,22 @@ connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_axi_lite_a
 
 endgroup
 
-#================================================================================
-#  Create JTAG AXI Master
-#================================================================================
-set JTAG_AXI_MASTER JTAG_AXI_Master
-[BUILD_JTAG_AXI_MASTER ${JTAG_AXI_MASTER} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN}]
 
 #================================================================================
 #  Connect C2C master port to interconnect slave port
 #================================================================================
-set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ${JTAG_AXI_MASTER}/M_AXI]
-set mCLK [list ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK} ]
-set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}] 
+set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ]
+set mCLK [list ${AXI_MASTER_CLK} ${AXI_MASTER_CLK} ]
+set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN] 
 [BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
-[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x83d44000 4K 0]
+[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x83c44000 4K 0]
 
 
 
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source ../src/c2cSlave/AddSlaves.tcl
+source ${apollo_root_path}/src/c2cSlave/AddSlaves.tcl
 
 #========================================
 #  Finish up

@@ -16,7 +16,7 @@ src ../../src/V_IO/V_IO_PKG.vhd
 src ../../src/V_IO/V_IO_map.vhd 
 src ../../src/misc/RGB_PWM.vhd 
 src ../../src/misc/LED_PWM.vhd 
-src ../../src/CM_V_info/CM_V_info.vhd 
+src ../../src/CM_V_info/CM_V_INFO.vhd 
 src ../../src/CM_V_info/CM_V_INFO_PKG.vhd 
 src ../../src/CM_V_info/CM_V_INFO_map.vhd 
 
