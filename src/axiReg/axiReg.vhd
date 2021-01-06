@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
+use work.axiRegWidthPkg.all;
 use work.axiRegPkg.all;
 use work.types.all;
 
@@ -13,7 +14,7 @@ entity axiLiteReg is
     readMISO    : out AXIreadMISO;
     writeMOSI   : in  AXIwriteMOSI;
     writeMISO   : out AXIwriteMISO;
-    address     : out slv_32_t;
+    address     : out std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
     rd_data     : in  slv_32_t;
     wr_data     : out slv_32_t;
     write_en    : out std_logic;
@@ -31,7 +32,7 @@ architecture behavioral of axiLiteReg is
                         SMR_SEND,
                         SMR_ERROR);
   signal read_state : read_state_t;
-  signal read_address : slv_32_t;
+  signal read_address : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
 
   type write_state_t is (SMW_RESET,
                          SMW_IDLE, 
@@ -40,7 +41,7 @@ architecture behavioral of axiLiteReg is
                          SMW_RESPOND,
                          SMW_ERROR);
   signal write_state : write_state_t;
-  signal write_address : slv_32_t;
+  signal write_address : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
 
   type arbitrator_state_t is (SMA_RESET,
                               SMA_IDLE,
@@ -97,9 +98,9 @@ begin  -- architecture behaioral
   arbitrator_state_machine_proc: process (arbt_state,read_address,write_address) is
   begin  -- process arbitrator_state_machine_proc
     case arbt_state is
-      when SMA_READ          => address <= "00" & read_address (31 downto 2);
-      when SMA_WRITE         => address <= "00" & write_address(31 downto 2);
-      when others            => address <= x"FFFFFFFF";
+      when SMA_READ          => address <= "00" & read_address (AXI_ADDR_WIDTH-1 downto 2);
+      when SMA_WRITE         => address <= "00" & write_address(AXI_ADDR_WIDTH-1 downto 2);
+      when others            => address <= (others => '1');
     end case;
   end process arbitrator_state_machine_proc;
 

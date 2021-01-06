@@ -1,4 +1,4 @@
-proc build_fw_version {path } {
+proc build_fw_version {{path "./"} {FPGA_part "unknown"}} {
     ## Set output filename
     set outFile $path/fw_version.vhd
     set outFile_fd [open $outFile "w"]
@@ -31,6 +31,8 @@ proc build_fw_version {path } {
 	set hash_word_1 [string range ${git_hash_string} 32 39]
     }
 
+    set FPGA_part_string [format "% 32s" $FPGA_part]
+
     
     ## write vhdl file
     puts $outFile_fd "library ieee;"
@@ -58,6 +60,14 @@ proc build_fw_version {path } {
     puts $outFile_fd "  constant FW_HASH_4     : std_logic_vector(31 downto  0) := x\"${hash_word_4}\";"
     puts $outFile_fd "  constant FW_HASH_5     : std_logic_vector(31 downto  0) := x\"${hash_word_5}\";"
     puts $outFile_fd "end package FW_VERSION;"
+    puts $outFile_fd " "
+    puts $outFile_fd " "    
+    puts $outFile_fd "library ieee;"
+    puts $outFile_fd "use ieee.std_logic_1164.all;"
+    puts $outFile_fd "-- fw FPGA package"
+    puts $outFile_fd "package FW_FPGA is"
+    puts $outFile_fd "  constant FPGA_TYPE     : string(1 to 32)       := \"$FPGA_part_string\";"
+    puts $outFile_fd "end package FW_FPGA;"
 
     ## Print out info to user
     puts "Recording build @ ${cent}${year}-${month}-${day} ${hour}:${min}:${sec} "

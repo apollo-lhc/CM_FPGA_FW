@@ -6,15 +6,17 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 use work.types.all;
+use work.AXIRegWidthPkg.all;
 
 package AXIRegPkg is
 
   constant AXI_ID_BIT_COUNT : integer := 6;
 
+
   
   type AXIReadMOSI is record
     --read address
-    address           : slv_32_t;                 -- ARADDR
+    address           : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);  -- ARADDR
     address_ID        : std_logic_vector(AXI_ID_BIT_COUNT-1 downto 0); --ARID
     protection_type   : slv_3_t;          -- ARPROT
     address_valid     : std_logic;          -- ARVALID
@@ -31,7 +33,7 @@ package AXIRegPkg is
     ready_for_data : std_logic;         -- RREADY
   end record AXIReadMOSI;
   type AXIReadMOSI_array_t is array (integer range <>) of AXIReadMOSI;
-  constant DefaultAXIReadMOSI : AXIReadMOSI := (address => x"00000000",
+  constant DefaultAXIReadMOSI : AXIReadMOSI := (address => (others => '0'),
                                                 address_ID => (others => '0'),
                                                 protection_type => "000",
                                                 address_valid => '0',
@@ -70,7 +72,7 @@ package AXIRegPkg is
   
   type AXIWriteMOSI is record
     --write address
-    address         : slv_32_t;         -- AWADDR
+    address         : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);   -- AWADDR
     address_ID      : std_logic_vector(AXI_ID_BIT_COUNT-1 downto 0); --AWID
     protection_type : slv_3_t;          -- AWPROT
     address_valid   : std_logic;        -- AWVALID
@@ -95,7 +97,7 @@ package AXIRegPkg is
     ready_for_response : std_logic;         -- BREADY
   end record AXIWriteMOSI;
   type AXIWriteMOSI_array_t is array (integer range <>) of AXIWriteMOSI;
-  constant DefaultAXIWriteMOSI : AXIWriteMOSI := (address => x"00000000",
+  constant DefaultAXIWriteMOSI : AXIWriteMOSI := (address => (others => '0'),
                                                   address_ID => (others => '0'),
                                                   protection_type => "000",
                                                   address_valid => '0',

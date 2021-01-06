@@ -1,4 +1,4 @@
-#!/bin/env python
+#!/usr/bin/env python
 
 import argparse
 import sys
@@ -29,7 +29,11 @@ def GenerateHDL(name,XMLFile,HDLPath):
   wd=os.getcwd()
 
   #move into the output HDL directory
-  os.chdir(wd+"/"+HDLPath)
+  try:
+      os.chdir(wd+"/"+HDLPath)
+  except:
+      os.mkdir(wd+"/"+HDLPath)
+      os.chdir(wd+"/"+HDLPath)
 
   #make a symlink to the XML file
   fullXMLFile=wd+"/"+XMLFile
