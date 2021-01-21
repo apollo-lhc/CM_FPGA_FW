@@ -70,3 +70,4 @@ write_checkpoint -force $outputDir/post_route
 # STEP#5: Generate files for os build
 #################################################################################
 source ${apollo_root_path}/scripts/Generate_hwInfo.tcl
+source ${apollo_root_path}/configs/${build_name}/Generate_svf.tcl
