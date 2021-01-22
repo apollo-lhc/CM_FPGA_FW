@@ -1,5 +1,5 @@
 source ${apollo_root_path}/bd/axi_helpers.tcl
-source ${apollo_root_path}/bd/Xilinx_AXI_slaves.tcl
+source ${apollo_root_path}/bd/Xilinx_AXI_slaves_USP.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
