@@ -24,7 +24,7 @@ class MyDumper(yaml.Dumper):
 #Generate the MAP and PKG VHDL files for this slave
 #================================================================================
 def GenerateHDL(name,XMLFile,HDLPath):
-  print "Generate HDL for",name,"from",XMLFile
+  print("Generate HDL for",name,"from",XMLFile)
   #get working directory
   wd=os.getcwd()
 
