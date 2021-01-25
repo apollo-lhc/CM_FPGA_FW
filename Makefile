@@ -44,7 +44,8 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 # preBuild 
 #################################################################################
 SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
-ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/c2cSlave/
+#ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/c2cSlave/
+ADDSLAVE_TCL_PATH=${MAKE_PATH}/configs/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 
@@ -119,7 +120,7 @@ interactive :
 	vivado -mode tcl
 
 #$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl 
-$(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
+$(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDSLAVE_TCL_PATH)/%/autogen/AddSlaves_%.tcl 
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\

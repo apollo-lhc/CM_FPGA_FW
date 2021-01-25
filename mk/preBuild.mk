@@ -15,7 +15,7 @@ clean_prebuild:
 # generate prebuilds for FPGA builds in config
 #################################################################################
 define PREBUILD_template =
- prebuild_$(1):  $(SLAVE_DTSI_PATH)/slaves_$(1).yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_$(1).yaml $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl
+ prebuild_$(1):  $(SLAVE_DTSI_PATH)/slaves_$(1).yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_$(1).yaml $(ADDSLAVE_TCL_PATH)/$(1)/autogen/AddSlaves_$(1).tcl
 endef
 PREBUILDS=$(addprefix,prebuild_,$(CONFIGS))
 
@@ -23,21 +23,12 @@ PREBUILDS=$(addprefix,prebuild_,$(CONFIGS))
 # prebuild 
 #################################################################################
 
-$(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml : $(SLAVE_DEF_FILE_BASE)/%/slaves.yaml
+$(ADDSLAVE_TCL_PATH)/%/autogen/AddSlaves_%.tcl $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml : $(SLAVE_DEF_FILE_BASE)/%/slaves.yaml
 	@mkdir -p $(ADDRESS_TABLE_CREATION_PATH)
 	@mkdir -p $(SLAVE_DTSI_PATH)
 	LD_LIBRARY_PATH=$(CACTUS_LD_PATH) ./scripts/preBuild.py \
 			                     -s $^ \
-				             -t $(ADDSLAVE_TCL_PATH) \
-				             -a $(ADDRESS_TABLE_CREATION_PATH) \
-				             -d $(SLAVE_DTSI_PATH)
-
-$(ADDSLAVE_TCL_PATH)/AddSlaves.tcl : 
-	@mkdir -p $(ADDRESS_TABLE_CREATION_PATH)
-	@mkdir -p $(SLAVE_DTSI_PATH)
-	LD_LIBRARY_PATH=$(CACTUS_LD_PATH) ./scripts/preBuild.py \
-			                     -s $^ \
-				             -t $(ADDSLAVE_TCL_PATH) \
+				             -t $(ADDSLAVE_TCL_PATH)/$*/autogen/AddSlaves_$*.tcl \
 				             -a $(ADDRESS_TABLE_CREATION_PATH) \
 				             -d $(SLAVE_DTSI_PATH)
 

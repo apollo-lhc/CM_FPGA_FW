@@ -1,5 +1,5 @@
-source ../bd/axi_helpers.tcl
-source ../bd/Xilinx_AXI_slaves.tcl
+source ${apollo_root_path}/bd/axi_helpers.tcl
+source ${apollo_root_path}/bd/Xilinx_AXI_slaves_USP.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -83,7 +83,7 @@ endgroup
 startgroup
 create_bd_cell -type ip -vlnv xilinx.com:ip:aurora_64b66b:11.2 ${C2C_PHY}
 set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]
-set_property CONFIG.CHANNEL_ENABLE       {X0Y0}       [get_bd_cells ${C2C_PHY}]
+#set_property CONFIG.CHANNEL_ENABLE       {X0Y0}       [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_AURORA_LANES       {1}	      [get_bd_cells ${C2C_PHY}]
 #set_property CONFIG.C_LINE_RATE          {10}	      [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_LINE_RATE          {5}	      [get_bd_cells ${C2C_PHY}]
@@ -131,22 +131,27 @@ connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_axi_lite_a
 
 endgroup
 
+#================================================================================
+#  Create JTAG AXI Master
+#================================================================================
+set JTAG_AXI_MASTER JTAG_AXI_Master
+[BUILD_JTAG_AXI_MASTER ${JTAG_AXI_MASTER} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN}]
 
 #================================================================================
 #  Connect C2C master port to interconnect slave port
 #================================================================================
-set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ]
-set mCLK [list ${AXI_MASTER_CLK} ${AXI_MASTER_CLK} ]
-set mRST [list $AXI_MASTER_RSTN $AXI_MASTER_RSTN] 
+set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ${JTAG_AXI_MASTER}/M_AXI]
+set mCLK [list ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK} ]
+set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}] 
 [BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
-[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x83c44000 4K 0]
+#[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x83c44000 4K 0]
 
 
 
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source ../src/c2cSlave/AddSlaves.tcl
+source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
 
 #========================================
 #  Finish up

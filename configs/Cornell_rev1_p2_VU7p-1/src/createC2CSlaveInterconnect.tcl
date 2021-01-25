@@ -1,5 +1,5 @@
-source ../bd/axi_helpers.tcl
-source ../bd/Xilinx_AXI_slaves.tcl
+source ${apollo_root_path}/bd/axi_helpers.tcl
+source ${apollo_root_path}/bd/Xilinx_AXI_slaves_USP.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -144,14 +144,14 @@ set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ${JTAG_AXI_MASTER}/M_AXI]
 set mCLK [list ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK} ]
 set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}] 
 [BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
-[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x83d44000 4K 0]
 
 
 
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source ../src/c2cSlave/AddSlaves.tcl
+source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
+
 
 #========================================
 #  Finish up
