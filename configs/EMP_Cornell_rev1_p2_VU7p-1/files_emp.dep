@@ -1,6 +1,9 @@
-setup ../../bd/AXI_DRP_include.tcl
+setup ../../src/createC2CSlaveInterconnect.tcl
 
-setup ../../configs/EMP_Cornell_rev1_p2_VU7p-1/src/createC2CSlaveInterconnect.tcl
+setup ../../../../bd/AXI_DRP_include.tcl
+
+setup -c emp-fwk:boards/apollo/common ../cfg/apollo_set_paths.tcl
+
 
 src ../../configs/EMP_Cornell_rev1_p2_VU7p-1/src/sub_module.vhd 
 src ../../src/misc/pass_time_domain.vhd 
