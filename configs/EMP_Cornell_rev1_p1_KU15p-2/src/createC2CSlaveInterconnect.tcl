@@ -151,7 +151,8 @@ set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}]
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
+#source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
+source ${apollo_root_path}/configs/EMP_Cornell_rev1_p1_KU15p-2/autogen/AddSlaves_EMP_Cornell_rev1_p1_KU15p-2.tcl
 
 #========================================
 #  Finish up
