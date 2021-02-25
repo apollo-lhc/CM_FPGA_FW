@@ -44,6 +44,17 @@ BIT=./bit/top.bit
 
 all: bit 
 
+
+#################################################################################
+# Git submodules.
+#################################################################################
+
+submodules: bd/IP
+
+bd/IP:
+	@git submodule update --init --recursive
+
+
 #################################################################################
 # preBuild 
 #################################################################################
@@ -101,14 +112,14 @@ open_hw :
 #################################################################################
 bit	: $(BIT)
 
-interactive : 
+interactive : submodules
 	@$(VIVADO_SETUP) &&\
 	vivado -mode tcl
-$(BIT)	:
+$(BIT) : submodules
 	@mkdir -p bit
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
-SVF	:
+SVF	: submodules
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
