@@ -4,6 +4,14 @@ source ../scripts/settings.tcl
 #open_project $outputDir/../proj/$top.xpr
 
 #################################################################################
+# Optionally, upgrade the IPs before starting the build.
+#################################################################################
+
+upgrade_ip [get_ips] -log ip_upgrade.log
+
+
+
+#################################################################################
 # STEP#2: run synthesis, report utilization and timing estimates, write checkpoint design
 #################################################################################
 
@@ -68,3 +76,4 @@ write_checkpoint -force $outputDir/post_route
 #################################################################################
 source ../scripts/Generate_hwInfo.tcl
 source ../scripts/Generate_svf.tcl
+
