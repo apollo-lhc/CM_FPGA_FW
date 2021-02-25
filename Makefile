@@ -40,6 +40,17 @@ endef
 #################################################################################
 BIT_BASE=${MAKE_PATH}/bit/top_
 
+
+#################################################################################
+# Git submodules.
+#################################################################################
+
+submodules: bd/IP
+
+bd/IP:
+	@git submodule update --init --recursive
+
+
 #################################################################################
 # preBuild 
 #################################################################################
@@ -56,7 +67,7 @@ endif
 
 .SECONDARY:
 
-.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init $(CONFIGS) $(PREBUILDS)
+.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init $(CONFIGS) $(PREBUILDS) submodules
 
 #################################################################################
 # Clean
@@ -113,14 +124,14 @@ open_hw :
 #generate a build rule for each FPGA in the configs dir ($CONFIGS)c
 $(foreach config,$(CONFIGS),$(eval $(call CONFIGS_template,$(config))))
 
-interactive : 
+interactive : submodules
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
 	cd proj &&\
 	vivado -mode tcl
 
 #$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl 
-$(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDSLAVE_TCL_PATH)/%/autogen/AddSlaves_%.tcl 
+$(BIT_BASE)%.bit	: submodules $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDSLAVE_TCL_PATH)/%/autogen/AddSlaves_%.tcl
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -129,7 +140,7 @@ $(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PAT
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD
 
-SVF	:
+SVF	: submodules
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
