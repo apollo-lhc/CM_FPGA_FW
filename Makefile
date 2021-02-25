@@ -7,7 +7,9 @@ OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
 #################################################################################
 # VIVADO stuff
 #################################################################################
-VIVADO_VERSION=2018.2
+#VIVADO_VERSION=2018.2
+VIVADO_VERSION=2018.3
+#VIVADO_VERSION=2020.1
 VIVADO_FLAGS=-notrace -mode batch
 VIVADO_SHELL="/opt/Xilinx/Vivado/"$(VIVADO_VERSION)"/settings64.sh"
 VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
