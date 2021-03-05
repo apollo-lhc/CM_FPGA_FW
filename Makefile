@@ -4,8 +4,9 @@ include mk/helpers.mk
 # VIVADO stuff
 #################################################################################
 VIVADO_FLAGS=-notrace -mode batch
-BUILD_VIVADO_VERSION=2018.2
-BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
+BUILD_VIVADO_VERSION=2018.3
+#BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
+BUILD_VIVADO_SHELL="/work/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 #VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
 
 
@@ -15,7 +16,7 @@ BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 SETUP_TCL=${MAKE_PATH}/scripts/Setup.tcl
 BUILD_TCL=${MAKE_PATH}/scripts/Build.tcl
 SETUP_BUILD_TCL=${MAKE_PATH}/scripts/SetupAndBuild.tcl
-HW_TCL=${MAKE_PATH}scripts/Run_hw.tcl
+HW_TCL=${MAKE_PATH}/scripts/Run_hw.tcl
 
 #################################################################################
 # Source files
@@ -80,7 +81,7 @@ clean: clean_bd clean_ip clean_bit clean_kernel
 clean_ip_%:
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado $(VIVADO_FLAGS) -source ../scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
 
 clean_everything: clean clean_remote clean_CM clean_prebuild
 
@@ -104,7 +105,7 @@ open_impl :
 open_hw :
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado -source ../$(HW_TCL)
+	vivado -source $(HW_TCL)
 
 
 #################################################################################
@@ -131,7 +132,7 @@ $(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PAT
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
-	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
 
 init:
