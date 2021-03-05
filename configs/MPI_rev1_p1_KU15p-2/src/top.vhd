@@ -31,7 +31,7 @@ entity top is
 
     -- User LEDs.
     o_led                   : out std_logic_vector(7 downto 0)
-    );    
+    );
 end entity top;
 
 architecture structure of top is
@@ -45,7 +45,7 @@ architecture structure of top is
     signal led_red_local   : slv_8_t;
     signal led_green_local : slv_8_t;
 
-    constant localAXISlaves    : integer := 2;
+    constant localAXISlaves    : integer := 3;
     signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
     signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
     signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -59,7 +59,7 @@ architecture structure of top is
     signal ext_AXI_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
     signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
 
-    
+
 
     signal C2CLink_aurora_do_cc                : std_logic;
     signal C2CLink_axi_c2c_config_error_out    : std_logic;
@@ -84,10 +84,18 @@ architecture structure of top is
     signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
     signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
 
-    signal rst_cnt : std_logic;
+    -- Counters.
+    signal rst_cnt_50  : std_logic;
+    signal cnt_clk_50  : std_logic_vector(31 downto 0);
+    signal rst_cnt_200 : std_logic;
     signal cnt_clk_200 : std_logic_vector(31 downto 0);
+    signal clk_axi     : std_logic;
+    signal rst_cnt_axi : std_logic;
+    signal cnt_clk_axi : std_logic_vector(31 downto 0);
 
-    signal led : std_logic_vector(o_led'range);
+    -- User LEDs and multiplexer.
+    signal user_led_axi : std_logic_vector(31 downto 0);
+    signal user_led : std_logic_vector(o_led'range);
 
 
 begin  -- architecture structure
@@ -104,7 +112,7 @@ begin  -- architecture structure
       clk_in1_n => i_clk_100_n);
 
 
-  
+
 
   c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
@@ -117,91 +125,111 @@ begin  -- architecture structure
       K_C2C_phy_refclk_clk_n            => i_refclk_axi_c2c_n,
       K_C2C_phy_refclk_clk_p            => i_refclk_axi_c2c_p,
       clk50Mhz                          => clk_50,
-      K_IO_araddr                       => local_AXI_ReadMOSI(0).address,              
-      K_IO_arprot                       => local_AXI_ReadMOSI(0).protection_type,      
-      K_IO_arready                      => local_AXI_ReadMISO(0).ready_for_address,    
-      K_IO_arvalid                      => local_AXI_ReadMOSI(0).address_valid,        
-      K_IO_awaddr                       => local_AXI_WriteMOSI(0).address,             
-      K_IO_awprot                       => local_AXI_WriteMOSI(0).protection_type,     
-      K_IO_awready                      => local_AXI_WriteMISO(0).ready_for_address,   
-      K_IO_awvalid                      => local_AXI_WriteMOSI(0).address_valid,       
-      K_IO_bready                       => local_AXI_WriteMOSI(0).ready_for_response,  
-      K_IO_bresp                        => local_AXI_WriteMISO(0).response,            
-      K_IO_bvalid                       => local_AXI_WriteMISO(0).response_valid,      
-      K_IO_rdata                        => local_AXI_ReadMISO(0).data,                 
-      K_IO_rready                       => local_AXI_ReadMOSI(0).ready_for_data,       
-      K_IO_rresp                        => local_AXI_ReadMISO(0).response,             
-      K_IO_rvalid                       => local_AXI_ReadMISO(0).data_valid,           
-      K_IO_wdata                        => local_AXI_WriteMOSI(0).data,                
-      K_IO_wready                       => local_AXI_WriteMISO(0).ready_for_data,       
-      K_IO_wstrb                        => local_AXI_WriteMOSI(0).data_write_strobe,   
-      K_IO_wvalid                       => local_AXI_WriteMOSI(0).data_valid,          
-      CM_K_INFO_araddr                  => local_AXI_ReadMOSI(1).address,              
-      CM_K_INFO_arprot                  => local_AXI_ReadMOSI(1).protection_type,      
-      CM_K_INFO_arready                 => local_AXI_ReadMISO(1).ready_for_address,    
-      CM_K_INFO_arvalid                 => local_AXI_ReadMOSI(1).address_valid,        
-      CM_K_INFO_awaddr                  => local_AXI_WriteMOSI(1).address,             
-      CM_K_INFO_awprot                  => local_AXI_WriteMOSI(1).protection_type,     
-      CM_K_INFO_awready                 => local_AXI_WriteMISO(1).ready_for_address,   
-      CM_K_INFO_awvalid                 => local_AXI_WriteMOSI(1).address_valid,       
-      CM_K_INFO_bready                  => local_AXI_WriteMOSI(1).ready_for_response,  
-      CM_K_INFO_bresp                   => local_AXI_WriteMISO(1).response,            
-      CM_K_INFO_bvalid                  => local_AXI_WriteMISO(1).response_valid,      
-      CM_K_INFO_rdata                   => local_AXI_ReadMISO(1).data,                 
-      CM_K_INFO_rready                  => local_AXI_ReadMOSI(1).ready_for_data,       
-      CM_K_INFO_rresp                   => local_AXI_ReadMISO(1).response,             
-      CM_K_INFO_rvalid                  => local_AXI_ReadMISO(1).data_valid,           
-      CM_K_INFO_wdata                   => local_AXI_WriteMOSI(1).data,                
-      CM_K_INFO_wready                  => local_AXI_WriteMISO(1).ready_for_data,       
-      CM_K_INFO_wstrb                   => local_AXI_WriteMOSI(1).data_write_strobe,   
-      CM_K_INFO_wvalid                  => local_AXI_WriteMOSI(1).data_valid,          
+      K_IO_araddr                       => local_AXI_ReadMOSI(0).address,
+      K_IO_arprot                       => local_AXI_ReadMOSI(0).protection_type,
+      K_IO_arready                      => local_AXI_ReadMISO(0).ready_for_address,
+      K_IO_arvalid                      => local_AXI_ReadMOSI(0).address_valid,
+      K_IO_awaddr                       => local_AXI_WriteMOSI(0).address,
+      K_IO_awprot                       => local_AXI_WriteMOSI(0).protection_type,
+      K_IO_awready                      => local_AXI_WriteMISO(0).ready_for_address,
+      K_IO_awvalid                      => local_AXI_WriteMOSI(0).address_valid,
+      K_IO_bready                       => local_AXI_WriteMOSI(0).ready_for_response,
+      K_IO_bresp                        => local_AXI_WriteMISO(0).response,
+      K_IO_bvalid                       => local_AXI_WriteMISO(0).response_valid,
+      K_IO_rdata                        => local_AXI_ReadMISO(0).data,
+      K_IO_rready                       => local_AXI_ReadMOSI(0).ready_for_data,
+      K_IO_rresp                        => local_AXI_ReadMISO(0).response,
+      K_IO_rvalid                       => local_AXI_ReadMISO(0).data_valid,
+      K_IO_wdata                        => local_AXI_WriteMOSI(0).data,
+      K_IO_wready                       => local_AXI_WriteMISO(0).ready_for_data,
+      K_IO_wstrb                        => local_AXI_WriteMOSI(0).data_write_strobe,
+      K_IO_wvalid                       => local_AXI_WriteMOSI(0).data_valid,
+      CM_K_INFO_araddr                  => local_AXI_ReadMOSI(1).address,
+      CM_K_INFO_arprot                  => local_AXI_ReadMOSI(1).protection_type,
+      CM_K_INFO_arready                 => local_AXI_ReadMISO(1).ready_for_address,
+      CM_K_INFO_arvalid                 => local_AXI_ReadMOSI(1).address_valid,
+      CM_K_INFO_awaddr                  => local_AXI_WriteMOSI(1).address,
+      CM_K_INFO_awprot                  => local_AXI_WriteMOSI(1).protection_type,
+      CM_K_INFO_awready                 => local_AXI_WriteMISO(1).ready_for_address,
+      CM_K_INFO_awvalid                 => local_AXI_WriteMOSI(1).address_valid,
+      CM_K_INFO_bready                  => local_AXI_WriteMOSI(1).ready_for_response,
+      CM_K_INFO_bresp                   => local_AXI_WriteMISO(1).response,
+      CM_K_INFO_bvalid                  => local_AXI_WriteMISO(1).response_valid,
+      CM_K_INFO_rdata                   => local_AXI_ReadMISO(1).data,
+      CM_K_INFO_rready                  => local_AXI_ReadMOSI(1).ready_for_data,
+      CM_K_INFO_rresp                   => local_AXI_ReadMISO(1).response,
+      CM_K_INFO_rvalid                  => local_AXI_ReadMISO(1).data_valid,
+      CM_K_INFO_wdata                   => local_AXI_WriteMOSI(1).data,
+      CM_K_INFO_wready                  => local_AXI_WriteMISO(1).ready_for_data,
+      CM_K_INFO_wstrb                   => local_AXI_WriteMOSI(1).data_write_strobe,
+      CM_K_INFO_wvalid                  => local_AXI_WriteMOSI(1).data_valid,
+      -- Kintex user LEDs.
+      MPI_KU15P_LEDS_araddr             => local_AXI_ReadMOSI(2).address,
+      MPI_KU15P_LEDS_arprot             => local_AXI_ReadMOSI(2).protection_type,
+      MPI_KU15P_LEDS_arready            => local_AXI_ReadMISO(2).ready_for_address,
+      MPI_KU15P_LEDS_arvalid            => local_AXI_ReadMOSI(2).address_valid,
+      MPI_KU15P_LEDS_awaddr             => local_AXI_WriteMOSI(2).address,
+      MPI_KU15P_LEDS_awprot             => local_AXI_WriteMOSI(2).protection_type,
+      MPI_KU15P_LEDS_awready            => local_AXI_WriteMISO(2).ready_for_address,
+      MPI_KU15P_LEDS_awvalid            => local_AXI_WriteMOSI(2).address_valid,
+      MPI_KU15P_LEDS_bready             => local_AXI_WriteMOSI(2).ready_for_response,
+      MPI_KU15P_LEDS_bresp              => local_AXI_WriteMISO(2).response,
+      MPI_KU15P_LEDS_bvalid             => local_AXI_WriteMISO(2).response_valid,
+      MPI_KU15P_LEDS_rdata              => local_AXI_ReadMISO(2).data,
+      MPI_KU15P_LEDS_rready             => local_AXI_ReadMOSI(2).ready_for_data,
+      MPI_KU15P_LEDS_rresp              => local_AXI_ReadMISO(2).response,
+      MPI_KU15P_LEDS_rvalid             => local_AXI_ReadMISO(2).data_valid,
+      MPI_KU15P_LEDS_wdata              => local_AXI_WriteMOSI(2).data,
+      MPI_KU15P_LEDS_wready             => local_AXI_WriteMISO(2).ready_for_data,
+      MPI_KU15P_LEDS_wstrb              => local_AXI_WriteMOSI(2).data_write_strobe,
+      MPI_KU15P_LEDS_wvalid             => local_AXI_WriteMOSI(2).data_valid,
 
 
-      KINTEX_IPBUS_araddr               => ext_AXI_ReadMOSI.address,              
+      KINTEX_IPBUS_araddr               => ext_AXI_ReadMOSI.address,
       KINTEX_IPBUS_arburst              => ext_AXI_ReadMOSI.burst_type,
       KINTEX_IPBUS_arcache              => ext_AXI_ReadMOSI.cache_type,
       KINTEX_IPBUS_arlen                => ext_AXI_ReadMOSI.burst_length,
       KINTEX_IPBUS_arlock(0)            => ext_AXI_ReadMOSI.lock_type,
-      KINTEX_IPBUS_arprot               => ext_AXI_ReadMOSI.protection_type,      
+      KINTEX_IPBUS_arprot               => ext_AXI_ReadMOSI.protection_type,
       KINTEX_IPBUS_arqos                => ext_AXI_ReadMOSI.qos,
       KINTEX_IPBUS_arready(0)           => ext_AXI_ReadMISO.ready_for_address,
       KINTEX_IPBUS_arregion             => ext_AXI_ReadMOSI.region,
       KINTEX_IPBUS_arsize               => ext_AXI_ReadMOSI.burst_size,
-      KINTEX_IPBUS_arvalid(0)           => ext_AXI_ReadMOSI.address_valid,        
-      KINTEX_IPBUS_awaddr               => ext_AXI_WriteMOSI.address,             
+      KINTEX_IPBUS_arvalid(0)           => ext_AXI_ReadMOSI.address_valid,
+      KINTEX_IPBUS_awaddr               => ext_AXI_WriteMOSI.address,
       KINTEX_IPBUS_awburst              => ext_AXI_WriteMOSI.burst_type,
       KINTEX_IPBUS_awcache              => ext_AXI_WriteMOSI.cache_type,
       KINTEX_IPBUS_awlen                => ext_AXI_WriteMOSI.burst_length,
       KINTEX_IPBUS_awlock(0)            => ext_AXI_WriteMOSI.lock_type,
       KINTEX_IPBUS_awprot               => ext_AXI_WriteMOSI.protection_type,
       KINTEX_IPBUS_awqos                => ext_AXI_WriteMOSI.qos,
-      KINTEX_IPBUS_awready(0)           => ext_AXI_WriteMISO.ready_for_address,   
+      KINTEX_IPBUS_awready(0)           => ext_AXI_WriteMISO.ready_for_address,
       KINTEX_IPBUS_awregion             => ext_AXI_WriteMOSI.region,
       KINTEX_IPBUS_awsize               => ext_AXI_WriteMOSI.burst_size,
-      KINTEX_IPBUS_awvalid(0)           => ext_AXI_WriteMOSI.address_valid,       
-      KINTEX_IPBUS_bready(0)            => ext_AXI_WriteMOSI.ready_for_response,  
-      KINTEX_IPBUS_bresp                => ext_AXI_WriteMISO.response,            
-      KINTEX_IPBUS_bvalid(0)            => ext_AXI_WriteMISO.response_valid,      
+      KINTEX_IPBUS_awvalid(0)           => ext_AXI_WriteMOSI.address_valid,
+      KINTEX_IPBUS_bready(0)            => ext_AXI_WriteMOSI.ready_for_response,
+      KINTEX_IPBUS_bresp                => ext_AXI_WriteMISO.response,
+      KINTEX_IPBUS_bvalid(0)            => ext_AXI_WriteMISO.response_valid,
       KINTEX_IPBUS_rdata                => ext_AXI_ReadMISO.data,
       KINTEX_IPBUS_rlast(0)             => ext_AXI_ReadMISO.last,
-      KINTEX_IPBUS_rready(0)            => ext_AXI_ReadMOSI.ready_for_data,       
-      KINTEX_IPBUS_rresp                => ext_AXI_ReadMISO.response,             
-      KINTEX_IPBUS_rvalid(0)            => ext_AXI_ReadMISO.data_valid,           
+      KINTEX_IPBUS_rready(0)            => ext_AXI_ReadMOSI.ready_for_data,
+      KINTEX_IPBUS_rresp                => ext_AXI_ReadMISO.response,
+      KINTEX_IPBUS_rvalid(0)            => ext_AXI_ReadMISO.data_valid,
       KINTEX_IPBUS_wdata                => ext_AXI_WriteMOSI.data,
       KINTEX_IPBUS_wlast(0)             => ext_AXI_WriteMOSI.last,
-      KINTEX_IPBUS_wready(0)            => ext_AXI_WriteMISO.ready_for_data,       
-      KINTEX_IPBUS_wstrb                => ext_AXI_WriteMOSI.data_write_strobe,   
-      KINTEX_IPBUS_wvalid(0)            => ext_AXI_WriteMOSI.data_valid,          
+      KINTEX_IPBUS_wready(0)            => ext_AXI_WriteMISO.ready_for_data,
+      KINTEX_IPBUS_wstrb                => ext_AXI_WriteMOSI.data_write_strobe,
+      KINTEX_IPBUS_wvalid(0)            => ext_AXI_WriteMOSI.data_valid,
       reset_n                           => locked_clk200,--reset,
-      K_C2C_aurora_do_cc                => C2CLink_aurora_do_cc,               
-      K_C2C_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,   
-      K_C2C_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out,    
+      K_C2C_aurora_do_cc                => C2CLink_aurora_do_cc,
+      K_C2C_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,
+      K_C2C_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out,
       K_C2C_axi_c2c_multi_bit_error_out => C2CLink_axi_c2c_multi_bit_error_out,
-      K_C2C_phy_gt_pll_lock             => C2CLink_phy_gt_pll_lock,            
-      K_C2C_phy_hard_err                => C2CLink_phy_hard_err,               
-      K_C2C_phy_lane_up                 => C2CLink_phy_lane_up,                
-      K_C2C_phy_link_reset_out          => C2CLink_phy_link_reset_out,         
-      K_C2C_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out,    
+      K_C2C_phy_gt_pll_lock             => C2CLink_phy_gt_pll_lock,
+      K_C2C_phy_hard_err                => C2CLink_phy_hard_err,
+      K_C2C_phy_lane_up                 => C2CLink_phy_lane_up,
+      K_C2C_phy_link_reset_out          => C2CLink_phy_link_reset_out,
+      K_C2C_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out,
       K_C2C_phy_power_down              => '0',
       K_C2C_phy_soft_err                => C2CLink_phy_soft_err
 );
@@ -262,41 +290,41 @@ begin  -- architecture structure
     port map (
       s_axi_aclk    => AXI_CLK,
       s_axi_aresetn => AXI_RST_N,
-      s_axi_araddr          => ext_AXI_ReadMOSI.address(11 downto 0),              
+      s_axi_araddr          => ext_AXI_ReadMOSI.address(11 downto 0),
       s_axi_arburst         => ext_AXI_ReadMOSI.burst_type,
       s_axi_arcache         => ext_AXI_ReadMOSI.cache_type,
       s_axi_arlen           => ext_AXI_ReadMOSI.burst_length,
       s_axi_arlock          => ext_AXI_ReadMOSI.lock_type,
-      s_axi_arprot          => ext_AXI_ReadMOSI.protection_type,      
+      s_axi_arprot          => ext_AXI_ReadMOSI.protection_type,
 --      s_axi_arqos           => ext_AXI_ReadMOSI.qos,
       s_axi_arready         => ext_AXI_ReadMISO.ready_for_address,
 --      s_axi_arregion        => ext_AXI_ReadMOSI.region,
       s_axi_arsize          => ext_AXI_ReadMOSI.burst_size,
-      s_axi_arvalid         => ext_AXI_ReadMOSI.address_valid,        
-      s_axi_awaddr          => ext_AXI_WriteMOSI.address(11 downto 0),             
+      s_axi_arvalid         => ext_AXI_ReadMOSI.address_valid,
+      s_axi_awaddr          => ext_AXI_WriteMOSI.address(11 downto 0),
       s_axi_awburst         => ext_AXI_WriteMOSI.burst_type,
       s_axi_awcache         => ext_AXI_WriteMOSI.cache_type,
       s_axi_awlen           => ext_AXI_WriteMOSI.burst_length,
       s_axi_awlock          => ext_AXI_WriteMOSI.lock_type,
       s_axi_awprot          => ext_AXI_WriteMOSI.protection_type,
 --      s_axi_awqos           => ext_AXI_WriteMOSI.qos,
-      s_axi_awready         => ext_AXI_WriteMISO.ready_for_address,   
+      s_axi_awready         => ext_AXI_WriteMISO.ready_for_address,
 --      s_axi_awregion        => ext_AXI_WriteMOSI.region,
       s_axi_awsize          => ext_AXI_WriteMOSI.burst_size,
-      s_axi_awvalid         => ext_AXI_WriteMOSI.address_valid,       
-      s_axi_bready          => ext_AXI_WriteMOSI.ready_for_response,  
-      s_axi_bresp           => ext_AXI_WriteMISO.response,            
-      s_axi_bvalid          => ext_AXI_WriteMISO.response_valid,      
+      s_axi_awvalid         => ext_AXI_WriteMOSI.address_valid,
+      s_axi_bready          => ext_AXI_WriteMOSI.ready_for_response,
+      s_axi_bresp           => ext_AXI_WriteMISO.response,
+      s_axi_bvalid          => ext_AXI_WriteMISO.response_valid,
       s_axi_rdata           => ext_AXI_ReadMISO.data,
       s_axi_rlast           => ext_AXI_ReadMISO.last,
-      s_axi_rready          => ext_AXI_ReadMOSI.ready_for_data,       
-      s_axi_rresp           => ext_AXI_ReadMISO.response,             
-      s_axi_rvalid          => ext_AXI_ReadMISO.data_valid,           
+      s_axi_rready          => ext_AXI_ReadMOSI.ready_for_data,
+      s_axi_rresp           => ext_AXI_ReadMISO.response,
+      s_axi_rvalid          => ext_AXI_ReadMISO.data_valid,
       s_axi_wdata           => ext_AXI_WriteMOSI.data,
       s_axi_wlast           => ext_AXI_WriteMOSI.last,
-      s_axi_wready          => ext_AXI_WriteMISO.ready_for_data,       
-      s_axi_wstrb           => ext_AXI_WriteMOSI.data_write_strobe,   
-      s_axi_wvalid          => ext_AXI_WriteMOSI.data_valid,          
+      s_axi_wready          => ext_AXI_WriteMISO.ready_for_data,
+      s_axi_wstrb           => ext_AXI_WriteMOSI.data_write_strobe,
+      s_axi_wvalid          => ext_AXI_WriteMOSI.data_valid,
       bram_rst_a            => AXI_reset,
       bram_clk_a            => AXI_CLK,
       bram_en_a             => AXI_BRAM_en,
@@ -330,15 +358,83 @@ begin  -- architecture structure
       doB   => BRAM_RD_DATA);
 
 
-    rst_cnt <= '0';
-    proc_cnt_clk_200 : process (clk_200, rst_cnt) begin
-        if (rst_cnt = '1') then
+
+    -- ==============================================================
+    -- Test and debug features.
+    -- ==============================================================
+
+    -- Counter running with 50 MHz clock.
+    rst_cnt_50 <= '0';
+    proc_cnt_clk_50 : process (clk_50, rst_cnt_50) begin
+        if (rst_cnt_50 = '1') then
+            cnt_clk_50 <= (others => '0');
+        elsif (clk_50'event and clk_50 = '1') then
+            cnt_clk_50 <= std_logic_vector(unsigned(cnt_clk_50) + 1);
+        end if;
+    end process;
+
+    -- Counter running with 200 MHz clock.
+    rst_cnt_200 <= '0';
+    proc_cnt_clk_200 : process (clk_200, rst_cnt_200) begin
+        if (rst_cnt_200 = '1') then
             cnt_clk_200 <= (others => '0');
         elsif (clk_200'event and clk_200 = '1') then
             cnt_clk_200 <= std_logic_vector(unsigned(cnt_clk_200) + 1);
         end if;
     end process;
 
-    o_led <= cnt_clk_200(26 downto 19);
- 
+    -- Counter running with AXI clock.
+    clk_axi <= AXI_CLK;
+    rst_cnt_axi <= '0';
+    proc_cnt_clk_axi : process (clk_axi, rst_cnt_axi) begin
+        if (rst_cnt_axi = '1') then
+            cnt_clk_axi <= (others => '0');
+        elsif (clk_axi'event and clk_axi = '1') then
+            cnt_clk_axi <= std_logic_vector(unsigned(cnt_clk_axi) + 1);
+        end if;
+    end process;
+
+    -- AXI interface for user LEDs and multiplexer.
+    User_LEDs_1: entity work.User_LEDs
+    port map (
+        s_axi_aclk          => AXI_CLK,
+        s_axi_aresetn       => AXI_RST_N,
+        s_axi_awaddr        => local_AXI_WriteMOSI(2).address(8 downto 0),
+        s_axi_awvalid       => local_AXI_WriteMOSI(2).data_valid,
+        s_axi_awready       => local_AXI_WriteMISO(2).ready_for_address,
+        s_axi_wdata         => local_AXI_WriteMOSI(2).data,
+        s_axi_wstrb         => local_AXI_WriteMOSI(2).data_write_strobe,
+        s_axi_wvalid        => local_AXI_WriteMOSI(2).data_valid,
+        s_axi_wready        => local_AXI_WriteMISO(2).ready_for_data,
+        s_axi_bresp         => local_AXI_WriteMISO(2).response,
+        s_axi_bvalid        => local_AXI_WriteMISO(2).response_valid,
+        s_axi_bready        => local_AXI_WriteMOSI(2).ready_for_response,
+        s_axi_araddr        => local_AXI_ReadMOSI(2).address(8 downto 0),
+        s_axi_arvalid       => local_AXI_ReadMOSI(2).address_valid,
+        s_axi_arready       => local_AXI_ReadMISO(2).ready_for_address,
+        s_axi_rdata         => local_AXI_ReadMISO(2).data,
+        s_axi_rresp         => local_AXI_ReadMISO(2).response,
+        s_axi_rvalid        => local_AXI_ReadMISO(2).data_valid,
+        s_axi_rready        => local_AXI_ReadMOSI(2).ready_for_data,
+        gpio_io_o           => user_led_axi
+    );
+
+    -- Multiplexer for the 8 physical user LEDs on the board.
+    proc_user_led_mux : process (user_led_axi, cnt_clk_50, cnt_clk_200, cnt_clk_axi)
+        variable v_user_led_mux_sel : std_logic_vector(3 downto 0);
+        variable v_user_led_val : std_logic_vector(o_led'range);
+    begin
+        v_user_led_mux_sel := user_led_axi(o_led'high + v_user_led_mux_sel'high + 1 downto o_led'high + v_user_led_mux_sel'low + 1);
+        v_user_led_val := user_led_axi(o_led'range);
+        case v_user_led_mux_sel is
+            when "0000" => user_led <= cnt_clk_50(26 downto 19);
+            when "0001" => user_led <= cnt_clk_200(26 downto 19);
+            when "0010" => user_led <= cnt_clk_axi(26 downto 19);
+            when others => user_led <= v_user_led_val;
+        end case;
+    end process;
+
+    -- Assign user LED to output port.
+    o_led <= user_led;
+
 end architecture structure;
