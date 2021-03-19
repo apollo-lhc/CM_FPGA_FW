@@ -1,3 +1,14 @@
+-- File: top.vhd
+-- Auth: Dan Gastler, Boston University Physics
+-- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
+-- Date: 18 Dec 2020
+-- Rev.: 19 Mar 2021
+--
+-- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
+--
+
+
+
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -9,16 +20,17 @@ use work.types.all;
 use work.K_IO_Ctrl.all;
 
 
-Library UNISIM;
+
+library UNISIM;
 use UNISIM.vcomponents.all;
 
 entity top is
   port (
-    -- clocks
-    i_clk_100_p             : in std_logic;
-    i_clk_100_n             : in std_logic;     -- 100 MHz system clock
+    -- Clocks.
+    i_clk_100_p             : in std_logic;     -- 100 MHz system clock.
+    i_clk_100_n             : in std_logic;
 
-    -- Zynq AXI Chip2Chip
+    -- SM SoC AXI Chip2Chip.
     i_refclk_axi_c2c_p      : in std_logic;
     i_refclk_axi_c2c_n      : in std_logic;
     i_mgt_axi_c2c_p         : in  std_logic_vector(1 downto 1);
@@ -26,6 +38,30 @@ entity top is
     o_mgt_axi_c2c_p         : out std_logic_vector(1 downto 1);
     o_mgt_axi_c2c_n         : out std_logic_vector(1 downto 1);
 
+    -- GTH transceivers.
+    -- Hint: The first 2 transceivers (on MGT bank 224) are used for SM SoC AXI
+    --       Chip2Chip. It utilizes refclk1[0]. The corresponding IO pins are
+    --       defined in the SM SoC AXI Chip2Chip section.
+    i_gth_refclk0_p         : in  std_logic_vector(10 downto 0);
+    i_gth_refclk0_n         : in  std_logic_vector(10 downto 0);
+    i_gth_refclk1_p         : in  std_logic_vector(10 downto 1);    -- i_gth_refclk1_p/n[0] reserved for SM SoC AXI Chip2Chip.
+    i_gth_refclk1_n         : in  std_logic_vector(10 downto 1);
+    i_gth_rx_p              : in  std_logic_vector(43 downto 2);    -- i_gth_rx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
+    i_gth_rx_n              : in  std_logic_vector(43 downto 2);
+--    o_gth_tx_p              : out std_logic_vector(43 downto 2);    -- o_gth_tx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
+--    o_gth_tx_n              : out std_logic_vector(43 downto 2);
+
+    -- GTY transceivers.
+    i_gty_refclk0_p         : in  std_logic_vector( 7 downto 0);
+    i_gty_refclk0_n         : in  std_logic_vector( 7 downto 0);
+    i_gty_refclk1_p         : in  std_logic_vector( 7 downto 0);
+    i_gty_refclk1_n         : in  std_logic_vector( 7 downto 0);
+    i_gty_rx_p              : in  std_logic_vector(31 downto 0);
+    i_gty_rx_n              : in  std_logic_vector(31 downto 0);
+--    o_gty_tx_p              : out std_logic_vector(31 downto 0);
+--    o_gty_tx_n              : out std_logic_vector(31 downto 0);
+
+    -- Xilinx system monitor.
 --    io_sysmon_i2c_scl       : inout std_logic;
 --    io_sysmon_i2c_sda       : inout std_logic
 
