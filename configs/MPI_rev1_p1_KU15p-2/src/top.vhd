@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 19 Mar 2021
+-- Rev.: 22 Mar 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -27,12 +27,32 @@ use UNISIM.vcomponents.all;
 entity top is
   port (
     -- Clocks.
-    i_clk_100_p             : in std_logic;     -- 100 MHz system clock.
-    i_clk_100_n             : in std_logic;
+    -- 100 MHz system clock from crystal oscillator.
+    i_clk_100_p             : in  std_logic;
+    i_clk_100_n             : in  std_logic;
+    -- LHC clock from jitter cleaner IC56 (Si5345A).
+    i_clk_lhc_p             : in  std_logic;
+    i_clk_lhc_n             : in  std_logic;
+    -- Recovered LHC clock from clock and data recovery chip IC46 (ADN2814ACPZ).
+    i_clk_legacy_ttc_p      : in  std_logic;
+    i_clk_legacy_ttc_n      : in  std_logic;
+    -- Clock from SMA connectors X76 and X78, directly connected.
+    i_clk_sma_direct_p      : in  std_logic;
+    i_clk_sma_direct_n      : in  std_logic;
+    -- Clock from SMA connectors X68 and X69, fed through jitter cleaner IC65.
+    i_clk_sma_jc_p          : in  std_logic;
+    i_clk_sma_jc_n          : in  std_logic;
+    -- Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
+    o_clk_lhc_p             : out std_logic;
+    o_clk_lhc_n             : out std_logic;
+
+    -- Legacy TTC recovered data from clock and data recovery chip IC46 (ADN2814ACPZ).
+    i_data_legacy_ttc_p     : in  std_logic;
+    i_data_legacy_ttc_n     : in  std_logic;
 
     -- SM SoC AXI Chip2Chip.
-    i_refclk_axi_c2c_p      : in std_logic;
-    i_refclk_axi_c2c_n      : in std_logic;
+    i_refclk_axi_c2c_p      : in  std_logic;
+    i_refclk_axi_c2c_n      : in  std_logic;
     i_mgt_axi_c2c_p         : in  std_logic_vector(1 downto 1);
     i_mgt_axi_c2c_n         : in  std_logic_vector(1 downto 1);
     o_mgt_axi_c2c_p         : out std_logic_vector(1 downto 1);
@@ -61,6 +81,31 @@ entity top is
 --    o_gty_tx_p              : out std_logic_vector(31 downto 0);
 --    o_gty_tx_n              : out std_logic_vector(31 downto 0);
 
+    -- Spare MCU connections.
+    io_mcu_se               : inout std_logic_vector(3 downto 0);
+    
+    -- Spare SM-CM connections.
+    io_sm_gpio              : inout std_logic_vector(1 to 2);
+
+    -- Spare I2C bus.
+    io_reserved_i2c_scl     : inout std_logic;
+    io_reserved_i2c_sda     : inout std_logic;
+
+    -- Expansion header.
+    io_exp_lvds_p           : inout std_logic_vector(10 downto 0);
+    io_exp_lvds_n           : inout std_logic_vector(10 downto 0);
+    io_exp_se               : inout std_logic_vector(10 downto 0);
+
+    -- Debug header.
+    io_dbg_lvds_p           : inout std_logic_vector(1 downto 0);
+    io_dbg_lvds_n           : inout std_logic_vector(1 downto 0);
+    io_dbg_se               : inout std_logic_vector(5 downto 0);
+
+    -- Inter-FPGA connections (KU15P - ZU11EG).
+    io_k2z_lvds_p           : inout std_logic_vector(23 downto 0);
+    io_k2z_lvds_n           : inout std_logic_vector(23 downto 0);
+    io_k2z_se               : inout std_logic_vector(23 downto 0);
+
     -- Xilinx system monitor.
 --    io_sysmon_i2c_scl       : inout std_logic;
 --    io_sysmon_i2c_sda       : inout std_logic
@@ -72,14 +117,24 @@ end entity top;
 
 architecture structure of top is
 
-    signal clk_200         : std_logic;
-    signal clk_50          : std_logic;
-    signal reset           : std_logic;
-    signal locked_clk200   : std_logic;
+    -- Clocks.
+    signal clk_lhc_in       : std_logic;
+    signal clk_legacy_ttc   : std_logic;
+    signal clk_sma_direct   : std_logic;
+    signal clk_sma_jc       : std_logic;
+    signal clk_lhc_out      : std_logic;
 
-    signal led_blue_local  : slv_8_t;
-    signal led_red_local   : slv_8_t;
-    signal led_green_local : slv_8_t;
+    -- Local clocking.
+    signal clk_200          : std_logic;
+    signal clk_50           : std_logic;
+    signal reset            : std_logic;
+    signal locked_clk200    : std_logic;
+
+    signal data_legacy_ttc  : std_logic;
+
+    signal led_blue_local   : slv_8_t;
+    signal led_red_local    : slv_8_t;
+    signal led_green_local  : slv_8_t;
 
     constant localAXISlaves    : integer := 3;
     signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
@@ -136,21 +191,60 @@ architecture structure of top is
 
 begin  -- architecture structure
 
-  --Clocking
-  Local_Clocking_1: entity work.Local_Clocking
+    -- Clocking.
+    IBUFDS_clk_lhc: entity work.IBUFDS
     port map (
-      clk_200   => clk_200,
-      clk_50    => clk_50,
-      clk_axi   => AXI_CLK,
-      reset     => '0',
-      locked    => locked_clk200,
-      clk_in1_p => i_clk_100_p,
-      clk_in1_n => i_clk_100_n);
+        I   => i_clk_lhc_p,
+        IB  => i_clk_lhc_n,
+        O   => clk_lhc_in
+    );
+    IBUFDS_clk_legacy_ttc: entity work.IBUFDS
+    port map (
+        I   => i_clk_legacy_ttc_p,
+        IB  => i_clk_legacy_ttc_n,
+        O   => clk_legacy_ttc
+    );
+    IBUFDS_clk_sma_direct: entity work.IBUFDS
+    port map (
+        I   => i_clk_sma_direct_p,
+        IB  => i_clk_sma_direct_n,
+        O   => clk_sma_direct
+    );
+    IBUFDS_clk_sma_jc: entity work.IBUFDS
+    port map (
+        I   => i_clk_sma_jc_p,
+        IB  => i_clk_sma_jc_n,
+        O   => clk_sma_jc
+    );
+    OBUFDS_clk_lhc: entity work.OBUFDS
+    port map (
+        I   => clk_lhc_out,
+        O   => o_clk_lhc_p,
+        OB  => o_clk_lhc_n
+    );
+    clk_lhc_out <= '0';
+
+    IBUFDS_data_legacy_ttc: entity work.IBUFDS
+    port map (
+        I   => i_data_legacy_ttc_p,
+        IB  => i_data_legacy_ttc_n,
+        O   => data_legacy_ttc
+    );
+
+    Local_Clocking_1: entity work.Local_Clocking
+    port map (
+        clk_200   => clk_200,
+        clk_50    => clk_50,
+        clk_axi   => AXI_CLK,
+        reset     => '0',
+        locked    => locked_clk200,
+        clk_in1_p => i_clk_100_p,
+        clk_in1_n => i_clk_100_n
+    );
 
 
 
-
-  c2csslave_wrapper_1: entity work.c2cslave_wrapper
+    c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
       AXI_CLK                           => AXI_CLK,
       AXI_RST_N(0)                      => AXI_RST_N,
