@@ -87,7 +87,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_DATA_WIDTH">80</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_DISABLE_SYSCLK_BUF">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_ENABLE_CPLL_CAL_BLOCK">1</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_ENABLE_DIFF_TERM">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_ENABLE_DIFF_TERM">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_GT_CORRECT">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_GT_TYPE">GTYE4</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_LINERATE_Q0">&quot;000000000000001001010100000010111110010000000000&quot;</spirit:configurableElementValue>
@@ -126,8 +126,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_LINERATE_Q7">&quot;000000000000000000000000000000000000000000000000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_LINERATE_Q8">&quot;000000000000000000000000000000000000000000000000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_LINERATE_Q9">&quot;000000000000000000000000000000000000000000000000&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q0">&quot;00000101111101011110000100000000&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q1">&quot;00000101111101011110000100000000&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q0">&quot;00001110010011100001110000000000&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q1">&quot;00001110010011100001110000000000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q10">00000000000000000000000000000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q11">00000000000000000000000000000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q12">00000000000000000000000000000000</spirit:configurableElementValue>
@@ -138,7 +138,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q17">00000000000000000000000000000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q18">00000000000000000000000000000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q19">00000000000000000000000000000000</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q2">&quot;00000101111101011110000100000000&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q2">&quot;00001110010011100001110000000000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q20">00000000000000000000000000000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q21">00000000000000000000000000000000</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_MAX_REFCLK_FREQ_Q22">00000000000000000000000000000000</spirit:configurableElementValue>
@@ -326,7 +326,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_QUAD_COUNT_1">3</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_QUAD_COUNT_2">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_QUAD_COUNT_3">0</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_1">100</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_1">240</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_2">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_3">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_VALUE_QUAD0">01</spirit:configurableElementValue>
@@ -808,7 +808,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_DIVIDER">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_FREQUENCY">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_IO_PIN_LOC_N">AV20</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_IO_PIN_LOC_P">AU21</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_IO_PIN_LOC_P">AY16</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_IO_PIN_STD">LVDS</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_IS_DIFF">1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_SYSCLK_MODE_EXTERNAL">1</spirit:configurableElementValue>
@@ -1004,7 +1004,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_ADD_RXOUTCLK_PROBES">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_CHECK_REFCLK_SOURCES">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_DISABLE_SYSCLK_BUF">&quot;1&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_ENABLE_DIFF_TERM">false</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_ENABLE_DIFF_TERM">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_GT_CORRECT">true</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_NUM_QUADS">1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_1">Custom_1</spirit:configurableElementValue>
@@ -1059,7 +1059,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_QUAD_COUNT_1">3</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_QUAD_COUNT_2">0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_QUAD_COUNT_3">0</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_1">100</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_1">240</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_2">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_REFCLK_FREQUENCY_3">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_REFCLK_SOURCE_QUAD_0">None</spirit:configurableElementValue>
@@ -1106,7 +1106,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_RXOUTCLK_PIN_STD">LVCMOS25</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_FREQUENCY">100</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_IO_PIN_LOC_N">AV20</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_IO_PIN_LOC_P">AU21</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_IO_PIN_LOC_P">AY16</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_IO_PIN_STD">LVDS</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_IS_DIFF">1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_SYSCLK_MODE_EXTERNAL">1</spirit:configurableElementValue>

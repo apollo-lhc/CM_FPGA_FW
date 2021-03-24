@@ -19,13 +19,13 @@ use work.axiRegPkg.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
 
-
-
 library UNISIM;
 use UNISIM.vcomponents.all;
 
+
+
 entity top is
-  port (
+port (
     -- Clocks.
     -- 100 MHz system clock from crystal oscillator.
     i_clk_100_p             : in  std_logic;
@@ -112,32 +112,38 @@ entity top is
 
     -- User LEDs.
     o_led                   : out std_logic_vector(7 downto 0)
-    );
+);
 end entity top;
+
+
 
 architecture structure of top is
 
-    -- Clocks.
+    -- Clocking module.
     signal clk_100          : std_logic;
-    signal clk_100_bufg     : std_logic;
     signal clk_lhc_in       : std_logic;
     signal clk_legacy_ttc   : std_logic;
     signal clk_sma_direct   : std_logic;
     signal clk_sma_jc       : std_logic;
     signal clk_lhc_out      : std_logic;
-
-    -- Local clocking.
     signal clk_200          : std_logic;
     signal clk_50           : std_logic;
-    signal reset            : std_logic;
-    signal locked_clk200    : std_logic;
+    signal clk_axi          : std_logic;
+    signal clocking_reset   : std_logic;
+    signal clocking_locked  : std_logic;
 
+    -- Legacy TTC data.
     signal data_legacy_ttc  : std_logic;
 
+    -- IBERT module.
+    signal ibert_reset      : std_logic;
+
+    -- LED signals from Cornell board. No use on MPI CM.
     signal led_blue_local   : slv_8_t;
     signal led_red_local    : slv_8_t;
     signal led_green_local  : slv_8_t;
 
+    -- AXI signals.
     constant localAXISlaves    : integer := 3;
     signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
     signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
@@ -153,16 +159,13 @@ architecture structure of top is
     signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
 
 
-    signal gty_refclk0 : std_logic_vector(7 downto 0);
-    signal gty_odiv2_0 : std_logic_vector(7 downto 0);
-
     signal C2CLink_aurora_do_cc                : std_logic;
     signal C2CLink_axi_c2c_config_error_out    : std_logic;
     signal C2CLink_axi_c2c_link_status_out     : std_logic;
     signal C2CLink_axi_c2c_multi_bit_error_out : std_logic;
     signal C2CLink_phy_gt_pll_lock             : std_logic;
     signal C2CLink_phy_hard_err                : std_logic;
-    signal C2CLink_phy_lane_up                 : std_logic_vector ( 0 to 0 );
+    signal C2CLink_phy_lane_up                 : std_logic_vector(0 to 0);
     signal C2CLink_phy_link_reset_out          : std_logic;
     signal C2CLink_phy_mmcm_not_locked_out     : std_logic;
     signal C2CLink_phy_soft_err                : std_logic;
@@ -179,16 +182,11 @@ architecture structure of top is
     signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
     signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
 
-    -- Auxiliary.
-    signal std_logic_0 : std_logic;
-    signal std_logic_1 : std_logic;
-
     -- Counters.
     signal rst_cnt_50  : std_logic;
     signal cnt_clk_50  : std_logic_vector(31 downto 0);
     signal rst_cnt_200 : std_logic;
     signal cnt_clk_200 : std_logic_vector(31 downto 0);
-    signal clk_axi     : std_logic;
     signal rst_cnt_axi : std_logic;
     signal cnt_clk_axi : std_logic_vector(31 downto 0);
 
@@ -197,112 +195,77 @@ architecture structure of top is
     signal user_led : std_logic_vector(o_led'range);
 
 
-begin  -- architecture structure
 
-    -- Clocking.
-    IBUFGDS_clk_lhc : entity work.IBUFGDS
+begin  -- Architecture structure.
+
+    -- Clocking module: Generate all clocks.
+    clocking_1 : entity work.clocking
     port map (
-        I   => i_clk_100_p,
-        IB  => i_clk_100_n,
-        O   => clk_100
-    );
-    BUFG_clk_100 : entity work.BUFG
-    port map (
-        I => clk_100,
-        O => clk_100_bufg
-    );
-    IBUFDS_clk_lhc : entity work.IBUFDS
-    port map (
-        I   => i_clk_lhc_p,
-        IB  => i_clk_lhc_n,
-        O   => clk_lhc_in
-    );
-    IBUFDS_clk_legacy_ttc : entity work.IBUFDS
-    port map (
-        I   => i_clk_legacy_ttc_p,
-        IB  => i_clk_legacy_ttc_n,
-        O   => clk_legacy_ttc
-    );
-    IBUFDS_clk_sma_direct : entity work.IBUFDS
-    port map (
-        I   => i_clk_sma_direct_p,
-        IB  => i_clk_sma_direct_n,
-        O   => clk_sma_direct
-    );
-    IBUFDS_clk_sma_jc : entity work.IBUFDS
-    port map (
-        I   => i_clk_sma_jc_p,
-        IB  => i_clk_sma_jc_n,
-        O   => clk_sma_jc
-    );
-    OBUFDS_clk_lhc : entity work.OBUFDS
-    port map (
-        I   => clk_lhc_out,
-        O   => o_clk_lhc_p,
-        OB  => o_clk_lhc_n
+        -- Clocks.
+        -- 100 MHz system clock from crystal oscillator.
+        i_clk_100_p             => i_clk_100_p,
+        i_clk_100_n             => i_clk_100_n,
+        o_clk_100               => clk_100,
+        -- LHC clock from jitter cleaner IC56 (Si5345A).
+        i_clk_lhc_p             => i_clk_lhc_p,
+        i_clk_lhc_n             => i_clk_lhc_n,
+        o_clk_lhc               => clk_lhc_in,
+        -- Recovered LHC clock from clock and data recovery chip IC46 (ADN2814ACPZ).
+        i_clk_legacy_ttc_p      => i_clk_legacy_ttc_p,
+        i_clk_legacy_ttc_n      => i_clk_legacy_ttc_n,
+        o_clk_legacy_ttc        => clk_legacy_ttc,
+        -- Clock from SMA connectors X76 and X78, directly connected.
+        i_clk_sma_direct_p      => i_clk_sma_direct_p,
+        i_clk_sma_direct_n      => i_clk_sma_direct_n,
+        o_clk_sma_direct        => clk_sma_direct,
+        -- Clock from SMA connectors X68 and X69, fed through jitter cleaner IC65.
+        i_clk_sma_jc_p          => i_clk_sma_jc_p,
+        i_clk_sma_jc_n          => i_clk_sma_jc_n,
+        o_clk_sma_jc            => clk_sma_jc,
+        -- Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
+        i_clk_lhc               => clk_lhc_out,
+        o_clk_lhc_p             => o_clk_lhc_p,
+        o_clk_lhc_n             => o_clk_lhc_n,
+
+        -- Generated clocks.
+        i_reset                 => clocking_reset,
+        o_locked                => clocking_locked,
+        o_clk_50                => clk_50,
+        o_clk_200               => clk_200,
+        o_clk_axi               => clk_axi
     );
     clk_lhc_out <= '0';
+    AXI_CLK <= clk_axi;
 
-    IBUFDS_data_legacy_ttc : entity work.IBUFDS
+    -- Custom IBERT module.
+    ibert_1 : entity work.ibert
     port map (
-        I   => i_data_legacy_ttc_p,
-        IB  => i_data_legacy_ttc_n,
-        O   => data_legacy_ttc
-    );
+        -- Clocks.
+        i_clk_100               => clk_100,
 
-    Local_Clocking_1 : entity work.Local_Clocking
-    port map (
-        -- Clock out ports.
-        clk_200   => clk_200,
-        clk_50    => clk_50,
-        clk_axi   => AXI_CLK,
-        -- Status and control signals.
-        reset     => '0',
-        locked    => locked_clk200,
-        -- Clock in ports.
-        clk_in1   => clk_100_bufg
-    );
+        -- Reset.
+        i_rst                   => ibert_reset,
 
-    std_logic_0 <= '0';
-    std_logic_1 <= '1';
-    
-    IBUFDS_GTE4_ibert_gty_felix : entity work.IBUFDS_GTE4
-    port map (
-        O            => gty_refclk0(7),
-        ODIV2        => gty_odiv2_0(7),
-        CEB          => std_logic_0,
-        I            => i_gty_refclk0_p(7),
-        IB           => i_gty_refclk0_n(7)
-    
-    );
-    
-    ibert_gty_felix_1 : entity work.ibert_gty_felix
-    port map (
-        txn_o => o_gty_tx_n(31 downto 20),
-        txp_o => o_gty_tx_p(31 downto 20),
-        rxn_i => i_gty_rx_n(31 downto 20),
-        rxp_i => i_gty_rx_p(31 downto 20),
-        gtrefclk0_i => gty_refclk0(7 downto 5),
-        gtrefclk1_i => "000",
-        gtnorthrefclk0_i => "000",
-        gtnorthrefclk1_i => "000",
-        gtsouthrefclk0_i => "000",
-        gtsouthrefclk1_i => "000",
-        gtrefclk00_i => gty_refclk0(7 downto 5),
-        gtrefclk10_i => "000",
-        gtrefclk01_i => "000",
-        gtrefclk11_i => "000",
-        gtnorthrefclk00_i => "000",
-        gtnorthrefclk10_i => "000",
-        gtnorthrefclk01_i => "000",
-        gtnorthrefclk11_i => "000",
-        gtsouthrefclk00_i => "000",
-        gtsouthrefclk10_i => "000",
-        gtsouthrefclk01_i => "000",
-        gtsouthrefclk11_i => "000",
-        clk => clk_100_bufg
-    );
+        -- GTH transceivers.
+        i_gth_refclk0_p         => i_gth_refclk0_p,
+        i_gth_refclk0_n         => i_gth_refclk0_n,
+        i_gth_refclk1_p         => i_gth_refclk1_p,
+        i_gth_refclk1_n         => i_gth_refclk1_n,
+        i_gth_rx_p              => i_gth_rx_p,
+        i_gth_rx_n              => i_gth_rx_n,
+        o_gth_tx_p              => o_gth_tx_p,
+        o_gth_tx_n              => o_gth_tx_n,
 
+        -- GTY transceivers.
+        i_gty_refclk0_p         => i_gty_refclk0_p,
+        i_gty_refclk0_n         => i_gty_refclk0_n,
+        i_gty_refclk1_p         => i_gty_refclk1_p,
+        i_gty_refclk1_n         => i_gty_refclk1_n,
+        i_gty_rx_p              => i_gty_rx_p,
+        i_gty_rx_n              => i_gty_rx_n,
+        o_gty_tx_p              => o_gty_tx_p,
+        o_gty_tx_n              => o_gty_tx_n
+    );
 
 
 
@@ -412,7 +375,7 @@ begin  -- architecture structure
       KINTEX_IPBUS_wready(0)            => ext_AXI_WriteMISO.ready_for_data,
       KINTEX_IPBUS_wstrb                => ext_AXI_WriteMOSI.data_write_strobe,
       KINTEX_IPBUS_wvalid(0)            => ext_AXI_WriteMOSI.data_valid,
-      reset_n                           => locked_clk200,--reset,
+      reset_n                           => clocking_locked,--reset,
       K_C2C_aurora_do_cc                => C2CLink_aurora_do_cc,
       K_C2C_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,
       K_C2C_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out,
@@ -457,7 +420,7 @@ begin  -- architecture structure
       Mon.C2C.MMCM_NOT_LOCKED => C2CLink_phy_mmcm_not_locked_out,
       Mon.C2C.MULTIBIT_ERR    => C2CLink_axi_c2c_multi_bit_error_out,
       Mon.C2C.SOFT_ERR        => C2CLink_phy_soft_err,
-      Mon.CLK_200_LOCKED      => locked_clk200,
+      Mon.CLK_200_LOCKED      => clocking_locked,
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
@@ -576,7 +539,6 @@ begin  -- architecture structure
     end process;
 
     -- Counter running with AXI clock.
-    clk_axi <= AXI_CLK;
     rst_cnt_axi <= '0';
     proc_cnt_clk_axi : process (clk_axi, rst_cnt_axi) begin
         if (rst_cnt_axi = '1') then
@@ -630,3 +592,4 @@ begin  -- architecture structure
     o_led <= user_led;
 
 end architecture structure;
+

@@ -1,0 +1,166 @@
+-- File: ibert.vhd
+-- Auth: M. Fras, Electronics Division, MPI for Physics, Munich
+-- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
+-- Date: 24 Mar 2021
+-- Rev.: 24 Mar 2021
+--
+-- Xilinx IBERT modules used in the KU15P of the MPI Command Module (CM)
+-- demonstrator.
+--
+
+
+
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+
+use ieee.std_logic_misc.all;
+
+
+
+library UNISIM;
+use UNISIM.vcomponents.all;
+
+entity ibert is
+port (
+    -- Clocks.
+    i_clk_100               : in  std_logic;
+
+    -- Reset.
+    i_rst                   : in  std_logic;
+
+    -- GTH transceivers.
+    -- Hint: The first 2 transceivers (on MGT bank 224) are used for SM SoC AXI
+    --       Chip2Chip. It utilizes refclk1[0]. The corresponding IO pins are
+    --       defined in the SM SoC AXI Chip2Chip section.
+    i_gth_refclk0_p         : in  std_logic_vector(10 downto 0);
+    i_gth_refclk0_n         : in  std_logic_vector(10 downto 0);
+    i_gth_refclk1_p         : in  std_logic_vector(10 downto 1);    -- i_gth_refclk1_p/n[0] reserved for SM SoC AXI Chip2Chip.
+    i_gth_refclk1_n         : in  std_logic_vector(10 downto 1);
+    i_gth_rx_p              : in  std_logic_vector(43 downto 2);    -- i_gth_rx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
+    i_gth_rx_n              : in  std_logic_vector(43 downto 2);
+    o_gth_tx_p              : out std_logic_vector(43 downto 2);    -- o_gth_tx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
+    o_gth_tx_n              : out std_logic_vector(43 downto 2);
+
+    -- GTY transceivers.
+    i_gty_refclk0_p         : in  std_logic_vector( 7 downto 0);
+    i_gty_refclk0_n         : in  std_logic_vector( 7 downto 0);
+    i_gty_refclk1_p         : in  std_logic_vector( 7 downto 0);
+    i_gty_refclk1_n         : in  std_logic_vector( 7 downto 0);
+    i_gty_rx_p              : in  std_logic_vector(31 downto 0);
+    i_gty_rx_n              : in  std_logic_vector(31 downto 0);
+    o_gty_tx_p              : out std_logic_vector(31 downto 0);
+    o_gty_tx_n              : out std_logic_vector(31 downto 0)
+);
+end entity ibert;
+
+
+
+architecture structure of ibert is
+
+    -- Reference clocks.
+    -- GTH.
+    signal gth_refclk0                  : std_logic_vector(i_gth_refclk0_p'range);
+    signal gth_odiv2_0                  : std_logic_vector(i_gth_refclk0_p'range);
+    signal gth_refclk1                  : std_logic_vector(i_gth_refclk1_p'range);
+    signal gth_odiv2_1                  : std_logic_vector(i_gth_refclk1_p'range);
+    -- GTY.
+    signal gty_refclk0                  : std_logic_vector(i_gty_refclk0_p'range);
+    signal gty_odiv2_0                  : std_logic_vector(i_gty_refclk0_p'range);
+    signal gty_refclk1                  : std_logic_vector(i_gty_refclk1_p'range);
+    signal gty_odiv2_1                  : std_logic_vector(i_gty_refclk1_p'range);
+
+    -- Enable signals for IBUFDS_GTE4.
+    signal IBUFDS_GTE4_gth_refclk0_CEB  : std_logic_vector(i_gth_refclk0_p'range);
+    signal IBUFDS_GTE4_gth_refclk1_CEB  : std_logic_vector(i_gth_refclk1_p'range);
+    signal IBUFDS_GTE4_gty_refclk0_CEB  : std_logic_vector(i_gty_refclk0_p'range);
+    signal IBUFDS_GTE4_gty_refclk1_CEB  : std_logic_vector(i_gty_refclk1_p'range);
+
+
+begin  -- Architecture structure.
+
+    -- Reference clock buffers.
+    -- GTH.
+    gen_IBUFDS_GTE4_gth_refclk0 : for i in i_gth_refclk0_p'range generate
+        IBUFDS_GTE4_gth_refclk0 : entity work.IBUFDS_GTE4
+        port map (
+            O       => gth_refclk0(i),
+            ODIV2   => gth_odiv2_0(i),
+            CEB     => IBUFDS_GTE4_gth_refclk0_CEB(i),
+            I       => i_gth_refclk0_p(i),
+            IB      => i_gth_refclk0_n(i)
+        );
+        IBUFDS_GTE4_gth_refclk0_CEB(i) <= '0';
+    end generate gen_IBUFDS_GTE4_gth_refclk0;
+
+    gen_IBUFDS_GTE4_gth_refclk1 : for i in i_gth_refclk1_p'range generate
+        IBUFDS_GTE4_gth_refclk1 : entity work.IBUFDS_GTE4
+        port map (
+            O       => gth_refclk1(i),
+            ODIV2   => gth_odiv2_1(i),
+            CEB     => IBUFDS_GTE4_gth_refclk1_CEB(i),
+            I       => i_gth_refclk1_p(i),
+            IB      => i_gth_refclk1_n(i)
+        );
+        IBUFDS_GTE4_gth_refclk1_CEB(i) <= '0';
+    end generate gen_IBUFDS_GTE4_gth_refclk1;
+
+    -- GTY.
+    gen_IBUFDS_GTE4_gty_refclk0 : for i in i_gty_refclk0_p'range generate
+        IBUFDS_GTE4_gty_refclk0 : entity work.IBUFDS_GTE4
+        port map (
+            O       => gty_refclk0(i),
+            ODIV2   => gty_odiv2_0(i),
+            CEB     => IBUFDS_GTE4_gty_refclk0_CEB(i),
+            I       => i_gty_refclk0_p(i),
+            IB      => i_gty_refclk0_n(i)
+        );
+        IBUFDS_GTE4_gty_refclk0_CEB(i) <= '0';
+    end generate gen_IBUFDS_GTE4_gty_refclk0;
+
+    gen_IBUFDS_GTE4_gty_refclk1 : for i in i_gty_refclk1_p'range generate
+        IBUFDS_GTE4_gty_refclk1 : entity work.IBUFDS_GTE4
+        port map (
+            O       => gty_refclk1(i),
+            ODIV2   => gty_odiv2_1(i),
+            CEB     => IBUFDS_GTE4_gty_refclk1_CEB(i),
+            I       => i_gty_refclk1_p(i),
+            IB      => i_gty_refclk1_n(i)
+        );
+        IBUFDS_GTE4_gty_refclk1_CEB(i) <= '0';
+    end generate gen_IBUFDS_GTE4_gty_refclk1;
+
+
+
+    -- IBERT for FELIX links:
+    -- - GTY quads on MGT banks 132..134.
+    -- - CM FireFly module 1.
+    ibert_gty_felix_1 : entity work.ibert_gty_felix
+    port map (
+        txn_o               => o_gty_tx_n(31 downto 20),
+        txp_o               => o_gty_tx_p(31 downto 20),
+        rxn_i               => i_gty_rx_n(31 downto 20),
+        rxp_i               => i_gty_rx_p(31 downto 20),
+        gtrefclk0_i         => gty_refclk0(7 downto 5),
+        gtrefclk1_i         => gty_refclk1(7 downto 5),
+        gtnorthrefclk0_i    => "000",
+        gtnorthrefclk1_i    => "000",
+        gtsouthrefclk0_i    => "000",
+        gtsouthrefclk1_i    => "000",
+        gtrefclk00_i        => gty_refclk0(7 downto 5),
+        gtrefclk10_i        => gty_refclk1(7 downto 5),
+        gtrefclk01_i        => gty_refclk0(7 downto 5),
+        gtrefclk11_i        => gty_refclk1(7 downto 5),
+        gtnorthrefclk00_i   => "000",
+        gtnorthrefclk10_i   => "000",
+        gtnorthrefclk01_i   => "000",
+        gtnorthrefclk11_i   => "000",
+        gtsouthrefclk00_i   => "000",
+        gtsouthrefclk10_i   => "000",
+        gtsouthrefclk01_i   => "000",
+        gtsouthrefclk11_i   => "000",
+        clk                 => i_clk_100
+    );
+
+end architecture structure;
+

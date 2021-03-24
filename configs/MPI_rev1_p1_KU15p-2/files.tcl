@@ -5,6 +5,8 @@ array set bd_files [list {c2cSlave} {configs/MPI_rev1_p1_KU15p-2/src/createC2CSl
 
 set vhdl_files "\
     configs/MPI_rev1_p1_KU15p-2/src/top.vhd \
+    configs/MPI_rev1_p1_KU15p-2/src/clocking.vhd \
+    configs/MPI_rev1_p1_KU15p-2/src/ibert.vhd \
     src/misc/pass_time_domain.vhd \
     src/misc/pacd.vhd \
     src/misc/types.vhd \
