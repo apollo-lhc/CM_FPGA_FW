@@ -284,7 +284,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_MAXLINERATE_1">10</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_MAXLINERATE_2">5</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_MAXLINERATE_3">5</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_PLL_1">11</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_PLL_1">10</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_PLL_2">11</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_PLL_3">11</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_QUAD0">None</spirit:configurableElementValue>
@@ -365,8 +365,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_VALUE_QUAD7">00</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_VALUE_QUAD8">00</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_PROTOCOL_VALUE_QUAD9">00</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q0">&quot;0&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q1">&quot;0&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q0">&quot;1&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q1">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q10">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q11">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q12">&quot;1&quot;</spirit:configurableElementValue>
@@ -377,7 +377,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q17">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q18">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q19">&quot;1&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q2">&quot;0&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q2">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q20">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q21">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q22">&quot;1&quot;</spirit:configurableElementValue>
@@ -401,8 +401,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q7">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q8">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0PD_Q9">&quot;1&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q0">&quot;001&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q1">&quot;001&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q0">&quot;000&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q1">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q10">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q11">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q12">&quot;000&quot;</spirit:configurableElementValue>
@@ -413,7 +413,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q17">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q18">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q19">&quot;000&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q2">&quot;001&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q2">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q20">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q21">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q22">&quot;000&quot;</spirit:configurableElementValue>
@@ -437,8 +437,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q7">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q8">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL0REFCLKSEL_Q9">&quot;000&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q0">&quot;1&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q1">&quot;1&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q0">&quot;0&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q1">&quot;0&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q10">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q11">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q12">&quot;1&quot;</spirit:configurableElementValue>
@@ -449,7 +449,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q17">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q18">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q19">&quot;1&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q2">&quot;1&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q2">&quot;0&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q20">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q21">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q22">&quot;1&quot;</spirit:configurableElementValue>
@@ -473,8 +473,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q7">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q8">&quot;1&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1PD_Q9">&quot;1&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q0">&quot;000&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q1">&quot;000&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q0">&quot;001&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q1">&quot;001&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q10">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q11">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q12">&quot;000&quot;</spirit:configurableElementValue>
@@ -485,7 +485,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q17">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q18">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q19">&quot;000&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q2">&quot;000&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q2">&quot;001&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q20">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q21">&quot;000&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_QPLL1REFCLKSEL_Q22">&quot;000&quot;</spirit:configurableElementValue>
@@ -588,8 +588,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXOUTCLK_PIN_LOCATION">UNASSIGNED</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXOUTCLK_PIN_STD">LVCMOS25</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXOUTCLK_SOURCE_VALUE">0</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q0">&quot;11&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q1">&quot;11&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q0">&quot;10&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q1">&quot;10&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q10">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q11">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q12">&quot;00&quot;</spirit:configurableElementValue>
@@ -600,7 +600,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q17">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q18">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q19">&quot;00&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q2">&quot;11&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q2">&quot;10&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q20">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q21">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q22">&quot;00&quot;</spirit:configurableElementValue>
@@ -624,8 +624,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q7">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q8">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXPLLCLKSEL_Q9">&quot;00&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q0">&quot;10&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q1">&quot;10&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q0">&quot;11&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q1">&quot;11&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q10">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q11">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q12">&quot;00&quot;</spirit:configurableElementValue>
@@ -636,7 +636,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q17">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q18">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q19">&quot;00&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q2">&quot;10&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q2">&quot;11&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q20">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q21">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_RXSYSCLKSEL_Q22">&quot;00&quot;</spirit:configurableElementValue>
@@ -852,8 +852,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXOUTCLK_PERIOD_IN_Q7">250</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXOUTCLK_PERIOD_IN_Q8">250</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXOUTCLK_PERIOD_IN_Q9">250</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q0">&quot;11&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q1">&quot;11&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q0">&quot;10&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q1">&quot;10&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q10">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q11">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q12">&quot;00&quot;</spirit:configurableElementValue>
@@ -864,7 +864,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q17">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q18">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q19">&quot;00&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q2">&quot;11&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q2">&quot;10&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q20">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q21">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q22">&quot;00&quot;</spirit:configurableElementValue>
@@ -888,8 +888,8 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q7">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q8">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXPLLCLKSEL_Q9">&quot;00&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q0">&quot;10&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q1">&quot;10&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q0">&quot;11&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q1">&quot;11&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q10">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q11">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q12">&quot;00&quot;</spirit:configurableElementValue>
@@ -900,7 +900,7 @@
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q17">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q18">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q19">&quot;00&quot;</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q2">&quot;10&quot;</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q2">&quot;11&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q20">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q21">&quot;00&quot;</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="MODELPARAM_VALUE.C_TXSYSCLKSEL_Q22">&quot;00&quot;</spirit:configurableElementValue>
@@ -1017,7 +1017,7 @@
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_MAXLINERATE_1">10</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_MAXLINERATE_2">5</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_MAXLINERATE_3">5</spirit:configurableElementValue>
-        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_PLL_1">QPLL0</spirit:configurableElementValue>
+        <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_PLL_1">QPLL1</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_PLL_2">QPLL0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_PLL_3">QPLL0</spirit:configurableElementValue>
         <spirit:configurableElementValue spirit:referenceId="PARAM_VALUE.C_PROTOCOL_QUAD0">None</spirit:configurableElementValue>
