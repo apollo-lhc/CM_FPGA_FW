@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 22 Mar 2021
+-- Rev.: 24 Mar 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -68,8 +68,8 @@ entity top is
     i_gth_refclk1_n         : in  std_logic_vector(10 downto 1);
     i_gth_rx_p              : in  std_logic_vector(43 downto 2);    -- i_gth_rx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
     i_gth_rx_n              : in  std_logic_vector(43 downto 2);
---    o_gth_tx_p              : out std_logic_vector(43 downto 2);    -- o_gth_tx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
---    o_gth_tx_n              : out std_logic_vector(43 downto 2);
+    o_gth_tx_p              : out std_logic_vector(43 downto 2);    -- o_gth_tx_p/n[1..0] reserved for SM SoC AXI Chip2Chip.
+    o_gth_tx_n              : out std_logic_vector(43 downto 2);
 
     -- GTY transceivers.
     i_gty_refclk0_p         : in  std_logic_vector( 7 downto 0);
@@ -78,8 +78,8 @@ entity top is
     i_gty_refclk1_n         : in  std_logic_vector( 7 downto 0);
     i_gty_rx_p              : in  std_logic_vector(31 downto 0);
     i_gty_rx_n              : in  std_logic_vector(31 downto 0);
---    o_gty_tx_p              : out std_logic_vector(31 downto 0);
---    o_gty_tx_n              : out std_logic_vector(31 downto 0);
+    o_gty_tx_p              : out std_logic_vector(31 downto 0);
+    o_gty_tx_n              : out std_logic_vector(31 downto 0);
 
     -- Spare MCU connections.
     io_mcu_se               : inout std_logic_vector(3 downto 0);
@@ -118,6 +118,8 @@ end entity top;
 architecture structure of top is
 
     -- Clocks.
+    signal clk_100          : std_logic;
+    signal clk_100_bufg     : std_logic;
     signal clk_lhc_in       : std_logic;
     signal clk_legacy_ttc   : std_logic;
     signal clk_sma_direct   : std_logic;
@@ -151,6 +153,8 @@ architecture structure of top is
     signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
 
 
+    signal gty_refclk0 : std_logic_vector(7 downto 0);
+    signal gty_odiv2_0 : std_logic_vector(7 downto 0);
 
     signal C2CLink_aurora_do_cc                : std_logic;
     signal C2CLink_axi_c2c_config_error_out    : std_logic;
@@ -175,6 +179,10 @@ architecture structure of top is
     signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
     signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
 
+    -- Auxiliary.
+    signal std_logic_0 : std_logic;
+    signal std_logic_1 : std_logic;
+
     -- Counters.
     signal rst_cnt_50  : std_logic;
     signal cnt_clk_50  : std_logic_vector(31 downto 0);
@@ -192,31 +200,42 @@ architecture structure of top is
 begin  -- architecture structure
 
     -- Clocking.
-    IBUFDS_clk_lhc: entity work.IBUFDS
+    IBUFGDS_clk_lhc : entity work.IBUFGDS
+    port map (
+        I   => i_clk_100_p,
+        IB  => i_clk_100_n,
+        O   => clk_100
+    );
+    BUFG_clk_100 : entity work.BUFG
+    port map (
+        I => clk_100,
+        O => clk_100_bufg
+    );
+    IBUFDS_clk_lhc : entity work.IBUFDS
     port map (
         I   => i_clk_lhc_p,
         IB  => i_clk_lhc_n,
         O   => clk_lhc_in
     );
-    IBUFDS_clk_legacy_ttc: entity work.IBUFDS
+    IBUFDS_clk_legacy_ttc : entity work.IBUFDS
     port map (
         I   => i_clk_legacy_ttc_p,
         IB  => i_clk_legacy_ttc_n,
         O   => clk_legacy_ttc
     );
-    IBUFDS_clk_sma_direct: entity work.IBUFDS
+    IBUFDS_clk_sma_direct : entity work.IBUFDS
     port map (
         I   => i_clk_sma_direct_p,
         IB  => i_clk_sma_direct_n,
         O   => clk_sma_direct
     );
-    IBUFDS_clk_sma_jc: entity work.IBUFDS
+    IBUFDS_clk_sma_jc : entity work.IBUFDS
     port map (
         I   => i_clk_sma_jc_p,
         IB  => i_clk_sma_jc_n,
         O   => clk_sma_jc
     );
-    OBUFDS_clk_lhc: entity work.OBUFDS
+    OBUFDS_clk_lhc : entity work.OBUFDS
     port map (
         I   => clk_lhc_out,
         O   => o_clk_lhc_p,
@@ -224,27 +243,70 @@ begin  -- architecture structure
     );
     clk_lhc_out <= '0';
 
-    IBUFDS_data_legacy_ttc: entity work.IBUFDS
+    IBUFDS_data_legacy_ttc : entity work.IBUFDS
     port map (
         I   => i_data_legacy_ttc_p,
         IB  => i_data_legacy_ttc_n,
         O   => data_legacy_ttc
     );
 
-    Local_Clocking_1: entity work.Local_Clocking
+    Local_Clocking_1 : entity work.Local_Clocking
     port map (
+        -- Clock out ports.
         clk_200   => clk_200,
         clk_50    => clk_50,
         clk_axi   => AXI_CLK,
+        -- Status and control signals.
         reset     => '0',
         locked    => locked_clk200,
-        clk_in1_p => i_clk_100_p,
-        clk_in1_n => i_clk_100_n
+        -- Clock in ports.
+        clk_in1   => clk_100_bufg
+    );
+
+    std_logic_0 <= '0';
+    std_logic_1 <= '1';
+    
+    IBUFDS_GTE4_ibert_gty_felix : entity work.IBUFDS_GTE4
+    port map (
+        O            => gty_refclk0(7),
+        ODIV2        => gty_odiv2_0(7),
+        CEB          => std_logic_0,
+        I            => i_gty_refclk0_p(7),
+        IB           => i_gty_refclk0_n(7)
+    
+    );
+    
+    ibert_gty_felix_1 : entity work.ibert_gty_felix
+    port map (
+        txn_o => o_gty_tx_n(31 downto 20),
+        txp_o => o_gty_tx_p(31 downto 20),
+        rxn_i => i_gty_rx_n(31 downto 20),
+        rxp_i => i_gty_rx_p(31 downto 20),
+        gtrefclk0_i => gty_refclk0(7 downto 5),
+        gtrefclk1_i => "000",
+        gtnorthrefclk0_i => "000",
+        gtnorthrefclk1_i => "000",
+        gtsouthrefclk0_i => "000",
+        gtsouthrefclk1_i => "000",
+        gtrefclk00_i => gty_refclk0(7 downto 5),
+        gtrefclk10_i => "000",
+        gtrefclk01_i => "000",
+        gtrefclk11_i => "000",
+        gtnorthrefclk00_i => "000",
+        gtnorthrefclk10_i => "000",
+        gtnorthrefclk01_i => "000",
+        gtnorthrefclk11_i => "000",
+        gtsouthrefclk00_i => "000",
+        gtsouthrefclk10_i => "000",
+        gtsouthrefclk01_i => "000",
+        gtsouthrefclk11_i => "000",
+        clk => clk_100_bufg
     );
 
 
 
-    c2csslave_wrapper_1: entity work.c2cslave_wrapper
+
+    c2csslave_wrapper_1 : entity work.c2cslave_wrapper
     port map (
       AXI_CLK                           => AXI_CLK,
       AXI_RST_N(0)                      => AXI_RST_N,
@@ -364,7 +426,7 @@ begin  -- architecture structure
       K_C2C_phy_soft_err                => C2CLink_phy_soft_err
 );
 
-  RGB_pwm_1: entity work.RGB_pwm
+  RGB_pwm_1 : entity work.RGB_pwm
     generic map (
       CLKFREQ => 200000000,
       RGBFREQ => 1000)
@@ -377,7 +439,7 @@ begin  -- architecture structure
       LEDgreen   => open,
       LEDblue    => open);
 
-  K_IO_interface_1: entity work.K_IO_interface
+  K_IO_interface_1 : entity work.K_IO_interface
     port map (
       clk_axi                 => AXI_CLK,
       reset_axi_n             => AXI_RST_N,
@@ -405,7 +467,7 @@ begin  -- architecture structure
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
-  CM_K_info_1: entity work.CM_K_info
+  CM_K_info_1 : entity work.CM_K_info
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
@@ -416,7 +478,7 @@ begin  -- architecture structure
 
 
   AXI_RESET <= not AXI_RST_N;
-  AXI_BRAM_1: entity work.AXI_BRAM
+  AXI_BRAM_1 : entity work.AXI_BRAM
     port map (
       s_axi_aclk    => AXI_CLK,
       s_axi_aresetn => AXI_RST_N,
@@ -464,7 +526,7 @@ begin  -- architecture structure
       bram_rddata_a         => AXI_BRAM_DATA_OUT);
 
 
-  asym_ram_tdp_1: entity work.asym_ram_tdp
+  asym_ram_tdp_1 : entity work.asym_ram_tdp
     generic map (
       WIDTHA     => 32,
       SIZEA      => 4096,
@@ -525,7 +587,7 @@ begin  -- architecture structure
     end process;
 
     -- AXI interface for user LEDs and multiplexer.
-    User_LEDs_1: entity work.User_LEDs
+    User_LEDs_1 : entity work.User_LEDs
     port map (
         s_axi_aclk          => AXI_CLK,
         s_axi_aresetn       => AXI_RST_N,
