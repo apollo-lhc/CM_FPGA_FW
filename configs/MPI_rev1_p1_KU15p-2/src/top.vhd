@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 24 Mar 2021
+-- Rev.: 25 Mar 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -30,6 +30,9 @@ port (
     -- 100 MHz system clock from crystal oscillator.
     i_clk_100_p             : in  std_logic;
     i_clk_100_n             : in  std_logic;
+    -- Clock from clock generator IC54 (Si5341A).
+    i_clk_gen_p             : in  std_logic;
+    i_clk_gen_n             : in  std_logic;
     -- LHC clock from jitter cleaner IC56 (Si5345A).
     i_clk_lhc_p             : in  std_logic;
     i_clk_lhc_n             : in  std_logic;
@@ -121,13 +124,14 @@ architecture structure of top is
 
     -- Clocking module.
     signal clk_100          : std_logic;
+    signal clk_gen          : std_logic;
     signal clk_lhc_in       : std_logic;
     signal clk_legacy_ttc   : std_logic;
     signal clk_sma_direct   : std_logic;
     signal clk_sma_jc       : std_logic;
     signal clk_lhc_out      : std_logic;
-    signal clk_200          : std_logic;
     signal clk_50           : std_logic;
+    signal clk_200          : std_logic;
     signal clk_axi          : std_logic;
     signal clocking_reset   : std_logic;
     signal clocking_locked  : std_logic;
@@ -171,24 +175,38 @@ architecture structure of top is
     signal C2CLink_phy_soft_err                : std_logic;
 
 
-    signal BRAM_write : std_logic;
-    signal BRAM_addr  : std_logic_vector(9 downto 0);
-    signal BRAM_WR_data : std_logic_vector(31 downto 0);
-    signal BRAM_RD_data : std_logic_vector(31 downto 0);
+    signal BRAM_write           : std_logic;
+    signal BRAM_addr            : std_logic_vector(9 downto 0);
+    signal BRAM_WR_data         : std_logic_vector(31 downto 0);
+    signal BRAM_RD_data         : std_logic_vector(31 downto 0);
 
-    signal AXI_BRAM_EN : std_logic;
-    signal AXI_BRAM_we : std_logic_vector(3 downto 0);
-    signal AXI_BRAM_addr :std_logic_vector(11 downto 0);
-    signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
-    signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
+    signal AXI_BRAM_EN          : std_logic;
+    signal AXI_BRAM_we          : std_logic_vector(3 downto 0);
+    signal AXI_BRAM_addr        : std_logic_vector(11 downto 0);
+    signal AXI_BRAM_DATA_IN     : std_logic_vector(31 downto 0);
+    signal AXI_BRAM_DATA_OUT    : std_logic_vector(31 downto 0);
 
     -- Counters.
-    signal rst_cnt_50  : std_logic;
-    signal cnt_clk_50  : std_logic_vector(31 downto 0);
-    signal rst_cnt_200 : std_logic;
-    signal cnt_clk_200 : std_logic_vector(31 downto 0);
-    signal rst_cnt_axi : std_logic;
-    signal cnt_clk_axi : std_logic_vector(31 downto 0);
+    signal rst_cnt_100          : std_logic;
+    signal cnt_clk_100          : std_logic_vector(31 downto 0);
+    signal rst_cnt_gen          : std_logic;
+    signal cnt_clk_gen          : std_logic_vector(31 downto 0);
+    signal rst_cnt_lhc_in       : std_logic;
+    signal cnt_clk_lhc_in       : std_logic_vector(31 downto 0);
+    signal rst_cnt_legacy_ttc   : std_logic;
+    signal cnt_clk_legacy_ttc   : std_logic_vector(31 downto 0);
+    signal rst_cnt_sma_direct   : std_logic;
+    signal cnt_clk_sma_direct   : std_logic_vector(31 downto 0);
+    signal rst_cnt_sma_jc       : std_logic;
+    signal cnt_clk_sma_jc       : std_logic_vector(31 downto 0);
+    signal rst_cnt_lhc_out      : std_logic;
+    signal cnt_clk_lhc_out      : std_logic_vector(31 downto 0);
+    signal rst_cnt_50           : std_logic;
+    signal cnt_clk_50           : std_logic_vector(31 downto 0);
+    signal rst_cnt_200          : std_logic;
+    signal cnt_clk_200          : std_logic_vector(31 downto 0);
+    signal rst_cnt_axi          : std_logic;
+    signal cnt_clk_axi          : std_logic_vector(31 downto 0);
 
     -- User LEDs and multiplexer.
     signal user_led_axi : std_logic_vector(31 downto 0);
@@ -206,6 +224,10 @@ begin  -- Architecture structure.
         i_clk_100_p             => i_clk_100_p,
         i_clk_100_n             => i_clk_100_n,
         o_clk_100               => clk_100,
+        -- Clock from clock generator IC54 (Si5341A).
+        i_clk_gen_p             => i_clk_gen_p,
+        i_clk_gen_n             => i_clk_gen_n,
+        o_clk_gen               => clk_gen,
         -- LHC clock from jitter cleaner IC56 (Si5345A).
         i_clk_lhc_p             => i_clk_lhc_p,
         i_clk_lhc_n             => i_clk_lhc_n,
@@ -234,7 +256,7 @@ begin  -- Architecture structure.
         o_clk_200               => clk_200,
         o_clk_axi               => clk_axi
     );
-    clk_lhc_out <= '0';
+--    clk_lhc_out <= '0';
     AXI_CLK <= clk_axi;
 
     -- Custom IBERT module.
@@ -264,7 +286,10 @@ begin  -- Architecture structure.
         i_gty_rx_p              => i_gty_rx_p,
         i_gty_rx_n              => i_gty_rx_n,
         o_gty_tx_p              => o_gty_tx_p,
-        o_gty_tx_n              => o_gty_tx_n
+        o_gty_tx_n              => o_gty_tx_n,
+
+        -- Recovered LHC clock.
+        o_clk_lhc_rec           => clk_lhc_out
     );
 
 
@@ -518,6 +543,76 @@ begin  -- Architecture structure.
     -- Test and debug features.
     -- ==============================================================
 
+    -- Counter running with 100 MHz clock.
+    rst_cnt_100 <= '0';
+    proc_cnt_clk_100 : process (clk_100, rst_cnt_100) begin
+        if (rst_cnt_100 = '1') then
+            cnt_clk_100 <= (others => '0');
+        elsif (clk_100'event and clk_100 = '1') then
+            cnt_clk_100 <= std_logic_vector(unsigned(cnt_clk_100) + 1);
+        end if;
+    end process;
+
+    -- Counter running with clock from clock generator IC54 (Si5341A).
+    rst_cnt_gen <= '0';
+    proc_cnt_clk_gen : process (clk_gen, rst_cnt_gen) begin
+        if (rst_cnt_gen = '1') then
+            cnt_clk_gen <= (others => '0');
+        elsif (clk_gen'event and clk_gen = '1') then
+            cnt_clk_gen <= std_logic_vector(unsigned(cnt_clk_gen) + 1);
+        end if;
+    end process;
+
+    -- Counter running with LHC clock from jitter cleaner IC56 (Si5345A).
+    rst_cnt_lhc_in <= '0';
+    proc_cnt_clk_lhc_in : process (clk_lhc_in, rst_cnt_lhc_in) begin
+        if (rst_cnt_lhc_in = '1') then
+            cnt_clk_lhc_in <= (others => '0');
+        elsif (clk_lhc_in'event and clk_lhc_in = '1') then
+            cnt_clk_lhc_in <= std_logic_vector(unsigned(cnt_clk_lhc_in) + 1);
+        end if;
+    end process;
+
+    -- Counter running with recovered LHC clock from clock and data recovery chip IC46 (ADN2814ACPZ).
+    rst_cnt_legacy_ttc <= '0';
+    proc_cnt_clk_legacy_ttc : process (clk_legacy_ttc, rst_cnt_legacy_ttc) begin
+        if (rst_cnt_legacy_ttc = '1') then
+            cnt_clk_legacy_ttc <= (others => '0');
+        elsif (clk_legacy_ttc'event and clk_legacy_ttc = '1') then
+            cnt_clk_legacy_ttc <= std_logic_vector(unsigned(cnt_clk_legacy_ttc) + 1);
+        end if;
+    end process;
+
+    -- Counter running with clock from SMA connectors X76 and X78, directly connected.
+    rst_cnt_sma_direct <= '0';
+    proc_cnt_clk_sma_direct : process (clk_sma_direct, rst_cnt_sma_direct) begin
+        if (rst_cnt_sma_direct = '1') then
+            cnt_clk_sma_direct <= (others => '0');
+        elsif (clk_sma_direct'event and clk_sma_direct = '1') then
+            cnt_clk_sma_direct <= std_logic_vector(unsigned(cnt_clk_sma_direct) + 1);
+        end if;
+    end process;
+
+    -- Counter running with clock from SMA connectors X68 and X69, fed through jitter cleaner IC65.
+    rst_cnt_sma_jc <= '0';
+    proc_cnt_clk_sma_jc : process (clk_sma_jc, rst_cnt_sma_jc) begin
+        if (rst_cnt_sma_jc = '1') then
+            cnt_clk_sma_jc <= (others => '0');
+        elsif (clk_sma_jc'event and clk_sma_jc = '1') then
+            cnt_clk_sma_jc <= std_logic_vector(unsigned(cnt_clk_sma_jc) + 1);
+        end if;
+    end process;
+
+    -- Counter running with recovered LHC clock from MGT.
+    rst_cnt_lhc_out <= '0';
+    proc_cnt_clk_lhc_out : process (clk_lhc_out, rst_cnt_lhc_out) begin
+        if (rst_cnt_lhc_out = '1') then
+            cnt_clk_lhc_out <= (others => '0');
+        elsif (clk_lhc_out'event and clk_lhc_out = '1') then
+            cnt_clk_lhc_out <= std_logic_vector(unsigned(cnt_clk_lhc_out) + 1);
+        end if;
+    end process;
+
     -- Counter running with 50 MHz clock.
     rst_cnt_50 <= '0';
     proc_cnt_clk_50 : process (clk_50, rst_cnt_50) begin
@@ -574,22 +669,40 @@ begin  -- Architecture structure.
     );
 
     -- Multiplexer for the 8 physical user LEDs on the board.
-    proc_user_led_mux : process (user_led_axi, cnt_clk_50, cnt_clk_200, cnt_clk_axi)
-        variable v_user_led_mux_sel : std_logic_vector(3 downto 0);
+    proc_user_led_mux : process (user_led_axi, cnt_clk_100, cnt_clk_gen, cnt_clk_lhc_in, cnt_clk_legacy_ttc,
+                                 cnt_clk_sma_direct, cnt_clk_sma_jc, cnt_clk_50, cnt_clk_200, cnt_clk_axi)
+        variable v_user_led_mux_sel : std_logic_vector(7 downto 0);
         variable v_user_led_val : std_logic_vector(o_led'range);
     begin
         v_user_led_mux_sel := user_led_axi(o_led'high + v_user_led_mux_sel'high + 1 downto o_led'high + v_user_led_mux_sel'low + 1);
         v_user_led_val := user_led_axi(o_led'range);
         case v_user_led_mux_sel is
-            when "0000" => user_led <= cnt_clk_50(26 downto 19);
-            when "0001" => user_led <= cnt_clk_200(26 downto 19);
-            when "0010" => user_led <= cnt_clk_axi(26 downto 19);
+            when X"00" => user_led <= cnt_clk_100(26 downto 19);
+            when X"01" => user_led <= cnt_clk_gen(26 downto 19);
+            when X"02" => user_led <= cnt_clk_lhc_in(26 downto 19);
+            when X"03" => user_led <= cnt_clk_legacy_ttc(26 downto 19);
+            when X"04" => user_led <= cnt_clk_sma_direct(26 downto 19);
+            when X"05" => user_led <= cnt_clk_sma_jc(26 downto 19);
+            when X"06" => user_led <= cnt_clk_lhc_out(26 downto 19);
+            when X"07" => user_led <= cnt_clk_50(26 downto 19);
+            when X"08" => user_led <= cnt_clk_200(26 downto 19);
+            when X"09" => user_led <= cnt_clk_axi(26 downto 19);
             when others => user_led <= v_user_led_val;
         end case;
     end process;
 
     -- Assign user LED to output port.
     o_led <= user_led;
+
+    -- Assign signals to the KU15P debug header X39.
+    io_dbg_se <= (
+        0 => clk_100,
+        1 => clk_gen,
+        2 => clk_lhc_in,
+        3 => clk_legacy_ttc,
+        4 => clk_lhc_out,
+        5 => clocking_locked
+    );
 
 end architecture structure;
 

@@ -2,9 +2,9 @@
 # Auth: Dan Gastler, Boston University Physics
 # Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 # Date: 18 Dec 2020
-# Rev.: 23 Mar 2021
+# Rev.: 25 Mar 2021
 #
-# KU15P constraint file for the MPI Command Module (CM) demonstrator.
+# KU15P pin constraint file for the MPI Command Module (CM) demonstrator.
 #
 # Port prefixes:
 # i_    Input port.
@@ -42,6 +42,12 @@ set_property IOSTANDARD LVDS [ get_ports i_clk_100_* ];
 set_property DIFF_TERM_ADV TERM_100 [ get_ports i_clk_100_* ];
 set_property PACKAGE_PIN  AY16  [ get_ports { i_clk_100_p } ];          # KUP_100MHZ_AC_P
 set_property PACKAGE_PIN  AY15  [ get_ports { i_clk_100_n } ];          # KUP_100MHZ_AC_N
+
+# Clock from clock generator IC54 (SI5341A).
+set_property IOSTANDARD LVDS [ get_ports i_clk_gen_* ];
+set_property DIFF_TERM_ADV TERM_100 [ get_ports i_clk_gen_* ];
+set_property PACKAGE_PIN  AP29  [ get_ports { i_clk_gen_p } ];          # KUP_CLK_GEN_AC_P
+set_property PACKAGE_PIN  AP30  [ get_ports { i_clk_gen_n } ];          # KUP_CLK_GEN_AC_N
 
 # LHC clock from jitter cleaner IC56 (Si5345A).
 set_property IOSTANDARD LVDS [ get_ports i_clk_lhc_* ];

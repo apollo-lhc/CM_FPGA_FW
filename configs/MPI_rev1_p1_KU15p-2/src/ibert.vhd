@@ -2,7 +2,7 @@
 -- Auth: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 24 Mar 2021
--- Rev.: 24 Mar 2021
+-- Rev.: 25 Mar 2021
 --
 -- Xilinx IBERT modules used in the KU15P of the MPI Command Module (CM)
 -- demonstrator.
@@ -16,10 +16,10 @@ use ieee.numeric_std.all;
 
 use ieee.std_logic_misc.all;
 
-
-
 library UNISIM;
 use UNISIM.vcomponents.all;
+
+
 
 entity ibert is
 port (
@@ -50,7 +50,10 @@ port (
     i_gty_rx_p              : in  std_logic_vector(31 downto 0);
     i_gty_rx_n              : in  std_logic_vector(31 downto 0);
     o_gty_tx_p              : out std_logic_vector(31 downto 0);
-    o_gty_tx_n              : out std_logic_vector(31 downto 0)
+    o_gty_tx_n              : out std_logic_vector(31 downto 0);
+
+    -- Recovered LHC clock.
+    o_clk_lhc_rec           : out std_logic
 );
 end entity ibert;
 
@@ -76,13 +79,18 @@ architecture structure of ibert is
     signal IBUFDS_GTE4_gty_refclk0_CEB  : std_logic_vector(i_gty_refclk0_p'range);
     signal IBUFDS_GTE4_gty_refclk1_CEB  : std_logic_vector(i_gty_refclk1_p'range);
 
+    -- Transceiver RX and TX clocks.
+    signal ibert_gty_felix_rxoutclock   : std_logic_vector(11 downto 0);
+    signal ibert_gty_felix_txoutclock   : std_logic_vector(11 downto 0);
+
+
 
 begin  -- Architecture structure.
 
     -- Reference clock buffers.
     -- GTH.
     gen_IBUFDS_GTE4_gth_refclk0 : for i in i_gth_refclk0_p'range generate
-        IBUFDS_GTE4_gth_refclk0 : entity work.IBUFDS_GTE4
+        IBUFDS_GTE4_gth_refclk0 : IBUFDS_GTE4
         port map (
             O       => gth_refclk0(i),
             ODIV2   => gth_odiv2_0(i),
@@ -94,7 +102,7 @@ begin  -- Architecture structure.
     end generate gen_IBUFDS_GTE4_gth_refclk0;
 
     gen_IBUFDS_GTE4_gth_refclk1 : for i in i_gth_refclk1_p'range generate
-        IBUFDS_GTE4_gth_refclk1 : entity work.IBUFDS_GTE4
+        IBUFDS_GTE4_gth_refclk1 : IBUFDS_GTE4
         port map (
             O       => gth_refclk1(i),
             ODIV2   => gth_odiv2_1(i),
@@ -107,7 +115,7 @@ begin  -- Architecture structure.
 
     -- GTY.
     gen_IBUFDS_GTE4_gty_refclk0 : for i in i_gty_refclk0_p'range generate
-        IBUFDS_GTE4_gty_refclk0 : entity work.IBUFDS_GTE4
+        IBUFDS_GTE4_gty_refclk0 : IBUFDS_GTE4
         port map (
             O       => gty_refclk0(i),
             ODIV2   => gty_odiv2_0(i),
@@ -119,11 +127,12 @@ begin  -- Architecture structure.
     end generate gen_IBUFDS_GTE4_gty_refclk0;
 
     gen_IBUFDS_GTE4_gty_refclk1 : for i in i_gty_refclk1_p'range generate
-        IBUFDS_GTE4_gty_refclk1 : entity work.IBUFDS_GTE4
+        IBUFDS_GTE4_gty_refclk1 : IBUFDS_GTE4
         port map (
             O       => gty_refclk1(i),
             ODIV2   => gty_odiv2_1(i),
-            CEB     => IBUFDS_GTE4_gty_refclk1_CEB(i),
+            --CEB     => IBUFDS_GTE4_gty_refclk1_CEB(i),
+            CEB     => '0',
             I       => i_gty_refclk1_p(i),
             IB      => i_gty_refclk1_n(i)
         );
@@ -139,6 +148,8 @@ begin  -- Architecture structure.
     port map (
         txn_o               => o_gty_tx_n(31 downto 20),
         txp_o               => o_gty_tx_p(31 downto 20),
+        rxoutclk_o          => ibert_gty_felix_rxoutclock,
+        txoutclk_o          => ibert_gty_felix_txoutclock,
         rxn_i               => i_gty_rx_n(31 downto 20),
         rxp_i               => i_gty_rx_p(31 downto 20),
         gtrefclk0_i         => gty_refclk0(7 downto 5),
@@ -161,6 +172,9 @@ begin  -- Architecture structure.
         gtsouthrefclk11_i   => "000",
         clk                 => i_clk_100
     );
+
+    -- Use the last GTY from the FELIX IBERT module as recovered LHC clock source.
+    o_clk_lhc_rec <= ibert_gty_felix_rxoutclock(11);
 
 end architecture structure;
 
