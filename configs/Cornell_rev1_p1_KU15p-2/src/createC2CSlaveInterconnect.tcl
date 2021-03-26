@@ -81,7 +81,7 @@ endgroup
 
 #create chip-2-chip aurora 
 startgroup
-create_bd_cell -type ip -vlnv xilinx.com:ip:aurora_64b66b:11.2 ${C2C_PHY}
+create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == aurora_64b66b}] ${C2C_PHY}
 set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]
 #set_property CONFIG.CHANNEL_ENABLE       {X0Y0}       [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_AURORA_LANES       {1}	      [get_bd_cells ${C2C_PHY}]
