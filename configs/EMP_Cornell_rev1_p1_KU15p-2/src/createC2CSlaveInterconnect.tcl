@@ -1,5 +1,5 @@
 source ${apollo_root_path}/bd/axi_helpers.tcl
-source ${apollo_root_path}/bd/Xilinx_AXI_slaves_USP.tcl
+source ${apollo_root_path}/bd/Xilinx_AXI_slaves.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -8,10 +8,11 @@ create_bd_design -dir ./ ${bd_design_name}
 
 set EXT_CLK clk50Mhz
 set EXT_RESET reset_n
+set EXT_CLK_FREQ 50000000
 
 set AXI_MASTER_CLK AXI_CLK
 set AXI_MASTER_RSTN AXI_RST_N
-set AXI_MASTER_CLK_MHZ 50
+set AXI_MASTER_CLK_FREQ 50000000
 
 set AXI_INTERCONNECT_NAME slave_interconnect
 
@@ -21,7 +22,7 @@ set AXI_INTERCONNECT_NAME slave_interconnect
 #  Setup external clock and reset
 #================================================================================
 create_bd_port -dir I -type clk $EXT_CLK
-set_property CONFIG.FREQ_HZ 50000000 [get_bd_ports ${EXT_CLK}]
+set_property CONFIG.FREQ_HZ ${EXT_CLK_FREQ} [get_bd_ports ${EXT_CLK}]
 create_bd_port -dir I -type rst $EXT_RESET
 
 
@@ -33,11 +34,12 @@ puts "Building AXI C2C slave interconnect"
 
 #create AXI clock & reset ports
 create_bd_port -dir I -type clk $AXI_MASTER_CLK
+set_property CONFIG.FREQ_HZ ${AXI_MASTER_CLK_FREQ} [get_bd_ports ${AXI_MASTER_CLK}]
 create_bd_port -dir O -type rst $AXI_MASTER_RSTN
 
 #create the reset logic
 set SYS_RESETER sys_reseter
-create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == proc_sys_reset }] $SYS_RESETER
+create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 $SYS_RESETER
 #connect external reset
 connect_bd_net [get_bd_ports $EXT_RESET] [get_bd_pins $SYS_RESETER/ext_reset_in]
 #connect clock
@@ -56,7 +58,7 @@ set C2C_PHY ${C2C}_PHY
 
 #Create chip-2-chip ip core
 startgroup
-create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == axi_chip2chip }] $C2C
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_chip2chip:5.0 $C2C
 set_property CONFIG.C_NUM_OF_IO {58.0}          [get_bd_cells ${C2C}]
 set_property CONFIG.C_INTERFACE_MODE {0}	[get_bd_cells ${C2C}]
 set_property CONFIG.C_MASTER_FPGA {0}		[get_bd_cells ${C2C}]
@@ -81,7 +83,7 @@ endgroup
 
 #create chip-2-chip aurora 
 startgroup
-create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == aurora_64b66b }] ${C2C_PHY}
+create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == aurora_64b66b}] ${C2C_PHY}
 set_property CONFIG.C_INIT_CLK.VALUE_SRC PROPAGATED   [get_bd_cells ${C2C_PHY}]
 #set_property CONFIG.CHANNEL_ENABLE       {X0Y0}       [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_AURORA_LANES       {1}	      [get_bd_cells ${C2C_PHY}]
@@ -135,7 +137,7 @@ endgroup
 #  Create JTAG AXI Master
 #================================================================================
 set JTAG_AXI_MASTER JTAG_AXI_Master
-[BUILD_JTAG_AXI_MASTER ${JTAG_AXI_MASTER} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN}]
+BUILD_JTAG_AXI_MASTER [dict create device_name ${JTAG_AXI_MASTER} axi_clk ${AXI_MASTER_CLK} axi_rstn ${AXI_MASTER_RSTN}]
 
 #================================================================================
 #  Connect C2C master port to interconnect slave port
@@ -152,7 +154,10 @@ set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}]
 #  Configure and add AXI slaves
 #================================================================================
 #source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
-source ${apollo_root_path}/configs/EMP_Cornell_rev1_p1_KU15p-2/autogen/AddSlaves_EMP_Cornell_rev1_p1_KU15p-2.tcl
+source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
+yaml_to_bd "${apollo_root_path}/configs/${build_name}/slaves.yaml"
+
+
 
 #========================================
 #  Finish up

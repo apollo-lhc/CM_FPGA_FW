@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.axiRegPkg.all;
+use work.axiRegPkg_d64.all;
 use work.types.all;
 
 Library UNISIM;

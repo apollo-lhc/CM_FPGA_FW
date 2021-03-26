@@ -10,7 +10,7 @@ use work.AXIRegWidthPkg.all;
 
 package AXIRegPkg is
 
-  constant AXI_ID_BIT_COUNT : integer := 6;
+  constant AXI_ID_BIT_COUNT : integer := 4;
 
 
   
