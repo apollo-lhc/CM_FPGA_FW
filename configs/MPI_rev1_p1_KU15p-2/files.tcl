@@ -33,6 +33,7 @@ set xdc_files "\
 set xci_files "\
     configs/MPI_rev1_p1_KU15p-2/cores/Local_Clocking/Local_Clocking.xci \
     configs/MPI_rev1_p1_KU15p-2/cores/User_LEDs/User_LEDs.xci \
+    configs/MPI_rev1_p1_KU15p-2/cores/ibert_gth_fe/ibert_gth_fe.xci \
     configs/MPI_rev1_p1_KU15p-2/cores/ibert_gty_felix/ibert_gty_felix.xci \
     cores/AXI_BRAM/AXI_BRAM.xci \
     "

@@ -2,7 +2,7 @@
 -- Auth: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 24 Mar 2021
--- Rev.: 25 Mar 2021
+-- Rev.: 26 Mar 2021
 --
 -- Xilinx IBERT modules used in the KU15P of the MPI Command Module (CM)
 -- demonstrator.
@@ -80,6 +80,8 @@ architecture structure of ibert is
     signal IBUFDS_GTE4_gty_refclk1_CEB  : std_logic_vector(i_gty_refclk1_p'range);
 
     -- Transceiver RX and TX clocks.
+    signal ibert_gth_fe_rxoutclock      : std_logic_vector(35 downto 0);
+    signal ibert_gth_fe_txoutclock      : std_logic_vector(35 downto 0);
     signal ibert_gty_felix_rxoutclock   : std_logic_vector(11 downto 0);
     signal ibert_gty_felix_txoutclock   : std_logic_vector(11 downto 0);
 
@@ -141,9 +143,41 @@ begin  -- Architecture structure.
 
 
 
+    -- IBERT for front-end (FE) links:
+    -- GTH quads on MGT banks 226.. 228 => CM FireFly 3.
+    -- GTH quads on MGT banks 229.. 231 => CM FireFly 4.
+    -- GTH quads on MGT banks 232.. 234 => CM FireFly 5.
+    ibert_gth_fe_1 : entity work.ibert_gth_fe
+    port map (
+        txn_o               => o_gth_tx_n(43 downto 8),
+        txp_o               => o_gth_tx_p(43 downto 8),
+        rxoutclk_o          => ibert_gth_fe_rxoutclock,
+        txoutclk_o          => ibert_gth_fe_txoutclock,
+        rxn_i               => i_gth_rx_n(43 downto 8),
+        rxp_i               => i_gth_rx_p(43 downto 8),
+        gtrefclk0_i         => gth_refclk0(10 downto 2),
+        gtrefclk1_i         => gth_refclk1(10 downto 2),
+        gtnorthrefclk0_i    => "000000000",
+        gtnorthrefclk1_i    => "000000000",
+        gtsouthrefclk0_i    => "000000000",
+        gtsouthrefclk1_i    => "000000000",
+        gtrefclk00_i        => gth_refclk0(10 downto 2),
+        gtrefclk10_i        => gth_refclk1(10 downto 2),
+        gtrefclk01_i        => gth_refclk0(10 downto 2),
+        gtrefclk11_i        => gth_refclk1(10 downto 2),
+        gtnorthrefclk00_i   => "000000000",
+        gtnorthrefclk10_i   => "000000000",
+        gtnorthrefclk01_i   => "000000000",
+        gtnorthrefclk11_i   => "000000000",
+        gtsouthrefclk00_i   => "000000000",
+        gtsouthrefclk10_i   => "000000000",
+        gtsouthrefclk01_i   => "000000000",
+        gtsouthrefclk11_i   => "000000000",
+        clk                 => i_clk_100
+    );
+
     -- IBERT for FELIX links:
-    -- - GTY quads on MGT banks 132..134.
-    -- - CM FireFly module 1.
+    -- GTY quads on MGT banks 132..134 => CM FireFly 1.
     ibert_gty_felix_1 : entity work.ibert_gty_felix
     port map (
         txn_o               => o_gty_tx_n(31 downto 20),
