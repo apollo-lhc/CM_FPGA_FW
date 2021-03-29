@@ -15,5 +15,7 @@ if { $argc == 2 } {
 puts "Using path: ${apollo_root_path}"
 puts "Building: ${build_name}"
 
+set BD_PATH ${apollo_root_path}/bd
+
 source ${apollo_root_path}/scripts/Setup.tcl
 source ${apollo_root_path}/scripts/Build.tcl
