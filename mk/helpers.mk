@@ -20,6 +20,7 @@ NOTIFY_DAN_GOOD:
 	${SLACK_MESG} "FINISHED building FW!"
 NOTIFY_DAN_BAD:
 	${SLACK_MESG} "FAILED to build FW!"
+	false
 
 #################################################################################
 # Help 
