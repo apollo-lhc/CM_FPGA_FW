@@ -5,6 +5,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 
 use work.axiRegPkg.all;
+use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
 
@@ -69,10 +70,10 @@ architecture structure of top is
   signal AXI_RST_N           : std_logic;
   signal AXI_RESET           : std_logic;
 
-  signal ext_AXI_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
-  signal ext_AXI_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
-  signal ext_AXI_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
-  signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
   
 
@@ -94,10 +95,10 @@ architecture structure of top is
   signal BRAM_RD_data : std_logic_vector(31 downto 0);
 
   signal AXI_BRAM_EN : std_logic;
-  signal AXI_BRAM_we : std_logic_vector(3 downto 0);
-  signal AXI_BRAM_addr :std_logic_vector(11 downto 0);
-  signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
-  signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
+  signal AXI_BRAM_we : std_logic_vector(7 downto 0);
+  signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
+  signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
+  signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
 
 
@@ -322,7 +323,7 @@ begin  -- architecture structure
 
   asym_ram_tdp_1: entity work.asym_ram_tdp
     generic map (
-      WIDTHA     => 32,
+      WIDTHA     => 64,
       SIZEA      => 4096,
       ADDRWIDTHA => 12,
       WIDTHB     => 32,
@@ -335,7 +336,7 @@ begin  -- architecture structure
       enB   => '1',
       weA   => or_reduce(AXI_BRAM_we),
       weB   => BRAM_WRITE,
-      addrA => AXI_BRAM_addr(11 downto 0),
+      addrA => AXI_BRAM_addr(12 downto 0),
       addrB(11 downto 2) => BRAM_ADDR,
       addrB( 1 downto 0) => "00",
       diA   => AXI_BRAM_DATA_IN,

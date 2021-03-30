@@ -1,19 +1,59 @@
+AXI_CONTROL_SETS:
+  AXI_MASTER_CTRL:
+      axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+      axi_clk: "${::AXI_MASTER_CLK}"
+      axi_rstn: "${::AXI_MASTER_RSTN}"
+      axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+
 AXI_SLAVES:
+  K_C2C_PHY:
+    TCL_CALL:
+      command: AXI_DEV_CONNECT 
+      axi_control:
+        axi_interconnect: ${::AXI_INTERCONNECT_NAME} 
+        axi_clk:          ${::EXT_CLK} 
+        axi_rstn:         ${::EXT_RESET} 
+        axi_freq:         ${::EXT_CLK_FREQ}
+      addr:
+        offset: "0xB3c44000"
+        range: 4K
+      remote_slave: 0
+    XML:
+      - "address_table/modules/DRP_USP_GTY.xml"
+    UHAL_BASE: 0x86000000
+
   KINTEX_SYS_MGMT:
-    TCL_CALL: "[AXI_IP_SYS_MGMT 0  KINTEX_SYS_MGMT         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c42000 4K 0]"
+    TCL_CALL: 
+      command: AXI_IP_SYS_MGMT
+      enable_i2c_pins: 0  
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83c42000"
+        range: 4K
+      remote_slave: 0
     XML:
       - "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
   K_IO:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT K_IO                 ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c40000 4K]"
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83c40000"
+        range: 4K
     XML:
       - "address_table/modules/K_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: "src/CM_IO"    
   
   CM_K_INFO:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT CM_K_INFO            ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x83c43000 4K]"
+    TCL_CALL:
+      command:  AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83c43000"
+        range:  4K
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
@@ -21,13 +61,14 @@ AXI_SLAVES:
                 
   
   KINTEX_IPBUS:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT KINTEX_IPBUS         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0x8a000000 32M AXI4]"
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      type: AXI4
+      addr:
+        offset: "0x8a000000"
+        range: 32M
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
   
-  K_C2C_PHY:
-    TCL_CALL: "[AXI_DEV_CONNECT K_C2C_PHY ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0xB3c44000 4K 0]"
-    XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0x86000000
