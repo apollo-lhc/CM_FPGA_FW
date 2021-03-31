@@ -4,6 +4,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 
 use work.axiRegPkg.all;
+use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.V_IO_Ctrl.all;
 
@@ -67,10 +68,10 @@ architecture structure of top is
   signal AXI_RST_N           : std_logic;
   signal AXI_RESET           : std_logic;
 
-  signal ext_AXI_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
-  signal ext_AXI_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
-  signal ext_AXI_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
-  signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
   
 
@@ -91,20 +92,20 @@ architecture structure of top is
   signal BRAM_WR_data : std_logic_vector(31 downto 0);
   signal BRAM_RD_data : std_logic_vector(31 downto 0);
 
-  signal AXI_BRAM_EN : std_logic;
-  signal AXI_BRAM_we : std_logic_vector(3 downto 0);
-  signal AXI_BRAM_addr :std_logic_vector(11 downto 0);
-  signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
-  signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
+--  signal AXI_BRAM_EN : std_logic;
+--  signal AXI_BRAM_we : std_logic_vector(3 downto 0);
+--  signal AXI_BRAM_addr :std_logic_vector(11 downto 0);
+--  signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
+--  signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
 
 
   signal bram_rst_a    : std_logic;
   signal bram_clk_a    : std_logic;
   signal bram_en_a     : std_logic;
-  signal bram_we_a     : std_logic_vector(3 downto 0);
-  signal bram_addr_a   : std_logic_vector(9 downto 0);
-  signal bram_wrdata_a : std_logic_vector(31 downto 0);
-  signal bram_rddata_a : std_logic_vector(31 downto 0);
+  signal bram_we_a     : std_logic_vector(7 downto 0);
+  signal bram_addr_a   : std_logic_vector(8 downto 0);
+  signal bram_wrdata_a : std_logic_vector(63 downto 0);
+  signal bram_rddata_a : std_logic_vector(63 downto 0);
 
 
   
@@ -285,27 +286,29 @@ begin  -- architecture structure
 
   axi_bram_controller_1: entity work.axi_bram_controller
     generic map (
+      USE_D64_PKG                   => 1,
       C_ADR_WIDTH                   => 32,
-      C_DATA_WIDTH                  => 32,
+      C_DATA_WIDTH                  => 64,
       C_FAMILY                      => "virtexuplus",
       C_MEMORY_DEPTH                => 4096,
       C_BRAM_ADDR_WIDTH             => 12,
       C_SINGLE_PORT_BRAM            => 1,
       C_S_AXI_ID_WIDTH              => 0,
-      C_S_AXI_PROTOCOL              => "AXI4")
+      C_S_AXI_PROTOCOL              => "AXI4",
+      C_S_AXI_DATA_WIDTH            => 64)
     port map (
       s_axi_aclk    => AXI_CLK,
       s_axi_aresetn => AXI_RST_N,
-      r_mosi        => ext_AXI_ReadMOSI,
-      r_miso        => ext_AXI_ReadMISO,
-      w_mosi        => ext_AXI_WriteMOSI,
-      w_miso        => ext_AXI_WriteMISO,
+      r_mosi_d64        => ext_AXI_ReadMOSI,
+      r_miso_d64        => ext_AXI_ReadMISO,
+      w_mosi_d64        => ext_AXI_WriteMOSI,
+      w_miso_d64        => ext_AXI_WriteMISO,
       bram_rst_a    => bram_rst_a,
       bram_clk_a    => bram_clk_a,
       bram_en_a     => bram_en_a,
       bram_we_a     => bram_we_a,
-      bram_addr_a(31 downto 12) => open,
-      bram_addr_a(11 downto  2) => bram_addr_a,
+      bram_addr_a(31 downto 11) => open,
+      bram_addr_a(10 downto  2) => bram_addr_a,
       bram_addr_a( 1 downto  0) => open,
       bram_wrdata_a => bram_wrdata_a,
       bram_rddata_a => bram_rddata_a);
@@ -315,20 +318,20 @@ begin  -- architecture structure
       WIDTHA     => 32,
       SIZEA      => 1024,
       ADDRWIDTHA => 10,
-      WIDTHB     => 32,
-      SIZEB      => 1024,
-      ADDRWIDTHB => 10)
+      WIDTHB     => 64,
+      SIZEB      => 512,
+      ADDRWIDTHB => 9)
     port map (
       clkA  => AXI_CLK,
       clkB  => AXI_CLK,
-      enA   => bram_en_a,
-      enB   => '1',
-      weA   => or_reduce(bram_we_a),
-      weB   => BRAM_WRITE,
-      addrA => bram_addr_a,
-      addrB => BRAM_ADDR,
-      diA   => bram_wrdata_a,
-      diB   => BRAM_WR_DATA,
-      doA   => bram_rddata_a,
-      doB   => open);
+      enA   => '1',
+      enB   => bram_en_a,
+      weA   => BRAM_WRITE,
+      weB   => or_reduce(bram_we_a),
+      addrA => BRAM_ADDR,
+      addrB => bram_addr_a,
+      diA   => BRAM_WR_DATA,
+      diB   => bram_wrdata_a,
+      doA   => open,
+      doB   => bram_rddata_a);
 end architecture structure;

@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.axiRegPkg.all;
+use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
 
@@ -68,10 +69,10 @@ architecture structure of top is
   signal AXI_RST_N           : std_logic;
   signal AXI_RESET           : std_logic;
 
-  signal ext_AXI_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
-  signal ext_AXI_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
-  signal ext_AXI_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
-  signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
   
 
@@ -88,15 +89,15 @@ architecture structure of top is
 
 
   signal BRAM_write : std_logic;
-  signal BRAM_addr  : std_logic_vector(9 downto 0);
+  signal BRAM_addr  : std_logic_vector(10 downto 0);
   signal BRAM_WR_data : std_logic_vector(31 downto 0);
   signal BRAM_RD_data : std_logic_vector(31 downto 0);
 
   signal AXI_BRAM_EN : std_logic;
-  signal AXI_BRAM_we : std_logic_vector(3 downto 0);
-  signal AXI_BRAM_addr :std_logic_vector(11 downto 0);
-  signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
-  signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
+  signal AXI_BRAM_we : std_logic_vector(7 downto 0);
+  signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
+  signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
+  signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
 
 
@@ -261,8 +262,8 @@ begin  -- architecture structure
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
       Ctrl.BRAM.WRITE         => BRAM_WRITE,
-      Ctrl.BRAM.ADDR(9 downto 0) => BRAM_ADDR,
-      Ctrl.BRAM.ADDR(14 downto 10) => open,
+      Ctrl.BRAM.ADDR(10 downto 0) => BRAM_ADDR,
+      Ctrl.BRAM.ADDR(14 downto 11) => open,
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
@@ -281,7 +282,7 @@ begin  -- architecture structure
     port map (
       s_axi_aclk    => AXI_CLK,
       s_axi_aresetn => AXI_RST_N,
-      s_axi_araddr                 => ext_AXI_ReadMOSI.address(11 downto 0),              
+      s_axi_araddr                 => ext_AXI_ReadMOSI.address(12 downto 0),              
       s_axi_arburst                => ext_AXI_ReadMOSI.burst_type,
       s_axi_arcache                => ext_AXI_ReadMOSI.cache_type,
       s_axi_arlen                  => ext_AXI_ReadMOSI.burst_length,
@@ -292,7 +293,7 @@ begin  -- architecture structure
 --      s_axi_arregion               => ext_AXI_ReadMOSI.region,
       s_axi_arsize                 => ext_AXI_ReadMOSI.burst_size,
       s_axi_arvalid             => ext_AXI_ReadMOSI.address_valid,        
-      s_axi_awaddr                 => ext_AXI_WriteMOSI.address(11 downto 0),             
+      s_axi_awaddr                 => ext_AXI_WriteMOSI.address(12 downto 0),             
       s_axi_awburst                => ext_AXI_WriteMOSI.burst_type,
       s_axi_awcache                => ext_AXI_WriteMOSI.cache_type,
       s_axi_awlen                  => ext_AXI_WriteMOSI.burst_length,

@@ -4,13 +4,14 @@ use ieee.numeric_std.all;
 
 library work;
 use work.AXIRegPkg.all;
+use work.AXIRegPkg_d64.all;
 
 library axi_bram_ctrl_v4_1_2;
 use axi_bram_ctrl_v4_1_2.axi_bram_ctrl;
 
 entity axi_bram_controller is
   generic (
-
+    USE_D64_PKG  : integer := 0;
     C_ADR_WIDTH  : integer := 32;
     C_DATA_WIDTH : integer := 32;
 
@@ -61,10 +62,15 @@ entity axi_bram_controller is
     s_axi_aresetn : in std_logic;
 
     -- Block RAM AXI Ports
-    r_mosi : in  axireadmosi;
+    r_mosi : in  axireadmosi := defaultaxireadmosi;
     r_miso : out axireadmiso;
-    w_mosi : in  axiwritemosi;
+    w_mosi : in  axiwritemosi := defaultaxiwritemosi;
     w_miso : out axiwritemiso;
+    -- Block RAM AXI Ports d64
+    r_mosi_d64 : in  axireadmosi_d64 := defaultaxireadmosi_d64;
+    r_miso_d64 : out axireadmiso_d64;
+    w_mosi_d64 : in  axiwritemosi_d64 := defaultaxiwritemosi_d64;
+    w_miso_d64 : out axiwritemiso_d64;
 
     -- AXI Lite Port for ECC Control
     ecc_r_mosi : in  axireadmosi  := defaultaxireadmosi;
@@ -194,128 +200,261 @@ architecture axi_bram_controller_arch of axi_bram_controller is
 
 begin
 
-  U0 : entity work.axi_bram_ctrl
-    generic map (
-      C_BRAM_INST_MODE              => C_BRAM_INST_MODE,
-      C_MEMORY_DEPTH                => C_MEMORY_DEPTH,
-      C_BRAM_ADDR_WIDTH             => C_BRAM_ADDR_WIDTH,
-      C_S_AXI_ADDR_WIDTH            => C_S_AXI_ADDR_WIDTH,
-      C_S_AXI_DATA_WIDTH            => C_S_AXI_DATA_WIDTH,
-      C_S_AXI_ID_WIDTH              => C_S_AXI_ID_WIDTH,
-      C_S_AXI_PROTOCOL              => C_S_AXI_PROTOCOL,
-      C_S_AXI_SUPPORTS_NARROW_BURST => C_S_AXI_SUPPORTS_NARROW_BURST,
-      C_SINGLE_PORT_BRAM            => C_SINGLE_PORT_BRAM,
-      C_FAMILY                      => C_FAMILY,
-      C_READ_LATENCY                => C_READ_LATENCY,
-      C_RD_CMD_OPTIMIZATION         => C_RD_CMD_OPTIMIZATION,
-      C_S_AXI_CTRL_ADDR_WIDTH       => C_S_AXI_CTRL_ADDR_WIDTH,
-      C_S_AXI_CTRL_DATA_WIDTH       => C_S_AXI_CTRL_DATA_WIDTH,
-      C_ECC                         => C_ECC,
-      C_ECC_TYPE                    => C_ECC_TYPE,
-      C_FAULT_INJECT                => C_FAULT_INJECT,
-      C_ECC_ONOFF_RESET_VALUE       => C_ECC_ONOFF_RESET_VALUE
-      )
-    port map (
-      s_axi_aclk    => s_axi_aclk,
-      s_axi_aresetn => s_axi_aresetn,
-      ecc_interrupt => ecc_interrupt,
-      ecc_ue        => ecc_ue,
+  d32: if USE_D64_PKG = 0 generate
+    U0 : entity work.axi_bram_ctrl
+      generic map (
+        C_BRAM_INST_MODE              => C_BRAM_INST_MODE,
+        C_MEMORY_DEPTH                => C_MEMORY_DEPTH,
+        C_BRAM_ADDR_WIDTH             => C_BRAM_ADDR_WIDTH,
+        C_S_AXI_ADDR_WIDTH            => C_S_AXI_ADDR_WIDTH,
+        C_S_AXI_DATA_WIDTH            => C_S_AXI_DATA_WIDTH,
+        C_S_AXI_ID_WIDTH              => C_S_AXI_ID_WIDTH,
+        C_S_AXI_PROTOCOL              => C_S_AXI_PROTOCOL,
+        C_S_AXI_SUPPORTS_NARROW_BURST => C_S_AXI_SUPPORTS_NARROW_BURST,
+        C_SINGLE_PORT_BRAM            => C_SINGLE_PORT_BRAM,
+        C_FAMILY                      => C_FAMILY,
+        C_READ_LATENCY                => C_READ_LATENCY,
+        C_RD_CMD_OPTIMIZATION         => C_RD_CMD_OPTIMIZATION,
+        C_S_AXI_CTRL_ADDR_WIDTH       => C_S_AXI_CTRL_ADDR_WIDTH,
+        C_S_AXI_CTRL_DATA_WIDTH       => C_S_AXI_CTRL_DATA_WIDTH,
+        C_ECC                         => C_ECC,
+        C_ECC_TYPE                    => C_ECC_TYPE,
+        C_FAULT_INJECT                => C_FAULT_INJECT,
+        C_ECC_ONOFF_RESET_VALUE       => C_ECC_ONOFF_RESET_VALUE
+        )
+      port map (
+        s_axi_aclk    => s_axi_aclk,
+        s_axi_aresetn => s_axi_aresetn,
+        ecc_interrupt => ecc_interrupt,
+        ecc_ue        => ecc_ue,
+  
+        --------------------------------------------------------------------------------
+        -- Write
+        --------------------------------------------------------------------------------
+        -- axi write, mosi, address
+        s_axi_awaddr  => w_mosi.address,
+        s_axi_awprot  => w_mosi.protection_type,
+        s_axi_awvalid => w_mosi.address_valid,
+        s_axi_awlen   => w_mosi.burst_length,
+        s_axi_awsize  => w_mosi.burst_size,
+        s_axi_awburst => w_mosi.burst_type,
+        s_axi_awlock  => w_mosi.lock_type,
+        s_axi_awcache => w_mosi.cache_type,
+        s_axi_bready  => w_mosi.ready_for_response,
+  
+        -- axi write, mosi, data
+        s_axi_awid   => w_mosi.write_id,
+        s_axi_wdata  => w_mosi.data,
+        s_axi_wvalid => w_mosi.data_valid,
+        s_axi_wstrb  => w_mosi.data_write_strobe,
+        s_axi_wlast  => w_mosi.last,
+  
+        -- axi write, miso, address
+        s_axi_awready => w_miso.ready_for_address,
+        -- axi write, miso, data
+        s_axi_wready  => w_miso.ready_for_data,
+        -- axi write, miso, response
+        s_axi_bid     => w_miso.response_id,
+        s_axi_bresp   => w_miso.response,
+        s_axi_bvalid  => w_miso.response_valid,
+  
+        --------------------------------------------------------------------------------
+        -- Read
+        --------------------------------------------------------------------------------
+        -- axi read, mosi, address
+        s_axi_araddr  => r_mosi.address,
+        s_axi_arid    => r_mosi.address_id,
+        s_axi_arprot  => r_mosi.protection_type,
+        s_axi_arvalid => r_mosi.address_valid,
+        s_axi_arlen   => r_mosi.burst_length,
+        s_axi_arsize  => r_mosi.burst_size,
+        s_axi_arburst => r_mosi.burst_type,
+        s_axi_arlock  => r_mosi.lock_type,
+        s_axi_arcache => r_mosi.cache_type,
+  
+        s_axi_rready => r_mosi.ready_for_data,
+  
+        -- axi read, miso
+        s_axi_arready => r_miso.ready_for_address,
+        s_axi_rid     => r_miso.data_id,
+        s_axi_rdata   => r_miso.data,
+        s_axi_rvalid  => r_miso.data_valid,
+        s_axi_rresp   => r_miso.response,
+        s_axi_rlast   => r_miso.last,
+  
+        --------------------------------------------------------------------------------
+        -- AXI4-Lite Control Signals (Only Available when C_ecc = 1)
+        --------------------------------------------------------------------------------
+  
+        -- write
+        s_axi_ctrl_wdata   => ecc_w_mosi.data,
+        s_axi_ctrl_wvalid  => ecc_w_mosi.data_valid,
+        s_axi_ctrl_wready  => ecc_w_miso.ready_for_data,
+        s_axi_ctrl_bready  => ecc_w_mosi.ready_for_response,
+        s_axi_ctrl_awvalid => ecc_w_mosi.address_valid,
+        s_axi_ctrl_awready => ecc_w_miso.ready_for_address,
+        s_axi_ctrl_awaddr  => ecc_w_mosi.address,
+        s_axi_ctrl_bresp   => ecc_w_miso.response,
+        s_axi_ctrl_bvalid  => ecc_w_miso.response_valid,
+  
+        -- read
+        s_axi_ctrl_araddr  => ecc_r_mosi.address,
+        s_axi_ctrl_arvalid => ecc_r_mosi.address_valid,
+        s_axi_ctrl_rready  => ecc_r_mosi.ready_for_data,
+        s_axi_ctrl_arready => ecc_r_miso.ready_for_address,
+        s_axi_ctrl_rdata   => ecc_r_miso.data,
+        s_axi_ctrl_rvalid  => ecc_r_miso.data_valid,
+        s_axi_ctrl_rresp   => ecc_r_miso.response,
+  
+        -- bram a port
+        bram_rst_a    => bram_rst_a,
+        bram_clk_a    => bram_clk_a,
+        bram_en_a     => bram_en_a,
+        bram_we_a     => bram_we_a,
+        bram_addr_a   => bram_addr_a,
+        bram_wrdata_a => bram_wrdata_a,
+        bram_rddata_a => bram_rddata_a,
+  
+        -- bram b port
+        bram_rst_b    => bram_rst_b,
+        bram_clk_b    => bram_clk_b,
+        bram_en_b     => bram_en_b,
+        bram_we_b     => bram_we_b,
+        bram_addr_b   => bram_addr_b,
+        bram_wrdata_b => bram_wrdata_b,
+        bram_rddata_b => bram_rddata_b
+  
+        );
+  
+  end generate d32;
 
-      --------------------------------------------------------------------------------
-      -- Write
-      --------------------------------------------------------------------------------
-      -- axi write, mosi, address
-      s_axi_awaddr  => w_mosi.address,
-      s_axi_awprot  => w_mosi.protection_type,
-      s_axi_awvalid => w_mosi.address_valid,
-      s_axi_awlen   => w_mosi.burst_length,
-      s_axi_awsize  => w_mosi.burst_size,
-      s_axi_awburst => w_mosi.burst_type,
-      s_axi_awlock  => w_mosi.lock_type,
-      s_axi_awcache => w_mosi.cache_type,
-      s_axi_bready  => w_mosi.ready_for_response,
 
-      -- axi write, mosi, data
-      s_axi_awid   => w_mosi.write_id,
-      s_axi_wdata  => w_mosi.data,
-      s_axi_wvalid => w_mosi.data_valid,
-      s_axi_wstrb  => w_mosi.data_write_strobe,
-      s_axi_wlast  => w_mosi.last,
+  d64: if USE_D64_PKG = 1 generate
+    U0 : entity work.axi_bram_ctrl
+      generic map (
+        C_BRAM_INST_MODE              => C_BRAM_INST_MODE,
+        C_MEMORY_DEPTH                => C_MEMORY_DEPTH,
+        C_BRAM_ADDR_WIDTH             => C_BRAM_ADDR_WIDTH,
+        C_S_AXI_ADDR_WIDTH            => C_S_AXI_ADDR_WIDTH,
+        C_S_AXI_DATA_WIDTH            => C_S_AXI_DATA_WIDTH,
+        C_S_AXI_ID_WIDTH              => C_S_AXI_ID_WIDTH,
+        C_S_AXI_PROTOCOL              => C_S_AXI_PROTOCOL,
+        C_S_AXI_SUPPORTS_NARROW_BURST => C_S_AXI_SUPPORTS_NARROW_BURST,
+        C_SINGLE_PORT_BRAM            => C_SINGLE_PORT_BRAM,
+        C_FAMILY                      => C_FAMILY,
+        C_READ_LATENCY                => C_READ_LATENCY,
+        C_RD_CMD_OPTIMIZATION         => C_RD_CMD_OPTIMIZATION,
+        C_S_AXI_CTRL_ADDR_WIDTH       => C_S_AXI_CTRL_ADDR_WIDTH,
+        C_S_AXI_CTRL_DATA_WIDTH       => C_S_AXI_CTRL_DATA_WIDTH,
+        C_ECC                         => C_ECC,
+        C_ECC_TYPE                    => C_ECC_TYPE,
+        C_FAULT_INJECT                => C_FAULT_INJECT,
+        C_ECC_ONOFF_RESET_VALUE       => C_ECC_ONOFF_RESET_VALUE
+        )
+      port map (
+        s_axi_aclk    => s_axi_aclk,
+        s_axi_aresetn => s_axi_aresetn,
+        ecc_interrupt => ecc_interrupt,
+        ecc_ue        => ecc_ue,
+  
+        --------------------------------------------------------------------------------
+        -- Write
+        --------------------------------------------------------------------------------
+        -- axi write, mosi, address
+        s_axi_awaddr  => w_mosi_d64.address,
+        s_axi_awprot  => w_mosi_d64.protection_type,
+        s_axi_awvalid => w_mosi_d64.address_valid,
+        s_axi_awlen   => w_mosi_d64.burst_length,
+        s_axi_awsize  => w_mosi_d64.burst_size,
+        s_axi_awburst => w_mosi_d64.burst_type,
+        s_axi_awlock  => w_mosi_d64.lock_type,
+        s_axi_awcache => w_mosi_d64.cache_type,
+        s_axi_bready  => w_mosi_d64.ready_for_response,
+  
+        -- axi write, mosi, data
+        s_axi_awid   => w_mosi_d64.write_id,
+        s_axi_wdata  => w_mosi_d64.data,
+        s_axi_wvalid => w_mosi_d64.data_valid,
+        s_axi_wstrb  => w_mosi_d64.data_write_strobe,
+        s_axi_wlast  => w_mosi_d64.last,
+  
+        -- axi write, miso, address
+        s_axi_awready => w_miso_d64.ready_for_address,
+        -- axi write, miso, data
+        s_axi_wready  => w_miso_d64.ready_for_data,
+        -- axi write, miso, response
+        s_axi_bid     => w_miso_d64.response_id,
+        s_axi_bresp   => w_miso_d64.response,
+        s_axi_bvalid  => w_miso_d64.response_valid,
+  
+        --------------------------------------------------------------------------------
+        -- Read
+        --------------------------------------------------------------------------------
+        -- axi read, mosi, address
+        s_axi_araddr  => r_mosi_d64.address,
+        s_axi_arid    => r_mosi_d64.address_id,
+        s_axi_arprot  => r_mosi_d64.protection_type,
+        s_axi_arvalid => r_mosi_d64.address_valid,
+        s_axi_arlen   => r_mosi_d64.burst_length,
+        s_axi_arsize  => r_mosi_d64.burst_size,
+        s_axi_arburst => r_mosi_d64.burst_type,
+        s_axi_arlock  => r_mosi_d64.lock_type,
+        s_axi_arcache => r_mosi_d64.cache_type,
+  
+        s_axi_rready => r_mosi_d64.ready_for_data,
+  
+        -- axi read, miso
+        s_axi_arready => r_miso_d64.ready_for_address,
+        s_axi_rid     => r_miso_d64.data_id,
+        s_axi_rdata   => r_miso_d64.data,
+        s_axi_rvalid  => r_miso_d64.data_valid,
+        s_axi_rresp   => r_miso_d64.response,
+        s_axi_rlast   => r_miso_d64.last,
+  
+        --------------------------------------------------------------------------------
+        -- AXI4-Lite Control Signals (Only Available when C_ecc = 1)
+        --------------------------------------------------------------------------------
+  
+        -- write
+        s_axi_ctrl_wdata   => ecc_w_mosi.data,
+        s_axi_ctrl_wvalid  => ecc_w_mosi.data_valid,
+        s_axi_ctrl_wready  => ecc_w_miso.ready_for_data,
+        s_axi_ctrl_bready  => ecc_w_mosi.ready_for_response,
+        s_axi_ctrl_awvalid => ecc_w_mosi.address_valid,
+        s_axi_ctrl_awready => ecc_w_miso.ready_for_address,
+        s_axi_ctrl_awaddr  => ecc_w_mosi.address,
+        s_axi_ctrl_bresp   => ecc_w_miso.response,
+        s_axi_ctrl_bvalid  => ecc_w_miso.response_valid,
+  
+        -- read
+        s_axi_ctrl_araddr  => ecc_r_mosi.address,
+        s_axi_ctrl_arvalid => ecc_r_mosi.address_valid,
+        s_axi_ctrl_rready  => ecc_r_mosi.ready_for_data,
+        s_axi_ctrl_arready => ecc_r_miso.ready_for_address,
+        s_axi_ctrl_rdata   => ecc_r_miso.data,
+        s_axi_ctrl_rvalid  => ecc_r_miso.data_valid,
+        s_axi_ctrl_rresp   => ecc_r_miso.response,
+  
+        -- bram a port
+        bram_rst_a    => bram_rst_a,
+        bram_clk_a    => bram_clk_a,
+        bram_en_a     => bram_en_a,
+        bram_we_a     => bram_we_a,
+        bram_addr_a   => bram_addr_a,
+        bram_wrdata_a => bram_wrdata_a,
+        bram_rddata_a => bram_rddata_a,
+  
+        -- bram b port
+        bram_rst_b    => bram_rst_b,
+        bram_clk_b    => bram_clk_b,
+        bram_en_b     => bram_en_b,
+        bram_we_b     => bram_we_b,
+        bram_addr_b   => bram_addr_b,
+        bram_wrdata_b => bram_wrdata_b,
+        bram_rddata_b => bram_rddata_b
+  
+        );
+  
+  end generate d64;
 
-      -- axi write, miso, address
-      s_axi_awready => w_miso.ready_for_address,
-      -- axi write, miso, data
-      s_axi_wready  => w_miso.ready_for_data,
-      -- axi write, miso, response
-      s_axi_bid     => w_miso.response_id,
-      s_axi_bresp   => w_miso.response,
-      s_axi_bvalid  => w_miso.response_valid,
-
-      --------------------------------------------------------------------------------
-      -- Read
-      --------------------------------------------------------------------------------
-      -- axi read, mosi, address
-      s_axi_araddr  => r_mosi.address,
-      s_axi_arid    => r_mosi.address_id,
-      s_axi_arprot  => r_mosi.protection_type,
-      s_axi_arvalid => r_mosi.address_valid,
-      s_axi_arlen   => r_mosi.burst_length,
-      s_axi_arsize  => r_mosi.burst_size,
-      s_axi_arburst => r_mosi.burst_type,
-      s_axi_arlock  => r_mosi.lock_type,
-      s_axi_arcache => r_mosi.cache_type,
-
-      s_axi_rready => r_mosi.ready_for_data,
-
-      -- axi read, miso
-      s_axi_arready => r_miso.ready_for_address,
-      s_axi_rid     => r_miso.data_id,
-      s_axi_rdata   => r_miso.data,
-      s_axi_rvalid  => r_miso.data_valid,
-      s_axi_rresp   => r_miso.response,
-      s_axi_rlast   => r_miso.last,
-
-      --------------------------------------------------------------------------------
-      -- AXI4-Lite Control Signals (Only Available when C_ecc = 1)
-      --------------------------------------------------------------------------------
-
-      -- write
-      s_axi_ctrl_wdata   => ecc_w_mosi.data,
-      s_axi_ctrl_wvalid  => ecc_w_mosi.data_valid,
-      s_axi_ctrl_wready  => ecc_w_miso.ready_for_data,
-      s_axi_ctrl_bready  => ecc_w_mosi.ready_for_response,
-      s_axi_ctrl_awvalid => ecc_w_mosi.address_valid,
-      s_axi_ctrl_awready => ecc_w_miso.ready_for_address,
-      s_axi_ctrl_awaddr  => ecc_w_mosi.address,
-      s_axi_ctrl_bresp   => ecc_w_miso.response,
-      s_axi_ctrl_bvalid  => ecc_w_miso.response_valid,
-
-      -- read
-      s_axi_ctrl_araddr  => ecc_r_mosi.address,
-      s_axi_ctrl_arvalid => ecc_r_mosi.address_valid,
-      s_axi_ctrl_rready  => ecc_r_mosi.ready_for_data,
-      s_axi_ctrl_arready => ecc_r_miso.ready_for_address,
-      s_axi_ctrl_rdata   => ecc_r_miso.data,
-      s_axi_ctrl_rvalid  => ecc_r_miso.data_valid,
-      s_axi_ctrl_rresp   => ecc_r_miso.response,
-
-      -- bram a port
-      bram_rst_a    => bram_rst_a,
-      bram_clk_a    => bram_clk_a,
-      bram_en_a     => bram_en_a,
-      bram_we_a     => bram_we_a,
-      bram_addr_a   => bram_addr_a,
-      bram_wrdata_a => bram_wrdata_a,
-      bram_rddata_a => bram_rddata_a,
-
-      -- bram b port
-      bram_rst_b    => bram_rst_b,
-      bram_clk_b    => bram_clk_b,
-      bram_en_b     => bram_en_b,
-      bram_we_b     => bram_we_b,
-      bram_addr_b   => bram_addr_b,
-      bram_wrdata_b => bram_wrdata_b,
-      bram_rddata_b => bram_rddata_b
-
-      );
 end axi_bram_controller_arch;

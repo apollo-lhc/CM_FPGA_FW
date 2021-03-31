@@ -12,6 +12,7 @@ set vhdl_files "\
      src/misc/counter.vhd \
      src/misc/counter_clock.vhd \
      src/axiReg/axiRegWidthPkg_32.vhd \
+     src/axiReg/axiRegPkg_d64.vhd \
      src/axiReg/axiRegPkg.vhd \
      src/axiReg/axiReg.vhd \
      src/CM_IO/K_IO_PKG.vhd \

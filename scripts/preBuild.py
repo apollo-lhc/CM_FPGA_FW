@@ -78,7 +78,7 @@ def LoadSlave(name,slave,tclFile,dtsiYAML,aTableYAML,parentName):
   #update the AddSlaves.tcl file
   if 'TCL_CALL' in slave:
     tclFile.write("#"+fullName+"\n")
-    tclFile.write(slave['TCL_CALL']+"\n\n")
+    tclFile.write(str(slave['TCL_CALL'])+"\n\n")
 
   #Build HDL for this file
   if 'HDL' in slave:
