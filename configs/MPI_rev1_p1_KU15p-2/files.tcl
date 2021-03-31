@@ -23,6 +23,8 @@ set vhdl_files "\
      src/CM_FW_info/CM_K_info.vhd \
      src/CM_FW_info/CM_K_INFO_PKG.vhd \
      src/CM_FW_info/CM_K_INFO_map.vhd \
+     src/misc/axi_bram_ctrl_v4_1_rfs.vhd \
+     src/misc/axi_bram_controller.vhd \
      "
 set xdc_files "\
     configs/MPI_rev1_p1_KU15p-2/src/top_pins.xdc \
