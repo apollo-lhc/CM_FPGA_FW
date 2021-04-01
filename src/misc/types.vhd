@@ -18,6 +18,7 @@ package types is
   subtype slv_16_t is std_logic_vector(15 downto 0);
   subtype slv_26_t is std_logic_vector(25 downto 0);
   subtype slv_32_t is std_logic_vector(31 downto 0);
+  subtype slv_64_t is std_logic_vector(63 downto 0);
   
   type slv4_array_t   is array (integer range <>) of std_logic_vector(  3 downto 0);
   type slv7_array_t   is array (integer range <>) of std_logic_vector(  6 downto 0);

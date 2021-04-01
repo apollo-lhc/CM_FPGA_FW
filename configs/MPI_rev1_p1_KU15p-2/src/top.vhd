@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 25 Mar 2021
+-- Rev.: 01 Apr 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -16,6 +16,7 @@ use ieee.numeric_std.all;
 use ieee.std_logic_misc.all;
 
 use work.axiRegPkg.all;
+use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
 
@@ -122,6 +123,10 @@ end entity top;
 
 architecture structure of top is
 
+    -- Configuration.
+    constant family         : string := "kintexuplus";
+    constant axi_protocol   : string := "AXI4";
+
     -- Clocking module.
     signal clk_100          : std_logic;
     signal clk_gen          : std_logic;
@@ -157,10 +162,10 @@ architecture structure of top is
     signal AXI_RST_N           : std_logic;
     signal AXI_RESET           : std_logic;
 
-    signal ext_AXI_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
-    signal ext_AXI_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
-    signal ext_AXI_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
-    signal ext_AXI_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+    signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+    signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+    signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+    signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
 
     signal C2CLink_aurora_do_cc                : std_logic;
@@ -175,16 +180,19 @@ architecture structure of top is
     signal C2CLink_phy_soft_err                : std_logic;
 
 
+    -- AXI BRAM module.
     signal BRAM_write           : std_logic;
     signal BRAM_addr            : std_logic_vector(9 downto 0);
     signal BRAM_WR_data         : std_logic_vector(31 downto 0);
     signal BRAM_RD_data         : std_logic_vector(31 downto 0);
 
-    signal AXI_BRAM_EN          : std_logic;
-    signal AXI_BRAM_we          : std_logic_vector(3 downto 0);
-    signal AXI_BRAM_addr        : std_logic_vector(11 downto 0);
-    signal AXI_BRAM_DATA_IN     : std_logic_vector(31 downto 0);
-    signal AXI_BRAM_DATA_OUT    : std_logic_vector(31 downto 0);
+    signal bram_rst_a           : std_logic;
+    signal bram_clk_a           : std_logic;
+    signal bram_en_a            : std_logic;
+    signal bram_we_a            : std_logic_vector(7 downto 0);
+    signal bram_addr_a          : std_logic_vector(8 downto 0);
+    signal bram_wrdata_a        : std_logic_vector(63 downto 0);
+    signal bram_rddata_a        : std_logic_vector(63 downto 0);
 
     -- Counters.
     signal rst_cnt_100          : std_logic;
@@ -466,76 +474,61 @@ begin  -- Architecture structure.
 
 
   AXI_RESET <= not AXI_RST_N;
-  AXI_BRAM_1 : entity work.AXI_BRAM
+
+
+  axi_bram_controller_1: entity work.axi_bram_controller
+    generic map (
+      USE_D64_PKG                   => 1,
+      C_ADR_WIDTH                   => 32,
+      C_DATA_WIDTH                  => 64,
+--      C_FAMILY                      => "kintexuplus",
+      C_FAMILY                      => family,
+      C_MEMORY_DEPTH                => 4096,
+      C_BRAM_ADDR_WIDTH             => 12,
+      C_SINGLE_PORT_BRAM            => 1,
+      C_S_AXI_ID_WIDTH              => 0,
+--      C_S_AXI_PROTOCOL              => "AXI4",
+      C_S_AXI_PROTOCOL              => axi_protocol,
+      C_S_AXI_DATA_WIDTH            => 64)
     port map (
       s_axi_aclk    => AXI_CLK,
       s_axi_aresetn => AXI_RST_N,
-      s_axi_araddr          => ext_AXI_ReadMOSI.address(11 downto 0),
-      s_axi_arburst         => ext_AXI_ReadMOSI.burst_type,
-      s_axi_arcache         => ext_AXI_ReadMOSI.cache_type,
-      s_axi_arlen           => ext_AXI_ReadMOSI.burst_length,
-      s_axi_arlock          => ext_AXI_ReadMOSI.lock_type,
-      s_axi_arprot          => ext_AXI_ReadMOSI.protection_type,
---      s_axi_arqos           => ext_AXI_ReadMOSI.qos,
-      s_axi_arready         => ext_AXI_ReadMISO.ready_for_address,
---      s_axi_arregion        => ext_AXI_ReadMOSI.region,
-      s_axi_arsize          => ext_AXI_ReadMOSI.burst_size,
-      s_axi_arvalid         => ext_AXI_ReadMOSI.address_valid,
-      s_axi_awaddr          => ext_AXI_WriteMOSI.address(11 downto 0),
-      s_axi_awburst         => ext_AXI_WriteMOSI.burst_type,
-      s_axi_awcache         => ext_AXI_WriteMOSI.cache_type,
-      s_axi_awlen           => ext_AXI_WriteMOSI.burst_length,
-      s_axi_awlock          => ext_AXI_WriteMOSI.lock_type,
-      s_axi_awprot          => ext_AXI_WriteMOSI.protection_type,
---      s_axi_awqos           => ext_AXI_WriteMOSI.qos,
-      s_axi_awready         => ext_AXI_WriteMISO.ready_for_address,
---      s_axi_awregion        => ext_AXI_WriteMOSI.region,
-      s_axi_awsize          => ext_AXI_WriteMOSI.burst_size,
-      s_axi_awvalid         => ext_AXI_WriteMOSI.address_valid,
-      s_axi_bready          => ext_AXI_WriteMOSI.ready_for_response,
-      s_axi_bresp           => ext_AXI_WriteMISO.response,
-      s_axi_bvalid          => ext_AXI_WriteMISO.response_valid,
-      s_axi_rdata           => ext_AXI_ReadMISO.data,
-      s_axi_rlast           => ext_AXI_ReadMISO.last,
-      s_axi_rready          => ext_AXI_ReadMOSI.ready_for_data,
-      s_axi_rresp           => ext_AXI_ReadMISO.response,
-      s_axi_rvalid          => ext_AXI_ReadMISO.data_valid,
-      s_axi_wdata           => ext_AXI_WriteMOSI.data,
-      s_axi_wlast           => ext_AXI_WriteMOSI.last,
-      s_axi_wready          => ext_AXI_WriteMISO.ready_for_data,
-      s_axi_wstrb           => ext_AXI_WriteMOSI.data_write_strobe,
-      s_axi_wvalid          => ext_AXI_WriteMOSI.data_valid,
-      bram_rst_a            => AXI_reset,
-      bram_clk_a            => AXI_CLK,
-      bram_en_a             => AXI_BRAM_en,
-      bram_we_a             => AXI_BRAM_we,
-      bram_addr_a           => AXI_BRAM_addr,
-      bram_wrdata_a         => AXI_BRAM_DATA_IN,
-      bram_rddata_a         => AXI_BRAM_DATA_OUT);
+      r_mosi_d64        => ext_AXI_ReadMOSI,
+      r_miso_d64        => ext_AXI_ReadMISO,
+      w_mosi_d64        => ext_AXI_WriteMOSI,
+      w_miso_d64        => ext_AXI_WriteMISO,
+      bram_rst_a    => bram_rst_a,
+      bram_clk_a    => bram_clk_a,
+      bram_en_a     => bram_en_a,
+      bram_we_a     => bram_we_a,
+      bram_addr_a(31 downto 11) => open,
+      bram_addr_a(10 downto  2) => bram_addr_a,
+      bram_addr_a( 1 downto  0) => open,
+      bram_wrdata_a => bram_wrdata_a,
+      bram_rddata_a => bram_rddata_a);
 
 
-  asym_ram_tdp_1 : entity work.asym_ram_tdp
+  asym_ram_tdp_1: entity work.asym_ram_tdp
     generic map (
       WIDTHA     => 32,
-      SIZEA      => 4096,
-      ADDRWIDTHA => 12,
-      WIDTHB     => 32,
-      SIZEB      => 4096,
-      ADDRWIDTHB => 12)
+      SIZEA      => 1024,
+      ADDRWIDTHA => 10,
+      WIDTHB     => 64,
+      SIZEB      => 512,
+      ADDRWIDTHB => 9)
     port map (
       clkA  => AXI_CLK,
       clkB  => AXI_CLK,
-      enA   => AXI_BRAM_EN,
-      enB   => '1',
-      weA   => or_reduce(AXI_BRAM_we),
-      weB   => BRAM_WRITE,
-      addrA => AXI_BRAM_addr(11 downto 0),
-      addrB(11 downto 2) => BRAM_ADDR,
-      addrB( 1 downto 0) => "00",
-      diA   => AXI_BRAM_DATA_IN,
-      diB   => BRAM_WR_DATA,
-      doA   => AXI_BRAM_DATA_OUT,
-      doB   => BRAM_RD_DATA);
+      enA   => '1',
+      enB   => bram_en_a,
+      weA   => BRAM_WRITE,
+      weB   => or_reduce(bram_we_a),
+      addrA => BRAM_ADDR,
+      addrB => bram_addr_a,
+      diA   => BRAM_WR_DATA,
+      diB   => bram_wrdata_a,
+      doA   => open,
+      doB   => bram_rddata_a);
 
 
 

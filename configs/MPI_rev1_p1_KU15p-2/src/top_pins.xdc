@@ -2,7 +2,7 @@
 # Auth: Dan Gastler, Boston University Physics
 # Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 # Date: 18 Dec 2020
-# Rev.: 25 Mar 2021
+# Rev.: 01 Apr 2021
 #
 # KU15P pin constraint file for the MPI Command Module (CM) demonstrator.
 #
@@ -115,7 +115,7 @@ set_property PACKAGE_PIN  AV9   [ get_ports { o_mgt_axi_c2c_n[2] } ];   # KUP_B2
 # GTH ports.
 
 # Do *not* add IO buffers on GTH TX ports.
-set_property IO_BUFFER_TYPE NONE [ get_ports o_gth_tx_* ];
+#set_property IO_BUFFER_TYPE NONE [ get_ports o_gth_tx_* ];
 
 # MGT bank 224.
 # Hint: The first 2 transceivers (on MGT bank 224) are used for SM SoC AXI
@@ -367,7 +367,7 @@ set_property PACKAGE_PIN  C7    [ get_ports { o_gth_tx_n[43] } ];       # BO0_FF
 # GTY ports.
 
 # Do *not* add IO buffers on GTY TX ports.
-set_property IO_BUFFER_TYPE NONE [ get_ports o_gty_tx_* ];
+#set_property IO_BUFFER_TYPE NONE [ get_ports o_gty_tx_* ];
 
 # MGT bank 127.
 set_property PACKAGE_PIN  AG30  [ get_ports { i_gty_refclk0_p[0] } ];   # C2C_REF0_AC_P

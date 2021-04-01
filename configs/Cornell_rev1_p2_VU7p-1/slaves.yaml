@@ -1,32 +1,75 @@
+AXI_CONTROL_SETS:
+  AXI_MASTER_CTRL:
+      axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+      axi_clk: "${::AXI_MASTER_CLK}"
+      axi_rstn: "${::AXI_MASTER_RSTN}"
+      axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+
+
 AXI_SLAVES:
+  V_C2C_PHY:
+    TCL_CALL: 
+      command: AXI_DEV_CONNECT
+      axi_control:
+        axi_interconnect: ${::AXI_INTERCONNECT_NAME}
+        axi_clk: ${::EXT_CLK} 
+        axi_rstn: ${::EXT_RESET} 
+        axi_freq: 50000000 
+      addr:
+        offset: 0xB3D44000
+        range: 4K
+      remote_slave: 0
+    XML:
+      - "address_table/modules/DRP_USP_GTY.xml"
+    UHAL_BASE: 0xC6000000
+
   VIRTEX_SYS_MGMT:
-    TCL_CALL: "[AXI_IP_SYS_MGMT 1 VIRTEX_SYS_MGMT         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0xB3D42000 4K 0]"
+    TCL_CALL: 
+      command: AXI_IP_SYS_MGMT
+      enable_i2c_pins: 1
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: 0xB3D42000
+        range: 4K
+      remote_slave: 0
     XML:
       - "address_table/modules/VIRTEX_SYS_MGMT.xml"
     UHAL_BASE: 0xC0000000
   
   V_IO:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT V_IO                 ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0xB3D40000 4K]"
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: 0xB3D40000 
+        range: 4K
     XML:
       - "address_table/modules/V_IO.xml"
     UHAL_BASE: 0xC1000000
     HDL: "src/CM_IO"    
   
   CM_V_INFO:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT CM_V_INFO            ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0xB3D43000 4K]"
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: 0xB3D43000
+        range: 4K
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
     HDL: "src/CM_FW_info"
                   
   VIRTEX_IPBUS:
-    TCL_CALL: "[AXI_PL_DEV_CONNECT VIRTEX_IPBUS         ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} 50000000 0xBC000000 32M AXI4]"
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: 0xBC000000
+        range: 32M
+      type: AXI4
+      data_width: "64"
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0xC5000000    
   
-  V_C2C_PHY:
-    TCL_CALL: "[AXI_DEV_CONNECT V_C2C_PHY               ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0xB3D44000 4K 0]"
-    XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0xC6000000

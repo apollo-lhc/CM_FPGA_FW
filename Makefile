@@ -88,6 +88,7 @@ clean_kernel:
 	@rm -f ${MAKE_PATH}/kernel/hw/*
 clean: clean_bd clean_ip clean_bit clean_kernel
 	@rm -rf ${MAKE_PATH}/proj/*
+	@rm -f make_log.txt
 	@echo "Cleaning up"
 clean_ip_%:
 	source $(BUILD_VIVADO_SHELL) &&\
