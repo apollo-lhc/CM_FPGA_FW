@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 01 Apr 2021
+-- Rev.: 08 Apr 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -688,14 +688,14 @@ begin  -- Architecture structure.
     o_led <= user_led;
 
     -- Assign signals to the KU15P debug header X39.
-    io_dbg_se <= (
-        0 => clk_100,
-        1 => clk_gen,
-        2 => clk_lhc_in,
-        3 => clk_legacy_ttc,
-        4 => clk_lhc_out,
-        5 => clocking_locked
-    );
+--    io_dbg_se <= (
+--        0 => clk_100,
+--        1 => clk_gen,
+--        2 => clk_lhc_in,
+--        3 => clk_legacy_ttc,
+--        4 => clk_lhc_out,
+--        5 => clocking_locked
+--    );
 
 end architecture structure;
 
