@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 08 Apr 2021
+-- Rev.: 12 Apr 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -283,8 +283,9 @@ begin  -- Architecture structure.
         i_gth_refclk1_n         => i_gth_refclk1_n,
         i_gth_rx_p              => i_gth_rx_p,
         i_gth_rx_n              => i_gth_rx_n,
-        o_gth_tx_p              => o_gth_tx_p,
-        o_gth_tx_n              => o_gth_tx_n,
+        -- The GTH TX ports are automatically assigned by the IBERT module.
+        o_gth_tx_p              => open,
+        o_gth_tx_n              => open,
 
         -- GTY transceivers.
         i_gty_refclk0_p         => i_gty_refclk0_p,
@@ -293,8 +294,9 @@ begin  -- Architecture structure.
         i_gty_refclk1_n         => i_gty_refclk1_n,
         i_gty_rx_p              => i_gty_rx_p,
         i_gty_rx_n              => i_gty_rx_n,
-        o_gty_tx_p              => o_gty_tx_p,
-        o_gty_tx_n              => o_gty_tx_n,
+        -- The GTY TX ports are automatically assigned by the IBERT module.
+        o_gty_tx_p              => open,
+        o_gty_tx_n              => open,
 
         -- Recovered LHC clock.
         o_clk_lhc_rec           => clk_lhc_out
@@ -688,14 +690,14 @@ begin  -- Architecture structure.
     o_led <= user_led;
 
     -- Assign signals to the KU15P debug header X39.
---    io_dbg_se <= (
---        0 => clk_100,
---        1 => clk_gen,
---        2 => clk_lhc_in,
---        3 => clk_legacy_ttc,
---        4 => clk_lhc_out,
---        5 => clocking_locked
---    );
+    io_dbg_se <= (
+        0 => clk_100,
+        1 => clk_gen,
+        2 => clk_lhc_in,
+        3 => clk_legacy_ttc,
+        4 => clk_lhc_out,
+        5 => clocking_locked
+    );
 
 end architecture structure;
 

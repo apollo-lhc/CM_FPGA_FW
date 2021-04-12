@@ -22,9 +22,6 @@ create_project -force -part $FPGA_part $top $projectDir
 set_property target_language VHDL [current_project]
 puts "Using dir $projectDir for FPGA part $FPGA_part"
 
-# Remove tri-stated outputs. This is required for the unused GTH / GTY TX ports.
-set_param logicopt.enableConstPropOnOBUFT true;
-
 source ${apollo_root_path}/configs/${build_name}/files.tcl
 
 #DRP ip

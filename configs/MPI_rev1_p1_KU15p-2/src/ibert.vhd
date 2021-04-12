@@ -2,7 +2,7 @@
 -- Auth: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 24 Mar 2021
--- Rev.: 08 Apr 2021
+-- Rev.: 12 Apr 2021
 --
 -- Xilinx IBERT modules used in the KU15P of the MPI Command Module (CM)
 -- demonstrator.
@@ -174,9 +174,6 @@ begin  -- Architecture structure.
         gtsouthrefclk11_i   => "000000000",
         clk                 => i_clk_100
     );
-    -- Unused GTH TX ports.
-    o_gth_tx_p(7 downto 2) <= (others => 'Z');
-    o_gth_tx_n(7 downto 2) <= (others => 'Z');
 
     -- IBERT for FELIX links:
     -- GTY quads on MGT banks 132..134 => CM FireFly 1.
@@ -208,9 +205,6 @@ begin  -- Architecture structure.
         gtsouthrefclk11_i   => "000",
         clk                 => i_clk_100
     );
-    -- Unused GTY TX ports.
-    o_gty_tx_p(19 downto 0) <= (others => 'Z');
-    o_gty_tx_n(19 downto 0) <= (others => 'Z');
 
     -- Use the last GTY from the FELIX IBERT module as recovered LHC clock source.
     o_clk_lhc_rec <= ibert_gty_felix_rxoutclock(11);
