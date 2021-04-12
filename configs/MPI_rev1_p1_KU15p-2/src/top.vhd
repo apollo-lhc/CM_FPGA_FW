@@ -217,8 +217,8 @@ architecture structure of top is
     signal cnt_clk_axi          : std_logic_vector(31 downto 0);
 
     -- User LEDs and multiplexer.
-    signal user_led_axi : std_logic_vector(31 downto 0);
-    signal user_led : std_logic_vector(o_led'range);
+    signal user_led_axi         : std_logic_vector(31 downto 0);
+    signal user_led             : std_logic_vector(o_led'range);
 
 
 
@@ -265,7 +265,6 @@ begin  -- Architecture structure.
         o_clk_axi               => clk_axi
     );
 --    clk_lhc_out <= '0';
-    AXI_CLK <= clk_axi;
 
     -- Custom IBERT module.
     ibert_1 : entity work.ibert
@@ -304,7 +303,12 @@ begin  -- Architecture structure.
 
 
 
-    c2csslave_wrapper_1 : entity work.c2cslave_wrapper
+    -- Common AXI signals.
+    AXI_CLK <= clk_axi;
+    AXI_RESET <= not AXI_RST_N;
+
+  -- AXI slave connections.
+  c2cslave_wrapper_1 : entity work.c2cslave_wrapper
     port map (
       AXI_CLK                           => AXI_CLK,
       AXI_RST_N(0)                      => AXI_RST_N,
@@ -374,7 +378,6 @@ begin  -- Architecture structure.
       MPI_KU15P_LEDS_wstrb              => local_AXI_WriteMOSI(2).data_write_strobe,
       MPI_KU15P_LEDS_wvalid             => local_AXI_WriteMOSI(2).data_valid,
 
-
       KINTEX_IPBUS_araddr               => ext_AXI_ReadMOSI.address,
       KINTEX_IPBUS_arburst              => ext_AXI_ReadMOSI.burst_type,
       KINTEX_IPBUS_arcache              => ext_AXI_ReadMOSI.cache_type,
@@ -421,8 +424,7 @@ begin  -- Architecture structure.
       K_C2C_phy_link_reset_out          => C2CLink_phy_link_reset_out,
       K_C2C_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out,
       K_C2C_phy_power_down              => '0',
-      K_C2C_phy_soft_err                => C2CLink_phy_soft_err
-);
+      K_C2C_phy_soft_err                => C2CLink_phy_soft_err);
 
   RGB_pwm_1 : entity work.RGB_pwm
     generic map (
@@ -473,9 +475,6 @@ begin  -- Architecture structure.
       readMISO    => local_AXI_ReadMISO(1),
       writeMOSI   => local_AXI_WriteMOSI(1),
       writeMISO   => local_AXI_WriteMISO(1));
-
-
-  AXI_RESET <= not AXI_RST_N;
 
 
   axi_bram_controller_1: entity work.axi_bram_controller
