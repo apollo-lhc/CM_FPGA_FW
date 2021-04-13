@@ -4,23 +4,23 @@ setup ../../../../bd/AXI_DRP_include.tcl
 
 setup -c emp-fwk:boards/apollo/common ../cfg/apollo_set_paths.tcl
 
-
-src ../../configs/EMP_Cornell_rev1_p2_VU7p-1/src/sub_module.vhd 
-src ../../src/misc/pass_time_domain.vhd 
-src ../../src/misc/pacd.vhd 
-src ../../src/misc/types.vhd 
-src ../../src/misc/capture_CDC.vhd 
-src ../../src/misc/counter.vhd 
-src ../../src/misc/counter_clock.vhd 
-src ../../src/axiReg/axiRegWidthPkg_32.vhd
-src ../../src/axiReg/axiRegPkg.vhd 
-src ../../src/axiReg/axiReg.vhd 
-src ../../src/V_IO/V_IO_PKG.vhd 
-src ../../src/V_IO/V_IO_map.vhd 
-src ../../src/misc/RGB_PWM.vhd 
-src ../../src/misc/LED_PWM.vhd 
-src ../../src/CM_V_info/CM_V_INFO.vhd 
-src ../../src/CM_V_info/CM_V_INFO_PKG.vhd 
-src ../../src/CM_V_info/CM_V_INFO_map.vhd 
+src ../../src/sub_module.vhd 
+src ../../../../src/misc/pass_time_domain.vhd 
+src ../../../../src/misc/pacd.vhd 
+src ../../../../src/misc/types.vhd 
+src ../../../../src/misc/capture_CDC.vhd 
+src ../../../../src/misc/counter.vhd 
+src ../../../../src/misc/counter_clock.vhd 
+src ../../../../src/axiReg/axiRegWidthPkg_32.vhd
+src ../../../../src/axiReg/axiRegPkg_d64.vhd 
+src ../../../../src/axiReg/axiRegPkg.vhd 
+src ../../../../src/axiReg/axiReg.vhd 
+src ../../../../src/V_IO/V_IO_PKG.vhd 
+src ../../../../src/V_IO/V_IO_map.vhd 
+src ../../../../src/misc/RGB_PWM.vhd 
+src ../../../../src/misc/LED_PWM.vhd 
+src ../../../../src/CM_V_info/CM_V_INFO.vhd 
+src ../../../../src/CM_V_info/CM_V_INFO_PKG.vhd 
+src ../../../../src/CM_V_info/CM_V_INFO_map.vhd 
 
 

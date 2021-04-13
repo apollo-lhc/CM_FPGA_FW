@@ -8,10 +8,11 @@ create_bd_design -dir ./ ${bd_design_name}
 
 set EXT_CLK clk50Mhz
 set EXT_RESET reset_n
+set EXT_CLK_FREQ 50000000
 
 set AXI_MASTER_CLK AXI_CLK
 set AXI_MASTER_RSTN AXI_RST_N
-set AXI_MASTER_CLK_MHZ 50
+set AXI_MASTER_CLK_FREQ 50000000
 
 set AXI_INTERCONNECT_NAME slave_interconnect
 
@@ -21,7 +22,7 @@ set AXI_INTERCONNECT_NAME slave_interconnect
 #  Setup external clock and reset
 #================================================================================
 create_bd_port -dir I -type clk $EXT_CLK
-set_property CONFIG.FREQ_HZ 50000000 [get_bd_ports ${EXT_CLK}]
+set_property CONFIG.FREQ_HZ ${EXT_CLK_FREQ} [get_bd_ports ${EXT_CLK}]
 create_bd_port -dir I -type rst $EXT_RESET
 
 
@@ -135,7 +136,7 @@ endgroup
 #  Create JTAG AXI Master
 #================================================================================
 set JTAG_AXI_MASTER JTAG_AXI_Master
-[BUILD_JTAG_AXI_MASTER ${JTAG_AXI_MASTER} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN}]
+BUILD_JTAG_AXI_MASTER [dict create device_name ${JTAG_AXI_MASTER} axi_clk ${AXI_MASTER_CLK} axi_rstn ${AXI_MASTER_RSTN}]
 
 #================================================================================
 #  Connect C2C master port to interconnect slave port
@@ -151,7 +152,10 @@ set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}]
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
+#source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
+source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
+yaml_to_bd "${apollo_root_path}/configs/${build_name}/slaves.yaml"
+
 
 #========================================
 #  Finish up
