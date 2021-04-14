@@ -42,9 +42,9 @@ write_checkpoint -force $outputDir/post_synth
 # estimates, write checkpoint design
 #################################################################################
 opt_design
-power_opt_design
+#power_opt_design
 place_design
-phys_opt_design
+#phys_opt_design
 #write_checkpoint -force $outputDir/post_place
 #report_timing_summary -file $outputDir/post_place_timing_summary.rpt
 
@@ -59,6 +59,8 @@ report_clock_utilization -file $outputDir/clock_util.rpt
 report_utilization -file $outputDir/post_route_util.rpt
 report_power -file $outputDir/post_route_power.rpt
 report_drc -file $outputDir/post_imp_drc.rpt
+report_io -format text -file $outputDir/bft_impl_io.rpt
+report_io -format xml -file $outputDir/bft_impl_io.xml
 write_verilog -force $outputDir/bft_impl_netlist.v
 write_xdc -no_fixed_only -force $outputDir/bft_impl.xdc
 #write_checkpoint -force $outputDir/post_route
