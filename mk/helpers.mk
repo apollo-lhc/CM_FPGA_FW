@@ -6,7 +6,7 @@ SHELL=/bin/bash -o pipefail
 #add path so build can be more generic
 MAKE_PATH := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-OUTPUT_MARKUP= 2>&1 | tee -a ../make_log.txt
+OUTPUT_MARKUP= 2>&1 | tee -a ../make_log.txt | ccze -A
 SLACK_MESG ?= echo
 
 all:

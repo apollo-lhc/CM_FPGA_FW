@@ -2,7 +2,7 @@
 # Auth: Dan Gastler, Boston University Physics
 # Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 # Date: 18 Dec 2020
-# Rev.: 08 Apr 2021
+# Rev.: 20 Apr 2021
 #
 # KU15P pin constraint file for the MPI Command Module (CM) demonstrator.
 #
@@ -74,9 +74,9 @@ set_property PACKAGE_PIN  AR25  [ get_ports { i_clk_sma_jc_p } ];       # AD_CLK
 set_property PACKAGE_PIN  AR26  [ get_ports { i_clk_sma_jc_n } ];       # AD_CLK0_JC_KUP_AC_N
 
 # Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
-set_property IOSTANDARD LVDS [ get_ports o_clk_lhc_* ];
-set_property PACKAGE_PIN  AT23  [ get_ports { o_clk_lhc_p } ];          # KUP_LHC_CLK_P
-set_property PACKAGE_PIN  AU23  [ get_ports { o_clk_lhc_n } ];          # KUP_LHC_CLK_N
+set_property IOSTANDARD LVDS [ get_ports o_clk_lhc_rec_* ];
+set_property PACKAGE_PIN  AT23  [ get_ports { o_clk_lhc_rec_p } ];      # KUP_LHC_CLK_P
+set_property PACKAGE_PIN  AU23  [ get_ports { o_clk_lhc_rec_n } ];      # KUP_LHC_CLK_N
 # -------------------------------------------------------------------
 
 # -------------------------------------------------------------------

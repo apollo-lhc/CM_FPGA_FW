@@ -1,4 +1,4 @@
-CACTUS_ROOT:="/opt/software/cactus/current"
+CACTUS_ROOT:="/opt/cactus"
 CACTUS_LD_PATH:=$(CACTUS_ROOT)"/lib/"
 
 #################################################################################

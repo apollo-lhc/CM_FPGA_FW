@@ -2,7 +2,7 @@
 -- Auth: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 24 Mar 2021
--- Rev.: 25 Mar 2021
+-- Rev.: 20 Apr 2021
 --
 -- Clock buffers and clocking wizards used in the KU15P of the MPI Command
 -- Module (CM) demonstrator.
@@ -49,9 +49,9 @@ port (
     i_clk_sma_jc_n          : in  std_logic;
     o_clk_sma_jc            : out std_logic;
     -- Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
-    i_clk_lhc               : in  std_logic;
-    o_clk_lhc_p             : out std_logic;
-    o_clk_lhc_n             : out std_logic;
+    i_clk_lhc_rec           : in  std_logic;
+    o_clk_lhc_rec_p         : out std_logic;
+    o_clk_lhc_rec_n         : out std_logic;
 
     -- Generated clocks.
     i_reset                 : in  std_logic;
@@ -79,7 +79,6 @@ architecture structure of clocking is
     signal clk_sma_direct_bufg      : std_logic;
     signal clk_sma_jc_ibufgds       : std_logic;
     signal clk_sma_jc_bufg          : std_logic;
-    signal clk_lhc_out              : std_logic;
 
     -- Clocking wizard: Local clocking.
     signal clkwiz_lc_clk_200        : std_logic;
@@ -172,13 +171,12 @@ begin  -- Architecture structure.
     );
     o_clk_sma_jc <= clk_sma_jc_bufg;
     -- Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
-    OBUFDS_clk_lhc : OBUFDS
+    OBUFDS_clk_lhc_rec : OBUFDS
     port map (
-        I   => clk_lhc_out,
-        O   => o_clk_lhc_p,
-        OB  => o_clk_lhc_n
+        I   => i_clk_lhc_rec,
+        O   => o_clk_lhc_rec_p,
+        OB  => o_clk_lhc_rec_n
     );
-    clk_lhc_out <= '0';
 
     -- Clocking wizard: Local clock.
     Local_Clocking_1 : entity work.Local_Clocking

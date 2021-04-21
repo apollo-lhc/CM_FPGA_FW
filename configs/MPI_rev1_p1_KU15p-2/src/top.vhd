@@ -2,7 +2,7 @@
 -- Auth: Dan Gastler, Boston University Physics
 -- Mod.: M. Fras, Electronics Division, MPI for Physics, Munich
 -- Date: 18 Dec 2020
--- Rev.: 12 Apr 2021
+-- Rev.: 21 Apr 2021
 --
 -- KU15P top VHDL file for the MPI Command Module (CM) demonstrator.
 --
@@ -47,8 +47,8 @@ port (
     i_clk_sma_jc_p          : in  std_logic;
     i_clk_sma_jc_n          : in  std_logic;
     -- Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
-    o_clk_lhc_p             : out std_logic;
-    o_clk_lhc_n             : out std_logic;
+    o_clk_lhc_rec_p         : out std_logic;
+    o_clk_lhc_rec_n         : out std_logic;
 
     -- Legacy TTC recovered data from clock and data recovery chip IC46 (ADN2814ACPZ).
     i_data_legacy_ttc_p     : in  std_logic;
@@ -87,7 +87,7 @@ port (
 
     -- Spare MCU connections.
     io_mcu_se               : inout std_logic_vector(3 downto 0);
-    
+
     -- Spare SM-CM connections.
     io_sm_gpio              : inout std_logic_vector(1 to 2);
 
@@ -134,7 +134,7 @@ architecture structure of top is
     signal clk_legacy_ttc   : std_logic;
     signal clk_sma_direct   : std_logic;
     signal clk_sma_jc       : std_logic;
-    signal clk_lhc_out      : std_logic;
+    signal clk_lhc_rec      : std_logic;
     signal clk_50           : std_logic;
     signal clk_200          : std_logic;
     signal clk_axi          : std_logic;
@@ -181,44 +181,49 @@ architecture structure of top is
 
 
     -- AXI BRAM module.
-    signal BRAM_write           : std_logic;
-    signal BRAM_addr            : std_logic_vector(9 downto 0);
-    signal BRAM_WR_data         : std_logic_vector(31 downto 0);
-    signal BRAM_RD_data         : std_logic_vector(31 downto 0);
+    signal BRAM_write               : std_logic;
+    signal BRAM_addr                : std_logic_vector(9 downto 0);
+    signal BRAM_WR_data             : std_logic_vector(31 downto 0);
+    signal BRAM_RD_data             : std_logic_vector(31 downto 0);
 
-    signal bram_rst_a           : std_logic;
-    signal bram_clk_a           : std_logic;
-    signal bram_en_a            : std_logic;
-    signal bram_we_a            : std_logic_vector(7 downto 0);
-    signal bram_addr_a          : std_logic_vector(8 downto 0);
-    signal bram_wrdata_a        : std_logic_vector(63 downto 0);
-    signal bram_rddata_a        : std_logic_vector(63 downto 0);
+    signal bram_rst_a               : std_logic;
+    signal bram_clk_a               : std_logic;
+    signal bram_en_a                : std_logic;
+    signal bram_we_a                : std_logic_vector(7 downto 0);
+    signal bram_addr_a              : std_logic_vector(8 downto 0);
+    signal bram_wrdata_a            : std_logic_vector(63 downto 0);
+    signal bram_rddata_a            : std_logic_vector(63 downto 0);
 
     -- Counters.
-    signal rst_cnt_100          : std_logic;
-    signal cnt_clk_100          : std_logic_vector(31 downto 0);
-    signal rst_cnt_gen          : std_logic;
-    signal cnt_clk_gen          : std_logic_vector(31 downto 0);
-    signal rst_cnt_lhc_in       : std_logic;
-    signal cnt_clk_lhc_in       : std_logic_vector(31 downto 0);
-    signal rst_cnt_legacy_ttc   : std_logic;
-    signal cnt_clk_legacy_ttc   : std_logic_vector(31 downto 0);
-    signal rst_cnt_sma_direct   : std_logic;
-    signal cnt_clk_sma_direct   : std_logic_vector(31 downto 0);
-    signal rst_cnt_sma_jc       : std_logic;
-    signal cnt_clk_sma_jc       : std_logic_vector(31 downto 0);
-    signal rst_cnt_lhc_out      : std_logic;
-    signal cnt_clk_lhc_out      : std_logic_vector(31 downto 0);
-    signal rst_cnt_50           : std_logic;
-    signal cnt_clk_50           : std_logic_vector(31 downto 0);
-    signal rst_cnt_200          : std_logic;
-    signal cnt_clk_200          : std_logic_vector(31 downto 0);
-    signal rst_cnt_axi          : std_logic;
-    signal cnt_clk_axi          : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_100          : std_logic;
+    signal cnt_clk_100              : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_gen          : std_logic;
+    signal cnt_clk_gen              : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_lhc_in       : std_logic;
+    signal cnt_clk_lhc_in           : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_legacy_ttc   : std_logic;
+    signal cnt_clk_legacy_ttc       : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_sma_direct   : std_logic;
+    signal cnt_clk_sma_direct       : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_sma_jc       : std_logic;
+    signal cnt_clk_sma_jc           : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_lhc_rec      : std_logic;
+    signal cnt_clk_lhc_rec          : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_50           : std_logic;
+    signal cnt_clk_50               : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_200          : std_logic;
+    signal cnt_clk_200              : std_logic_vector(31 downto 0);
+    signal rst_cnt_clk_axi          : std_logic;
+    signal cnt_clk_axi              : std_logic_vector(31 downto 0);
 
     -- User LEDs and multiplexer.
-    signal user_led_axi         : std_logic_vector(31 downto 0);
-    signal user_led             : std_logic_vector(o_led'range);
+    signal user_led_axi             : std_logic_vector(31 downto 0);
+    signal user_led                 : std_logic_vector(o_led'range);
+
+    -- Debug IO tri-state buffer.
+    signal dbg_se_in                : std_logic_vector(io_dbg_se'range);
+    signal dbg_se_out               : std_logic_vector(io_dbg_se'range);
+    signal dbg_se_dir               : std_logic_vector(io_dbg_se'range);    -- '0': read (tri-stated), '1': drive
 
 
 
@@ -253,9 +258,9 @@ begin  -- Architecture structure.
         i_clk_sma_jc_n          => i_clk_sma_jc_n,
         o_clk_sma_jc            => clk_sma_jc,
         -- Output for recovered LHC clock, fed into jitter cleaner IC56 (Si5345A).
-        i_clk_lhc               => clk_lhc_out,
-        o_clk_lhc_p             => o_clk_lhc_p,
-        o_clk_lhc_n             => o_clk_lhc_n,
+        i_clk_lhc_rec           => clk_lhc_rec,
+        o_clk_lhc_rec_p         => o_clk_lhc_rec_p,
+        o_clk_lhc_rec_n         => o_clk_lhc_rec_n,
 
         -- Generated clocks.
         i_reset                 => clocking_reset,
@@ -264,7 +269,7 @@ begin  -- Architecture structure.
         o_clk_200               => clk_200,
         o_clk_axi               => clk_axi
     );
---    clk_lhc_out <= '0';
+--    clk_lhc_rec <= '0';
 
     -- Custom IBERT module.
     ibert_1 : entity work.ibert
@@ -298,7 +303,7 @@ begin  -- Architecture structure.
         o_gty_tx_n              => open,
 
         -- Recovered LHC clock.
-        o_clk_lhc_rec           => clk_lhc_out
+        o_clk_lhc_rec           => clk_lhc_rec
     );
 
 
@@ -538,9 +543,9 @@ begin  -- Architecture structure.
     -- ==============================================================
 
     -- Counter running with 100 MHz clock.
-    rst_cnt_100 <= '0';
-    proc_cnt_clk_100 : process (clk_100, rst_cnt_100) begin
-        if (rst_cnt_100 = '1') then
+    rst_cnt_clk_100 <= '0';
+    proc_cnt_clk_100 : process (clk_100, rst_cnt_clk_100) begin
+        if (rst_cnt_clk_100 = '1') then
             cnt_clk_100 <= (others => '0');
         elsif (clk_100'event and clk_100 = '1') then
             cnt_clk_100 <= std_logic_vector(unsigned(cnt_clk_100) + 1);
@@ -548,9 +553,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with clock from clock generator IC54 (Si5341A).
-    rst_cnt_gen <= '0';
-    proc_cnt_clk_gen : process (clk_gen, rst_cnt_gen) begin
-        if (rst_cnt_gen = '1') then
+    rst_cnt_clk_gen <= '0';
+    proc_cnt_clk_gen : process (clk_gen, rst_cnt_clk_gen) begin
+        if (rst_cnt_clk_gen = '1') then
             cnt_clk_gen <= (others => '0');
         elsif (clk_gen'event and clk_gen = '1') then
             cnt_clk_gen <= std_logic_vector(unsigned(cnt_clk_gen) + 1);
@@ -558,9 +563,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with LHC clock from jitter cleaner IC56 (Si5345A).
-    rst_cnt_lhc_in <= '0';
-    proc_cnt_clk_lhc_in : process (clk_lhc_in, rst_cnt_lhc_in) begin
-        if (rst_cnt_lhc_in = '1') then
+    rst_cnt_clk_lhc_in <= '0';
+    proc_cnt_clk_lhc_in : process (clk_lhc_in, rst_cnt_clk_lhc_in) begin
+        if (rst_cnt_clk_lhc_in = '1') then
             cnt_clk_lhc_in <= (others => '0');
         elsif (clk_lhc_in'event and clk_lhc_in = '1') then
             cnt_clk_lhc_in <= std_logic_vector(unsigned(cnt_clk_lhc_in) + 1);
@@ -568,9 +573,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with recovered LHC clock from clock and data recovery chip IC46 (ADN2814ACPZ).
-    rst_cnt_legacy_ttc <= '0';
-    proc_cnt_clk_legacy_ttc : process (clk_legacy_ttc, rst_cnt_legacy_ttc) begin
-        if (rst_cnt_legacy_ttc = '1') then
+    rst_cnt_clk_legacy_ttc <= '0';
+    proc_cnt_clk_legacy_ttc : process (clk_legacy_ttc, rst_cnt_clk_legacy_ttc) begin
+        if (rst_cnt_clk_legacy_ttc = '1') then
             cnt_clk_legacy_ttc <= (others => '0');
         elsif (clk_legacy_ttc'event and clk_legacy_ttc = '1') then
             cnt_clk_legacy_ttc <= std_logic_vector(unsigned(cnt_clk_legacy_ttc) + 1);
@@ -578,9 +583,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with clock from SMA connectors X76 and X78, directly connected.
-    rst_cnt_sma_direct <= '0';
-    proc_cnt_clk_sma_direct : process (clk_sma_direct, rst_cnt_sma_direct) begin
-        if (rst_cnt_sma_direct = '1') then
+    rst_cnt_clk_sma_direct <= '0';
+    proc_cnt_clk_sma_direct : process (clk_sma_direct, rst_cnt_clk_sma_direct) begin
+        if (rst_cnt_clk_sma_direct = '1') then
             cnt_clk_sma_direct <= (others => '0');
         elsif (clk_sma_direct'event and clk_sma_direct = '1') then
             cnt_clk_sma_direct <= std_logic_vector(unsigned(cnt_clk_sma_direct) + 1);
@@ -588,9 +593,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with clock from SMA connectors X68 and X69, fed through jitter cleaner IC65.
-    rst_cnt_sma_jc <= '0';
-    proc_cnt_clk_sma_jc : process (clk_sma_jc, rst_cnt_sma_jc) begin
-        if (rst_cnt_sma_jc = '1') then
+    rst_cnt_clk_sma_jc <= '0';
+    proc_cnt_clk_sma_jc : process (clk_sma_jc, rst_cnt_clk_sma_jc) begin
+        if (rst_cnt_clk_sma_jc = '1') then
             cnt_clk_sma_jc <= (others => '0');
         elsif (clk_sma_jc'event and clk_sma_jc = '1') then
             cnt_clk_sma_jc <= std_logic_vector(unsigned(cnt_clk_sma_jc) + 1);
@@ -598,19 +603,19 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with recovered LHC clock from MGT.
-    rst_cnt_lhc_out <= '0';
-    proc_cnt_clk_lhc_out : process (clk_lhc_out, rst_cnt_lhc_out) begin
-        if (rst_cnt_lhc_out = '1') then
-            cnt_clk_lhc_out <= (others => '0');
-        elsif (clk_lhc_out'event and clk_lhc_out = '1') then
-            cnt_clk_lhc_out <= std_logic_vector(unsigned(cnt_clk_lhc_out) + 1);
+    rst_cnt_clk_lhc_rec <= '0';
+    proc_cnt_clk_lhc_rec : process (clk_lhc_rec, rst_cnt_clk_lhc_rec) begin
+        if (rst_cnt_clk_lhc_rec = '1') then
+            cnt_clk_lhc_rec <= (others => '0');
+        elsif (clk_lhc_rec'event and clk_lhc_rec = '1') then
+            cnt_clk_lhc_rec <= std_logic_vector(unsigned(cnt_clk_lhc_rec) + 1);
         end if;
     end process;
 
     -- Counter running with 50 MHz clock.
-    rst_cnt_50 <= '0';
-    proc_cnt_clk_50 : process (clk_50, rst_cnt_50) begin
-        if (rst_cnt_50 = '1') then
+    rst_cnt_clk_50 <= '0';
+    proc_cnt_clk_50 : process (clk_50, rst_cnt_clk_50) begin
+        if (rst_cnt_clk_50 = '1') then
             cnt_clk_50 <= (others => '0');
         elsif (clk_50'event and clk_50 = '1') then
             cnt_clk_50 <= std_logic_vector(unsigned(cnt_clk_50) + 1);
@@ -618,9 +623,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with 200 MHz clock.
-    rst_cnt_200 <= '0';
-    proc_cnt_clk_200 : process (clk_200, rst_cnt_200) begin
-        if (rst_cnt_200 = '1') then
+    rst_cnt_clk_200 <= '0';
+    proc_cnt_clk_200 : process (clk_200, rst_cnt_clk_200) begin
+        if (rst_cnt_clk_200 = '1') then
             cnt_clk_200 <= (others => '0');
         elsif (clk_200'event and clk_200 = '1') then
             cnt_clk_200 <= std_logic_vector(unsigned(cnt_clk_200) + 1);
@@ -628,9 +633,9 @@ begin  -- Architecture structure.
     end process;
 
     -- Counter running with AXI clock.
-    rst_cnt_axi <= '0';
-    proc_cnt_clk_axi : process (clk_axi, rst_cnt_axi) begin
-        if (rst_cnt_axi = '1') then
+    rst_cnt_clk_axi <= '0';
+    proc_cnt_clk_axi : process (clk_axi, rst_cnt_clk_axi) begin
+        if (rst_cnt_clk_axi = '1') then
             cnt_clk_axi <= (others => '0');
         elsif (clk_axi'event and clk_axi = '1') then
             cnt_clk_axi <= std_logic_vector(unsigned(cnt_clk_axi) + 1);
@@ -677,7 +682,7 @@ begin  -- Architecture structure.
             when X"03" => user_led <= cnt_clk_legacy_ttc(26 downto 19);
             when X"04" => user_led <= cnt_clk_sma_direct(26 downto 19);
             when X"05" => user_led <= cnt_clk_sma_jc(26 downto 19);
-            when X"06" => user_led <= cnt_clk_lhc_out(26 downto 19);
+            when X"06" => user_led <= cnt_clk_lhc_rec(26 downto 19);
             when X"07" => user_led <= cnt_clk_50(26 downto 19);
             when X"08" => user_led <= cnt_clk_200(26 downto 19);
             when X"09" => user_led <= cnt_clk_axi(26 downto 19);
@@ -688,15 +693,39 @@ begin  -- Architecture structure.
     -- Assign user LED to output port.
     o_led <= user_led;
 
-    -- Assign signals to the KU15P debug header X39.
-    io_dbg_se <= (
-        0 => clk_100,
-        1 => clk_gen,
-        2 => clk_lhc_in,
-        3 => clk_legacy_ttc,
-        4 => clk_lhc_out,
-        5 => clocking_locked
-    );
+    -- Multiplexer for the debug pins.
+    proc_dbg_se_mux : process (io_mcu_se, clk_gen, clk_lhc_in, clk_legacy_ttc, clk_lhc_rec, clocking_locked)
+        variable v_dbg_se_mux_sel : std_logic_vector(io_mcu_se'range);
+    begin
+        v_dbg_se_mux_sel := io_mcu_se;
+        case v_dbg_se_mux_sel is
+            when X"0" =>
+                dbg_se_out <= (
+                    1 => clk_gen,
+                    2 => clk_lhc_in,
+                    3 => clk_legacy_ttc,
+                    4 => clk_lhc_rec,
+                    5 => clocking_locked,
+                    others => '0'
+                );
+            when others => dbg_se_out <= (others => '0');
+        end case;
+    end process;
+
+    -- Tri-state buffer for the KU15P debug header X39.
+    proc_dbg_se_tri : process (io_dbg_se, dbg_se_out, dbg_se_dir)
+    begin
+        for i in io_dbg_se'range loop
+            if dbg_se_dir(i) = '1' then
+                io_dbg_se(i) <= dbg_se_out(i);
+            else
+                io_dbg_se(i) <= 'Z';
+            end if;
+            dbg_se_in(i) <= io_dbg_se(i);
+        end loop;
+    end process;
+    -- Set the direction of all IO buffers to '1' = 'drive'.
+    dbg_se_dir <= (others => '1');
 
 end architecture structure;
 
