@@ -701,11 +701,22 @@ begin  -- Architecture structure.
         case v_dbg_se_mux_sel is
             when X"0" =>
                 dbg_se_out <= (
+                    0 => clk_100,
                     1 => clk_gen,
                     2 => clk_lhc_in,
                     3 => clk_legacy_ttc,
                     4 => clk_lhc_rec,
                     5 => clocking_locked,
+                    others => '0'
+                );
+            when X"1" =>
+                dbg_se_out <= (
+                    0 => clk_100,
+                    1 => clk_50,
+                    2 => clk_200,
+                    3 => clk_axi,
+                    4 => clk_lhc_in,
+                    5 => clk_lhc_rec,
                     others => '0'
                 );
             when others => dbg_se_out <= (others => '0');
