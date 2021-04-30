@@ -34,7 +34,7 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/VIRTEX_SYS_MGMT.xml"
     UHAL_BASE: 0xC0000000
-  K_IO:
+  V_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"

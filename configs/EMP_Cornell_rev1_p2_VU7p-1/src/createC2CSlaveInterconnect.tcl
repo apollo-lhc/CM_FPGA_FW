@@ -1,5 +1,6 @@
 source ${apollo_root_path}/bd/axi_helpers.tcl
-source ${apollo_root_path}/bd/Xilinx_AXI_slaves_USP.tcl
+#source ${apollo_root_path}/bd/Xilinx_AXI_slaves_USP.tcl
+source ${apollo_root_path}/bd/Xilinx_AXI_slaves.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -34,11 +35,13 @@ puts "Building AXI C2C slave interconnect"
 
 #create AXI clock & reset ports
 create_bd_port -dir I -type clk $AXI_MASTER_CLK
+set_property CONFIG.FREQ_HZ ${AXI_MASTER_CLK_FREQ} [get_bd_ports ${AXI_MASTER_CLK}]
 create_bd_port -dir O -type rst $AXI_MASTER_RSTN
 
 #create the reset logic
 set SYS_RESETER sys_reseter
-create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == proc_sys_reset }] $SYS_RESETER
+create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 $SYS_RESETER
+#create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == proc_sys_reset }] $SYS_RESETER
 #connect external reset
 connect_bd_net [get_bd_ports $EXT_RESET] [get_bd_pins $SYS_RESETER/ext_reset_in]
 #connect clock
@@ -57,7 +60,8 @@ set C2C_PHY ${C2C}_PHY
 
 #Create chip-2-chip ip core
 startgroup
-create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == axi_chip2chip }] $C2C
+create_bd_cell -type ip -vlnv xilinx.com:ip:axi_chip2chip:5.0 $C2C
+#create_bd_cell -type ip -vlnv [get_ipdefs -filter {NAME == axi_chip2chip }] $C2C
 set_property CONFIG.C_NUM_OF_IO {58.0}          [get_bd_cells ${C2C}]
 set_property CONFIG.C_INTERFACE_MODE {0}	[get_bd_cells ${C2C}]
 set_property CONFIG.C_MASTER_FPGA {0}		[get_bd_cells ${C2C}]
