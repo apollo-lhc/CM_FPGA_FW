@@ -58,7 +58,6 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: "src/CM_FW_info"
-                
   
   KINTEX_IPBUS:
     TCL_CALL: 
@@ -73,3 +72,14 @@ AXI_SLAVES:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
   
+  MPI_KU15P_LEDS:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83c46000"
+        range:  4K
+    XML:
+      - "address_table/modules/MPI_KU15P_LEDS.xml"
+    UHAL_BASE: 0x83000000
+

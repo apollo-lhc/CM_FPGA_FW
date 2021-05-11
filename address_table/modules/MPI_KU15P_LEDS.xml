@@ -1,0 +1,14 @@
+<node id="MPI_KU15P_LEDS">
+  <node id="LEDS" address="0x00000000">
+    <node id="LED0_BLUE"       mask="0x00000001" permission="rw"/>
+    <node id="LED1_BLUE"       mask="0x00000002" permission="rw"/>
+    <node id="LED2_ORANGE"     mask="0x00000004" permission="rw"/>
+    <node id="LED3_ORANGE"     mask="0x00000008" permission="rw"/>
+    <node id="LED4_GREEN"      mask="0x00000010" permission="rw"/>
+    <node id="LED5_GREEN"      mask="0x00000020" permission="rw"/>
+    <node id="LED6_RED"        mask="0x00000040" permission="rw"/>
+    <node id="LED7_RED"        mask="0x00000080" permission="rw"/>
+    <node id="LED_MUX"         mask="0xffffff00" permission="rw"/>
+    <node id="LED_ALL"         mask="0xffffffff" permission="rw"/>
+  </node> 
+</node>
