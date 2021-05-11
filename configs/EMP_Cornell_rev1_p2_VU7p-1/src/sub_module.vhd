@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.axiRegPkg.all;
+use work.axiRegPkg_d64.all;
 use work.types.all;
 
 Library UNISIM;
@@ -29,10 +30,10 @@ entity sub_module is
 
     clk_axi           : out std_logic;
     rst_n_axi         : out std_logic;
-    ext_AXI_ReadMOSI  : out AXIReadMOSI  := DefaultAXIReadMOSI;
-    ext_AXI_ReadMISO  : in  AXIReadMISO  := DefaultAXIReadMISO;
-    ext_AXI_WriteMOSI : out AXIWriteMOSI := DefaultAXIWriteMOSI;
-    ext_AXI_WriteMISO : in  AXIWriteMISO := DefaultAXIWriteMISO;
+    ext_AXI_ReadMOSI  : out AXIReadMOSI_d64  := DefaultAXIReadMOSI_d64;
+    ext_AXI_ReadMISO  : in  AXIReadMISO_d64  := DefaultAXIReadMISO_d64;
+    ext_AXI_WriteMOSI : out AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+    ext_AXI_WriteMISO : in  AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
     
     -- tri-color LED
     led_red : out std_logic;

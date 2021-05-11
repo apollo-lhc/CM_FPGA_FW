@@ -11,7 +11,7 @@ use work.AXIRegPkg.all;
 
 package AXIRegPkg_d64 is
 
---  constant AXI_ID_BIT_COUNT : integer := 6;
+  constant AXI_ID_BIT_COUNT : integer := 6;
 
 
   
