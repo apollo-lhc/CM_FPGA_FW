@@ -11,9 +11,3 @@
 #CM_K_INFO
 {'axi_control': '${::AXI_MASTER_CTRL}', 'remote_slave': '1', 'command': 'AXI_PL_DEV_CONNECT', 'addr': {'range': '4K', 'offset': '0xBE003000'}}
 
-#K_C2C_PHY
-{'axi_control': {'axi_rstn': '${::EXT_RESET}', 'axi_freq': '${::EXT_CLK_FREQ}', 'axi_clk': '${::EXT_CLK}', 'axi_interconnect': '${::AXI_INTERCONNECT_NAME}'}, 'remote_slave': '1', 'command': 'AXI_DEV_CONNECT', 'addr': {'range': '4K', 'offset': '0xBE000000'}}
-
-#K_IO
-{'axi_control': '${::AXI_MASTER_CTRL}', 'remote_slave': '1', 'command': 'AXI_PL_DEV_CONNECT', 'addr': {'range': '4K', 'offset': '0xBE002000'}}
-

@@ -46,7 +46,9 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/K_IO.xml"
     UHAL_BASE: 0x81000000
-    HDL: "src/CM_IO"    
+    HDL: 
+      out_dir: "src/CM_IO"    
+      map_template: "axi_generic/template_map.vhd"
   
   CM_K_INFO:
     TCL_CALL:
@@ -59,8 +61,9 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
-    HDL: "src/CM_FW_info"
-                
+    HDL: 
+      out_dir: "src/CM_FW_info"
+      map_template: "axi_generic/template_map.vhd"               
   
   KINTEX_IPBUS:
     TCL_CALL: 
