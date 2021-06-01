@@ -12,10 +12,10 @@ set vhdl_files "\
      src/misc/counter.vhd \
      src/misc/counter_clock.vhd \
      src/misc/asym_dualport_ram.vhd \
-     regmap_helpers/axiReg/axiRegWidthPkg_32.vhd \
-     regmap_helpers/axiReg/axiRegPkg_d64.vhd \
-     regmap_helpers/axiReg/axiRegPkg.vhd \
-     regmap_helpers/axiReg/axiReg.vhd \
+     regmap_helper/axiReg/axiRegWidthPkg_32.vhd \
+     regmap_helper/axiReg/axiRegPkg_d64.vhd \
+     regmap_helper/axiReg/axiRegPkg.vhd \
+     regmap_helper/axiReg/axiReg.vhd \
      src/CM_IO/V_IO_PKG.vhd \
      src/CM_IO/V_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
