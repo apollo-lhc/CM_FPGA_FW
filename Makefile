@@ -150,3 +150,6 @@ init:
 
 make test :
 	@echo $(CONFIGS)
+
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo
+	@tar -zcf $@ $< -C kernel/hw/ dtbo
