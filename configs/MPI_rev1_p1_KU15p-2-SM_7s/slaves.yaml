@@ -1,0 +1,81 @@
+AXI_CONTROL_SETS:
+  AXI_MASTER_CTRL:
+      axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+      axi_clk: "${::AXI_MASTER_CLK}"
+      axi_rstn: "${::AXI_MASTER_RSTN}"
+      axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+
+AXI_SLAVES:
+  K_C2C_PHY:
+    TCL_CALL:
+      command: AXI_DEV_CONNECT 
+      axi_control:
+        axi_interconnect: ${::AXI_INTERCONNECT_NAME} 
+        axi_clk:          ${::EXT_CLK} 
+        axi_rstn:         ${::EXT_RESET} 
+        axi_freq:         ${::EXT_CLK_FREQ}
+      addr:
+        offset: "0x83C44000"
+        range: 4K
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/DRP_USP_GTY.xml"
+    UHAL_BASE: 0x86000000
+
+  KINTEX_SYS_MGMT:
+    TCL_CALL: 
+      command: AXI_IP_SYS_MGMT
+      enable_i2c_pins: 0  
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83C42000"
+        range: 4K
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/KINTEX_SYS_MGMT.xml"
+    UHAL_BASE: 0x80000000
+  
+  K_IO:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83C40000"
+        range: 4K
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/K_IO.xml"
+    UHAL_BASE: 0x81000000
+    HDL: 
+      out_dir: "src/CM_IO"    
+      map_template: "axi_generic/template_map.vhd"
+  
+  CM_K_INFO:
+    TCL_CALL:
+      command:  AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83C43000"
+        range:  4K
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/FW_INFO.xml"
+    UHAL_BASE: 0x82000000
+    HDL: 
+      out_dir: "src/CM_FW_info"
+      map_template: "axi_generic/template_map.vhd"               
+  
+  KINTEX_IPBUS:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      type: AXI4
+      addr:
+        offset: "0x8A000000"
+        range: 32M
+      remote_slave: "1"
+      data_width: "64"
+    XML:
+      - "address_table/modules/IPBUS.xml"
+    UHAL_BASE: 0x85000000    
+  
