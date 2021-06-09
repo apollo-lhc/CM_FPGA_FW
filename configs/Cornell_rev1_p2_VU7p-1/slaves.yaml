@@ -18,7 +18,7 @@ AXI_SLAVES:
       addr:
         offset: 0xB3D44000
         range: 4K
-      remote_slave: 0
+      remote_slave: "1"
     XML:
       - "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0xC6000000
@@ -31,7 +31,7 @@ AXI_SLAVES:
       addr:
         offset: 0xB3D42000
         range: 4K
-      remote_slave: 0
+      remote_slave: "1"
     XML:
       - "address_table/modules/VIRTEX_SYS_MGMT.xml"
     UHAL_BASE: 0xC0000000
@@ -43,10 +43,13 @@ AXI_SLAVES:
       addr:
         offset: 0xB3D40000 
         range: 4K
+      remote_slave: "1"
     XML:
       - "address_table/modules/V_IO.xml"
     UHAL_BASE: 0xC1000000
-    HDL: "src/CM_IO"    
+    HDL: 
+      out_dir: "src/CM_IO"    
+      map_template: "axi_generic/template_map.vhd"
   
   CM_V_INFO:
     TCL_CALL: 
@@ -55,10 +58,13 @@ AXI_SLAVES:
       addr:
         offset: 0xB3D43000
         range: 4K
+      remote_slave: "1"
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
-    HDL: "src/CM_FW_info"
+    HDL: 
+      out_dir: "src/CM_FW_info"
+      map_template: "axi_generic/template_map.vhd"
                   
   VIRTEX_IPBUS:
     TCL_CALL: 
@@ -69,6 +75,7 @@ AXI_SLAVES:
         range: 32M
       type: AXI4
       data_width: "64"
+      remote_slave: "1"
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0xC5000000    

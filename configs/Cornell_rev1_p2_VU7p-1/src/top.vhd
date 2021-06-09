@@ -266,7 +266,8 @@ begin  -- architecture structure
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
       Ctrl.BRAM.WRITE         => BRAM_WRITE,
-      Ctrl.BRAM.ADDR          => BRAM_ADDR,
+      Ctrl.BRAM.ADDR(9 downto 0) => BRAM_ADDR,
+      Ctrl.BRAM.ADDR(14 downto 10) => open,
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 

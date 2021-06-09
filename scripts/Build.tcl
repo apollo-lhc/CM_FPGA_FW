@@ -44,7 +44,7 @@ write_checkpoint -force $outputDir/post_synth
 opt_design
 power_opt_design
 place_design
-phys_opt_design
+#phys_opt_design
 #write_checkpoint -force $outputDir/post_place
 #report_timing_summary -file $outputDir/post_place_timing_summary.rpt
 
@@ -52,7 +52,8 @@ phys_opt_design
 # STEP#4: run router, report actual utilization and timing, write checkpoint design,
 # run drc, write verilog and xdc out
 #################################################################################
-route_design -directive Explore
+#route_design -directive Explore
+route_design -directive Default
 report_timing_summary -file $outputDir/post_route_timing_summary.rpt
 report_timing -sort_by group -max_paths 100 -path_type summary -file $outputDir/post_route_timing.rpt
 report_clock_utilization -file $outputDir/clock_util.rpt

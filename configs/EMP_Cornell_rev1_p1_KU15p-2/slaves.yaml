@@ -18,7 +18,7 @@ AXI_SLAVES:
       addr:
         offset: "0x83c44000"
         range:  "4K"
-      remote_slave: "0"
+      remote_slave: "1"
     XML:
       - "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x86000000
@@ -31,7 +31,7 @@ AXI_SLAVES:
       addr:
         offset: "0x83c42000"
         range: "4K"
-      remote_slave: "0"
+      remote_slave: "1"
     XML:
       - "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
@@ -43,10 +43,13 @@ AXI_SLAVES:
       addr:
         offset: "0x83c40000"
         range:  "4K"
+      remote_slave: "1"
     XML:
       - "address_table/modules/K_IO.xml"
     UHAL_BASE: 0x81000000
-    HDL: "src/CM_IO"    
+    HDL: 
+      out_dir: "src/CM_IO"    
+      map_template: "axi_generic/template_map.vhd"
   
   CM_K_INFO:
     TCL_CALL:
@@ -55,10 +58,13 @@ AXI_SLAVES:
       addr:
         offset: "0x83c43000"
         range:  "4K"
+      remote_slave: "1"
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
-    HDL: "src/CM_FW_info"
+    HDL: 
+      out_dir: "src/CM_FW_info"
+      map_template: "axi_generic/template_map.vhd"
                 
   KINTEX_IPBUS:
     TCL_CALL:
@@ -68,6 +74,7 @@ AXI_SLAVES:
       addr:
         offset: "0x8A000000"
         range:  "32M"
+      remote_slave: "1"
       data_width: "64"
     XML:
       - "address_table/modules/IPBUS.xml"
