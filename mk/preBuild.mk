@@ -15,7 +15,7 @@ clean_prebuild:
 # generate prebuilds for FPGA builds in config
 #################################################################################
 define PREBUILD_template =
- prebuild_$(1):  $(SLAVE_DTSI_PATH)/slaves_$(1).yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_$(1).yaml $(ADDSLAVE_TCL_PATH)/$(1)/autogen/AddSlaves_$(1).tcl
+ prebuild_$(1):  $(SLAVE_DTSI_PATH)/slaves_$(1).yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_$(1).yaml 
 endef
 PREBUILDS=$(addprefix,prebuild_,$(CONFIGS))
 

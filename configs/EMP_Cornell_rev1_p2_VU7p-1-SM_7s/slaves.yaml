@@ -6,7 +6,7 @@ AXI_CONTROL_SETS:
       axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 AXI_SLAVES:
-  K_C2C_PHY:
+  V_C2C_PHY:
     TCL_CALL: 
       command: AXI_DEV_CONNECT
       axi_control: 
@@ -16,69 +16,67 @@ AXI_SLAVES:
         axi_freq: "${::EXT_CLK_FREQ}"
 
       addr:
-        offset: "0x83c44000"
+        offset: "0x83D44000"
         range:  "4K"
       remote_slave: "1"
     XML:
       - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0x86000000
-
-  KINTEX_SYS_MGMT:
+    UHAL_BASE: 0xC6000000
+  VIRTEX_SYS_MGMT:
     TCL_CALL:
       command: AXI_IP_SYS_MGMT
       enable_i2c_pins: 1
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x83c42000"
+        offset: "0x83D42000"
         range: "4K"
       remote_slave: "1"
     XML:
-      - "address_table/modules/KINTEX_SYS_MGMT.xml"
-    UHAL_BASE: 0x80000000
-  
-  K_IO:
+      - "address_table/modules/VIRTEX_SYS_MGMT.xml"
+    UHAL_BASE: 0xC0000000
+  V_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x83c40000"
+        offset: "0x83D40000"
         range:  "4K"
       remote_slave: "1"
     XML:
-      - "address_table/modules/K_IO.xml"
-    UHAL_BASE: 0x81000000
+      - "address_table/modules/V_IO.xml"
+    UHAL_BASE: 0xC1000000
     HDL: 
       out_dir: "src/CM_IO"    
-      map_template: "axi_generic/template_map.vhd"
-  
-  CM_K_INFO:
+      map_template: "axi_generic/template_map_withbram.vhd"
+
+  CM_V_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x83c43000"
+        offset: "0x83D43000"
         range:  "4K"
       remote_slave: "1"
     XML:
       - "address_table/modules/FW_INFO.xml"
-    UHAL_BASE: 0x82000000
+    UHAL_BASE: 0xC2000000
     HDL: 
       out_dir: "src/CM_FW_info"
-      map_template: "axi_generic/template_map.vhd"
-                
-  KINTEX_IPBUS:
+      map_template: "axi_generic/template_map_withbram.vhd"
+
+  VIRTEX_IPBUS:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       type: "AXI4"
       addr:
-        offset: "0x8A000000"
+        offset: "0x8C000000"
         range:  "32M"
       remote_slave: "1"
       data_width: "64"
     XML:
       - "address_table/modules/IPBUS.xml"
-    UHAL_BASE: 0x85000000    
+    UHAL_BASE: 0xC5000000    
 
 
 
