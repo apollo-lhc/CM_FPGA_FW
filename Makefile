@@ -4,7 +4,7 @@ include mk/helpers.mk
 # VIVADO stuff
 #################################################################################
 VIVADO_FLAGS=-notrace -mode batch
-BUILD_VIVADO_VERSION=2018.3
+BUILD_VIVADO_VERSION=2020.2
 #BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 BUILD_VIVADO_SHELL="/work/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 #VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
@@ -55,6 +55,13 @@ ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
 endif
 
 
+#################################################################################
+# Device tree overlays
+#################################################################################
+DTSI_PATH=${SLAVE_DTSI_PATH}/hw/
+include mk/deviceTreeOverlays.mk
+
+
 .SECONDARY:
 
 .PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init $(CONFIGS) $(PREBUILDS)
@@ -74,7 +81,7 @@ clean_bit:
 	@rm -rf ${MAKE_PATH}/bit/*
 clean_kernel:
 	@echo "Clean hw files"
-	@rm -f ${MAKE_PATH}/kernel/hw/*
+	@rm -rf ${MAKE_PATH}/kernel/hw/*
 clean: clean_bd clean_ip clean_bit clean_kernel
 	@rm -rf ${MAKE_PATH}/proj/*
 	@rm -f make_log.txt
@@ -130,6 +137,7 @@ $(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PAT
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD
+	$(MAKE) overlays
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
@@ -142,3 +150,6 @@ init:
 
 make test :
 	@echo $(CONFIGS)
+
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo
+	@tar -zcf $@ $< -C kernel/hw/ dtbo
