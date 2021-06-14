@@ -1,10 +1,10 @@
 set bd_path proj/
 
-array set bd_files [list {c2cSlave} {configs/Cornell_rev1_p1_KU15p-2/src/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
-     configs/Cornell_rev1_p1_KU15p-2/src/top.vhd \
+     configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top.vhd \
      src/misc/pass_time_domain.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
@@ -24,8 +24,8 @@ set vhdl_files "\
      src/CM_FW_info/CM_K_INFO_map.vhd \
      "
 set xdc_files "\
-    configs/Cornell_rev1_p1_KU15p-2/src/top_pins.xdc \
-    configs/Cornell_rev1_p1_KU15p-2/src/top_timing.xdc	\
+    configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \
+    configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_timing.xdc	\
     "	    
 
 set xci_files "\

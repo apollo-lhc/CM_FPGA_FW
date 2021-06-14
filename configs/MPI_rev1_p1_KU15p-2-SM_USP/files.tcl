@@ -1,10 +1,10 @@
 set bd_path proj/
 
-array set bd_files [list {c2cSlave} {configs/MPI_rev1_p1_KU15p-2/src/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/MPI_rev1_p1_KU15p-2-SM_USP/src/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
-     configs/MPI_rev1_p1_KU15p-2/src/top.vhd \
+     configs/MPI_rev1_p1_KU15p-2-SM_USP/src/top.vhd \
      src/misc/pass_time_domain.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
@@ -27,12 +27,12 @@ set vhdl_files "\
      src/misc/axi_bram_controller.vhd \
      "
 set xdc_files "\
-    configs/MPI_rev1_p1_KU15p-2/src/top_pins.xdc \
-    configs/MPI_rev1_p1_KU15p-2/src/top_timing.xdc	\
+    configs/MPI_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \
+    configs/MPI_rev1_p1_KU15p-2-SM_USP/src/top_timing.xdc	\
     "	    
 
 set xci_files "\
-    	      configs/MPI_rev1_p1_KU15p-2/cores/Local_Clocking/Local_Clocking.xci \
+    	      configs/MPI_rev1_p1_KU15p-2-SM_USP/cores/Local_Clocking/Local_Clocking.xci \
 	      cores/AXI_BRAM/AXI_BRAM.xci \
     	      "
 
