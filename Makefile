@@ -1,4 +1,3 @@
-SHELL:=/bin/bash
 #################################################################################
 # make stuff
 #################################################################################
@@ -8,10 +7,13 @@ OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
 #################################################################################
 # VIVADO stuff
 #################################################################################
-VIVADO_VERSION=2018.2
+#VIVADO_VERSION=2018.2
+VIVADO_VERSION=2018.3
+#VIVADO_VERSION=2020.1
 VIVADO_FLAGS=-notrace -mode batch
 VIVADO_SHELL="/opt/Xilinx/Vivado/"$(VIVADO_VERSION)"/settings64.sh"
-VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p os/hw && cd proj
+VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
+
 
 #################################################################################
 # TCL scripts
@@ -46,6 +48,29 @@ all: bit
 
 
 #################################################################################
+# Git submodules.
+#################################################################################
+
+submodules: bd/IP
+
+bd/IP:
+	@git submodule update --init --recursive
+
+
+#################################################################################
+# preBuild 
+#################################################################################
+SLAVE_DEF_FILE=src/slaves.yaml
+ADDSLAVE_TCL_PATH=src/c2cSlave/
+ADDRESS_TABLE_CREATION_PATH=os/
+SLAVE_DTSI_PATH=kernel/
+
+ifneq ("$(wildcard mk/preBuild.mk)","")
+  include mk/preBuild.mk
+endif
+
+
+#################################################################################
 # Clean
 #################################################################################
 clean_ip:
@@ -60,7 +85,7 @@ clean_bit:
 	@rm -rf ./bit/*
 clean_os:
 	@echo "Clean OS hw files"
-	@rm -f os/hw/*
+	@rm -f kernel/hw/*
 clean: clean_bd clean_ip clean_bit clean_os
 	@rm -rf ./proj/*
 	@echo "Cleaning up"
@@ -89,14 +114,14 @@ open_hw :
 #################################################################################
 bit	: $(BIT)
 
-interactive : 
+interactive : submodules
 	@$(VIVADO_SETUP) &&\
 	vivado -mode tcl
-$(BIT)	:
+$(BIT) : submodules
 	@mkdir -p bit
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
-SVF	:
+SVF	: submodules
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
