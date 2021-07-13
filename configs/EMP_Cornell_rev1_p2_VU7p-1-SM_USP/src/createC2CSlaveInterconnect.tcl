@@ -98,7 +98,7 @@ set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.SupportLevel         {1}          [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_USE_CHIPSCOPE      {true}       [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.drp_mode             {AXI4_LITE}  [get_bd_cells ${C2C_PHY}]
-
+set_property CONFIG.TransceiverControl   {true}       [get_bd_cells ${C2C_PHY}]
 
 #expose debugging signals to top
 make_bd_pins_external       -name ${C2C_PHY}_power_down     [get_bd_pins ${C2C_PHY}/power_down]
