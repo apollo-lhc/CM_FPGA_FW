@@ -50,6 +50,21 @@ AXI_SLAVES:
       out_dir: "src/CM_IO"    
       map_template: "axi_generic/template_map.vhd"
   
+  MEM_TEST:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83C41000"
+        range: 4K
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/MEM_TEST.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_dir: "src/MEM_TEST"    
+      map_template: "axi_generic/template_map_withbram.vhd"
+    
   CM_K_INFO:
     TCL_CALL:
       command:  AXI_PL_DEV_CONNECT

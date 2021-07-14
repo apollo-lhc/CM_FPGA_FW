@@ -12,10 +12,13 @@ set vhdl_files "\
      src/misc/counter.vhd \
      src/misc/counter_clock.vhd \
      src/misc/asym_dualport_ram.vhd \
+     src/misc/Xilinx/rams_sp_wf.vhd \
      regmap_helper/axiReg/axiRegWidthPkg_32.vhd \
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
+     regmap_helper/axiReg/axiRegBlocking.vhd \
+     regmap_helper/axiReg/bramPortPkg.vhd \
      src/CM_IO/K_IO_PKG.vhd \
      src/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
@@ -25,6 +28,9 @@ set vhdl_files "\
      src/CM_FW_info/CM_K_INFO_map.vhd \
      src/misc/axi_bram_ctrl_v4_1_rfs.vhd \
      src/misc/axi_bram_controller.vhd \
+     src/MEM_TEST/Mem_test.vhd \
+     src/MEM_TEST/MEM_TEST_map.vhd \
+     src/MEM_TEST/MEM_TEST_PKG.vhd \
      "
 set xdc_files "\
     configs/MPI_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \
