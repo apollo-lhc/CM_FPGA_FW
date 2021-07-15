@@ -56,7 +56,8 @@ Buildable Groups:
 
 #### FW
 To Build FPGA FW:
-  `make group_revN_FPGA`
+  `make group_revN_FPGA`, e.g., for Cornell CM Rev1 with 7 series zynq, VU7P FPGA: `make Cornell_rev1_p2_VU7p-1-SM_7s`
+
 
   Ouput:
   
