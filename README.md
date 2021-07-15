@@ -73,9 +73,10 @@ To Build FPGA FW:
 
 
 ### Dependencies:
-  - Vivado 2018.2 installed in /opt/Xilinx/Vivado/2018.2/
+  - Vivado 2018.2 installed in ${BUILD_VIVADO_BASE}
+  - python2
   - python-yaml
   - python-jinja2
-  - uHAL
+  - uHAL (set CACTUS_ROOT and LD_LIBARARY_PATH accordingly)
   - make
 

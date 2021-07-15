@@ -4,9 +4,10 @@ include mk/helpers.mk
 # VIVADO stuff
 #################################################################################
 VIVADO_FLAGS=-notrace -mode batch
-BUILD_VIVADO_VERSION=2020.2
+BUILD_VIVADO_VERSION?=2020.2
+BUILD_VIVADO_BASE="/work/Xilinx/Vivado"
 #BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
-BUILD_VIVADO_SHELL="/work/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
+BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 #VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
 
 
