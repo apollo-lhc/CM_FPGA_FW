@@ -98,13 +98,19 @@ set_property CONFIG.drp_mode             {AXI4_LITE}  [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.TransceiverControl   {true}       [get_bd_cells ${C2C_PHY}]
 
 #expose debugging signals to top
+make_bd_pins_external       -name ${C2C_PHY}_STATUS_channel_up         [get_bd_pins ${C2C_PHY}/channel_up     ]
+make_bd_pins_external       -name ${C2C_PHY}_STATUS_gt_pll_lock        [get_bd_pins ${C2C_PHY}/gt_pll_lock    ]
+make_bd_pins_external       -name ${C2C_PHY}_STATUS_hard_err           [get_bd_pins ${C2C_PHY}/hard_err       ]
+make_bd_pins_external       -name ${C2C_PHY}_STATUS_lane_up            [get_bd_pins ${C2C_PHY}/lane_up        ]
+make_bd_pins_external       -name ${C2C_PHY}_STATUS_mmcm_not_locked    [get_bd_pins ${C2C_PHY}/mmcm_not_locked_out]
+make_bd_pins_external       -name ${C2C_PHY}_STATUS_soft_err           [get_bd_pins ${C2C_PHY}/soft_err       ]
+
+make_bd_intf_pins_external  -name ${C2C_PHY}_DEBUG          [get_bd_intf_pins ${C2C_PHY}/TRANSCEIVER_DEBUG]
 make_bd_pins_external       -name ${C2C_PHY}_power_down     [get_bd_pins ${C2C_PHY}/power_down]
-make_bd_pins_external       -name ${C2C_PHY}_gt_pll_lock    [get_bd_pins ${C2C_PHY}/gt_pll_lock]       
-make_bd_pins_external       -name ${C2C_PHY}_hard_err       [get_bd_pins ${C2C_PHY}/hard_err]  
-make_bd_pins_external       -name ${C2C_PHY}_soft_err       [get_bd_pins ${C2C_PHY}/soft_err]  
-make_bd_pins_external       -name ${C2C_PHY}_lane_up        [get_bd_pins ${C2C_PHY}/lane_up]   
-make_bd_pins_external       -name ${C2C_PHY}_mmcm_not_locked_out  [get_bd_pins ${C2C_PHY}/mmcm_not_locked_out] 
 make_bd_pins_external       -name ${C2C_PHY}_link_reset_out [get_bd_pins ${C2C_PHY}/link_reset_out]      
+make_bd_pins_external       -name ${C2C_PHY}_user_clk_out   [get_bd_pins ${C2C_PHY}/user_clk_out]
+
+
 
 #connect C2C core with the C2C-mode Auroroa core
 connect_bd_intf_net [get_bd_intf_pins ${C2C}/AXIS_TX] [get_bd_intf_pins ${C2C_PHY}/USER_DATA_S_AXIS_TX]
@@ -115,7 +121,10 @@ connect_bd_net [get_bd_pins ${C2C_PHY}/mmcm_not_locked_out] [get_bd_pins ${C2C}/
 connect_bd_net [get_bd_pins ${C2C}/aurora_pma_init_out]     [get_bd_pins ${C2C_PHY}/pma_init]
 connect_bd_net [get_bd_pins ${C2C}/aurora_reset_pb]         [get_bd_pins ${C2C_PHY}/reset_pb]
 
+
+
 #expose the Aurora core signals to top
+
 make_bd_intf_pins_external  -name ${C2C_PHY}_refclk [get_bd_intf_pins ${C2C_PHY}/GT_DIFF_REFCLK1]
 make_bd_intf_pins_external  -name ${C2C_PHY}_Rx     [get_bd_intf_pins ${C2C_PHY}/GT_SERIAL_RX]
 make_bd_intf_pins_external  -name ${C2C_PHY}_Tx     [get_bd_intf_pins ${C2C_PHY}/GT_SERIAL_TX]
@@ -146,7 +155,6 @@ set mAXI [list ${C2C}/m_axi ${C2C}/m_axi_lite ${JTAG_AXI_MASTER}/M_AXI]
 set mCLK [list ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK} ]
 set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}] 
 [BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
-#[AXI_DEV_CONNECT ${C2C_PHY} ${AXI_INTERCONNECT_NAME} ${EXT_CLK} ${EXT_RESET} 50000000 0x83c44000 4K 0]
 
 
 

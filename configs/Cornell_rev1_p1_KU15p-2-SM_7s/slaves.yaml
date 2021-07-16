@@ -45,7 +45,9 @@ AXI_SLAVES:
         range:  "4K"
       remote_slave: "1"
     XML:
-      - "address_table/modules/K_IO.xml"
+      - "address_table/modules/CM_IO.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
     UHAL_BASE: 0x81000000
     HDL: 
       out_dir: "src/CM_IO"    

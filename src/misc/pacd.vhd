@@ -25,9 +25,9 @@ entity pacd is -- Pulse Across clock domain
   port(
     iPulseA  : IN   std_logic; -- 1 clock width pulse from source domain
     iClkA    : IN   std_logic; -- source clock domain
-    iRSTAn   : IN   std_logic; -- active low reset
+    iRSTA    : IN   std_logic; -- active high reset
     iClkB    : IN   std_logic; -- destination clock domain
-    iRSTBn   : IN   std_logic; -- active low reset
+    iRSTB    : IN   std_logic; -- active high reset
     oPulseB  : OUT  std_logic  -- 1 clock width pulse in destination domain
     );
 end pacd;
@@ -44,9 +44,9 @@ architecture rtl of pacd is
 begin -- architecture
 
 -- infer a T flip flop in source domain
-  T_PROCESS : process (iClkA,iRSTAn)
+  T_PROCESS : process (iClkA,iRSTA)
   begin
-    if(iRSTAn = '0') then
+    if(iRSTA = '1') then
       t <= '0';
     elsif(rising_edge(iClkA)) then
       t <= t XOR iPulseA;
@@ -59,9 +59,9 @@ begin -- architecture
 -- flip flop is used to turn the output of the T flip flop
 -- (now synchronized to the destination domain) into a pulse
 -- in the destination clock domain.
-  D_PROCESS : process (iClkB,iRSTBn)
+  D_PROCESS : process (iClkB,iRSTB)
   begin
-    if(iRSTBn = '0') then
+    if(iRSTB = '1') then
       d <= (others => '0');
     elsif(rising_edge(iClkB)) then
       d <= d(d'high -1 downto 0) & t;

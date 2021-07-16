@@ -19,6 +19,7 @@ set vhdl_files "\
      src/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
+     src/misc/rate_counter.vhd \
      src/CM_FW_info/CM_K_info.vhd \
      src/CM_FW_info/CM_K_INFO_PKG.vhd \
      src/CM_FW_info/CM_K_INFO_map.vhd \
