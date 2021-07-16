@@ -81,3 +81,5 @@ To Build FPGA FW:
   - uHAL (set CACTUS_ROOT and LD_LIBARARY_PATH accordingly)
   - make
 
+### Environment variables
+To override the version and/or location of the Xilinx tools, set the BUILD_VIVADO_VERSION and BUILD_VIVADO_BASE variables. A custom CACTUS location can be set by setting CACTUS_ROOT.
