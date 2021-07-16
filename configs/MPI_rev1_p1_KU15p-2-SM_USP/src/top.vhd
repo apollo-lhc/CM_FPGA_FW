@@ -62,7 +62,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 3;
+  constant localAXISlaves    : integer := 4;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -194,6 +194,26 @@ begin  -- architecture structure
     MEM_TEST_wready  => local_AXI_WriteMISO(2).ready_for_data,
     MEM_TEST_wstrb  => local_AXI_WriteMOSI(2).data_write_strobe,
     MEM_TEST_wvalid => local_AXI_WriteMOSI(2).data_valid,
+
+    SPYBUFFER_araddr  => local_AXI_ReadMOSI(3).address,
+    SPYBUFFER_arprot  => local_AXI_ReadMOSI(3).protection_type,  
+    SPYBUFFER_arready => local_AXI_ReadMISO(3).ready_for_address,
+    SPYBUFFER_arvalid => local_AXI_ReadMOSI(3).address_valid,
+    SPYBUFFER_awaddr  => local_AXI_WriteMOSI(3).address ,
+    SPYBUFFER_awprot  => local_AXI_WriteMOSI(3).protection_type,
+    SPYBUFFER_awready => local_AXI_WriteMISO(3).ready_for_address,
+    SPYBUFFER_awvalid => local_AXI_WriteMOSI(3).address_valid,
+    SPYBUFFER_bready  => local_AXI_WriteMOSI(3).ready_for_response,
+    SPYBUFFER_bresp   => local_AXI_WriteMISO(3).response,
+    SPYBUFFER_bvalid  => local_AXI_WriteMISO(3).response_valid,
+    SPYBUFFER_rdata   => local_AXI_ReadMISO(3).data,
+    SPYBUFFER_rready  => local_AXI_ReadMOSI(3).ready_for_data,
+    SPYBUFFER_rresp   => local_AXI_ReadMISO(3).response,
+    SPYBUFFER_rvalid  => local_AXI_ReadMISO(3).data_valid,
+    SPYBUFFER_wdata   => local_AXI_WriteMOSI(3).data,
+    SPYBUFFER_wready  => local_AXI_WriteMISO(3).ready_for_data,
+    SPYBUFFER_wstrb  => local_AXI_WriteMOSI(3).data_write_strobe,
+    SPYBUFFER_wvalid => local_AXI_WriteMOSI(3).data_valid,
 --priya
 
       KINTEX_IPBUS_araddr                 => ext_AXI_ReadMOSI.address,              
@@ -392,6 +412,16 @@ begin  -- architecture structure
       writeMISO   => local_AXI_WriteMISO(2) --AXI_BUS_WMISO(7)
       );
 
+   spybuffer_test_1: entity work.spybuffer_test
+    port map (
+      clk_axi     => AXI_CLK, --axi_clk,
+      reset_axi_n => AXI_RST_N, --pl_reset_n,
+      readMOSI    => local_AXI_ReadMOSI(3), --AXI_BUS_RMOSI(7),
+      readMISO    => local_AXI_ReadMISO(3), --AXI_BUS_RMISO(7),
+      writeMOSI   => local_AXI_WriteMOSI(3), --AXI_BUS_WMOSI(7),
+      writeMISO   => local_AXI_WriteMISO(3) --AXI_BUS_WMISO(7)
+      );
+
    --blockram: entity work.rams_sp_wf
    -- generic map (
    --   RAM_WIDTH => 32,
@@ -405,4 +435,7 @@ begin  -- architecture structure
    --   do    => local_AXI_ReadMISO(2).data,  
    --   do_valid => local_AXI_ReadMISO(2).data_valid );
 
+
+
+ 
 end architecture structure;

@@ -31,6 +31,10 @@ set vhdl_files "\
      src/MEM_TEST/Mem_test.vhd \
      src/MEM_TEST/MEM_TEST_map.vhd \
      src/MEM_TEST/MEM_TEST_PKG.vhd \
+     src/SPYBUFFER/SpyBuffer_test.vhd \
+     src/SPYBUFFER/spybuffer_map.vhd \
+     src/SPYBUFFER/spybuffer_pkg.vhd \
+
      "
 set xdc_files "\
     configs/MPI_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \
