@@ -6,11 +6,17 @@ SHELL=/bin/bash -o pipefail
 #add path so build can be more generic
 MAKE_PATH := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
 
-OUTPUT_MARKUP= 2>&1 | tee -a ../make_log.txt | ccze -A
+ifeq (, $(shell which ccze 2> /dev/null))
+  CCZE_CMD=
+else
+  CCZE_CMD=| ccze -A
+endif 
+OUTPUT_MARKUP= 2>&1 | tee -a ../make_log.txt ${CCZE_CMD}
 SLACK_MESG ?= echo
 
 all:
 	@echo "Please specify a design to build"
+	echo '${OUTPUT_MARKUP}'
 	@$(MAKE) list 
 
 #################################################################################
