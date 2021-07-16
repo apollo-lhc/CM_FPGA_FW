@@ -12,8 +12,8 @@ clean_CM:
 #################################################################################
 ADDRESS_TABLE ?= ${MAKE_PATH}/os/address_table/address_apollo.xml
 
-${ADDRESS_TABLE}: ${MAKE_PATH}/os/slaves.yaml ${MAKE_PATH}/CM.yaml
-	LD_LIBRARY_PATH+=/opt/cactus/lib ./scripts/BuildAddressTable.py -l ${MAKE_PATH}/os/slaves.yaml --CM ${MAKE_PATH}/CM.yaml
+${ADDRESS_TABLE}: ${MAKE_PATH}/os/slaves.yaml
+	LD_LIBRARY_PATH+=/opt/cactus/lib ./scripts/BuildAddressTable.py -l ${MAKE_PATH}/os/slaves.yaml
 
 address_table: ${ADDRESS_TABLE}
 

@@ -14,7 +14,7 @@ import uhal
 
 def RecreateDir(dir):
   try:
-    os.mkdir(dir)
+    os.makedirs(dir)
   except OSError:
     #remote files in this folder
     for filename in os.listdir(dir):
@@ -26,6 +26,7 @@ def RecreateDir(dir):
           shutil.rmtree(file_path)
       except Exception as e:
         print('Failed to delete %s. Reason: %s' % (file_path, e))
+    os.makedirs(dir)
 
 
 def AddAddressTableNode(name,slave,xmlTop):

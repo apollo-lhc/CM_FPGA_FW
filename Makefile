@@ -55,6 +55,12 @@ ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
 endif
 
 
+
+#################################################################################
+# CM Address tables
+#################################################################################
+include mk/addrTable.mk
+
 #################################################################################
 # Device tree overlays
 #################################################################################
@@ -151,5 +157,5 @@ init:
 make test :
 	@echo $(CONFIGS)
 
-%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo
-	@tar -zcf $@ $< -C kernel/hw/ dtbo
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/address_apollo.xml
+	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/address_table/ address_apollo.xml modules
