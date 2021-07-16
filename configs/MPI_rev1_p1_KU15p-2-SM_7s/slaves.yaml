@@ -66,6 +66,21 @@ AXI_SLAVES:
     HDL: 
       out_dir: "src/MEM_TEST"    
       map_template: "axi_generic/template_map_withbram.vhd"
+
+  SPYBUFFER:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
+      addr:
+        offset: "0x83C45000"
+        range: 4K
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/SPYBUFFER.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_dir: "src/MEM_TEST"    
+      map_template: "axi_generic/template_map_withbram.vhd"
     
   CM_K_INFO:
     TCL_CALL:

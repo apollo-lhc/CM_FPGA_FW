@@ -6,3 +6,9 @@
 [submodule "regmap_helper"]
 	path = regmap_helper
 	url = https://github.com/BU-Tools/uHAL_AXI_regmap.git
+[submodule "src/SPYBUFFER"]
+	path = src/SPYBUFFER
+	url = https://gitlab.cern.ch/atlas-tdaq-p2-firmware/tdaq_shared_firmware/spybuffer.git
+[submodule "src/SPYBUFFER/SpyBuffer"]
+	path = src/SPYBUFFER/SpyBuffer
+	url = https://gitlab.cern.ch/atlas-tdaq-p2-firmware/tdaq_shared_firmware/spybuffer.git
