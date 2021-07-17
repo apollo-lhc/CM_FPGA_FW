@@ -26,7 +26,7 @@ end entity spybuffer_test;
 
 architecture behavioral of spybuffer_test is
   signal Mon              :  SPYBUFFER_TEST_Mon_t;
-  signal Ctrl             :  SPYBUFFER_TEST_Ctrl_t;
+  signal Ctrl             :  SPYBUFFER_TEST_Ctrl_t := DEFAULT_SPYBUFFER_TEST_CTRL_t ;
   signal trig_write_data  :  std_logic_vector(31 downto 0) := (others => '0');
   signal trig_en          :  std_logic := '0';
   signal spy_meta_addr    : std_logic_vector(11 downto 0) := (others => '0');
@@ -49,70 +49,45 @@ begin  -- architecture behavioral
       Mon             => Mon,
       Ctrl            => Ctrl);
 
-  blockram: entity work.rams_sp_wf
-    generic map (
-      RAM_WIDTH => 13,
-      RAM_DEPTH => 256)
-    port map (
-      clk   => Ctrl.MEM1.clk,
-      we    => Ctrl.MEM1.wr_enable,
-      en    => Ctrl.MEM1.enable,
-      addr  => Ctrl.MEM1.address,
-      di    => Ctrl.MEM1.wr_data,
-      do    => Mon.MEM1.rd_data,
-      do_valid => Mon.MEM1.rd_data_valid);
+ 
 
-slc_spybuffer : entity work.spybuffer
+ spybuffer_inst : entity work.spybuffer
       generic map (
         DATA_WIDTH_A    => 32,
         DATA_WIDTH_B    => 32,
-        SPY_MEM_WIDTH_A => 12,
-        SPY_MEM_WIDTH_B => 12,
+        SPY_MEM_WIDTH_A => 8,
+        SPY_MEM_WIDTH_B => 8,
         FC_FIFO_WIDTH   => 4,
         EL_MEM_SIZE     => 16,
-        EL_MEM_WIDTH_A  => 8,
-        EL_MEM_WIDTH_B  => 8,
-        PASSTHROUGH     => 1
+        EL_MEM_WIDTH    => 8,
+        PASSTHROUGH     => 1,
+        SPY_META_DATA_WIDTH => 32
       )
       port map (
-        rclock                => Ctrl.MEM1.clk, --clk,
-        wclock                => Ctrl.MEM1.clk, --clk,
+        rclock                => Ctrl.MEM1.clk, 
+        wclock                => Ctrl.MEM1.clk, 
         rresetbar             => reset_axi_n, 
         wresetbar             => reset_axi_n, 
         write_data            => trig_write_data,
         write_enable          => trig_en,
-        read_data             => open, --csf_seed,
-        read_enable           => open, --trig_en,
-        almost_full           => open, --o_spyslc_af,
-        empty                 => open, --o_spyslc_empty,
-        freeze                => open, --i_spyslc_freeze,
-        playback              => open, --i_spyslc_playback,
-        spy_clock             => Ctrl.MEM1.clk, --spy_clock,
-        spy_addr              => Ctrl.MEM1.address, --i_spyslc_addr,
-        spy_write_enable      => Ctrl.MEM1.wr_enable, --i_spyslc_pb_we,
-        spy_write_data        => Ctrl.MEM1.wr_data, --_spyslc_pb_wdata,
-       -- spy_read_enable       => i_spyslc_re,
-        spy_data              => Mon.MEM1.rd_data, --o_spyslc_data,
-        spy_clock_meta        => Ctrl.MEM1.clk, --spy_clock,
-        spy_meta_addr         => spy_meta_addr,
-        spy_meta_read_data    => open, --o_spyslc_meta_rdata,
-        spy_meta_write_data   => spy_meta_wdata,
-        spy_meta_wen          => spy_meta_wen
-
-
+        read_data             => open,
+        read_enable           => open,
+        almost_full           => Mon.STATUS_FLAG(1 downto 1), 
+        empty                 => Mon.STATUS_FLAG(0 downto 0),
+        freeze                => Ctrl.FREEZE,
+        playback              => Ctrl.PLAYBACK,
+        spy_clock             => Ctrl.MEM1.clk, 
+        spy_addr              => Ctrl.MEM1.address, 
+        spy_write_enable      => Ctrl.MEM1.wr_enable,
+        spy_write_data        => Ctrl.MEM1.wr_data,
+        spy_data              => Mon.MEM1.rd_data, 
+        spy_clock_meta        => Ctrl.LEVEL_TEST.MEM.clk,
+        spy_meta_addr         => Ctrl.LEVEL_TEST.MEM.address,
+        spy_meta_read_data    => Mon.LEVEL_TEST.MEM.rd_data,
+        spy_meta_write_data   =>  Ctrl.LEVEL_TEST.MEM.wr_data,
+        spy_meta_wen          =>  Ctrl.LEVEL_TEST.MEM.wr_enable 
       );
 
-  other_blockram: entity work.rams_sp_wf
-    generic map (
-      RAM_WIDTH => 13,
-      RAM_DEPTH => 256)
-    port map (
-      clk   => Ctrl.LEVEL_TEST.MEM.clk,
-      en    => Ctrl.LEVEL_TEST.MEM.enable,
-      we    => Ctrl.LEVEL_TEST.MEM.wr_enable,
-      addr  => Ctrl.LEVEL_TEST.MEM.address,
-      di    => Ctrl.LEVEL_TEST.MEM.wr_data,
-      do    => Mon.LEVEL_TEST.MEM.rd_data,
-      do_valid => Mon.LEVEL_TEST.MEM.rd_data_valid);
+ 
 
 end architecture behavioral;

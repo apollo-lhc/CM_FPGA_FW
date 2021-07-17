@@ -47,6 +47,13 @@ for {set j 0} {$j < [llength $vhdl_files ] } {incr j} {
     puts "Adding $filename"
 }
 
+#Add verilog files
+for {set j 0} {$j < [llength $verilog_files ] } {incr j} {
+    set filename "${apollo_root_path}/[lindex $verilog_files $j]"
+    read_verilog -sv $filename
+    puts "Adding $filename"
+}
+
 #Add xdc files
 for {set j 0} {$j < [llength $xdc_files ] } {incr j} {
     set filename "${apollo_root_path}/[lindex $xdc_files $j]"

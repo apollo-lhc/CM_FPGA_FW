@@ -34,6 +34,20 @@ set vhdl_files "\
      src/SPYBUFFER/SpyBuffer_test.vhd \
      src/SPYBUFFER/spybuffer_map.vhd \
      src/SPYBUFFER/spybuffer_pkg.vhd \
+"
+
+set verilog_files "\
+     src/SPYBUFFER/SpyBuffer/src/SpyProtocol.vh  \
+     src/SPYBUFFER/SpyBuffer/src/aFifo/wptr_full.v \
+     src/SPYBUFFER/SpyBuffer/src/aFifo/sync_w2r.v \
+     src/SPYBUFFER/SpyBuffer/src/aFifo/sync_r2w.v \
+     src/SPYBUFFER/SpyBuffer/src/aFifo/fifomem.v \
+     src/SPYBUFFER/SpyBuffer/src/aFifo/aFifo.v \ 
+     src/SPYBUFFER/SpyBuffer/src/SpyPlayback.v \
+     src/SPYBUFFER/SpyBuffer/src/aFifo/rptr_empty.v \
+     src/SPYBUFFER/SpyBuffer/src/asym_ram_tdp_read_first.v \
+     src/SPYBUFFER/SpyBuffer/src/SpyController.v \ 
+     src/SPYBUFFER/SpyBuffer/src/SpyBuffer.v \
 
      "
 set xdc_files "\
