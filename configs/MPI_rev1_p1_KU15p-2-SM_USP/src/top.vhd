@@ -174,7 +174,7 @@ begin  -- architecture structure
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
 
---priya
+
     MEM_TEST_araddr  => local_AXI_ReadMOSI(2).address,
     MEM_TEST_arprot  => local_AXI_ReadMOSI(2).protection_type,  
     MEM_TEST_arready => local_AXI_ReadMISO(2).ready_for_address,
@@ -214,7 +214,7 @@ begin  -- architecture structure
     SPYBUFFER_wready  => local_AXI_WriteMISO(3).ready_for_data,
     SPYBUFFER_wstrb  => local_AXI_WriteMOSI(3).data_write_strobe,
     SPYBUFFER_wvalid => local_AXI_WriteMOSI(3).data_valid,
---priya
+
 
       KINTEX_IPBUS_araddr                 => ext_AXI_ReadMOSI.address,              
       KINTEX_IPBUS_arburst                => ext_AXI_ReadMOSI.burst_type,
@@ -345,62 +345,6 @@ begin  -- architecture structure
 
 
   AXI_RESET <= not AXI_RST_N;
-  axi_bram_controller_1: entity work.axi_bram_controller
-    generic map (
-      USE_D64_PKG                   => 1,
-      C_ADR_WIDTH                   => 32,
-      C_DATA_WIDTH                  => 64,
---      C_FAMILY                      => "kintexuplus",
-      C_FAMILY                      => family,
-      C_MEMORY_DEPTH                => 4096,
-      C_BRAM_ADDR_WIDTH             => 12,
-      C_SINGLE_PORT_BRAM            => 1,
-      C_S_AXI_ID_WIDTH              => 0,
---      C_S_AXI_PROTOCOL              => "AXI4",
-      C_S_AXI_PROTOCOL              => axi_protocol,
-      C_S_AXI_DATA_WIDTH            => 64)
-    port map (
-      s_axi_aclk    => AXI_CLK,
-      s_axi_aresetn => AXI_RST_N,
-      r_mosi_d64        => ext_AXI_ReadMOSI,
-      r_miso_d64        => ext_AXI_ReadMISO,
-      w_mosi_d64        => ext_AXI_WriteMOSI,
-      w_miso_d64        => ext_AXI_WriteMISO,
-      bram_rst_a    => bram_rst_a,
-      bram_clk_a    => bram_clk_a,
-      bram_en_a     => bram_en_a,
-      bram_we_a     => bram_we_a,
-      bram_addr_a(31 downto 11) => open,
-      bram_addr_a(10 downto  2) => bram_addr_a,
-      bram_addr_a( 1 downto  0) => open,
-      bram_wrdata_a => bram_wrdata_a,
-      bram_rddata_a => bram_rddata_a);
-
-
-  asym_ram_tdp_1: entity work.asym_ram_tdp
-    generic map (
-      WIDTHA     => 32,
-      SIZEA      => 1024,
-      ADDRWIDTHA => 10,
-      WIDTHB     => 64,
-      SIZEB      => 512,
-      ADDRWIDTHB => 9)
-    port map (
-      clkA  => AXI_CLK,
-      clkB  => AXI_CLK,
-      enA   => '1',
-      enB   => bram_en_a,
-      weA   => BRAM_WRITE,
-      weB   => or_reduce(bram_we_a),
-      addrA => BRAM_ADDR,
-      addrB => bram_addr_a,
-      diA   => BRAM_WR_DATA,
-      diB   => bram_wrdata_a,
-      doA   => open,
-      doB   => bram_rddata_a);
-  
-
-
   
   mem_test_1: entity work.mem_test
     port map (
@@ -422,19 +366,7 @@ begin  -- architecture structure
       writeMISO   => local_AXI_WriteMISO(3) --AXI_BUS_WMISO(7)
       );
 
-   --blockram: entity work.rams_sp_wf
-   -- generic map (
-   --   RAM_WIDTH => 32,
-   --   ADDR_WIDTH => 32)
-   -- port map (
-   --   clk   => AXI_CLK,
-   --   we    => local_AXI_WriteMOSI(2).data_valid, 
-   --   en    => local_AXI_WriteMOSI(2).ready_for_response, 
-   --   addr  => local_AXI_ReadMOSI(2).address,
-   --   di    => local_AXI_WriteMOSI(2).data, 
-   --   do    => local_AXI_ReadMISO(2).data,  
-   --   do_valid => local_AXI_ReadMISO(2).data_valid );
-
+  
 
 
  

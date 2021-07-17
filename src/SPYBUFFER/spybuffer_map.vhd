@@ -19,7 +19,7 @@ entity SPYBUFFER_TEST_interface is
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
     
     Mon              : in  SPYBUFFER_TEST_Mon_t;
-    Ctrl             : out SPYBUFFER_TEST_Ctrl_t
+    Ctrl             : out SPYBUFFER_TEST_Ctrl_t := DEFAULT_SPYBUFFER_TEST_CTRL_t 
         
     );
 end entity SPYBUFFER_TEST_interface;
@@ -30,7 +30,8 @@ architecture behavioral of SPYBUFFER_TEST_interface is
   signal localWrData        : slv_32_t;
   signal localWrEn          : std_logic;
   signal localRdReq         : std_logic;
-  signal localRdAck         : std_logic;
+  signal
+    localRdAck         : std_logic;
   signal regRdAck           : std_logic;
 
   
@@ -68,7 +69,7 @@ begin  -- architecture behavioral
       read_req    => localRdReq,
       read_ack    => localRdAck);
 
-  -------------------------------------------------------------------------------
+   -------------------------------------------------------------------------------
   -- Record read decoding
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
@@ -93,8 +94,7 @@ begin  -- architecture behavioral
       end if;
     end if;
   end process latch_reads;
-
-  
+ 
   reads: process (clk_axi,reset_axi_n) is
   begin  -- process latch_reads
     if reset_axi_n = '0' then
@@ -104,48 +104,9 @@ begin  -- architecture behavioral
       localRdData <= x"00000000";
       if localRdReq = '1' then
         regRdAck  <= '1';
-        case to_integer(unsigned(localAddress(10 downto 0))) is
-          
-        when 0 => --0x0
-          localRdData( 1)            <=  Mon.GIT_VALID;                    --
-        when 1 => --0x1
-          localRdData(31 downto  0)  <=  Mon.GIT_HASH_1;                   --
-        when 2 => --0x2
-          localRdData(31 downto  0)  <=  Mon.GIT_HASH_2;                   --
-        when 3 => --0x3
-          localRdData(31 downto  0)  <=  Mon.GIT_HASH_3;                   --
-        when 4 => --0x4
-          localRdData(31 downto  0)  <=  Mon.GIT_HASH_4;                   --
-        when 5 => --0x5
-          localRdData(31 downto  0)  <=  Mon.GIT_HASH_5;                   --
-        when 32 => --0x20
-          localRdData(31 downto  0)  <=  reg_data(32)(31 downto  0);       --
-        when 16 => --0x10
-          localRdData( 7 downto  0)  <=  Mon.BUILD_DATE.DAY;               --
-          localRdData(15 downto  8)  <=  Mon.BUILD_DATE.MONTH;             --
-          localRdData(31 downto 16)  <=  Mon.BUILD_DATE.YEAR;              --
-        when 17 => --0x11
-          localRdData( 7 downto  0)  <=  Mon.BUILD_TIME.SEC;               --
-          localRdData(15 downto  8)  <=  Mon.BUILD_TIME.MIN;               --
-          localRdData(23 downto 16)  <=  Mon.BUILD_TIME.HOUR;              --
-        when 18 => --0x12
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_00;                 --
-        when 19 => --0x13
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_01;                 --
-        when 20 => --0x14
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_02;                 --
-        when 21 => --0x15
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_03;                 --
-        when 22 => --0x16
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_04;                 --
-        when 23 => --0x17
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_05;                 --
-        when 24 => --0x18
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_06;                 --
-        when 25 => --0x19
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_07;                 --
-        when 26 => --0x1a
-          localRdData(31 downto  0)  <=  Mon.FPGA.WORD_08;                 --
+        case to_integer(unsigned(localAddress(10 downto 0))) is                                 --
+        when 33 => --0x20
+          localRdData(31 downto  0)  <=  Mon.STATUS_FLAG;        -- STATUS       
         when 768 => --0x300
           localRdData(31 downto  0)  <=  reg_data(768)(31 downto  0);      --
 
@@ -166,14 +127,15 @@ begin  -- architecture behavioral
 
   -- Register mapping to ctrl structures
   Ctrl.FREEZE             <=  reg_data(32)(0 downto  0);
-  Ctrl.PLAYBACK           <=  reg_data(32)(1 downto  1);        
+  Ctrl.PLAYBACK           <=  reg_data(32)(2 downto  1);        
   Ctrl.LEVEL_TEST.THING  <=  reg_data(768)(31 downto  0);     
 
 
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data(32)(31 downto  0)   <= DEFAULT_SPYBUFFER_TEST_CTRL_t.FREEZE &  DEFAULT_SPYBUFFER_TEST_CTRL_t.PLAYBACK;
+      reg_data(32)(31 downto 3)   <= (others => '0');
+      reg_data(32)(2 downto  0)   <=  DEFAULT_SPYBUFFER_TEST_CTRL_t.PLAYBACK & DEFAULT_SPYBUFFER_TEST_CTRL_t.FREEZE ;     
       reg_data(768)(31 downto  0)  <= DEFAULT_SPYBUFFER_TEST_CTRL_t.LEVEL_TEST.THING;
 
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
@@ -183,11 +145,11 @@ begin  -- architecture behavioral
       if localWrEn = '1' then
         case to_integer(unsigned(localAddress(10 downto 0))) is
         when 32 => --0x20
-          reg_data(32)(31 downto  0)   <=  localWrData(31 downto  0);      --
+          reg_data(32)(31 downto  0)   <=  localWrData(31 downto  0);      --      
         when 768 => --0x300
           reg_data(768)(31 downto  0)  <=  localWrData(31 downto  0);      --
 
-          when others => null;
+        when others => null;
         end case;
       end if;
     end if;
@@ -212,13 +174,14 @@ begin  -- architecture behavioral
         BRAM_MOSI(iBRAM).address <= localAddress;
         latchBRAM(iBRAM) <= '0';
         BRAM_MOSI(iBRAM).enable  <= '0';
-        BRAM_MOSI(iBRAM).rd_data_valid <= '0';
+        BRAM_MISO(iBRAM).rd_data_valid <= '0';
         if localAddress(10 downto BRAM_range(iBRAM)) = BRAM_addr(iBRAM)(10 downto BRAM_range(iBRAM)) then
           latchBRAM(iBRAM)         <= localRdReq;
           BRAM_MOSI(iBRAM).enable  <= '1';
         end if;
-        if(latchBRAM(iBRAM) = '1')
-          BRAM_MOSI(iBRAM).rd_data_valid <= '1';
+        if(latchBRAM(iBRAM) = '1') then
+          BRAM_MISO(iBRAM).rd_data_valid <= '1';
+        end if;
       end if;
     end process BRAM_read;
   end generate BRAM_reads;
@@ -234,22 +197,24 @@ begin  -- architecture behavioral
   Ctrl.MEM1.enable    <=  BRAM_MOSI(0).enable;
   Ctrl.MEM1.wr_enable <=  BRAM_MOSI(0).wr_enable;
   Ctrl.MEM1.address   <=  BRAM_MOSI(0).address(8-1 downto 0);
-  Ctrl.MEM1.wr_data   <=  BRAM_MOSI(0).wr_data(13-1 downto 0);
+  Ctrl.MEM1.wr_data   <=  BRAM_MOSI(0).wr_data(31 downto 0);
 
   Ctrl.LEVEL_TEST.MEM.clk       <=  BRAM_MOSI(1).clk;
   Ctrl.LEVEL_TEST.MEM.enable    <=  BRAM_MOSI(1).enable;
   Ctrl.LEVEL_TEST.MEM.wr_enable <=  BRAM_MOSI(1).wr_enable;
   Ctrl.LEVEL_TEST.MEM.address   <=  BRAM_MOSI(1).address(8-1 downto 0);
-  Ctrl.LEVEL_TEST.MEM.wr_data   <=  BRAM_MOSI(1).wr_data(13-1 downto 0);
+  Ctrl.LEVEL_TEST.MEM.wr_data   <=  BRAM_MOSI(1).wr_data(31 downto 0);
 
 
-  BRAM_MISO(0).rd_data(13-1 downto 0) <= Mon.MEM1.rd_data;
-  BRAM_MISO(0).rd_data(31 downto 13) <= (others => '0');
-  BRAM_MISO(0).rd_data_valid <= Mon.MEM1.rd_data_valid;
+  BRAM_MISO(0).rd_data(31 downto 0) <= Mon.MEM1.rd_data;
 
-  BRAM_MISO(1).rd_data(13-1 downto 0) <= Mon.LEVEL_TEST.MEM.rd_data;
-  BRAM_MISO(1).rd_data(31 downto 13) <= (others => '0');
-  BRAM_MISO(1).rd_data_valid <= Mon.LEVEL_TEST.MEM.rd_data_valid;
+  --BRAM_MISO(0).rd_data_valid <= Mon.MEM1.rd_data_valid;
+
+  BRAM_MISO(1).rd_data(31 downto 0) <= Mon.LEVEL_TEST.MEM.rd_data;
+ 
+  --BRAM_MISO(1).rd_data_valid <= Mon.LEVEL_TEST.MEM.rd_data_valid;
+
+
 
     
 
@@ -266,6 +231,8 @@ begin  -- architecture behavioral
       end if;
     end process BRAM_write;
   end generate BRAM_writes;
+  
+ 
 
 
   
