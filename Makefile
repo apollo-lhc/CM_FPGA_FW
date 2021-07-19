@@ -135,7 +135,7 @@ interactive :
 	vivado -mode tcl
 
 #$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl 
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDSLAVE_TCL_PATH)/%/autogen/AddSlaves_%.tcl 
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -157,5 +157,5 @@ init:
 make test :
 	@echo $(CONFIGS)
 
-%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/address_apollo.xml
-	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/address_table/ address_apollo.xml modules
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/address_%.xml
+	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/address_table/ address_*.xml modules*

@@ -127,6 +127,7 @@ begin  -- architecture behavioral
         when 9 => --0x9
           localRdData( 3 downto  0)  <=  reg_data( 9)( 3 downto  0);            --DEBUG PRBS select
           localRdData( 8 downto  4)  <=  reg_data( 9)( 8 downto  4);            --DEBUG tx diff control
+        when 15 => --0xf
           localRdData(31 downto  0)  <=  Mon.C2C.USER_FREQ;                     --Measured Freq of clock
         when 16 => --0x10
           localRdData( 0)            <=  Mon.CLK_200_LOCKED;                    --
