@@ -53,8 +53,9 @@ connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $SYS_RESETER_AXI_RST
 #================================================================================
 #  Configure chip 2 chip links
 #================================================================================
-set C2C K_C2C
-set C2C_PHY ${C2C}_PHY
+#required to be set by this point
+#C2C
+#C2C_PHY
 
 #Create chip-2-chip ip core
 startgroup
