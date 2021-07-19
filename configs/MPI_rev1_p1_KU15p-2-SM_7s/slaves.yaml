@@ -62,7 +62,7 @@ AXI_SLAVES:
       remote_slave: "1"
     XML:
       - "address_table/modules/MEM_TEST.xml"
-    UHAL_BASE: 0x86000000
+    UHAL_BASE: 0x87000000
     HDL: 
       out_dir: "src/MEM_TEST"    
       map_template: "axi_generic/template_map_withbram.vhd"
@@ -77,7 +77,7 @@ AXI_SLAVES:
       remote_slave: "1"
     XML:
       - "address_table/modules/SPYBUFFER.xml"
-    UHAL_BASE: 0x86000000
+    UHAL_BASE: 0x88000000
     HDL: 
       out_dir: "src/MEM_TEST"    
       map_template: "axi_generic/template_map_withbram.vhd"
