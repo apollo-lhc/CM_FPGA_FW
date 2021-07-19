@@ -145,6 +145,8 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_T
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD
 	$(MAKE) overlays
+	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
+	$(MAKE) $*.tar.gz
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
@@ -158,5 +160,5 @@ init:
 make test :
 	@echo $(CONFIGS)
 
-%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/address_%.xml
-	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/address_table/ address_*.xml modules*
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/
+	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
