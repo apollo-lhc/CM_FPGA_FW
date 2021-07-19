@@ -26,15 +26,14 @@ def RecreateDir(dir):
           shutil.rmtree(file_path)
       except Exception as e:
         print('Failed to delete %s. Reason: %s' % (file_path, e))
-    os.makedirs(dir)
 
 
-def AddAddressTableNode(name,slave,xmlTop):
+def AddAddressTableNode(name,slave,xmlTop,modulesPath):
   child = ET.SubElement(xmlTop,"node")
   child.set("id",name)
   child.set("address",slave['UHAL_BASE'])
   if "XML" in slave:
-    child.set("module",slave['XML'][0])
+    child.set("module",slave['XML'][0].replace("modules",modulesPath))
   if 'XML_MODE' in slave:
     child.set("mode",slave['XML_MODE'])
   if 'XML_SIZE' in slave:
@@ -125,12 +124,12 @@ def BuildAddressTable(fileName,top):
     ATFile.write("</node>\n")
     
 
-def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir):
+def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir,topName,modulesPath):
     #address table top node
     top = ET.Element("node",{"id":"top"})
 
     #local slaves
-    RecreateDir(outputDir+"address_table/modules")
+    RecreateDir(outputDir)
     slavesFile=open(localSlavesYAML)
     slaves=yaml.load(slavesFile)
     for slave in slaves['UHAL_MODULES']:
@@ -139,7 +138,7 @@ def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir):
           #copy XML files
           xmlFile=slaves['UHAL_MODULES'][slave]["XML"][iFile]
           try:
-            shutil.copyfile(os.path.abspath(xmlFile),outputDir+xmlFile)
+            shutil.copyfile(os.path.abspath(xmlFile),outputDir+"/"+os.path.basename(xmlFile))
           except OSError:
             pass
           if iFile == 0:
@@ -148,7 +147,7 @@ def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir):
             slaves['UHAL_MODULES'][slave]['XML'][iFile] = relPath
 
         
-        AddAddressTableNode(slave,slaves['UHAL_MODULES'][slave],top)
+        AddAddressTableNode(slave,slaves['UHAL_MODULES'][slave],top,modulesPath)
 
     remoteSlaves = list()
     #append CM.yaml remote slaves
@@ -186,16 +185,16 @@ def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir):
 
 
     #generate the final address table file
-    BuildAddressTable(outputDir+"address_table/address_apollo.xml",top)
+    BuildAddressTable(outputDir+"/../"+topName,top)
 
 
     #generate a connections file
-    connFile=open(outputDir+"address_table/connections.xml","w")
+    connFile=open(outputDir+"/../connections.xml","w")
     connFile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
     connFile.write('\n')
     connFile.write('<connections>\n')
     connFile.write('  <!-- be sure to use the same file in both "uri" and "address_table" -->\n')
-    connFile.write('  <connection id="test.0"        uri="uioaxi-1.0:///opt/address_table/address_apollo.xml"                     address_table="file:///opt/address_table/address_apollo.xml" />\n')
+    connFile.write('  <connection id="test.0"        uri="uioaxi-1.0:///opt/address_table/'+topName+'"                     address_table="file:///opt/address_table/'+topName+'" />\n')
     connFile.write('</connections>\n')
     connFile.close()
 
@@ -203,7 +202,7 @@ def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir):
     uhal.setLogLevelTo(uhal.LogLevel.WARNING)
     try:
         device = uhal.getDevice("dummy","ipbusudp-1.3://localhost:12345","file://" + 
-                                outputDir+ "address_table/address_apollo.xml")        
+                                outputDir+"/../"+topName)        
     except Exception:
         raise Exception("File '%s' does not exist or has incorrect format" % outputDir+ "address_table/address_apollo.xml")
         
@@ -219,10 +218,14 @@ if __name__ == "__main__":
     parser.add_argument("--localSlavesYAML","-l"      ,help="YAML file storing the slave info for generation",required=True)
     parser.add_argument("--remoteSlavesYAML","-r"     ,help="YAML file storing remote locations of slave info for generation",required=False,action='append')
     parser.add_argument("--CM","-R"                   ,help="YAML file for CM sources used to set the remoteSlaves",required=False)  
-    parser.add_argument("--outputDir","-o"            ,help="Output directory",default="os/")
+    parser.add_argument("--outputDir","-o"            ,help="Output directory",default="os/address_table/modules")
+    parser.add_argument("--topName","-t"              ,help="top name for name.xml", default="address_apollo.xml")
+    parser.add_argument("--modulesPath","-m"          ,help="what to rename the modules path to", default="modules")
     args=parser.parse_args()
     
     main(args.localSlavesYAML,
          args.remoteSlavesYAML,
          args.CM,
-         args.outputDir)
+         args.outputDir,
+         args.topName,
+         args.modulesPath)

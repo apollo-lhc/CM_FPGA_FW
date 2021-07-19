@@ -116,7 +116,7 @@ def LoadSlave(name,slave,dtsiYAML,aTableYAML,parentName,map_template_file,pkg_te
 
 
 
-def main(addSlaveTCLPath, dtsiPath, addressTablePath, slavesFileName,map_template_file,pkg_template_file):
+def main(addSlaveTCLPath, dtsiSlavesFile, addressTableSlavesFile, slavesFileName,map_template_file,pkg_template_file):
   # configure logger
   global log
   log = logging.getLogger("main")
@@ -131,11 +131,11 @@ def main(addSlaveTCLPath, dtsiPath, addressTablePath, slavesFileName,map_templat
 
     
   #dtsi yaml file
-  dtsiYAMLFile=open(dtsiPath+"/slaves.yaml","w")
+  dtsiYAMLFile=open(dtsiSlavesFile,"w")
   dtsiYAML = dict()
 
   #address table yaml file
-  addressTableYAMLFile=open(addressTablePath+"/slaves.yaml","w")
+  addressTableYAMLFile=open(addressTableSlavesFile,"w")
   aTableYAML = dict()
 
   #source slave yaml to drive the rest of the build
@@ -165,16 +165,16 @@ def main(addSlaveTCLPath, dtsiPath, addressTablePath, slavesFileName,map_templat
 if __name__ == "__main__":
   #command line
   parser = argparse.ArgumentParser(description="Create auto-generated files for the build system.")
-  parser.add_argument("--slavesFile","-s"      ,help="YAML file storing the slave info for generation",required=True)
-  parser.add_argument("--addSlaveTCLPath","-t" ,help="Path for AddSlaves.tcl",required=True)
-  parser.add_argument("--addressTablePath","-a",help="Path for address table generation yaml",required=True)
-  parser.add_argument("--dtsiPath","-d"        ,help="Path for dtsi yaml",required=True)
+  parser.add_argument("--slavesFile","-s"         ,help="YAML file storing the slave info for generation",required=True)
+  parser.add_argument("--addSlaveTCLPath","-t"    ,help="Path for AddSlaves.tcl",required=True)
+  parser.add_argument("--addressTableSlavesFile","-a"   ,help="File for address table generation yaml",required=True)
+  parser.add_argument("--dtsiSlavesFile","-d"           ,help="File for dtsi yaml",required=True)
   parser.add_argument("--mapTemplate","-m"        ,help="Path for map_template file",required=False)
   parser.add_argument("--pkgTemplate","-p"        ,help="Path for pkg_template file",required=False)
   args=parser.parse_args()
-  main(addSlaveTCLPath   = args.addSlaveTCLPath, 
-       dtsiPath          = args.dtsiPath, 
-       addressTablePath  = args.addressTablePath, 
-       slavesFileName    = args.slavesFile,
-       map_template_file = args.mapTemplate,
-       pkg_template_file = args.pkgTemplate)
+  main(addSlaveTCLPath        = args.addSlaveTCLPath, 
+       dtsiSlavesFile         = args.dtsiSlavesFile, 
+       addressTableSlavesFile = args.addressTableSlavesFile, 
+       slavesFileName         = args.slavesFile,
+       map_template_file      = args.mapTemplate,
+       pkg_template_file      = args.pkgTemplate)

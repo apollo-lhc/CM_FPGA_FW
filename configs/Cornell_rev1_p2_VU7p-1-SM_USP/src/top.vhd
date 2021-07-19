@@ -75,28 +75,16 @@ architecture structure of top is
 
   
 
-  signal C2CLink_aurora_do_cc                : STD_LOGIC;
-  signal C2CLink_axi_c2c_config_error_out    : STD_LOGIC;
-  signal C2CLink_axi_c2c_link_status_out     : STD_LOGIC;
-  signal C2CLink_axi_c2c_multi_bit_error_out : STD_LOGIC;
-  signal C2CLink_phy_gt_pll_lock             : STD_LOGIC;
-  signal C2CLink_phy_hard_err                : STD_LOGIC;
-  signal C2CLink_phy_lane_up                 : STD_LOGIC_VECTOR ( 0 to 0 );
-  signal C2CLink_phy_link_reset_out          : STD_LOGIC;
-  signal C2CLink_phy_mmcm_not_locked_out     : STD_LOGIC;
-  signal C2CLink_phy_soft_err                : STD_LOGIC;
+  signal C2C_Mon  : V_IO_C2C_MON_t;
+  signal C2C_Ctrl : V_IO_C2C_Ctrl_t;
+
+  signal clk_V_C2C_PHY_user                  : STD_logic;
 
 
   signal BRAM_write : std_logic;
   signal BRAM_addr  : std_logic_vector(9 downto 0);
   signal BRAM_WR_data : std_logic_vector(31 downto 0);
   signal BRAM_RD_data : std_logic_vector(31 downto 0);
-
---  signal AXI_BRAM_EN : std_logic;
---  signal AXI_BRAM_we : std_logic_vector(3 downto 0);
---  signal AXI_BRAM_addr :std_logic_vector(11 downto 0);
---  signal AXI_BRAM_DATA_IN : std_logic_vector(31 downto 0);
---  signal AXI_BRAM_DATA_OUT : std_logic_vector(31 downto 0);
 
 
   signal bram_rst_a    : std_logic;
@@ -107,8 +95,6 @@ architecture structure of top is
   signal bram_wrdata_a : std_logic_vector(63 downto 0);
   signal bram_rddata_a : std_logic_vector(63 downto 0);
 
-
-  
   
 begin  -- architecture structure
 
@@ -214,17 +200,54 @@ begin  -- architecture structure
       VIRTEX_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
       VIRTEX_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
       reset_n                               => locked_clk200,--reset,
-      V_C2C_aurora_do_cc                => C2CLink_aurora_do_cc,               
-      V_C2C_axi_c2c_config_error_out    => C2CLink_axi_c2c_config_error_out,   
-      V_C2C_axi_c2c_link_status_out     => C2CLink_axi_c2c_link_status_out,    
-      V_C2C_axi_c2c_multi_bit_error_out => C2CLink_axi_c2c_multi_bit_error_out,
-      V_C2C_phy_gt_pll_lock             => C2CLink_phy_gt_pll_lock,            
-      V_C2C_phy_hard_err                => C2CLink_phy_hard_err,               
-      V_C2C_phy_lane_up                 => C2CLink_phy_lane_up,                
-      V_C2C_phy_link_reset_out          => C2CLink_phy_link_reset_out,         
-      V_C2C_phy_mmcm_not_locked_out     => C2CLink_phy_mmcm_not_locked_out,    
+
+      V_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.DEBUG.CPLL_LOCK,
+      V_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.DEBUG.DMONITOR,
+      V_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.DEBUG.EYESCAN_DATA_ERROR,
+      
+      V_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.DEBUG.EYESCAN_RESET,
+      V_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.DEBUG.EYESCAN_TRIGGER,
+      V_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.DEBUG.PCS_RSV_DIN,
+      V_C2C_PHY_DEBUG_qplllock(0)         => C2C_Mon.DEBUG.QPLL_LOCK,
+      V_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.DEBUG.RX.BUF_RESET,
+      V_C2C_PHY_DEBUG_rxbufstatus         => C2C_Mon.DEBUG.RX.BUF_STATUS,
+      V_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.DEBUG.RX.CDR_HOLD,
+      V_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.DEBUG.RX.DFE_LPM_RESET,
+      V_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.DEBUG.RX.LPM_EN,
+      V_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.DEBUG.RX.PCS_RESET,
+      V_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.DEBUG.RX.PMA_RESET,
+      V_C2C_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon.DEBUG.RX.RESET_DONE,
+      V_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.DEBUG.RX.PRBS_CNT_RST,
+      V_C2C_PHY_DEBUG_rxprbserr(0)        => C2C_Mon.DEBUG.RX.PRBS_ERR,
+      V_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.DEBUG.RX.PRBS_SEL,
+      V_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.DEBUG.RX.RATE,
+      V_C2C_PHY_DEBUG_rxresetdone(0)      => C2C_Mon.DEBUG.RX.RESET_DONE,
+      V_C2C_PHY_DEBUG_txbufstatus         => C2C_Mon.DEBUG.TX.BUF_STATUS,
+      V_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.DEBUG.TX.DIFF_CTRL,
+      V_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.DEBUG.TX.INHIBIT,
+      V_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.DEBUG.TX.PCS_RESET,
+      V_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.DEBUG.TX.PMA_RESET,
+      V_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.DEBUG.TX.POLARITY,
+      V_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.DEBUG.TX.POST_CURSOR,
+      V_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.DEBUG.TX.PRBS_FORCE_ERR,
+      V_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.DEBUG.TX.PRBS_SEL,
+      V_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.DEBUG.TX.PRE_CURSOR,
+      V_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON.DEBUG.TX.RESET_DONE,
+
+      V_C2C_PHY_STATUS_channel_up         => C2C_Mon.STATUS.CHANNEL_UP,      
+      V_C2C_PHY_STATUS_gt_pll_lock        => C2C_MON.STATUS.PHY_GT_PLL_LOCK,
+      V_C2C_PHY_STATUS_hard_err           => C2C_Mon.STATUS.PHY_HARD_ERR,
+      V_C2C_PHY_STATUS_lane_up            => C2C_Mon.STATUS.PHY_LANE_UP(0 downto 0),
+      V_C2C_PHY_STATUS_mmcm_not_locked    => C2C_Mon.STATUS.PHY_MMCM_LOL,
+      V_C2C_PHY_STATUS_soft_err           => C2C_Mon.STATUS.PHY_SOFT_ERR,
+
+      V_C2C_aurora_do_cc                => C2C_Mon.STATUS.DO_CC,
+      V_C2C_axi_c2c_config_error_out    => C2C_Mon.STATUS.CONFIG_ERROR,
+      V_C2C_axi_c2c_link_status_out     => C2C_MON.STATUS.LINK_GOOD,
+      V_C2C_axi_c2c_multi_bit_error_out => C2C_MON.STATUS.MB_ERROR,
       V_C2C_phy_power_down              => '0',
-      V_C2C_phy_soft_err                => C2CLink_phy_soft_err,               
+      V_C2C_PHY_user_clk_out            => clk_V_C2C_PHY_user,
+
       VIRTEX_SYS_MGMT_sda                   =>v_fpga_i2c_sda,
       VIRTEX_SYS_MGMT_scl                   =>v_fpga_i2c_scl
 );
@@ -242,6 +265,16 @@ begin  -- architecture structure
       LEDgreen   => led_green,
       LEDblue    => led_blue);
 
+  rate_counter_1: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => 2000000)
+    port map (
+      clk_A         => clk_200,
+      clk_B         => clk_V_C2C_PHY_user,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_Mon.USER_FREQ);
+
   V_IO_interface_1: entity work.V_IO_interface
     port map (
       clk_axi         => AXI_CLK,
@@ -250,18 +283,10 @@ begin  -- architecture structure
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
-      Mon.C2C.CONFIG_ERR      => C2CLink_axi_c2c_config_error_out,
-      Mon.C2C.DO_CC           => C2CLink_aurora_do_cc,
-      Mon.C2C.GT_PLL_LOCK     => C2CLink_phy_gt_pll_lock,
-      Mon.C2C.HARD_ERR        => C2CLink_phy_hard_err,
-      Mon.C2C.LANE_UP         => C2CLink_phy_lane_up(0),
-      Mon.C2C.LINK_RESET      => C2CLink_phy_link_reset_out,
-      Mon.C2C.LINK_STATUS     => C2CLink_axi_c2c_link_status_out,
-      Mon.C2C.MMCM_NOT_LOCKED => C2CLink_phy_mmcm_not_locked_out,
-      Mon.C2C.MULTIBIT_ERR    => C2CLink_axi_c2c_multi_bit_error_out,
-      Mon.C2C.SOFT_ERR        => C2CLink_phy_soft_err,
+      Mon.C2C                 => C2C_Mon,
       Mon.CLK_200_LOCKED      => locked_clk200,
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
+      Ctrl.C2C                => C2C_Ctrl,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
