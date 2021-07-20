@@ -32,8 +32,8 @@ set vhdl_files "\
      src/MEM_TEST/MEM_TEST_map.vhd \
      src/MEM_TEST/MEM_TEST_PKG.vhd \
      src/SPYBUFFER/SpyBuffer_test.vhd \
-     src/SPYBUFFER/spybuffer_map.vhd \
-     src/SPYBUFFER/spybuffer_pkg.vhd \
+     src/SPYBUFFER/SPYBUFFER_map.vhd \
+     src/SPYBUFFER/SPYBUFFER_PKG.vhd \
 "
 
 set verilog_files "\
