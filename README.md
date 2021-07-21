@@ -79,6 +79,7 @@ To Build FPGA FW:
   - python-yaml
   - python-jinja2
   - uHAL (set CACTUS_ROOT and LD_LIBARARY_PATH accordingly)
+  - device tree compiler (rpm name "dtc")
   - make
 
 ### Environment variables
