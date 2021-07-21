@@ -7,7 +7,7 @@ use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
-entity K_IO_interface is
+entity K_IO_map is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -18,8 +18,8 @@ entity K_IO_interface is
     Mon              : in  K_IO_Mon_t;
     Ctrl             : out K_IO_Ctrl_t
     );
-end entity K_IO_interface;
-architecture behavioral of K_IO_interface is
+end entity K_IO_map;
+architecture behavioral of K_IO_map is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;

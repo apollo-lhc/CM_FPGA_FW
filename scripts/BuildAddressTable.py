@@ -9,8 +9,6 @@ import xml.etree.ElementTree as ET
 from xml.etree import ElementTree
 from xml.dom import minidom
 
-import uhal
-
 
 def RecreateDir(dir):
   try:
@@ -198,13 +196,6 @@ def main(localSlavesYAML,remoteSlavesYAML,CMyaml,outputDir,topName,modulesPath):
     connFile.write('</connections>\n')
     connFile.close()
 
-    #check files
-    uhal.setLogLevelTo(uhal.LogLevel.WARNING)
-    try:
-        device = uhal.getDevice("dummy","ipbusudp-1.3://localhost:12345","file://" + 
-                                outputDir+"/../"+topName)        
-    except Exception:
-        raise Exception("File '%s' does not exist or has incorrect format" % outputDir+ "address_table/address_apollo.xml")
         
 
     

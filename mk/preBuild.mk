@@ -1,5 +1,4 @@
-CACTUS_ROOT?="/opt/cactus"
-CACTUS_LD_PATH:=$(CACTUS_ROOT)"/lib/"
+
 
 #################################################################################
 # Clean
@@ -25,14 +24,21 @@ PREBUILDS=$(addprefix,prebuild_,$(CONFIGS))
 # prebuild 
 #################################################################################
 
+ifdef CACTUS_ROOT
+	USE_SIMPLE_PARSER=-u False
+	CACTUS_LD_PATH:=$(CACTUS_ROOT)"/lib/"
+else
+	USE_SIMPLE_PARSER=-u True
+endif
 
 $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml : $(SLAVE_DEF_FILE_BASE)/%/slaves.yaml
 	@mkdir -p $(ADDRESS_TABLE_CREATION_PATH)
 	@mkdir -p $(SLAVE_DTSI_PATH)
 	LD_LIBRARY_PATH=$(CACTUS_LD_PATH) ./scripts/preBuild.py \
 			                     -s $^ \
-				             -a $@ \
-				             -d $(subst $(ADDRESS_TABLE_CREATION_PATH), $(SLAVE_DTSI_PATH),$@)
+				             -a $(subst $(SLAVE_DTSI_PATH),$(ADDRESS_TABLE_CREATION_PATH),$@) \
+				             -d $(subst $(ADDRESS_TABLE_CREATION_PATH), $(SLAVE_DTSI_PATH),$@) \
+                                             $(USE_SIMPLE_PARSER)
 
 
 

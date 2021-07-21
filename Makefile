@@ -46,8 +46,6 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 # preBuild 
 #################################################################################
 SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
-#ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/c2cSlave/
-ADDSLAVE_TCL_PATH=${MAKE_PATH}/configs/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 
@@ -89,7 +87,7 @@ clean_bit:
 clean_kernel:
 	@echo "Clean hw files"
 	@rm -rf ${MAKE_PATH}/kernel/hw/*
-clean: clean_bd clean_ip clean_bit clean_kernel
+clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild 
 	@rm -rf ${MAKE_PATH}/proj/*
 	@rm -f make_log.txt
 	@echo "Cleaning up"
@@ -98,7 +96,7 @@ clean_ip_%:
 	cd ${MAKE_PATH}/proj &&\
 	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
 
-clean_everything: clean clean_remote clean_CM clean_prebuild
+clean_everything: clean clean_prebuild
 
 
 #################################################################################
@@ -135,7 +133,6 @@ interactive :
 	cd proj &&\
 	vivado -mode tcl
 
-#$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl 
 $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
@@ -146,6 +143,7 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_T
 	$(MAKE) NOTIFY_DAN_GOOD
 	$(MAKE) overlays
 	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
+	@echo 	$(MAKE) $*.tar.gz
 	$(MAKE) $*.tar.gz
 
 SVF	:

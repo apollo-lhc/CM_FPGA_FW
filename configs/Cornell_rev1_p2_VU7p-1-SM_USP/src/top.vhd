@@ -275,7 +275,7 @@ begin  -- architecture structure
       event_b       => '1',
       rate          => C2C_Mon.USER_FREQ);
 
-  V_IO_interface_1: entity work.V_IO_interface
+  V_IO_interface_1: entity work.V_IO_map
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
