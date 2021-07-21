@@ -79,7 +79,7 @@ AXI_SLAVES:
       - "address_table/modules/SPYBUFFER.xml"
     UHAL_BASE: 0x88000000
     HDL: 
-      out_dir: "src/MEM_TEST"    
+      out_dir: "src/SPYBUFFER"    
       map_template: "axi_generic/template_map_withbram.vhd"
     
   CM_K_INFO:
