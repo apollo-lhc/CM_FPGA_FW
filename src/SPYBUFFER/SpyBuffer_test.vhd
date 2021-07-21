@@ -34,11 +34,35 @@ architecture behavioral of spybuffer_test is
   signal spy_meta_wen     : std_logic := '0';
 begin  -- architecture behavioral
 
-  -------------------------------------------------------------------------------
+ SPY_MEM_read: process (clk_axi,reset_axi_n) is
+    begin  -- process BRAM_reads
+      if reset_axi_n = '0' then
+        Mon.SPY_MEM.rd_data_valid <= '0';        
+      elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+        Mon.SPY_MEM.rd_data_valid  <= '0';
+        if Ctrl.SPY_MEM.enable = '1' then
+          Mon.SPY_MEM.rd_data_valid <= '1';
+        end if;
+      end if;
+    end process SPY_MEM_read;
+
+ SPY_META_read: process (clk_axi,reset_axi_n) is
+    begin  -- process BRAM_reads
+      if reset_axi_n = '0' then
+        Mon.SPY_META.rd_data_valid <= '0';        
+      elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+        Mon.SPY_META.rd_data_valid  <= '0';
+        if Ctrl.SPY_META.enable = '1' then
+          Mon.SPY_META.rd_data_valid <= '1';
+        end if;
+      end if;
+    end process SPY_META_read;
+
+-------------------------------------------------------------------------------
   -- AXI 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
-  SPYBUFFER_map_inst: entity work.SPYBUFFER_map
+  SPYBUFFER_interface_inst: entity work.SPYBUFFER_interface
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
