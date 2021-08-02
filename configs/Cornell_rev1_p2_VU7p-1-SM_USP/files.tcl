@@ -32,5 +32,5 @@ set xdc_files "\
     "	    
 
 set xci_files "\
-    	      cores/Local_Clocking/Local_Clocking.xci \
+    	      cores/Local_Clocking/Local_Clocking.tcl \
     	      "
