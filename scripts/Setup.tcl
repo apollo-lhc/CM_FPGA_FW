@@ -59,15 +59,18 @@ for {set j 0} {$j < [llength $xci_files ] } {incr j} {
     set filename "${apollo_root_path}/[lindex $xci_files $j]"
     set ip_name [file rootname [file tail $filename]]
     puts "Adding $filename"    
-    read_ip $filename
-    set isLocked [get_property IS_LOCKED [get_ips $ip_name]]
-    puts "IP $ip_name : locked = $isLocked"
-    set upgrade  [get_property UPGRADE_VERSIONS [get_ips $ip_name]]
-    if {$isLocked && $upgrade != ""} {
-	puts "Upgrading IP"
-	upgrade_ip [get_ips $ip_name]}
+    if { [file extension ${filename} ] == ".tcl" } {
+	source ${filename}
+    } else {
+	read_ip $filename
+	set isLocked [get_property IS_LOCKED [get_ips $ip_name]]
+	puts "IP $ip_name : locked = $isLocked"
+	set upgrade  [get_property UPGRADE_VERSIONS [get_ips $ip_name]]
+	if {$isLocked && $upgrade != ""} {
+	    puts "Upgrading IP"
+	    upgrade_ip [get_ips $ip_name]}
 
-
+    }
     puts "Generating target all on $ip_name"
     generate_target all [get_ips $ip_name]  
     puts "Running synth on $ip_name"
