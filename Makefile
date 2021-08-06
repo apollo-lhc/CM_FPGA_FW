@@ -34,7 +34,7 @@ ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
 
 define CONFIGS_template =
- $(1):
+ $(1): clean
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
 ################################################################################
