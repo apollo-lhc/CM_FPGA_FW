@@ -1,11 +1,14 @@
 <node id="ES">
+  <node id="TYPE_USP_GTY"       address="0x0000" mask="0xFFFF" permission="r"/>
+  <node id="RX_DATA_WIDTH"      address="0x0003" mask="0x01E0" permission="rw"/>
+
   <node id="PRESCALE"           address="0x003C" mask="0x001F" permission="rw"/>
   <node id="EYE_SCAN_EN"        address="0x003C" mask="0x0100" permission="rw"/>
   <node id="ERRDET_EN"          address="0x003C" mask="0x0200" permission="rw"/>
   <node id="RUN"                address="0x003C" mask="0x0400" permission="rw"/>
 
-  <node id="RX_DATA_WIDTH"      address="0x0003" mask="0x01E0" permission="rw"/>
   <node id="RX_INT_DATAWIDTH"   address="0x0066" mask="0x0002" permission="rw"/>
+
   
   <node id="QUALIFIER_0"        address="0x003F" mask="0xFFFF" permission="rw"/>
   <node id="QUALIFIER_1"        address="0x0040" mask="0xFFFF" permission="rw"/>
