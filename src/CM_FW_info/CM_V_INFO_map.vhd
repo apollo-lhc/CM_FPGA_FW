@@ -7,6 +7,7 @@ use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
 use work.CM_V_INFO_Ctrl.all;
+
 entity CM_V_INFO_map is
   port (
     clk_axi          : in  std_logic;

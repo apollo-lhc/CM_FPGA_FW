@@ -7,6 +7,7 @@ use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
+
 entity K_IO_map is
   port (
     clk_axi          : in  std_logic;
@@ -83,14 +84,6 @@ begin  -- architecture behavioral
           localRdData(17)            <=  Mon.C2C.STATUS.PHY_SOFT_ERR;           --Aurora phy soft error
           localRdData(18)            <=  Mon.C2C.STATUS.CHANNEL_UP;             --Channel up
           localRdData(31)            <=  Mon.C2C.STATUS.LINK_IN_FW;             --FW includes this link
-        when 256 => --0x100
-          localRdData( 7 downto  0)  <=  reg_data(256)( 7 downto  0);           --
-          localRdData(15 downto  8)  <=  reg_data(256)(15 downto  8);           --
-          localRdData(23 downto 16)  <=  reg_data(256)(23 downto 16);           --
-        when 514 => --0x202
-          localRdData(31 downto  0)  <=  reg_data(514)(31 downto  0);           --
-        when 515 => --0x203
-          localRdData(31 downto  0)  <=  Mon.BRAM.RD_DATA;                      --
         when 4 => --0x4
           localRdData(15 downto  0)  <=  Mon.C2C.DEBUG.DMONITOR;                --DEBUG d monitor
           localRdData(16)            <=  Mon.C2C.DEBUG.QPLL_LOCK;               --DEBUG cplllock
@@ -131,8 +124,16 @@ begin  -- architecture behavioral
           localRdData(31 downto  0)  <=  Mon.C2C.USER_FREQ;                     --Measured Freq of clock
         when 16 => --0x10
           localRdData( 0)            <=  Mon.CLK_200_LOCKED;                    --
+        when 256 => --0x100
+          localRdData( 7 downto  0)  <=  reg_data(256)( 7 downto  0);           --
+          localRdData(15 downto  8)  <=  reg_data(256)(15 downto  8);           --
+          localRdData(23 downto 16)  <=  reg_data(256)(23 downto 16);           --
         when 513 => --0x201
           localRdData(14 downto  0)  <=  reg_data(513)(14 downto  0);           --
+        when 514 => --0x202
+          localRdData(31 downto  0)  <=  reg_data(514)(31 downto  0);           --
+        when 515 => --0x203
+          localRdData(31 downto  0)  <=  Mon.BRAM.RD_DATA;                      --
 
 
         when others =>
@@ -214,12 +215,6 @@ begin  -- architecture behavioral
         case to_integer(unsigned(localAddress(9 downto 0))) is
         when 0 => --0x0
           reg_data( 0)( 5)             <=  localWrData( 5);                --C2C initialize
-        when 256 => --0x100
-          reg_data(256)( 7 downto  0)  <=  localWrData( 7 downto  0);      --
-          reg_data(256)(15 downto  8)  <=  localWrData(15 downto  8);      --
-          reg_data(256)(23 downto 16)  <=  localWrData(23 downto 16);      --
-        when 514 => --0x202
-          reg_data(514)(31 downto  0)  <=  localWrData(31 downto  0);      --
         when 4 => --0x4
           reg_data( 4)(22)             <=  localWrData(22);                --DEBUG eyescan reset
           reg_data( 4)(23)             <=  localWrData(23);                --DEBUG eyescan trigger
@@ -247,10 +242,16 @@ begin  -- architecture behavioral
         when 9 => --0x9
           reg_data( 9)( 3 downto  0)   <=  localWrData( 3 downto  0);      --DEBUG PRBS select
           reg_data( 9)( 8 downto  4)   <=  localWrData( 8 downto  4);      --DEBUG tx diff control
-        when 513 => --0x201
-          reg_data(513)(14 downto  0)  <=  localWrData(14 downto  0);      --
+        when 256 => --0x100
+          reg_data(256)( 7 downto  0)  <=  localWrData( 7 downto  0);      --
+          reg_data(256)(15 downto  8)  <=  localWrData(15 downto  8);      --
+          reg_data(256)(23 downto 16)  <=  localWrData(23 downto 16);      --
         when 512 => --0x200
           Ctrl.BRAM.WRITE              <=  localWrData( 0);               
+        when 513 => --0x201
+          reg_data(513)(14 downto  0)  <=  localWrData(14 downto  0);      --
+        when 514 => --0x202
+          reg_data(514)(31 downto  0)  <=  localWrData(31 downto  0);      --
 
           when others => null;
         end case;

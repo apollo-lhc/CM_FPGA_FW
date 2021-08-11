@@ -51,15 +51,15 @@ package K_IO_CTRL is
 
 
   constant DEFAULT_K_IO_C2C_DEBUG_RX_CTRL_t : K_IO_C2C_DEBUG_RX_CTRL_t := (
-                                                                           DFE_LPM_RESET => '0',
-                                                                           PRBS_SEL => (others => '0'),
-                                                                           LPM_EN => '0',
-                                                                           PRBS_CNT_RST => '0',
-                                                                           RATE => (others => '0'),
-                                                                           CDR_HOLD => '0',
                                                                            BUF_RESET => '0',
+                                                                           CDR_HOLD => '0',
+                                                                           DFE_LPM_RESET => '0',
+                                                                           LPM_EN => '0',
+                                                                           PCS_RESET => '0',
                                                                            PMA_RESET => '0',
-                                                                           PCS_RESET => '0'
+                                                                           PRBS_CNT_RST => '0',
+                                                                           PRBS_SEL => (others => '0'),
+                                                                           RATE => (others => '0')
                                                                           );
   type K_IO_C2C_DEBUG_TX_MON_t is record
     BUF_STATUS                 :std_logic_vector( 1 downto 0);  -- DEBUG tx buf status
@@ -81,15 +81,15 @@ package K_IO_CTRL is
 
 
   constant DEFAULT_K_IO_C2C_DEBUG_TX_CTRL_t : K_IO_C2C_DEBUG_TX_CTRL_t := (
-                                                                           POLARITY => '0',
                                                                            INHIBIT => '0',
-                                                                           POST_CURSOR => (others => '0'),
-                                                                           PRE_CURSOR => (others => '0'),
-                                                                           PRBS_FORCE_ERR => '0',
-                                                                           DIFF_CTRL => (others => '0'),
+                                                                           PCS_RESET => '0',
                                                                            PMA_RESET => '0',
+                                                                           POLARITY => '0',
+                                                                           POST_CURSOR => (others => '0'),
+                                                                           PRBS_FORCE_ERR => '0',
+                                                                           PRE_CURSOR => (others => '0'),
                                                                            PRBS_SEL => (others => '0'),
-                                                                           PCS_RESET => '0'
+                                                                           DIFF_CTRL => (others => '0')
                                                                           );
   type K_IO_C2C_DEBUG_MON_t is record
     DMONITOR                   :std_logic_vector(15 downto 0);  -- DEBUG d monitor
@@ -111,11 +111,11 @@ package K_IO_CTRL is
 
 
   constant DEFAULT_K_IO_C2C_DEBUG_CTRL_t : K_IO_C2C_DEBUG_CTRL_t := (
-                                                                     TX => DEFAULT_K_IO_C2C_DEBUG_TX_CTRL_t,
-                                                                     RX => DEFAULT_K_IO_C2C_DEBUG_RX_CTRL_t,
                                                                      EYESCAN_RESET => '0',
                                                                      EYESCAN_TRIGGER => '0',
-                                                                     PCS_RSV_DIN => (others => '0')
+                                                                     PCS_RSV_DIN => (others => '0'),
+                                                                     RX => DEFAULT_K_IO_C2C_DEBUG_RX_CTRL_t,
+                                                                     TX => DEFAULT_K_IO_C2C_DEBUG_TX_CTRL_t
                                                                     );
   type K_IO_C2C_MON_t is record
     STATUS                     :K_IO_C2C_STATUS_MON_t;
@@ -142,9 +142,9 @@ package K_IO_CTRL is
 
 
   constant DEFAULT_K_IO_RGB_CTRL_t : K_IO_RGB_CTRL_t := (
-                                                         B => x"ff",
                                                          R => x"00",
-                                                         G => x"00"
+                                                         G => x"00",
+                                                         B => x"ff"
                                                         );
   type K_IO_BRAM_MON_t is record
     RD_DATA                    :std_logic_vector(31 downto 0);
