@@ -1,6 +1,6 @@
 set bd_path proj/
 
-array set bd_files [list {c2cSlave} {configs/MPI_rev1_p1_KU15p-2-SM_USP/src/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\

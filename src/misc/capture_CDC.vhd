@@ -6,16 +6,22 @@ entity capture_CDC is
   generic (
     WIDTH : integer := 16);
   port (
-    clkA       : in  std_logic;
-    clkB       : in  std_logic;
-    inA        : in  std_logic_vector(WIDTH-1 downto 0);
-    inA_valid  : in  std_logic;
-    outB       : out std_logic_vector(WIDTH-1 downto 0);
-    outB_valid : out std_logic);
+    clkA             : in  std_logic;
+    resetA           : in  std_logic;
+    clkB             : in  std_logic;
+    resetB           : in  std_logic;
+    capture_pulseA   : in  std_logic;
+    outA             : out std_logic_vector(WIDTH-1 downto 0);
+    outA_valid       : out std_logic;
+    capture_pulseB   : out std_logic;
+    inB              : in std_logic_vector(WIDTH-1 downto 0);
+    inB_valid        : in std_logic
+    );
 end entity capture_CDC;
 
 
 architecture behavioral of capture_CDC is
+
   component pacd is
     port (
       iPulseA : IN  std_logic;
@@ -27,58 +33,86 @@ architecture behavioral of capture_CDC is
   end component pacd;
 
   --- clkA
-  signal iPulseA : std_logic;
-  signal inA_valid_last : std_logic;
-  signal captureA : std_logic_vector(WIDTH-1 downto 0);
-  
+  signal local_outA_valid : std_logic;
+  signal local_validA     : std_logic;
   -- clkB
-  type capture_SR_t is array (1 downto 0) of std_logic_vector(WIDTH-1 downto 0);
-  signal captureB : capture_SR_t;
-  signal oPulseB : std_logic;
-
-  attribute ASYNC_REG : string;
-  attribute ASYNC_REG of captureB : signal is "yes";
-  attribute SHREG_EXTRACT : string;
-  attribute SHREG_EXTRACT of captureB: signal is "no";
+  signal local_capture_pulseB   : std_logic;
+  signal local_validB     : std_logic;
+  signal wait_for_B_valid : std_logic;
+  -- both
+  signal local_data : std_logic_vector(WIDTH-1 downto 0);
 
   
 begin  -- architecture behavioral
+  capture_pulseB <= local_capture_pulseB;
+  --pass a pulse from A to B for capture
   pacd_1: entity work.pacd
     port map (
-      iPulseA => iPulseA,
+      iPulseA => capture_pulseA,
       iClkA   => clkA,
-      iRSTAn  => '1',
+      iRSTA   => resetA,--'1',
       iClkB   => clkB,
-      iRSTBn  => '1',
-      oPulseB => oPulseB);
+      iRSTB   => resetB, --'1',
+      oPulseB => local_capture_pulseB);
 
-  capture: process (clkA) is
+  outA_valid <= local_outA_valid when resetA = '0' else '0';
+  capture: process (clkA,capture_pulseA,resetA) is
   begin  -- process capture
-    if clkA'event and clkA = '1' then  -- rising clock edge
-      --zero pulse
-      iPulseA <= '0';
-
-      --make sure valid is force to be a pulse
-      inA_valid_last <= inA_valid;
---      if inA_valid_last = '0' and inA_valid = '1' then
-      if inA_valid = '1' then
-        --capture input
-        captureA <= inA;
-        iPulseA <= '1';
-      end if;
+    if capture_pulseA = '1' or resetA = '1' then
+      --set outputA to be invalid
+      local_outA_valid <= '0';
+    elsif clkA'event and clkA = '1' then  -- rising clock edge
+      --wait for the data from B to be valid (via PACD)
+      if local_validA = '1' then
+        -- latch the data and set it valid
+        local_outA_valid <= '1';
+        outA <= local_data;
+      end if;      
     end if;
   end process capture;
 
-  display: process (clkB) is
+  --Pass the data valid pulse from B to A
+  pacd_2: entity work.pacd
+    port map (
+      iPulseA => local_validB,
+      iClkA   => clkB,
+      iRSTA   => resetB, --'1',
+      iClkB   => clkA,
+      iRSTB   => resetA,--'1',
+      oPulseB => local_validA);
+
+  
+  display: process (clkB,resetB) is
   begin  -- process display
-    if clkB'event and clkB = '1' then  -- rising clock edge
-      --shift register to transfer to clkB domain
-      captureB <= captureB(captureB'left -1 downto 0) & captureA;
-      --Add an extra clock to iPulseB
---      outB_valid <= oPulseB;
+    if resetB = '1' then
+      wait_for_B_valid <= '0';      
+    elsif clkB'event and clkB = '1' then  -- rising clock edge
+      --enforce a validB pulse is a pulse
+      local_validB <= '0';
+
+      --Wait for a capture_pulse from A (via PACD)
+      if local_capture_pulseB = '1' then
+        if inB_Valid = '1' then
+          --The B data is already valid, pass it
+          local_data <= inB;
+          local_validB <= '1';
+          wait_for_B_valid <=  '0';
+        else
+          --The B data isn't valid yet, wait for it
+          wait_for_B_valid <= '1';
+        end if;     
+      end if;
+
+      if wait_for_B_valid = '1' then
+        --we are waiting for b data to be valid
+        if inB_Valid = '1' then
+          --b data is now valid
+          local_data <= inB;
+          local_validB <= '1';
+          wait_for_B_valid <= '0';
+        end if;
+      end if;
     end if;
   end process display;
-  outB_valid <= oPulseB;
-  outB <= captureB(captureB'left);
-  
+
 end architecture behavioral;
