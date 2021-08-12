@@ -1,6 +1,6 @@
 set bd_path proj/
 
-array set bd_files [list {c2cSlave} {configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
@@ -19,10 +19,12 @@ set vhdl_files "\
      src/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
+     src/misc/rate_counter.vhd \
      src/CM_FW_info/CM_K_info.vhd \
      src/CM_FW_info/CM_K_INFO_PKG.vhd \
      src/CM_FW_info/CM_K_INFO_map.vhd \
      "
+
 set xdc_files "\
     configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \
     configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_timing.xdc	\

@@ -4,10 +4,9 @@ include mk/helpers.mk
 # VIVADO stuff
 #################################################################################
 VIVADO_FLAGS=-notrace -mode batch
-BUILD_VIVADO_VERSION=2020.2
-#BUILD_VIVADO_SHELL="/opt/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
-BUILD_VIVADO_SHELL="/work/Xilinx/Vivado/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
-#VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
+BUILD_VIVADO_VERSION?=2020.2
+BUILD_VIVADO_BASE?="/work/Xilinx/Vivado"
+BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 
 
 #################################################################################
@@ -24,7 +23,7 @@ HW_TCL=${MAKE_PATH}/scripts/Run_hw.tcl
 PL_PATH=${MAKE_PATH}/src
 BD_PATH=${MAKE_PATH}/bd
 CORES_PATH=${MAKE_PATH}/cores
-ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
+ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 
 ################################################################################
 # Configs
@@ -33,8 +32,8 @@ ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
 CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
 
 define CONFIGS_template =
- $(1):
-	time $(MAKE) $(BIT_BASE)$$@.bit || $(MAKE) NOTIFY_DAN_BAD
+ $(1): clean
+	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
 ################################################################################
 # Short build names
@@ -45,8 +44,6 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 # preBuild 
 #################################################################################
 SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
-#ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/c2cSlave/
-ADDSLAVE_TCL_PATH=${MAKE_PATH}/configs/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 
@@ -54,6 +51,12 @@ ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
   include ${MAKE_PATH}/mk/preBuild.mk
 endif
 
+
+
+#################################################################################
+# CM Address tables
+#################################################################################
+include mk/addrTable.mk
 
 #################################################################################
 # Device tree overlays
@@ -82,7 +85,7 @@ clean_bit:
 clean_kernel:
 	@echo "Clean hw files"
 	@rm -rf ${MAKE_PATH}/kernel/hw/*
-clean: clean_bd clean_ip clean_bit clean_kernel
+clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild 
 	@rm -rf ${MAKE_PATH}/proj/*
 	@rm -f make_log.txt
 	@echo "Cleaning up"
@@ -91,7 +94,7 @@ clean_ip_%:
 	cd ${MAKE_PATH}/proj &&\
 	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
 
-clean_everything: clean clean_remote clean_CM clean_prebuild
+clean_everything: clean clean_prebuild
 
 
 #################################################################################
@@ -128,8 +131,7 @@ interactive :
 	cd proj &&\
 	vivado -mode tcl
 
-#$(BIT_BASE)%.bit	: $(ADDSLAVE_TCL_PATH)/AddSlaves.tcl 
-$(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDSLAVE_TCL_PATH)/%/autogen/AddSlaves_%.tcl 
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -138,6 +140,9 @@ $(BIT_BASE)%.bit	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PAT
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD
 	$(MAKE) overlays
+	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
+	@echo 	$(MAKE) $*.tar.gz
+	$(MAKE) $*.tar.gz
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
@@ -151,5 +156,5 @@ init:
 make test :
 	@echo $(CONFIGS)
 
-%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo
-	@tar -zcf $@ $< -C kernel/hw/ dtbo
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/
+	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
