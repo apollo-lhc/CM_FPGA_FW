@@ -67,10 +67,15 @@ def main():
     #get branch and check that it is a release branch
     branch=localRepo.active_branch.name
     #check if this is named release
-    if branch.find("release-v") == -1:
-        print "Not on a release branch!"
+    releaseVersion=""
+    if branch.find("release-v") >= 0:
+        releaseVersion=branch[branch.find("release-v") + len("release-v"):]
+    elif branch.find("hotfix-v") >= 0 :
+        releaseVersion=branch[branch.find("hotfix-v") + len("hotfix-v"):]
+    else:
+        print "Not on a release or hotfix branch!"
         quit()
-    releaseVersion=branch[branch.find("release-v") + len("release-v"):]
+
     print "Release:"+ releaseVersion
     
     

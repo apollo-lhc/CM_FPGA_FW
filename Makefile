@@ -1,81 +1,100 @@
-#################################################################################
-# make stuff
-#################################################################################
-#output markup
-OUTPUT_MARKUP= 2>&1 | tee ../make_log.txt | ccze -A
+include mk/helpers.mk
 
 #################################################################################
 # VIVADO stuff
 #################################################################################
-VIVADO_VERSION=2018.2
 VIVADO_FLAGS=-notrace -mode batch
-VIVADO_SHELL="/opt/Xilinx/Vivado/"$(VIVADO_VERSION)"/settings64.sh"
-VIVADO_SETUP=source $(VIVADO_SHELL) && mkdir -p proj && mkdir -p kernel/hw && cd proj
+BUILD_VIVADO_VERSION?=2020.2
+BUILD_VIVADO_BASE?="/work/Xilinx/Vivado"
+BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 
 
 #################################################################################
 # TCL scripts
 #################################################################################
-SETUP_TCL=scripts/Setup.tcl
-BUILD_TCL=scripts/Build.tcl
-SETUP_BUILD_TCL=scripts/SetupAndBuild.tcl
-HW_TCL=scripts/Run_hw.tcl
+SETUP_TCL=${MAKE_PATH}/scripts/Setup.tcl
+BUILD_TCL=${MAKE_PATH}/scripts/Build.tcl
+SETUP_BUILD_TCL=${MAKE_PATH}/scripts/SetupAndBuild.tcl
+HW_TCL=${MAKE_PATH}/scripts/Run_hw.tcl
 
 #################################################################################
 # Source files
 #################################################################################
-PL_PATH=../src
-BD_PATH=../bd
-CORES_PATH=../cores
+PL_PATH=${MAKE_PATH}/src
+BD_PATH=${MAKE_PATH}/bd
+CORES_PATH=${MAKE_PATH}/cores
+ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 
-SYM_LNK_XMLS = $(shell find ./ -type l)
-MAP_OBJS = $(patsubst %.xml, %_map.vhd, $(SYM_LNK_XMLS))
-PKG_OBJS = $(patsubst %.xml, %_PKG.vhd, $(SYM_LNK_XMLS))
+################################################################################
+# Configs
+#################################################################################
+#get a list of the subdirs in configs.  These are our FPGA builds
+CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
 
+define CONFIGS_template =
+ $(1): clean
+	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
+endef
 ################################################################################
 # Short build names
 #################################################################################
-
-BIT=./bit/top.bit
-
-.SECONDARY:
-
-.PHONY: clean list bit
-
-all: bit 
+BIT_BASE=${MAKE_PATH}/bit/top_
 
 #################################################################################
 # preBuild 
 #################################################################################
-SLAVE_DEF_FILE=src/slaves.yaml
-ADDSLAVE_TCL_PATH=src/c2cSlave/
-ADDRESS_TABLE_CREATION_PATH=os/
-SLAVE_DTSI_PATH=kernel/
+SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
+ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
+SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 
-ifneq ("$(wildcard mk/preBuild.mk)","")
-  include mk/preBuild.mk
+ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
+  include ${MAKE_PATH}/mk/preBuild.mk
 endif
 
+
+
+#################################################################################
+# CM Address tables
+#################################################################################
+include mk/addrTable.mk
+
+#################################################################################
+# Device tree overlays
+#################################################################################
+DTSI_PATH=${SLAVE_DTSI_PATH}/hw/
+include mk/deviceTreeOverlays.mk
+
+
+.SECONDARY:
+
+.PHONY: clean list bit NOTIFY_DAN_BAD NOTIFY_DAN_GOOD init $(CONFIGS) $(PREBUILDS)
 
 #################################################################################
 # Clean
 #################################################################################
 clean_ip:
 	@echo "Cleaning up ip dcps"
-	@find ./cores -type f -name '*.dcp' -delete
+	@find ${MAKE_PATH}/cores -type f -name '*.dcp' -delete
 clean_bd:
 	@echo "Cleaning up bd generated files"
-	@rm -rf ./bd/zynq_bd
-	@rm -rf ./bd/c2cSlave
+	@rm -rf ${MAKE_PATH}/bd/zynq_bd
+	@rm -rf ${MAKE_PATH}/bd/c2cSlave
 clean_bit:
 	@echo "Cleaning up bit files"
-	@rm -rf ./bit/*
-clean_os:
-	@echo "Clean OS hw files"
-	@rm -f kernel/hw/*
-clean: clean_bd clean_ip clean_bit clean_os
-	@rm -rf ./proj/*
+	@rm -rf ${MAKE_PATH}/bit/*
+clean_kernel:
+	@echo "Clean hw files"
+	@rm -rf ${MAKE_PATH}/kernel/hw/*
+clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild 
+	@rm -rf ${MAKE_PATH}/proj/*
+	@rm -f make_log.txt
 	@echo "Cleaning up"
+clean_ip_%:
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
+	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+
+clean_everything: clean clean_prebuild
 
 
 #################################################################################
@@ -83,43 +102,59 @@ clean: clean_bd clean_ip clean_bit clean_os
 #################################################################################
 
 open_project : 
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado top.xpr
 open_synth :
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado post_synth.dcp
 open_impl :
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
 	vivado post_route.dcp
 open_hw :
-	@$(VIVADO_SETUP) &&\
-	vivado -source ../$(HW_TCL)
+	source $(BUILD_VIVADO_SHELL) &&\
+	cd ${MAKE_PATH}/proj &&\
+	vivado -source $(HW_TCL)
 
 
 #################################################################################
 # FPGA building
 #################################################################################
-bit	: $(BIT)
+#generate a build rule for each FPGA in the configs dir ($CONFIGS)c
+$(foreach config,$(CONFIGS),$(eval $(call CONFIGS_template,$(config))))
 
 interactive : 
-	@$(VIVADO_SETUP) &&\
+	source $(BUILD_VIVADO_SHELL) &&\
+	mkdir -p ${MAKE_PATH}/proj &&\
+	cd proj &&\
 	vivado -mode tcl
-$(BIT)	:
-	@mkdir -p bit
-	@$(VIVADO_SETUP) &&\
-	vivado $(VIVADO_FLAGS) -source ../$(SETUP_BUILD_TCL) $(OUTPUT_MARKUP)
+
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
+	source $(BUILD_VIVADO_SHELL) &&\
+	mkdir -p ${MAKE_PATH}/kernel/hw &&\
+	mkdir -p ${MAKE_PATH}/proj &&\
+	mkdir -p ${MAKE_PATH}/bit &&\
+	cd proj &&\
+	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
+	$(MAKE) NOTIFY_DAN_GOOD
+	$(MAKE) overlays
+	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
+	@echo 	$(MAKE) $*.tar.gz
+	$(MAKE) $*.tar.gz
+
 SVF	:
 	@$(VIVADO_SETUP) &&\
-	vivado $(VIVADO_FLAGS) -source ../scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
-
-#################################################################################
-# Help 
-#################################################################################
-
-#list magic: https://stackoverflow.com/questions/4219255/how-do-you-get-the-list-of-targets-in-a-makefile
-list:
-	@$(MAKE) -pRrq -f $(MAKEFILE_LIST) : 2>/dev/null | awk -v RS= -F: '/^# File/,/^# Finished Make data base/ {if ($$1 !~ "^[#.]") {print $$1}}' | sort | egrep -v -e '^[^[:alnum:]]' -e '^$@$$' | column
 
 init:
 	git submodule update --init --recursive
+
+
+make test :
+	@echo $(CONFIGS)
+
+%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/
+	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table

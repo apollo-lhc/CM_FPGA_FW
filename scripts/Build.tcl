@@ -1,27 +1,30 @@
-source ../scripts/settings.tcl
-
-
-#open_project $outputDir/../proj/$top.xpr
+#source ${apollo_root_path}/scripts/settings_${build_name}.tcl
+#source ${apollo_root_path}/scripts/settings.tcl
 
 #################################################################################
 # STEP#2: run synthesis, report utilization and timing estimates, write checkpoint design
 #################################################################################
 
-set ip_to_regenerate [get_ips]
-for {set j 0} {$j < [llength $ip_to_regenerate ] } {incr j} {
-    set ip_name [lindex $ip_to_regenerate $j]
-    set ip_xci ../cores/$ip_name/$ip_name.xci
-    if {[string length [get_files -q $ip_xci]]} {
-	puts "Building $ip_name \n\n"
-	generate_target {synthesis} [get_files $ip_xci]
-	synth_ip [lindex $ip_to_regenerate $j]
-    }
-}
+#set ip_to_regenerate [get_ips]
+#for {set j 0} {$j < [llength $ip_to_regenerate ] } {incr j} {
+#    set ip_name [lindex $ip_to_regenerate $j]    
+#    set ip_xci ${apollo_root_path}/cores/$ip_name/$ip_name.xci
+#    puts "Checking $ip_name \n"
+#    if {[string first $ip_name $xci_files] >= 0} {
+#	puts "Building $ip_name \n"
+#	generate_target all [get_files $ip_xci]
+#	create_ip_run [get_ips $ip_name]
+##	synth_ip [lindex $ip_to_regenerate $j]
+#    }
+#}
+#
+#puts "Launching runs"
+#reset_runs [get_runs]
+#launch_runs [get_runs]
 
-if {[string length [get_files $bd_name.bd]]} {
-    set_property synth_checkpoint_mode None [get_files $bd_name.bd]
-    generate_target all [get_files "[get_bd_designs].bd"]
-}
+set_property synth_checkpoint_mode None [get_files $bd_name.bd]
+generate_target all [get_files "[get_bd_designs].bd"]
+
 set_property source_mgmt_mode All [current_project]
 update_compile_order -fileset sources_1
 
@@ -41,7 +44,7 @@ write_checkpoint -force $outputDir/post_synth
 opt_design
 power_opt_design
 place_design
-phys_opt_design
+#phys_opt_design
 #write_checkpoint -force $outputDir/post_place
 #report_timing_summary -file $outputDir/post_place_timing_summary.rpt
 
@@ -49,7 +52,8 @@ phys_opt_design
 # STEP#4: run router, report actual utilization and timing, write checkpoint design,
 # run drc, write verilog and xdc out
 #################################################################################
-route_design -directive Explore
+#route_design -directive Explore
+route_design -directive Default
 report_timing_summary -file $outputDir/post_route_timing_summary.rpt
 report_timing -sort_by group -max_paths 100 -path_type summary -file $outputDir/post_route_timing.rpt
 report_clock_utilization -file $outputDir/clock_util.rpt
@@ -66,5 +70,7 @@ write_checkpoint -force $outputDir/post_route
 #################################################################################
 # STEP#5: Generate files for os build
 #################################################################################
-source ../scripts/Generate_hwInfo.tcl
-source ../scripts/Generate_svf.tcl
+source ${apollo_root_path}/scripts/Generate_hwInfo.tcl
+if { [ file exists ${apollo_root_path}/configs/${build_name}/Generate_svf.tcl ] } {
+    source ${apollo_root_path}/configs/${build_name}/Generate_svf.tcl
+}
