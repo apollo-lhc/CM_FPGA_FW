@@ -50,7 +50,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_C2C_Status.xml"
     UHAL_BASE: 0x81000000
     HDL: 
-      out_dir: "src/CM_IO"    
+      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/CM_IO"    
       map_template: "axi_generic/template_map.vhd"
   
   CM_K_INFO:
@@ -65,7 +65,7 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
-      out_dir: "src/CM_FW_info"
+      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
                 
   KINTEX_IPBUS:

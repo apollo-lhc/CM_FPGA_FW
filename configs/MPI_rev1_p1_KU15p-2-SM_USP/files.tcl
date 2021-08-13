@@ -16,13 +16,13 @@ set vhdl_files "\
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
-     src/CM_IO/K_IO_PKG.vhd \
-     src/CM_IO/K_IO_map.vhd \
+     configs/MPI_rev1_p1_KU15p-2-SM_USP/autogen/CM_IO/K_IO_PKG.vhd \
+     configs/MPI_rev1_p1_KU15p-2-SM_USP/autogen/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
      src/CM_FW_info/CM_K_info.vhd \
-     src/CM_FW_info/CM_K_INFO_PKG.vhd \
-     src/CM_FW_info/CM_K_INFO_map.vhd \
+     configs/MPI_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info/CM_K_INFO_PKG.vhd \
+     configs/MPI_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info/CM_K_INFO_map.vhd \
      src/misc/axi_bram_ctrl_v4_1_rfs.vhd \
      src/misc/axi_bram_controller.vhd \
      "

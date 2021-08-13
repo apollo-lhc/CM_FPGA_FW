@@ -50,7 +50,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_C2C_Status.xml"
     UHAL_BASE: 0xC1000000
     HDL: 
-      out_dir: "src/CM_IO"    
+      out_dir: "configs/Cornell_rev1_p2_VU7p-1-SM_USP/autogen/CM_IO"    
       map_template: "axi_generic/template_map.vhd"
   
   CM_V_INFO:
@@ -65,7 +65,7 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
     HDL: 
-      out_dir: "src/CM_FW_info"
+      out_dir: "configs/Cornell_rev1_p2_VU7p-1-SM_USP/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
                   
   VIRTEX_IPBUS:

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<node id="TOP">
+  <node id="K_IO"        module="file:///work/dan/Apollo/CM_FPGA_FW/address_table/modules/K_IO.xml"        address="0"/>
+</node>
