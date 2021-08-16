@@ -38,7 +38,33 @@ package types is
   subtype uint27_t is unsigned(26 downto 0);
 
   type u16_array_t is array (integer range <>) of unsigned(47 downto 0);
+  type int8_array_t is array (integer range <>) of integer range 0 to 7;
 
+  type int_array_t  is array (integer range <>) of integer;
+
+  function log2 (val: INTEGER) return natural;
+    
 end package types;
+
+
+
+package body types is
+
+  function log2 (val: INTEGER) return natural is
+    variable res : natural;
+  begin
+    for i in 0 to 31 loop
+      if (val <= (2**i)) then
+        res := i;
+        exit;
+      end if;
+    end loop;
+    return res;
+  end function Log2;
+
+              
+  
+
+end package body types;
 
               

@@ -62,7 +62,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 2;
+  constant localAXISlaves    : integer := 3;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -174,6 +174,27 @@ begin  -- architecture structure
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
 
+--priya
+    MEM_TEST_araddr  => local_AXI_ReadMOSI(2).address,
+    MEM_TEST_arprot  => local_AXI_ReadMOSI(2).protection_type,  
+    MEM_TEST_arready => local_AXI_ReadMISO(2).ready_for_address,
+    MEM_TEST_arvalid => local_AXI_ReadMOSI(2).address_valid,
+    MEM_TEST_awaddr  => local_AXI_WriteMOSI(2).address ,
+    MEM_TEST_awprot  => local_AXI_WriteMOSI(2).protection_type,
+    MEM_TEST_awready => local_AXI_WriteMISO(2).ready_for_address,
+    MEM_TEST_awvalid => local_AXI_WriteMOSI(2).address_valid,
+    MEM_TEST_bready  => local_AXI_WriteMOSI(2).ready_for_response,
+    MEM_TEST_bresp   => local_AXI_WriteMISO(2).response,
+    MEM_TEST_bvalid  => local_AXI_WriteMISO(2).response_valid,
+    MEM_TEST_rdata   => local_AXI_ReadMISO(2).data,
+    MEM_TEST_rready  => local_AXI_ReadMOSI(2).ready_for_data,
+    MEM_TEST_rresp   => local_AXI_ReadMISO(2).response,
+    MEM_TEST_rvalid  => local_AXI_ReadMISO(2).data_valid,
+    MEM_TEST_wdata   => local_AXI_WriteMOSI(2).data,
+    MEM_TEST_wready  => local_AXI_WriteMISO(2).ready_for_data,
+    MEM_TEST_wstrb  => local_AXI_WriteMOSI(2).data_write_strobe,
+    MEM_TEST_wvalid => local_AXI_WriteMOSI(2).data_valid,
+--priya
 
       KINTEX_IPBUS_araddr                 => ext_AXI_ReadMOSI.address,              
       KINTEX_IPBUS_arburst                => ext_AXI_ReadMOSI.burst_type,
@@ -358,4 +379,30 @@ begin  -- architecture structure
       doA   => open,
       doB   => bram_rddata_a);
   
+
+
+  
+  mem_test_1: entity work.mem_test
+    port map (
+      clk_axi     => AXI_CLK, --axi_clk,
+      reset_axi_n => AXI_RST_N, --pl_reset_n,
+      readMOSI    => local_AXI_ReadMOSI(2), --AXI_BUS_RMOSI(7),
+      readMISO    => local_AXI_ReadMISO(2), --AXI_BUS_RMISO(7),
+      writeMOSI   => local_AXI_WriteMOSI(2), --AXI_BUS_WMOSI(7),
+      writeMISO   => local_AXI_WriteMISO(2) --AXI_BUS_WMISO(7)
+      );
+
+   --blockram: entity work.rams_sp_wf
+   -- generic map (
+   --   RAM_WIDTH => 32,
+   --   ADDR_WIDTH => 32)
+   -- port map (
+   --   clk   => AXI_CLK,
+   --   we    => local_AXI_WriteMOSI(2).data_valid, 
+   --   en    => local_AXI_WriteMOSI(2).ready_for_response, 
+   --   addr  => local_AXI_ReadMOSI(2).address,
+   --   di    => local_AXI_WriteMOSI(2).data, 
+   --   do    => local_AXI_ReadMISO(2).data,  
+   --   do_valid => local_AXI_ReadMISO(2).data_valid );
+
 end architecture structure;
