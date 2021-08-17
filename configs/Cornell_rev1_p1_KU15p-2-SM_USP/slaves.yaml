@@ -82,6 +82,63 @@ AXI_SLAVES:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
 
+CORES:
+  TEST:
+    TCL_CALL:
+      command: BuildMGTCores
+      freerun_frequency: 100
+      clocking:
+        TX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 200
+        RX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 200    
+      protocol:
+        TX:
+          DATA_ENCODING: 8B10B
+          INT_DATA_WIDTH: 40
+        RX:
+          DATA_DECODING: 8B10B
+          COMMA_PRESET: K28.1     
+          COMMA_P_ENABLE: true    
+          COMMA_M_ENABLE: true    
+          COMMA_P_VAL: 1001111100 
+          COMMA_M_VAL: 0110000011 
+          COMMA_MASK: 1111111111  
+      core:
+        LOCATE_TX_USER_CLOCKING: CORE
+        LOCATE_RX_USER_CLOCKING: CORE
+      links:
+        X0Y0:
+          RX: clk0
+          TX: clk0
+        X0Y1:
+          RX: clk0
+          TX: clk0
+        X0Y2:
+          RX: clk1
+          TX: clk1
+        X0Y3:
+          RX: clk0
+          TX: clk0
+        X0Y4:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y5:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y6:
+          RX: clk0
+          TX: clk0
+        X0Y7:
+          RX: clk1
+          TX: clk1
+
+
+
 
 
 
