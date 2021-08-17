@@ -7,8 +7,7 @@ use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
 use work.CM_K_INFO_Ctrl.all;
-
-entity CM_K_INFO_map is
+entity CM_K_INFO_interface is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -18,8 +17,8 @@ entity CM_K_INFO_map is
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
     Mon              : in  CM_K_INFO_Mon_t
     );
-end entity CM_K_INFO_map;
-architecture behavioral of CM_K_INFO_map is
+end entity CM_K_INFO_interface;
+architecture behavioral of CM_K_INFO_interface is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;

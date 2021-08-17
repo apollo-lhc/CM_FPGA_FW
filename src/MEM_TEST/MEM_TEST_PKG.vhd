@@ -80,8 +80,8 @@ package MEM_TEST_CTRL is
 
 
   constant DEFAULT_MEM_TEST_LEVEL_TEST_CTRL_t : MEM_TEST_LEVEL_TEST_CTRL_t := (
-                                                                               MEM => Default_MEM_TEST_LEVEL_TEST_MEM_MOSI_t,
-                                                                               THING => (others => '0')
+                                                                               THING => (others => '0'),
+                                                                               MEM => Default_MEM_TEST_LEVEL_TEST_MEM_MOSI_t
                                                                               );
   type MEM_TEST_MON_t is record
     GIT_VALID                  :std_logic;   

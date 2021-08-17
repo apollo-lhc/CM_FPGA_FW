@@ -36,7 +36,7 @@ begin  -- architecture behavioral
   -- AXI 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
-  CM_K_INFO_map_1: entity work.CM_K_INFO_map
+  CM_K_INFO_map_1: entity work.CM_K_INFO_interface
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
