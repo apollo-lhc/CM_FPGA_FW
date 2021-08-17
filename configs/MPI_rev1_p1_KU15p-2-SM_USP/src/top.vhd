@@ -313,7 +313,7 @@ begin  -- architecture structure
       LEDgreen   => open,
       LEDblue    => open);
 
-  K_IO_interface_1: entity work.K_IO_map
+  K_IO_interface_1: entity work.K_IO_interface
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
