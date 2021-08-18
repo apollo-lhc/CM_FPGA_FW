@@ -57,7 +57,7 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: "0x83C41000"
+        offset: "0x81004000"
         range: 4K
       remote_slave: "1"
     XML:
@@ -72,7 +72,7 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: "0x83C45000"
+        offset: "0x81005000"
         range: 4K
       remote_slave: "1"
     XML:
