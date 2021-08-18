@@ -15,14 +15,14 @@ set vhdl_files "\
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
-     configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_IO/K_IO_PKG.vhd \
-     configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_IO/K_IO_map.vhd \
+     ${autogen_path}/CM_IO/K_IO_PKG.vhd \
+     ${autogen_path}/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
      src/misc/rate_counter.vhd \
      src/CM_FW_info/CM_K_info.vhd \
-     configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info/CM_K_INFO_PKG.vhd \
-     configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info/CM_K_INFO_map.vhd \
+     ${autogen_path}/CM_FW_info/CM_K_INFO_PKG.vhd \
+     ${autogen_path}/CM_FW_info/CM_K_INFO_map.vhd \
      "
 
 set xdc_files "\
