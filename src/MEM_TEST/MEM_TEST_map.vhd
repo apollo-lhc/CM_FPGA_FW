@@ -9,7 +9,8 @@ use work.AXIRegPkg.all;
 use work.types.all;
 use work.BRAMPortPkg.all;
 use work.MEM_TEST_Ctrl.all;
-entity MEM_TEST_interface is
+
+entity MEM_TEST_map is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -22,8 +23,8 @@ entity MEM_TEST_interface is
     Ctrl             : out MEM_TEST_Ctrl_t
         
     );
-end entity MEM_TEST_interface;
-architecture behavioral of MEM_TEST_interface is
+end entity MEM_TEST_map;
+architecture behavioral of MEM_TEST_map is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;

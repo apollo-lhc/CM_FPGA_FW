@@ -9,7 +9,8 @@ use work.AXIRegPkg.all;
 use work.types.all;
 use work.BRAMPortPkg.all;
 use work.SPYBUFFER_Ctrl.all;
-entity SPYBUFFER_interface is
+
+entity SPYBUFFER_map is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -22,8 +23,8 @@ entity SPYBUFFER_interface is
     Ctrl             : out SPYBUFFER_Ctrl_t
         
     );
-end entity SPYBUFFER_interface;
-architecture behavioral of SPYBUFFER_interface is
+end entity SPYBUFFER_map;
+architecture behavioral of SPYBUFFER_map is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;

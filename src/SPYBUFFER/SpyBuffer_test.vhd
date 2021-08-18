@@ -62,7 +62,7 @@ begin  -- architecture behavioral
   -- AXI 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
-  SPYBUFFER_interface_inst: entity work.SPYBUFFER_interface
+  SPYBUFFER_interface_inst: entity work.SPYBUFFER_map
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,

@@ -37,7 +37,7 @@ begin  -- architecture behavioral
   -- AXI 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
-  MEM_TEST_interface_1: entity work.MEM_TEST_interface
+  MEM_TEST_interface_1: entity work.MEM_TEST_map
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
