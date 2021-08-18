@@ -32,12 +32,12 @@ ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
 
 define CONFIGS_template =
- $(1): clean
+ $(1): clean autogen_clean_$(1)
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
 define CONFIGS_autoclean_template =
  autogen_clean_$(1): 
-	ls configs/$(1)/autogen/*
+	@rm -rf configs/$(1)/autogen/*
 endef
 
 ################################################################################
