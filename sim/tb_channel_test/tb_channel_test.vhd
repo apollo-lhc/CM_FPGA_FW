@@ -19,9 +19,10 @@ architecture behavioral of tb_channel_test is
 
   signal rx_data     : std_logic_vector(31 downto  0);
   signal rx_k_data   : std_logic_vector( 3 downto  0);
-  signal rt_data     : std_logic_vector(31 downto  0);
-  signal rt_k_data   : std_logic_vector( 3 downto  0);
+  signal tx_data     : std_logic_vector(31 downto  0);
+  signal tx_k_data   : std_logic_vector( 3 downto  0);
   signal error_count : std_logic_vector(31 downto  0);
+  signal error_rate : std_logic_vector(31 downto  0);
 
   
 begin  -- architecture behavioral
@@ -30,8 +31,8 @@ begin  -- architecture behavioral
   reset <= '0' after 100 ns;
   
   tb: process (clk, reset) is
-  file out_file_status : text is out "tb_out.txt";
-  variable test_result       : line;  
+--  file out_file_status : text is out "tb_out.txt";
+--  variable test_result       : line;  
     
   begin  -- process tb
   
@@ -68,7 +69,8 @@ begin  -- architecture behavioral
       reset       => reset,
       rx_data     => rx_data,
       rx_k_data   => rx_k_data,
-      rt_data     => rt_data,
-      rt_k_data   => rt_k_data,
-      error_count => error_count);
+      tx_data     => tx_data,
+      tx_k_data   => tx_k_data,
+      error_count => error_count,
+      error_rate  => error_rate);
 end architecture behavioral;
