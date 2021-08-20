@@ -13,7 +13,6 @@ use work.FF_K1_PKG.all;
 entity QuadTest is
   port (
     clk_axi              : in  std_logic; --50 MHz
-    clk_200              : in  std_logic;
     reset_axi_n          : in  std_logic;
     readMOSI             : in  AXIreadMOSI;
     readMISO             : out AXIreadMISO;
@@ -31,7 +30,7 @@ architecture behavioral of QuadTest is
 begin  -- architecture QuadTest
   reset <= not reset_axi_n;
 
-  QuadTest_interface_1: entity work.QuadTest_interface
+  QuadTest_map_1: entity work.Quad_Test_map
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
@@ -48,15 +47,17 @@ begin  -- architecture QuadTest
       common_out  => FF_K1_common_out,
       channel_in  => FF_K1_channel_in,
       channel_out => FF_K1_channel_out);
-  ChannelTest_1: entity work.ChannelTest
-    port map (
-      clk         => clk,
-      clk_axi     => clk_axi,
-      reset       => reset,
-      rx_data     => rx_data,
-      rx_k_data   => rx_k_data,
-      rt_data     => rt_data,
-      rt_k_data   => rt_k_data,
-      error_count => error_count);
+  FF_K1: for iChan in FF_K1_channel_in'low to FF_K1_channel_in'high  generate    
+    ChannelTest_1: entity work.ChannelTest
+      port map (
+        clk         => clk,
+        clk_axi     => clk_axi,
+        reset       => reset,
+        rx_data     => FF_K1_channel_out(iChan).rx_data,
+        rx_k_data   => FF_K1_channel_out(iChan).rx_k_data,
+        tx_data     => FF_K1_channel_in(iChan).tx_data,
+        tx_k_data   => FF_K1_channel_in(iChan).tx_k_data,
+        error_count => error_count);
+  end generate FF_K1;
   
 end architecture behavioral;

@@ -81,6 +81,20 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
+  QUAD_TEST:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB1010000"
+        range:  "64K"
+      remote_slave: "1"
+    XML: 
+      - "address_table/modules/QuadTest.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/Quad_Test"
+      map_template: "axi_generic/template_map_withbram.vhd"
 
 CORES:
   FF_K3:

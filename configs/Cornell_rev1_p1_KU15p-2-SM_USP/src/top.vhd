@@ -60,7 +60,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 4;
+  constant localAXISlaves    : integer := 5;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -163,7 +163,26 @@ begin  -- architecture structure
       CM_K_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
-
+      
+      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
+      QUAD_TEST_arprot                    => local_AXI_ReadMOSI(2).protection_type,      
+      QUAD_TEST_arready                => local_AXI_ReadMISO(2).ready_for_address,    
+      QUAD_TEST_arvalid                => local_AXI_ReadMOSI(2).address_valid,        
+      QUAD_TEST_awaddr                    => local_AXI_WriteMOSI(2).address,             
+      QUAD_TEST_awprot                    => local_AXI_WriteMOSI(2).protection_type,     
+      QUAD_TEST_awready                => local_AXI_WriteMISO(2).ready_for_address,   
+      QUAD_TEST_awvalid                => local_AXI_WriteMOSI(2).address_valid,       
+      QUAD_TEST_bready                 => local_AXI_WriteMOSI(2).ready_for_response,  
+      QUAD_TEST_bresp                     => local_AXI_WriteMISO(2).response,            
+      QUAD_TEST_bvalid                 => local_AXI_WriteMISO(2).response_valid,      
+      QUAD_TEST_rdata                     => local_AXI_ReadMISO(2).data,                 
+      QUAD_TEST_rready                 => local_AXI_ReadMOSI(2).ready_for_data,       
+      QUAD_TEST_rresp                     => local_AXI_ReadMISO(2).response,             
+      QUAD_TEST_rvalid                 => local_AXI_ReadMISO(2).data_valid,           
+      QUAD_TEST_wdata                     => local_AXI_WriteMOSI(2).data,                
+      QUAD_TEST_wready                 => local_AXI_WriteMISO(2).ready_for_data,       
+      QUAD_TEST_wstrb                     => local_AXI_WriteMOSI(2).data_write_strobe,   
+      QUAD_TEST_wvalid                 => local_AXI_WriteMOSI(2).data_valid,          
 
 
 
@@ -371,4 +390,13 @@ begin  -- architecture structure
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
 
+  QuadTest_1: entity work.QuadTest
+    port map (
+      clk_axi     => clk_axi,
+      reset_axi_n => reset_axi_n,
+      readMOSI    => local_AXI_ReadMOSI(2),
+      readMISO    => local_AXI_ReadMISO(2),
+      writeMOSI   => local_AXI_WriteMOSI(2),
+      writeMISO   => local_AXI_WriteMISO(2));
+  
 end architecture structure;

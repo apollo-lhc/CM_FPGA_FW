@@ -15,6 +15,7 @@ set vhdl_files "\
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
+     regmap_helper/axiReg/axiRegBlocking.vhd \
      ${autogen_path}/CM_IO/K_IO_PKG.vhd \
      ${autogen_path}/CM_IO/K_IO_map.vhd \
      src/misc/RGB_PWM.vhd \
@@ -23,6 +24,10 @@ set vhdl_files "\
      src/CM_FW_info/CM_K_info.vhd \
      ${autogen_path}/CM_FW_info/CM_K_INFO_PKG.vhd \
      ${autogen_path}/CM_FW_info/CM_K_INFO_map.vhd \
+     ${autogen_path}/Quad_Test/QUAD_TEST_PKG.vhd \
+     ${autogen_path}/Quad_Test/QUAD_TEST_map.vhd \
+     src/QuadTest/ChannelTest.vhd \
+     src/QuadTest/QuadTest.vhd \
      "
 
 set xdc_files "\
