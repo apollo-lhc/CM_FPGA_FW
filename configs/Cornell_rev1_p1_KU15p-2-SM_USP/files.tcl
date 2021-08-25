@@ -15,6 +15,7 @@ set vhdl_files "\
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
+     regmap_helper/axiReg/bramPortPkg.vhd \
      regmap_helper/axiReg/axiRegBlocking.vhd \
      ${autogen_path}/CM_IO/K_IO_PKG.vhd \
      ${autogen_path}/CM_IO/K_IO_map.vhd \

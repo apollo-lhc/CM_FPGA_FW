@@ -1,6 +1,6 @@
 <node id="Channel">
   <!--<node id="DRP" address="0x000" mode="incremental" size="0x269" permission="rw" fwinfo="type=mem10" module="file://DRP_USP_GTY.xml"/>-->
-  <node id="DRP" address="0x000" fwinfo="type=mem10_0x400" module="file://DRP_USP_GTY.xml"/>
+  <node id="DRP" address="0x000" fwinfo="type=mem16_0x400" module="file://DRP_USP_GTY.xml"/>
   <node id="INFO" address="0x400">
     <node id="TXRX_TYPE" address="0x00000000" mask="0xF" permission="r" description="Type of MGT: GTH(1),GTX(2),GTY(3)" parameters="Format=t_0_UNKNOWN_1_GTHUSP_2_GTXUSP_3_GTYUSP"/>
     <node id="STATUS" address="0x01"  module="file://Channel_Status.xml"/>

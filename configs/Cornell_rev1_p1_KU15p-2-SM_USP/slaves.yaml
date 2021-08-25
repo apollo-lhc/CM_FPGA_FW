@@ -91,6 +91,10 @@ AXI_SLAVES:
       remote_slave: "1"
     XML: 
       - "address_table/modules/QuadTest.xml"
+      - "address_table/modules/USP_GTH_Channel.xml"
+      - "address_table/modules/Channel_Status.xml"
+      - "address_table/modules/Channel_DEBUG_USP.xml"
+      - "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x86000000
     HDL: 
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/Quad_Test"

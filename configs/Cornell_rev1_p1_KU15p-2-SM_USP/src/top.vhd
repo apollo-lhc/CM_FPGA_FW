@@ -392,8 +392,8 @@ begin  -- architecture structure
 
   QuadTest_1: entity work.QuadTest
     port map (
-      clk_axi     => clk_axi,
-      reset_axi_n => reset_axi_n,
+      clk_axi     => axi_clk,
+      reset_axi_n => axi_rst_n,
       readMOSI    => local_AXI_ReadMOSI(2),
       readMISO    => local_AXI_ReadMISO(2),
       writeMOSI   => local_AXI_WriteMOSI(2),
