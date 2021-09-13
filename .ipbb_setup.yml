@@ -1,0 +1,5 @@
+init:
+  - make init
+
+reset:
+  - git submodule deinit -f .
