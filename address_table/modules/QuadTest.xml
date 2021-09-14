@@ -1,16 +1,9 @@
 <node id="QUADTEST">
-  <node id="FF_K1" address="0x00000000">
-    <node id="CHANNEL_1"  address="0x0000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_2"  address="0x0800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_3"  address="0x1000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_4"  address="0x1800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_5"  address="0x2000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_6"  address="0x2800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_7"  address="0x3000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_8"  address="0x3800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_9"  address="0x4000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_10" address="0x4800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_11" address="0x5000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-    <node id="CHANNEL_12" address="0x5800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
-  </node>
+  <node id="FF_K1" address="0x00000000" module="file://QuadTest_FF_12_GTH.xml"/>
+  <node id="FF_K2" address="0x00008000" module="file://QuadTest_FF_12_GTH.xml"/>
+  <node id="FF_K3" address="0x00010000" module="file://QuadTest_FF_12_GTH.xml"/>
+  <node id="FF_K4" address="0x00018000" module="file://QuadTest_FF_4_GTH.xml"/>
+  <node id="FF_K5" address="0x00020000" module="file://QuadTest_FF_4_GTH.xml"/>
+  <node id="FF_K6" address="0x00028000" module="file://QuadTest_FF_4_GTH.xml"/>
+  <node id="FF_K7" address="0x00030000" module="file://QuadTest_FF_12_GTH.xml"/>
 </node> 

@@ -5,6 +5,24 @@
     <node id="TXRX_TYPE" address="0x00000000" mask="0xF" permission="r" description="Type of MGT: GTH(1),GTX(2),GTY(3)" parameters="Format=t_0_UNKNOWN_1_GTHUSP_2_GTXUSP_3_GTYUSP"/>
     <node id="STATUS" address="0x01"  module="file://Channel_Status.xml"/>
     <node id="DEBUG"  address="0x08"  module="file://Channel_DEBUG_USP.xml"/>
-    <node id="USER_FREQ" address="0x10" permission="r" mask="0xFFFFFFFF" description="Measured Freq of clock" parameters="Table=CLOCKING;Column=FREQ;Row=_1_2_3;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+    <node id="LOOPBACK" address="0x20" permission="rw" mask="0x00000007" parameters="default=0x0" />
+    <node id="ERROR_COUNT" address="0x40" permission="r" mask="0xFFFFFFFF" />
+    <node id="ERROR_RATE" address="0x41" permission="r" mask="0xFFFFFFFF" />
+    <node id="RX_DATA" address="0x50">
+      <node id="DATA"  address="0x0" permission="r" mask="0xFFFFFFFF" />
+      <node id="K"     address="0x1" permission="r" mask="0xF" />
+    </node>
+    <node id="TX_DATA" address="0x52">
+      <node id="DATA"  address="0x0" permission="r" mask="0xFFFFFFFF" />
+      <node id="K"     address="0x1" permission="r" mask="0xF" />
+    </node>
+
+    <node id="GT_PWR_GOOD" address="0x60" permission="r" mask="0x00000001" />
+    <node id="RX_BYTE_ALIGNED" address="0x60" permission="r" mask="0x00000100" />
+    <node id="RX_BYTE_REALIGN" address="0x60" permission="r" mask="0x00000200" />
+    <node id="RX_COMMA_DET" address="0x60" permission="r" mask="0x00000400" />
+    <node id="RX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00000800" />
+    <node id="TX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00010000" />
+
   </node>
 </node> 

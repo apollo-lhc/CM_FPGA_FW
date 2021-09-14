@@ -1,0 +1,27 @@
+<node id="COMMON">
+  <node id="RESETS" address="0x0000">
+    <node id="FULL"             mask="0x00000001" permission="w"/>
+    <node id="FREERUN"         mask="0x00000002" permission="w"/>
+    <node id="RX_USERCLK"      mask="0x00000010" permission="w"/>
+    <node id="RX_DATAPATH"     mask="0x00000020" permission="w"/>
+    <node id="RX_PLL_DATAPATH" mask="0x00000040" permission="w"/>
+    <node id="TX_USERCLK"      mask="0x00000100" permission="w"/>
+    <node id="TX_DATAPATH"     mask="0x00000200" permission="w"/>
+    <node id="TX_PLL_DATAPATH" mask="0x00000400" permission="w"/>
+    <node id="RX_DONE"         mask="0x00010000" permission="r"/>
+    <node id="TX_DONE"         mask="0x00100000" permission="r"/>    
+  </node>
+  <node id="STATUS" address="0x0010">
+    <node id="RX_ACTIVE"       mask="0x00000001" permission="r"/>
+    <node id="RX_CDR_STABLE"   mask="0x00000002" permission="r"/>
+    <node id="TX_ACTIVE"       mask="0x00000010" permission="r"/>
+    <node id="INIT_DONE"       mask="0x00010000" permission="r"/>
+  </node>
+  <node id="COUNTERS" address="0x0020">
+    <node id="RX_USER_FREQ" address="0x00" permission="r" mask="0xFFFFFFFF" description="Measured Freq of clock" parameters="Table=CLOCKING;Column=FREQ;Row=_1_2_3;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+    <node id="TX_USER_FREQ" address="0x01" permission="r" mask="0xFFFFFFFF" description="Measured Freq of clock" parameters="Table=CLOCKING;Column=FREQ;Row=_1_2_3;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+    <node id="RX_SRC_FREQ" address="0x02" permission="r" mask="0xFFFFFFFF" description="Measured Freq of clock" parameters="Table=CLOCKING;Column=FREQ;Row=_1_2_3;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+    <node id="TX_SRC_FREQ" address="0x03" permission="r" mask="0xFFFFFFFF" description="Measured Freq of clock" parameters="Table=CLOCKING;Column=FREQ;Row=_1_2_3;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+    <node id="REFCLK_FREQ" address="0x04" permission="r" mask="0xFFFFFFFF" description="Measured Freq of clock" parameters="Table=CLOCKING;Column=FREQ;Row=_1_2_3;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+  </node>
+</node>

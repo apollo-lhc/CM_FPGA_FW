@@ -29,6 +29,9 @@ set vhdl_files "\
      ${autogen_path}/Quad_Test/QUAD_TEST_map.vhd \
      src/QuadTest/ChannelTest.vhd \
      src/QuadTest/QuadTest.vhd \
+     src/QuadTest/FF_K1_example_init.v \
+     src/QuadTest/FF_K1_example_reset_sync.v \
+     src/QuadTest/FF_K1_example_bit_sync.v \
      "
 
 set xdc_files "\
@@ -41,4 +44,7 @@ set xci_files "\
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
     	      "
+
+#              ${autogen_path}/../cores/my_ila.tcl \
+#              ${autogen_path}/../cores/map_withbram_ila.tcl \
 

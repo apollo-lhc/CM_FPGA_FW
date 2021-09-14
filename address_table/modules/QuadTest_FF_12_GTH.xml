@@ -1,0 +1,15 @@
+<node id="FF" >
+  <node id="CHANNEL_1"  address="0x0000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_2"  address="0x0800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_3"  address="0x1000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_4"  address="0x1800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_5"  address="0x2000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_6"  address="0x2800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_7"  address="0x3000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_8"  address="0x3800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_9"  address="0x4000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_10" address="0x4800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_11" address="0x5000" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="CHANNEL_12" address="0x5800" fwinfo="type=array" module="file://USP_GTH_Channel.xml"/>
+  <node id="COMMON"     address="0x6000" module="file://USP_GTH_COMMON.xml"/>
+</node>

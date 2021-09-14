@@ -86,11 +86,14 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0xB1010000"
-        range:  "64K"
+        offset: "0xB1100000"
+        range:  "1M"
       remote_slave: "1"
     XML: 
       - "address_table/modules/QuadTest.xml"
+      - "address_table/modules/QuadTest_FF_12_GTH.xml"
+      - "address_table/modules/QuadTest_FF_4_GTH.xml"
+      - "address_table/modules/USP_GTH_COMMON.xml"
       - "address_table/modules/USP_GTH_Channel.xml"
       - "address_table/modules/Channel_Status.xml"
       - "address_table/modules/Channel_DEBUG_USP.xml"
@@ -105,16 +108,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTH
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
+          REFCLK_FREQUENCY: 312.5   
+          OUTCLK_SOURCE: RXOUTCLKPCS  
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -171,16 +176,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTH
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -238,16 +245,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTH
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -304,16 +313,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTY
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -372,16 +383,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTY
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -415,16 +428,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTY
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -457,16 +472,18 @@ CORES:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTY
-      freerun_frequency: 100
+      freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXOUTCLKPCS
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
+          REFCLK_FREQUENCY: 312.5   
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -496,3 +513,24 @@ CORES:
           RX: clk0
           TX: clk0
 
+  FF_K1_ILA:
+    TCL_CALL:
+      command: BuildILA
+      ADV_TRIGGER: true
+      probes:
+        0:
+          TYPE: 0
+          WIDTH: 8
+          MU_CNT: 2
+        1:
+          TYPE: 0
+          WIDTH: 8
+          MU_CNT: 2
+        2:
+          TYPE: 0
+          WIDTH: 16
+          MU_CNT: 2
+        3:
+          TYPE: 0
+          WIDTH: 16
+          MU_CNT: 2
