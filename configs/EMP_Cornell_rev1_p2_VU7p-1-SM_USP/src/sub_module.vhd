@@ -184,10 +184,8 @@ begin  -- architecture structure
       V_C2C_phy_link_reset_out            => C2CLink_phy_link_reset_out,         
       V_C2C_phy_mmcm_not_locked_out       => C2CLink_phy_mmcm_not_locked_out,    
       V_C2C_phy_power_down                => std_logic0,
-      V_C2C_phy_soft_err                  => C2CLink_phy_soft_err,               
-      VIRTEX_SYS_MGMT_sda                 => fpga_i2c_sda,
-      VIRTEX_SYS_MGMT_scl                 => fpga_i2c_scl
-);
+      V_C2C_phy_soft_err                  => C2CLink_phy_soft_err
+  );
 
   RGB_pwm_1: entity work.RGB_pwm
     generic map (

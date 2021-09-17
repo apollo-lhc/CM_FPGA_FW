@@ -22,18 +22,6 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0xC6000000
-  VIRTEX_SYS_MGMT:
-    TCL_CALL:
-      command: AXI_IP_SYS_MGMT
-      enable_i2c_pins: 1
-      axi_control: "${::AXI_MASTER_CTRL}"
-      addr:
-        offset: "0xB3D42000"
-        range: "4K"
-      remote_slave: "1"
-    XML:
-      - "address_table/modules/VIRTEX_SYS_MGMT.xml"
-    UHAL_BASE: 0xC0000000
   V_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
