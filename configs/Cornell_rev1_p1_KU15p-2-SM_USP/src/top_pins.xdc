@@ -2,7 +2,7 @@
 #
 # The schematic prefixes of 'k_' or 'v_ are dropped from names. They appear on the
 # the schematics to differentiate signals, like 'k_led_red' vs. 'v_led_red'. In
-# the Vivado code, they are just 'led_red' in both the KU15P and VU7P files.  
+# the Vivado code, they are just 'led_red' in both the KU15P and VU7P files.
 #
 # The schematic prefixes of 'bc' and 'ac' are dropped from names. They appear
 # on the schematics to differentiate on which side of a coupling capacitor the
@@ -28,9 +28,9 @@ set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]
 #-------------------------------------------------
 # Set internal reference voltages to 0.90 on banks with I/O signals.
 # This is required for the HSTL and DIFF_HSTL I/O standards
-set_property INTERNAL_VREF 0.90 [get_iobanks 66]
-set_property INTERNAL_VREF 0.90 [get_iobanks 67]
-set_property INTERNAL_VREF 0.90 [get_iobanks 72]
+set_property INTERNAL_VREF 0.9 [get_iobanks 66]
+set_property INTERNAL_VREF 0.9 [get_iobanks 67]
+set_property INTERNAL_VREF 0.9 [get_iobanks 72]
 #-------------------------------------------------
 
 #-------------------------------------------------
@@ -39,8 +39,8 @@ set_property INTERNAL_VREF 0.90 [get_iobanks 72]
 # 'input' clk_200: 200 MHz clock (schematic name is  "ac_*k_util_clk_chan2")
 set_property IOSTANDARD LVDS [get_ports *_clk_200]
 set_property DIFF_TERM_ADV TERM_100 [get_ports *_clk_200]
-set_property PACKAGE_PIN  G21 [get_ports  n_clk_200 ]
-set_property PACKAGE_PIN  G22 [get_ports  p_clk_200 ]
+set_property PACKAGE_PIN G22 [get_ports p_clk_200]
+set_property PACKAGE_PIN G21 [get_ports n_clk_200]
 #-------------------------------------------------
 
 #-----------------------------------------------
@@ -96,8 +96,8 @@ set_property PACKAGE_PIN  G23 [get_ports  p_amc13_tts_out ]
 # 'input' "clk1" programmable source
 
 # Quad A (224)
-set_property PACKAGE_PIN  AL11 [get_ports  n_util_clk_chan0 ]
-set_property PACKAGE_PIN  AL12 [get_ports  p_util_clk_chan0 ]
+set_property PACKAGE_PIN AL11 [get_ports n_util_clk_chan0]
+set_property PACKAGE_PIN AL12 [get_ports p_util_clk_chan0]
 
 # Quad C (226)
 set_property PACKAGE_PIN  AG11 [get_ports  refclk_i_n[3] ]
@@ -112,8 +112,8 @@ set_property PACKAGE_PIN  AA12 [get_ports  refclk_i_p[2] ]
 #set_property PACKAGE_PIN  Y10  [get_ports  p_clk1_chan1 ]
 
 # Quad I (232)
-set_property PACKAGE_PIN  R11  [get_ports  refclk_i_n[1] ]
-set_property PACKAGE_PIN  R12  [get_ports  refclk_i_p[1] ]
+set_property PACKAGE_PIN R11 [get_ports {refclk_i_n[1]}]
+set_property PACKAGE_PIN R12 [get_ports {refclk_i_p[1]}]
 #set_property PACKAGE_PIN  P9   [get_ports  n_clk1_chan2 ]
 #set_property PACKAGE_PIN  P10  [get_ports  p_clk1_chan2 ]
 
@@ -168,13 +168,13 @@ set_property PACKAGE_PIN  J34  [get_ports  {p_mgt_k2v[2]} ]
 # 'output' "k2z": links to the Zynq on the service board
 
 # Quad A (224)
-set_property PACKAGE_PIN  BA3  [get_ports  {n_mgt_z2k[1]} ]
-set_property PACKAGE_PIN  BA4  [get_ports  {p_mgt_z2k[1]} ]
 set_property PACKAGE_PIN  BB5  [get_ports  {n_mgt_z2k[2]} ]
 set_property PACKAGE_PIN  BB6  [get_ports  {p_mgt_z2k[2]} ]
 
-set_property PACKAGE_PIN  AV9  [get_ports  {n_mgt_k2z[1]} ]
-set_property PACKAGE_PIN  AV10 [get_ports  {p_mgt_k2z[1]} ]
+set_property PACKAGE_PIN BA4 [get_ports {p_mgt_z2k[1]}]
+set_property PACKAGE_PIN BA3 [get_ports {n_mgt_z2k[1]}]
+set_property PACKAGE_PIN AV10 [get_ports {p_mgt_k2z[1]}]
+set_property PACKAGE_PIN AV9 [get_ports {n_mgt_k2z[1]}]
 set_property PACKAGE_PIN  AW7  [get_ports  {n_mgt_k2z[2]} ]
 set_property PACKAGE_PIN  AW8  [get_ports  {p_mgt_k2z[2]} ]
 #-----------------------------------------------
@@ -188,21 +188,21 @@ set_property PACKAGE_PIN  AV32 [get_ports  {dip_sw[2]} ]
 set_property PACKAGE_PIN  AU32 [get_ports  {dip_sw[3]} ]
 
 # 'output' "led": 3 bits to light LEDs
-set_property IOSTANDARD LVCMOS18 [get_ports led_*] 
-set_property PACKAGE_PIN  BA29 [get_ports  led_blue ]
-set_property PACKAGE_PIN  AY28 [get_ports  led_green ]
-set_property PACKAGE_PIN  AW28 [get_ports  led_red ]
+set_property IOSTANDARD LVCMOS18 [get_ports led_*]
+set_property PACKAGE_PIN BA29 [get_ports led_blue]
+set_property PACKAGE_PIN AY28 [get_ports led_green]
+set_property PACKAGE_PIN AW28 [get_ports led_red]
 
 # 'input' "from_tm4c": 1 bit trom the TM4C
 # 'output' "to_tm4c": 1 bit to the TM4C
-set_property IOSTANDARD LVCMOS18 [get_ports *_tm4c] 
+set_property IOSTANDARD LVCMOS18 [get_ports *_tm4c]
 set_property PACKAGE_PIN  D22 [get_ports  from_tm4c ]
 set_property PACKAGE_PIN  H22 [get_ports  to_tm4c ]
 
 # WHAT TO DO ABOUT I2C PINS???
-set_property IOSTANDARD LVCMOS18 [get_ports k_fpga_i2c_*] 
-set_property PACKAGE_PIN  AL24 [get_ports  k_fpga_i2c_scl ]
-set_property PACKAGE_PIN  AL25 [get_ports  k_fpga_i2c_sda ]
+set_property IOSTANDARD LVCMOS18 [get_ports k_fpga_i2c_*]
+set_property PACKAGE_PIN AL24 [get_ports k_fpga_i2c_scl]
+set_property PACKAGE_PIN AL25 [get_ports k_fpga_i2c_sda]
 #-----------------------------------------------
 
 ###########-----------------------------------------------
@@ -559,6 +559,7 @@ set_property PACKAGE_PIN  AL25 [get_ports  k_fpga_i2c_sda ]
 #set_property PACKAGE_PIN  AP15 [get_ports  _d_18df08e0 ]
 #set_property PACKAGE_PIN  AP14 [get_ports  _d_18df15b0 ]
 #-----------------------------------------------
+
 
 
 

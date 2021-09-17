@@ -39,44 +39,14 @@ entity top is
 --    p_atca_ttc_in    : in  std_logic;
 --    n_atca_ttc_in    : in  std_logic;
 
-    refclk_i_p       : in  std_logic_vector(7 downto 1);
-    refclk_i_n       : in  std_logic_vector(7 downto 1);
+    refclk_i_p       : in  std_logic_vector(1 downto 1);
+    refclk_i_n       : in  std_logic_vector(1 downto 1);
 
     n_ff1_recv       : in  std_logic_vector(11 downto 0);
     p_ff1_recv       : in  std_logic_vector(11 downto 0);
     n_ff1_xmit       : out std_logic_vector(11 downto 0);
     p_ff1_xmit       : out std_logic_vector(11 downto 0);
 
-    n_ff2_recv       : in  std_logic_vector(11 downto 0);
-    p_ff2_recv       : in  std_logic_vector(11 downto 0);
-    n_ff2_xmit       : out std_logic_vector(11 downto 0);
-    p_ff2_xmit       : out std_logic_vector(11 downto 0);
-
-    n_ff3_recv       : in  std_logic_vector(11 downto 0);
-    p_ff3_recv       : in  std_logic_vector(11 downto 0);
-    n_ff3_xmit       : out std_logic_vector(11 downto 0);
-    p_ff3_xmit       : out std_logic_vector(11 downto 0);
-
-    n_ff4_recv       : in  std_logic_vector(3 downto 0);
-    p_ff4_recv       : in  std_logic_vector(3 downto 0);
-    n_ff4_xmit       : out std_logic_vector(3 downto 0);
-    p_ff4_xmit       : out std_logic_vector(3 downto 0);
-
-    n_ff5_recv       : in  std_logic_vector(3 downto 0);
-    p_ff5_recv       : in  std_logic_vector(3 downto 0);
-    n_ff5_xmit       : out std_logic_vector(3 downto 0);
-    p_ff5_xmit       : out std_logic_vector(3 downto 0);
-
-    n_ff6_recv       : in  std_logic_vector(3 downto 0);
-    p_ff6_recv       : in  std_logic_vector(3 downto 0);
-    n_ff6_xmit       : out std_logic_vector(3 downto 0);
-    p_ff6_xmit       : out std_logic_vector(3 downto 0);
-
-
-    n_ff7_recv       : in  std_logic_vector(11 downto 0);
-    p_ff7_recv       : in  std_logic_vector(11 downto 0);
-    n_ff7_xmit       : out std_logic_vector(11 downto 0);
-    p_ff7_xmit       : out std_logic_vector(11 downto 0);
     
     -- tri-color LED
     led_red : out std_logic;
@@ -435,48 +405,12 @@ begin  -- architecture structure
       refclk_i_p  => refclk_i_p,
       refclk_i_n  => refclk_i_n,
       tx_n(12 downto  1)     => n_ff1_xmit(11 downto  0),
-      tx_n(24 downto 13)     => n_ff2_xmit(11 downto  0),
-      tx_n(36 downto 25)     => n_ff3_xmit(11 downto  0),
-      tx_n(40 downto 37)     => n_ff4_xmit( 3 downto  0),
-      tx_n(48 downto 41)     => open,
-      tx_n(52 downto 49)     => n_ff5_xmit( 3 downto  0),
-      tx_n(60 downto 53)     => open,
-      tx_n(64 downto 61)     => n_ff6_xmit( 3 downto  0),
-      tx_n(72 downto 65)     => open,
-      tx_n(84 downto 73)     => n_ff7_xmit(11 downto  0),
 
       tx_p(12 downto  1)     => p_ff1_xmit(11 downto  0),
-      tx_p(24 downto 13)     => p_ff2_xmit(11 downto  0),
-      tx_p(36 downto 25)     => p_ff3_xmit(11 downto  0),
-      tx_p(40 downto 37)     => p_ff4_xmit( 3 downto  0),
-      tx_p(48 downto 41)     => open,
-      tx_p(52 downto 49)     => p_ff5_xmit( 3 downto  0),
-      tx_p(60 downto 53)     => open,
-      tx_p(64 downto 61)     => p_ff6_xmit( 3 downto  0),
-      tx_p(72 downto 65)     => open,
-      tx_p(84 downto 73)     => p_ff7_xmit(11 downto  0),
 
       rx_n(12 downto  1)     => n_ff1_recv(11 downto  0),
-      rx_n(24 downto 13)     => n_ff2_recv(11 downto  0),
-      rx_n(36 downto 25)     => n_ff3_recv(11 downto  0),
-      rx_n(40 downto 37)     => n_ff4_recv( 3 downto  0),
-      rx_n(48 downto 41)     => x"00",
-      rx_n(52 downto 49)     => n_ff5_recv( 3 downto  0),
-      rx_n(60 downto 53)     => x"00",
-      rx_n(64 downto 61)     => n_ff6_recv( 3 downto  0),
-      rx_n(72 downto 65)     => x"00",
-      rx_n(84 downto 73)     => n_ff7_recv(11 downto  0),
       
       rx_p(12 downto  1)     => p_ff1_recv(11 downto  0),
-      rx_p(24 downto 13)     => p_ff2_recv(11 downto  0),
-      rx_p(36 downto 25)     => p_ff3_recv(11 downto  0),
-      rx_p(40 downto 37)     => p_ff4_recv( 3 downto  0),
-      rx_p(48 downto 41)     => x"FF",
-      rx_p(52 downto 49)     => p_ff5_recv( 3 downto  0),
-      rx_p(60 downto 53)     => x"FF",
-      rx_p(64 downto 61)     => p_ff6_recv( 3 downto  0),      
-      rx_p(72 downto 65)     => x"FF",
-      rx_p(84 downto 73)     => p_ff7_recv(11 downto  0),
 
       readMOSI    => local_AXI_ReadMOSI(2),
       readMISO    => local_AXI_ReadMISO(2),

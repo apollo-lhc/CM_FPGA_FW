@@ -163,7 +163,6 @@ set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}]
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-#source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
 source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
 yaml_to_bd "${apollo_root_path}/configs/${build_name}/slaves.yaml"
 
