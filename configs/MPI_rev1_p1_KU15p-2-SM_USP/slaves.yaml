@@ -15,7 +15,7 @@ AXI_SLAVES:
         axi_rstn:         ${::EXT_RESET} 
         axi_freq:         ${::EXT_CLK_FREQ}
       addr:
-        offset: "0xBE004000"
+        offset: "0xB1000000"
         range: 4K
       remote_slave: "1"
     XML:
@@ -28,7 +28,7 @@ AXI_SLAVES:
       enable_i2c_pins: 0  
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: "0xBE002000"
+        offset: "0xB1001000"
         range: 4K
       remote_slave: "1"
     XML:
@@ -40,11 +40,13 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: "0xBE000000"
+        offset: "0xB1002000"
         range: 4K
       remote_slave: "1"
     XML:
-      - "address_table/modules/K_IO.xml"
+      - "address_table/modules/CM_IO.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
     UHAL_BASE: 0x81000000
     HDL: 
       out_dir: "configs/MPI_rev1_p1_KU15p-2-SM_USP/autogen/CM_IO"    
@@ -55,7 +57,7 @@ AXI_SLAVES:
       command:  AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: "0xBE003000"
+        offset: "0xB1003000"
         range:  4K
       remote_slave: "1"
     XML:
@@ -71,8 +73,8 @@ AXI_SLAVES:
       axi_control: ${::AXI_MASTER_CTRL}
       type: AXI4
       addr:
-        offset: "0xBA000000"
-        range: 32M
+        offset: "0xB0000000"
+        range: 16M
       remote_slave: "1"
       data_width: "64"
     XML:
