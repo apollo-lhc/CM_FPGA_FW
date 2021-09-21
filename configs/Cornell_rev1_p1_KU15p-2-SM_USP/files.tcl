@@ -27,7 +27,7 @@ set vhdl_files "\
      ${autogen_path}/CM_FW_info/CM_K_INFO_map.vhd \
      ${autogen_path}/Quad_Test/QUAD_TEST_PKG.vhd \
      ${autogen_path}/Quad_Test/QUAD_TEST_map.vhd \
-     src/QuadTest/ChannelTest.vhd \
+     src/QuadTest/ChannelTest_64B66B.vhd \
      src/QuadTest/QuadTest.vhd \
      src/QuadTest/FF_K1_example_init.v \
      src/QuadTest/FF_K1_example_reset_sync.v \

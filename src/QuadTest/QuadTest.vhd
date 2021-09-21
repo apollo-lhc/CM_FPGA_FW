@@ -105,7 +105,7 @@ begin  -- architecture QuadTest
     
     rate_counter_1: entity work.rate_counter
       generic map (
-        CLK_A_1_SECOND => 500000000)
+        CLK_A_1_SECOND => 50000000)
       port map (
         clk_A         => clk_axi,
         clk_B         => ref_clk_fabric(iRefClk) ,
@@ -198,6 +198,26 @@ begin  -- architecture QuadTest
       reset_A_async => Ctrl.FF_K1.COMMON.RESETS.FULL or Ctrl.FF_K1.COMMON.RESETS.TX_PLL_DATAPATH,
       event_b       => '1',
       rate          => Mon.FF_K1.COMMON.COUNTERS.TX_USER_FREQ);
+  rate_counter_2: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => 50000000)
+    port map (
+      clk_A         => clk_axi,
+      clk_B         => FF_K1_channel_out(1).rxoutclk_out,
+      reset_A_async => '0',
+      event_b       => '1',
+      rate          => Mon.FF_K1.COMMON.COUNTERS.RX_SRC_FREQ);
+  rate_counter_4: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => 50000000)
+    port map (
+      clk_A         => clk_axi,
+      clk_B         => FF_K1_channel_out(1).txoutclk_out,
+      reset_A_async => '0',
+      event_b       => '1',
+      rate          => Mon.FF_K1.COMMON.COUNTERS.TX_SRC_FREQ);
+
+
   Mon.FF_K1.COMMON.RESETS.RX_DONE                    <= FF_K1_common_out.gtwiz_reset_rx_done_out;
   Mon.FF_K1.COMMON.RESETS.TX_DONE                    <= FF_K1_common_out.gtwiz_reset_tx_done_out;
   Mon.FF_K1.COMMON.STATUS.RX_ACTIVE                  <= FF_K1_common_out.gtwiz_userclk_rx_active_out;
@@ -245,9 +265,7 @@ begin  -- architecture QuadTest
     tx_p(iChan + (12 *0))                                   <= FF_K1_channel_out(iChan).gthtxp_out;               
     Mon.FF_K1.CHANNEL(iChan).INFO.GT_PWR_GOOD               <= FF_K1_channel_out(iChan).gtpowergood_out;         
     Mon.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.BUF_STATUS       <= FF_K1_channel_out(iChan).rxbufstatus_out;          
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_BYTE_ALIGNED           <= FF_K1_channel_out(iChan).rxbyteisaligned_out;     
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_BYTE_REALIGN           <= FF_K1_channel_out(iChan).rxbyterealign_out;       
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_COMMA_DET              <= FF_K1_channel_out(iChan).rxcommadet_out;          
+          
     Mon.FF_K1.CHANNEL(iChan).INFO.RX_PMA_RESET_DONE         <= rx_pma_reset(1)(iChan);
     rx_pma_reset(1)(iChan)                                  <= FF_K1_channel_out(iChan).rxpmaresetdone_out;          
     Mon.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.PRBS_ERR         <= FF_K1_channel_out(iChan).rxprbserr_out;            
@@ -268,11 +286,8 @@ begin  -- architecture QuadTest
     FF_K1_channel_in(iChan).pcsrsvdin_in         <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.PCS_RSV_DIN;  
     FF_K1_channel_in(iChan).rxbufreset_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.BUF_RESET;
     FF_K1_channel_in(iChan).rxcdrhold_in         <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.CDR_HOLD;
-    FF_K1_channel_in(iChan).rxcommadeten_in      <= '1';
     FF_K1_channel_in(iChan).rxdfelpmreset_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.DFE_LPM_RESET;
     FF_K1_channel_in(iChan).rxlpmen_in           <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.LPM_EN;
-    FF_K1_channel_in(iChan).rxmcommaalignen_in   <= '1';
-    FF_K1_channel_in(iChan).rxpcommaalignen_in   <= '1';
     FF_K1_channel_in(iChan).rxpcsreset_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.PCS_RESET;
     FF_K1_channel_in(iChan).rxpmareset_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.PMA_RESET;
     FF_K1_channel_in(iChan).rxprbscntreset_in    <= Ctrl.FF_K1.CHANNEL(iChan).INFO.DEBUG.RX.PRBS_CNT_RST;
@@ -290,10 +305,12 @@ begin  -- architecture QuadTest
 
 
 
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.DATA <= FF_K1_channel_out(iChan).gtwiz_userdata_rx_out;
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.K <= FF_K1_channel_out(iChan).rxctrl2_out(3 downto 0);
-    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.DATA <= FF_K1_channel_in(iChan).gtwiz_userdata_tx_in;    
-    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.K <= FF_K1_channel_in(iChan).txctrl2_in(3 downto 0);  
+    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.DATA_LSB <= FF_K1_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
+    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.DATA_MSB <= FF_K1_channel_out(iChan).gtwiz_userdata_rx_out(63 downto 32);
+    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.H        <= FF_K1_channel_out(iChan).rxctrl2_out(1 downto 0);
+    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.DATA_LSB <= FF_K1_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
+    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.DATA_MSB <= FF_K1_channel_in(iChan).gtwiz_userdata_tx_in(63 downto 32);    
+    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.H        <= FF_K1_channel_in(iChan).txctrl2_in(1 downto 0);  
     
     ChannelTest_1: entity work.ChannelTest
       port map (
@@ -301,9 +318,9 @@ begin  -- architecture QuadTest
         clk_axi     => clk_axi,
         reset       => reset,
         rx_data     => FF_K1_channel_out(iChan).gtwiz_userdata_rx_out,
-        rx_k_data   => FF_K1_channel_out(iChan).rxctrl2_out(3 downto 0),
+        rx_h_data   => FF_K1_channel_out(iChan).rxheader_out(1 downto 0),
         tx_data     => FF_K1_channel_in(iChan).gtwiz_userdata_tx_in,
-        tx_k_data   => FF_K1_channel_in(iChan).txctrl2_in(3 downto 0),  
+        tx_h_data   => FF_K1_channel_in(iChan).txheader_in(1 downto 0),  
         error_rate  => Mon.FF_K1.CHANNEL(iChan).INFO.ERROR_RATE,
         error_count => Mon.FF_K1.CHANNEL(iChan).INFO.ERROR_COUNT);
   end generate FF_K1;
