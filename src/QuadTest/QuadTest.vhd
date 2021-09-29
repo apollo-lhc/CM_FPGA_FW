@@ -50,9 +50,18 @@ architecture behavioral of QuadTest is
   signal CESYNC         : std_logic_vector(1 downto 1);
   signal CLRSYNC        : std_logic_vector(1 downto 1);
 
+  signal CESYNC123123  : std_logic;
+  signal CESYNC123     : std_logic;
+  signal CLRSYNC123123  : std_logic;
+  signal CLRSYNC123     : std_logic;
+
+  
   signal hb_gtwiz_reset_all_init_int : std_logic_vector(1 downto 1);
   signal hb_gtwiz_reset_rx_datapath_init_int  : std_logic_vector(1 downto 1);
   signal init_done_int  : std_logic_vector(1 downto 1);
+
+  signal txoutclk : std_logic;
+  signal rxoutclk : std_logic;
   
 begin  -- architecture QuadTest
   reset <= not reset_axi_n;
@@ -198,24 +207,60 @@ begin  -- architecture QuadTest
       reset_A_async => Ctrl.FF_K1.COMMON.RESETS.FULL or Ctrl.FF_K1.COMMON.RESETS.TX_PLL_DATAPATH,
       event_b       => '1',
       rate          => Mon.FF_K1.COMMON.COUNTERS.TX_USER_FREQ);
-  rate_counter_2: entity work.rate_counter
-    generic map (
-      CLK_A_1_SECOND => 50000000)
-    port map (
-      clk_A         => clk_axi,
-      clk_B         => FF_K1_channel_out(1).rxoutclk_out,
-      reset_A_async => '0',
-      event_b       => '1',
-      rate          => Mon.FF_K1.COMMON.COUNTERS.RX_SRC_FREQ);
-  rate_counter_4: entity work.rate_counter
-    generic map (
-      CLK_A_1_SECOND => 50000000)
-    port map (
-      clk_A         => clk_axi,
-      clk_B         => FF_K1_channel_out(1).txoutclk_out,
-      reset_A_async => '0',
-      event_b       => '1',
-      rate          => Mon.FF_K1.COMMON.COUNTERS.TX_SRC_FREQ);
+--  BUFG_GT_SYNC_inst123 : BUFG_GT_SYNC
+--    port map (
+--      CESYNC  => CESYNC123,
+--      CLRSYNC => CLRSYNC123,
+--      CE => '1',
+--      CLK => FF_K1_channel_out(1).rxoutclk_out,
+--      CLR => '0'
+--      );  
+--  BUFG_GT_inst123 : BUFG_GT
+--    port map (
+--      O => rxoutclk,
+--      CE => CESYNC123,
+--      CEMASK => '1',
+--      CLR => CLRSYNC123,
+--      CLRMASK => '1',
+--      DIV => "000",
+--      I => FF_K1_channel_out(1).rxoutclk_out
+--    );  
+--  rate_counter_2: entity work.rate_counter
+--    generic map (
+--      CLK_A_1_SECOND => 50000000)
+--    port map (
+--      clk_A         => clk_axi,
+--      clk_B         => rxoutclk,
+--      reset_A_async => '0',
+--      event_b       => '1',
+--      rate          => Mon.FF_K1.COMMON.COUNTERS.RX_SRC_FREQ);
+--  BUFG_GT_SYNC_inst123123 : BUFG_GT_SYNC
+--    port map (
+--      CESYNC  => CESYNC123123,
+--      CLRSYNC => CLRSYNC123123,
+--      CE => '1',
+--      CLK => FF_K1_channel_out(1).txoutclk_out,
+--      CLR => '0'
+--      );  
+--  BUFG_GT_inst123123 : BUFG_GT
+--    port map (
+--      O => txoutclk,
+--      CE => CESYNC123123,
+--      CEMASK => '1',
+--      CLR => CLRSYNC123123,
+--      CLRMASK => '1',
+--      DIV => "000",
+--      I => FF_K1_channel_out(1).txoutclk_out
+--    );  
+--  rate_counter_4: entity work.rate_counter
+--    generic map (
+--      CLK_A_1_SECOND => 50000000)
+--    port map (
+--      clk_A         => clk_axi,
+--      clk_B         => txoutclk,
+--      reset_A_async => '0',
+--      event_b       => '1',
+--      rate          => Mon.FF_K1.COMMON.COUNTERS.TX_SRC_FREQ);
 
 
   Mon.FF_K1.COMMON.RESETS.RX_DONE                    <= FF_K1_common_out.gtwiz_reset_rx_done_out;

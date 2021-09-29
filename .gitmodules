@@ -6,3 +6,6 @@
 [submodule "regmap_helper"]
 	path = regmap_helper
 	url = https://github.com/BU-Tools/uHAL_AXI_regmap.git
+[submodule "configs/IT-DTC"]
+	path = configs/IT-DTC
+	url = git@gitlab.com:apollo-lhc/it-dtc-fw.git
