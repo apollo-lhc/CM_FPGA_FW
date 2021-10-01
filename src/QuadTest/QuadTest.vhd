@@ -198,24 +198,24 @@ begin  -- architecture QuadTest
       reset_A_async => Ctrl.FF_K1.COMMON.RESETS.FULL or Ctrl.FF_K1.COMMON.RESETS.TX_PLL_DATAPATH,
       event_b       => '1',
       rate          => Mon.FF_K1.COMMON.COUNTERS.TX_USER_FREQ);
-  rate_counter_2: entity work.rate_counter
-    generic map (
-      CLK_A_1_SECOND => 50000000)
-    port map (
-      clk_A         => clk_axi,
-      clk_B         => FF_K1_channel_out(1).rxoutclk_out,
-      reset_A_async => '0',
-      event_b       => '1',
-      rate          => Mon.FF_K1.COMMON.COUNTERS.RX_SRC_FREQ);
-  rate_counter_4: entity work.rate_counter
-    generic map (
-      CLK_A_1_SECOND => 50000000)
-    port map (
-      clk_A         => clk_axi,
-      clk_B         => FF_K1_channel_out(1).txoutclk_out,
-      reset_A_async => '0',
-      event_b       => '1',
-      rate          => Mon.FF_K1.COMMON.COUNTERS.TX_SRC_FREQ);
+--  rate_counter_2: entity work.rate_counter
+--    generic map (
+--      CLK_A_1_SECOND => 50000000)
+--    port map (
+--      clk_A         => clk_axi,
+--      clk_B         => FF_K1_channel_out(1).rxoutclk_out,
+--      reset_A_async => '0',
+--      event_b       => '1',
+--      rate          => Mon.FF_K1.COMMON.COUNTERS.RX_SRC_FREQ);
+--  rate_counter_4: entity work.rate_counter
+--    generic map (
+--      CLK_A_1_SECOND => 50000000)
+--    port map (
+--      clk_A         => clk_axi,
+--      clk_B         => FF_K1_channel_out(1).txoutclk_out,
+--      reset_A_async => '0',
+--      event_b       => '1',
+--      rate          => Mon.FF_K1.COMMON.COUNTERS.TX_SRC_FREQ);
 
 
   Mon.FF_K1.COMMON.RESETS.RX_DONE                    <= FF_K1_common_out.gtwiz_reset_rx_done_out;

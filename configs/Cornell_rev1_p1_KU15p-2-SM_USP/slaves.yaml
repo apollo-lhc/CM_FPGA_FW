@@ -111,27 +111,24 @@ CORES:
       freerun_frequency: 50
       clocking:
         TX:
-          LINE_RATE: 5
+          LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXOUTCLKPCS 
+          OUTCLK_SOURCE: TXPROGDIVCLK
         RX:
-          LINE_RATE: 5
+          LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXOUTCLKPCS 
+          OUTCLK_SOURCE: RXPROGDIVCLK
       protocol:
         TX:
-          DATA_ENCODING: 8B10B
-          INT_DATA_WIDTH: 40
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
         RX:
-          DATA_DECODING: 8B10B
-          COMMA_PRESET: K28.1     
-          COMMA_P_ENABLE: true    
-          COMMA_M_ENABLE: true    
-          COMMA_P_VAL: 1001111100 
-          COMMA_M_VAL: 0110000011 
-          COMMA_MASK: 1111111111  
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE

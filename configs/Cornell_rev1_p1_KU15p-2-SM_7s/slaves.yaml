@@ -116,11 +116,13 @@ CORES:
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
           OUTCLK_SOURCE: TXPROGDIVCLK
+          MASTER_CHANNEL: X0Y35
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5    
           OUTCLK_SOURCE: RXPROGDIVCLK
+          MASTER_CHANNEL: X0Y35
       protocol:
         TX:
           DATA_ENCODING: 64B66B
@@ -133,7 +135,6 @@ CORES:
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
-      optional: txoutclk_out rxoutclk_out
       links:
         X0Y28:
           RX: clk0+1
