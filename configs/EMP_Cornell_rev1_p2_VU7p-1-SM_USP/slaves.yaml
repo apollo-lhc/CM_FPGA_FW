@@ -16,7 +16,7 @@ AXI_SLAVES:
         axi_freq: "${::EXT_CLK_FREQ}"
 
       addr:
-        offset: "0xB3D44000"
+        offset: "0xB3004000"
         range:  "4K"
       remote_slave: "1"
     XML:
@@ -27,7 +27,7 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0xB3D40000"
+        offset: "0xB3000000"
         range:  "4K"
       remote_slave: "1"
     XML:
@@ -42,7 +42,7 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0xB3D43000"
+        offset: "0xB3003000"
         range:  "4K"
       remote_slave: "1"
     XML:
@@ -58,8 +58,8 @@ AXI_SLAVES:
       axi_control: "${::AXI_MASTER_CTRL}"
       type: "AXI4"
       addr:
-        offset: "0xBC000000"
-        range:  "32M"
+        offset: "0xB2000000"
+        range:  "16M"
       remote_slave: "1"
       data_width: "64"
     XML:
