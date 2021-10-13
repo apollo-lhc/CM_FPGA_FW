@@ -132,19 +132,8 @@ CORES:
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
+        LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
       links:
-        X0Y28:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y29:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y30:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y31:
-          RX: clk0+1
-          TX: clk0+1
         X0Y32:
           RX: clk0
           TX: clk0
@@ -157,19 +146,7 @@ CORES:
         X0Y35:
           RX: clk0
           TX: clk0
-        X0Y36:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y37:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y38:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y39:
-          RX: clk0-1
-          TX: clk0-1
-
+      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
   FF_K1_ILA:
     TCL_CALL:
       command: BuildILA

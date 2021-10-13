@@ -42,10 +42,10 @@ entity top is
     refclk_i_p       : in  std_logic_vector(1 downto 1);
     refclk_i_n       : in  std_logic_vector(1 downto 1);
 
-    n_ff1_recv       : in  std_logic_vector(11 downto 0);
-    p_ff1_recv       : in  std_logic_vector(11 downto 0);
-    n_ff1_xmit       : out std_logic_vector(11 downto 0);
-    p_ff1_xmit       : out std_logic_vector(11 downto 0);
+    n_ff1_recv       : in  std_logic_vector(7 downto 4);
+    p_ff1_recv       : in  std_logic_vector(7 downto 4);
+    n_ff1_xmit       : out std_logic_vector(7 downto 4);
+    p_ff1_xmit       : out std_logic_vector(7 downto 4);
 
     
     -- tri-color LED
@@ -404,14 +404,10 @@ begin  -- architecture structure
       reset_axi_n => axi_rst_n,
       refclk_i_p  => refclk_i_p,
       refclk_i_n  => refclk_i_n,
-      tx_n(12 downto  1)     => n_ff1_xmit(11 downto  0),
-
-      tx_p(12 downto  1)     => p_ff1_xmit(11 downto  0),
-
-      rx_n(12 downto  1)     => n_ff1_recv(11 downto  0),
-      
-      rx_p(12 downto  1)     => p_ff1_recv(11 downto  0),
-
+      tx_n(4 downto  1)     => n_ff1_xmit(7 downto 4),
+      tx_p(4 downto  1)     => p_ff1_xmit(7 downto 4),
+      rx_n(4 downto  1)     => n_ff1_recv(7 downto 4),      
+      rx_p(4 downto  1)     => p_ff1_recv(7 downto 4),
       readMOSI    => local_AXI_ReadMOSI(2),
       readMISO    => local_AXI_ReadMISO(2),
       writeMOSI   => local_AXI_WriteMOSI(2),

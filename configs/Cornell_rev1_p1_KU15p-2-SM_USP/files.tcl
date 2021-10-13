@@ -29,10 +29,12 @@ set vhdl_files "\
      ${autogen_path}/Quad_Test/QUAD_TEST_map.vhd \
      src/QuadTest/ChannelTest_64B66B.vhd \
      src/QuadTest/QuadTest.vhd \
-     src/QuadTest/FF_K1_example_init.v \
-     src/QuadTest/FF_K1_example_reset_sync.v \
-     src/QuadTest/FF_K1_example_bit_sync.v \
      "
+
+#     src/QuadTest/FF_K1_example_init.v \
+#     src/QuadTest/FF_K1_example_reset_sync.v \
+#     src/QuadTest/FF_K1_example_bit_sync.v \
+
 
 set xdc_files "\
     configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \

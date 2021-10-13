@@ -3,9 +3,9 @@
   <node id="DRP" address="0x000" fwinfo="type=mem16_0x400" module="file://DRP_USP_GTY.xml"/>
   <node id="INFO" address="0x400">
     <node id="TXRX_TYPE" address="0x00000000" mask="0xF" permission="r" description="Type of MGT: GTH(1),GTX(2),GTY(3)" parameters="Format=t_0_UNKNOWN_1_GTHUSP_2_GTXUSP_3_GTYUSP"/>
-    <node id="STATUS" address="0x01"  module="file://Channel_Status.xml"/>
-    <node id="DEBUG"  address="0x08"  module="file://Channel_DEBUG_USP.xml"/>
-    <node id="LOOPBACK" address="0x20" permission="rw" mask="0x00000007" parameters="default=0x0" />
+    <!-- <node id="STATUS" address="0x01"  module="file://Channel_Status.xml"/> -->
+    <!-- <node id="DEBUG"  address="0x08"  module="file://Channel_DEBUG_USP.xml"/> -->
+    <!-- <node id="LOOPBACK" address="0x20" permission="rw" mask="0x00000007" parameters="default=0x0" /> -->
     <node id="ERROR_COUNT" address="0x40" permission="r" mask="0xFFFFFFFF" />
     <node id="ERROR_RATE" address="0x41" permission="r" mask="0xFFFFFFFF" />
     <node id="RX_DATA" address="0x50">
@@ -19,9 +19,70 @@
       <node id="H"     address="0x2" permission="r" mask="0x3" />
     </node>
 
-    <node id="GT_PWR_GOOD" address="0x60" permission="r" mask="0x00000001" />
-    <node id="RX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00000800" />
-    <node id="TX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00010000" />
+    <!-- <node id="GT_PWR_GOOD" address="0x60" permission="r" mask="0x00000001" /> -->
+    <!-- <node id="RX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00000800" /> -->
+    <!-- <node id="TX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00010000" /> -->
+    <!-- <node id="CPLL" address="0x61"> -->
+    <!--   <node id="LOCK" address="0x0" permission="r" mask="0x00000001" /> -->
+    <!--   <node id="REFCLK_LOST" address="0x0" permission="r" mask="0x00000002" /> -->
+    <!--   <node id="FBCLK_LOST" address="0x0" permission="r" mask="0x00000004" /> -->
+    <!--   <node id="RESET" address="0x1" permission="rw" mask="0x00000001" /> -->
+    <!-- </node> -->
+  <node id="cpllpd_in" address="0x0000000E" mask="0x00000001" permission="rw" />
+  <node id="cpllreset_in" address="0x0000000F" mask="0x00000001" permission="rw" />
+  <node id="eyescanreset_in" address="0x00000016" mask="0x00000001" permission="rw" />
+  <node id="eyescantrigger_in" address="0x00000017" mask="0x00000001" permission="rw" />
+  <node id="gtrxreset_in" address="0x0000001B" mask="0x00000001" permission="rw" />
+  <node id="gttxreset_in" address="0x0000001C" mask="0x00000001" permission="rw" />
+  <node id="loopback_in" address="0x0000001D" mask="0x00000007" permission="rw" />
+  <node id="pcsrsvdin_in" address="0x0000001E" mask="0x0000FFFF" permission="rw" />
+  <node id="rxbufreset_in" address="0x0000001F" mask="0x00000001" permission="rw" />
+  <node id="rxcdrhold_in" address="0x00000020" mask="0x00000001" permission="rw" />
+  <node id="rxdfelpmreset_in" address="0x00000021" mask="0x00000001" permission="rw" />
+  <node id="rxgearboxslip_in" address="0x00000022" mask="0x00000001" permission="rw" />
+  <node id="rxlpmen_in" address="0x00000023" mask="0x00000001" permission="rw" />
+  <node id="rxpcsreset_in" address="0x00000024" mask="0x00000001" permission="rw" />
+  <node id="rxpmareset_in" address="0x00000025" mask="0x00000001" permission="rw" />
+  <node id="rxprbscntreset_in" address="0x00000026" mask="0x00000001" permission="rw" />
+  <node id="rxprbssel_in" address="0x00000027" mask="0x0000000F" permission="rw" />
+  <node id="rxprogdivreset_in" address="0x00000028" mask="0x00000001" permission="rw" />
+  <node id="rxrate_in" address="0x00000029" mask="0x00000007" permission="rw" />
+  <node id="rxuserrdy_in" address="0x0000002A" mask="0x00000001" permission="rw" />
+  <node id="txctrl2_in" address="0x0000002B" mask="0x000000FF" permission="rw" />
+  <node id="txdiffctrl_in" address="0x0000002C" mask="0x0000001F" permission="rw" />
+  <node id="txheader_in" address="0x0000002D" mask="0x0000003F" permission="rw" />
+  <node id="txinhibit_in" address="0x0000002E" mask="0x00000001" permission="rw" />
+  <node id="txpcsreset_in" address="0x0000002F" mask="0x00000001" permission="rw" />
+  <node id="txpmareset_in" address="0x00000030" mask="0x00000001" permission="rw" />
+  <node id="txpolarity_in" address="0x00000031" mask="0x00000001" permission="rw" />
+  <node id="txpostcursor_in" address="0x00000032" mask="0x0000001F" permission="rw" />
+  <node id="txprbsforceerr_in" address="0x00000033" mask="0x00000001" permission="rw" />
+  <node id="txprbssel_in" address="0x00000034" mask="0x0000000F" permission="rw" />
+  <node id="txprecursor_in" address="0x00000035" mask="0x0000001F" permission="rw" />
+  <node id="txprogdivreset_in" address="0x00000036" mask="0x00000001" permission="rw" />
+  <node id="txsequence_in" address="0x00000037" mask="0x0000007F" permission="rw" />
+  <node id="txuserrdy_in" address="0x00000038" mask="0x00000001" permission="rw" />
+  <node id="cpllfbclklost_out" address="0x00000039" mask="0x00000001" permission="r" />
+  <node id="cplllock_out" address="0x0000003A" mask="0x00000001" permission="r" />
+  <node id="dmonitorout_out" address="0x0000003C" mask="0x0000FFFF" permission="r" />
+  <node id="eyescandataerror_out" address="0x0000003F" mask="0x00000001" permission="r" />
+  <node id="gtpowergood_out" address="0x00000042" mask="0x00000001" permission="r" />
+  <node id="rxbufstatus_out" address="0x00000043" mask="0x00000007" permission="r" />
+  <node id="rxcdrlock_out" address="0x00000044" mask="0x00000001" permission="r" />
+  <node id="rxctrl2_out" address="0x00000045" mask="0x000000FF" permission="r" />
+  <node id="rxdatavalid_out" address="0x00000046" mask="0x00000003" permission="r" />
+  <node id="rxheader_out" address="0x00000047" mask="0x0000003F" permission="r" />
+  <node id="rxheadervalid_out" address="0x00000048" mask="0x00000003" permission="r" />
+  <node id="rxpmaresetdone_out" address="0x00000049" mask="0x00000001" permission="r" />
+  <node id="rxprbserr_out" address="0x0000004A" mask="0x00000001" permission="r" />
+  <node id="rxprgdivresetdone_out" address="0x0000004B" mask="0x00000001" permission="r" />
+  <node id="rxresetdone_out" address="0x0000004C" mask="0x00000001" permission="r" />
+  <node id="rxstartofseq_out" address="0x0000004D" mask="0x00000003" permission="r" />
+  <node id="txbufstatus_out" address="0x0000004E" mask="0x00000003" permission="r" />
+  <node id="txpmaresetdone_out" address="0x0000004F" mask="0x00000001" permission="r" />
+  <node id="txprgdivresetdone_out" address="0x00000050" mask="0x00000001" permission="r" />
+  <node id="txresetdone_out" address="0x00000051" mask="0x00000001" permission="r" />
+    
 
   </node>
 </node> 
