@@ -6,13 +6,15 @@ use ieee.std_logic_misc.all;
 
 entity ChannelTest is
   port (
-    clk       : in  std_logic;
-    clk_axi   : in  std_logic;
-    reset     : in  std_logic;
-    rx_data   : in  std_logic_vector(63 downto 0);
-    rx_H_data : in  std_logic_vector(1 downto 0);
-    tx_data   : out std_logic_vector(63 downto 0);
-    tx_H_data : out std_logic_vector(1 downto 0);
+    clk         : in  std_logic;
+    clk_axi     : in  std_logic;
+    reset       : in  std_logic;
+    tx_fixed    : in  std_logic_vector(65 downto 0);
+    tx_fixed_en : in  std_logic;
+    rx_data     : in  std_logic_vector(63 downto 0);
+    rx_H_data   : in  std_logic_vector(1 downto 0);
+    tx_data     : out std_logic_vector(63 downto 0);
+    tx_H_data   : out std_logic_vector(1 downto 0);
     error_rate  : out std_logic_vector(31 downto 0);
     error_count : out std_logic_vector(31 downto 0));
 end entity ChannelTest;
@@ -53,6 +55,8 @@ begin  -- architecture behavioral
       tx_H_data <= "10";
       counter <= x"00000000";
     elsif clk'event and clk = '1' then  -- rising clock edge
+      
+      
       counter <= counter + 1;
       if counter(8 downto 0) = "100000000" then
         tx_data <= x"DEADBEEFABADCAFE";
@@ -61,6 +65,11 @@ begin  -- architecture behavioral
         tx_data(31 downto  0) <= std_logic_vector(counter);
         tx_data(63 downto 32) <= std_logic_vector(counter);
         tx_h_data <= "01";        
+      end if;
+
+      if tx_fixed_en = '1' then
+        tx_data <= tx_fixed(63 downto 0);
+        tx_H_data <= tx_fixed(65 downto 64);
       end if;
     end if;
   end process data_gen;

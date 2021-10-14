@@ -118,26 +118,28 @@ set_property PACKAGE_PIN R12 [get_ports {refclk_i_p[1]}]
 #set_property PACKAGE_PIN  P10  [get_ports  p_clk1_chan2 ]
 
 # Quad M (128)
-set_property PACKAGE_PIN  AD33 [get_ports  refclk_i_n[7] ]
-set_property PACKAGE_PIN  AD32 [get_ports  refclk_i_p[7] ]
+#set_property PACKAGE_PIN  AD33 [get_ports  refclk_i_n[7] ]
+#set_property PACKAGE_PIN  AD32 [get_ports  refclk_i_p[7] ]
+set_property PACKAGE_PIN  AD33 [get_ports  refclk_i_n[4] ]
+set_property PACKAGE_PIN  AD32 [get_ports  refclk_i_p[4] ]
 #set_property PACKAGE_PIN  AC31 [get_ports  n_clk1_chan4 ]
 #set_property PACKAGE_PIN  AC30 [get_ports  p_clk1_chan4 ]
 
 # Quad P (131)
-set_property PACKAGE_PIN  V33  [get_ports  refclk_i_n[6] ]
-set_property PACKAGE_PIN  V32  [get_ports  refclk_i_p[6] ]
+#set_property PACKAGE_PIN  V33  [get_ports  refclk_i_n[6] ]
+#set_property PACKAGE_PIN  V32  [get_ports  refclk_i_p[6] ]
 #set_property PACKAGE_PIN  U31  [get_ports  n_clk1_chan5 ]
 #set_property PACKAGE_PIN  U30  [get_ports  p_clk1_chan5 ]
 
 # Quad R (133)
-set_property PACKAGE_PIN  P33  [get_ports  refclk_i_n[4] ]
-set_property PACKAGE_PIN  P32  [get_ports  refclk_i_p[4] ]
+#set_property PACKAGE_PIN  P33  [get_ports  refclk_i_n[4] ]
+#set_property PACKAGE_PIN  P32  [get_ports  refclk_i_p[4] ]
 #set_property PACKAGE_PIN  N31  [get_ports  n_clk1_chan6 ]
 #set_property PACKAGE_PIN  N30  [get_ports  p_clk1_chan6 ]
 
 # Quad S (134)
-set_property PACKAGE_PIN  M33  [get_ports  n_util_clk_chan1 ]
-set_property PACKAGE_PIN  M32  [get_ports  p_util_clk_chan1 ]
+#set_property PACKAGE_PIN  M33  [get_ports  n_util_clk_chan1 ]
+#set_property PACKAGE_PIN  M32  [get_ports  p_util_clk_chan1 ]
 #-----------------------------------------------
 
 #-----------------------------------------------

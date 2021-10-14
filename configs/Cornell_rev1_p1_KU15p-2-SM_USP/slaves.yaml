@@ -134,6 +134,18 @@ CORES:
         LOCATE_RX_USER_CLOCKING: CORE
         LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
       links:
+        X0Y28:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y29:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y30:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y31:
+          RX: clk0+1
+          TX: clk0+1
         X0Y32:
           RX: clk0
           TX: clk0
@@ -146,25 +158,217 @@ CORES:
         X0Y35:
           RX: clk0
           TX: clk0
+        X0Y36:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y37:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y38:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y39:
+          RX: clk0-1
+          TX: clk0-1
       optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
-  FF_K1_ILA:
+  FF_K2:
     TCL_CALL:
-      command: BuildILA
-      ADV_TRIGGER: true
-      probes:
-        0:
-          TYPE: 0
-          WIDTH: 8
-          MU_CNT: 2
-        1:
-          TYPE: 0
-          WIDTH: 8
-          MU_CNT: 2
-        2:
-          TYPE: 0
-          WIDTH: 16
-          MU_CNT: 2
-        3:
-          TYPE: 0
-          WIDTH: 16
-          MU_CNT: 2
+      command: BuildMGTCores
+      GT_TYPE: GTH
+      freerun_frequency: 50
+      clocking:
+        TX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXPROGDIVCLK
+        RX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXPROGDIVCLK
+      protocol:
+        TX:
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
+        RX:
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
+      core:
+        LOCATE_TX_USER_CLOCKING: CORE
+        LOCATE_RX_USER_CLOCKING: CORE
+        LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
+      links:
+        X0Y16:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y17:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y18:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y19:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y20:
+          RX: clk0
+          TX: clk0
+        X0Y21:
+          RX: clk0
+          TX: clk0
+        X0Y22:
+          RX: clk0
+          TX: clk0
+        X0Y23:
+          RX: clk0
+          TX: clk0
+        X0Y24:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y25:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y26:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y27:
+          RX: clk0-1
+          TX: clk0-1
+      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
+  FF_K3:
+    TCL_CALL:
+      command: BuildMGTCores
+      GT_TYPE: GTH
+      freerun_frequency: 50
+      clocking:
+        TX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXPROGDIVCLK
+        RX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXPROGDIVCLK
+      protocol:
+        TX:
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
+        RX:
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
+      core:
+        LOCATE_TX_USER_CLOCKING: CORE
+        LOCATE_RX_USER_CLOCKING: CORE
+        LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
+      links:
+        X0Y4:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y5:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y6:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y7:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y8:
+          RX: clk0
+          TX: clk0
+        X0Y9:
+          RX: clk0
+          TX: clk0
+        X0Y10:
+          RX: clk0
+          TX: clk0
+        X0Y11:
+          RX: clk0
+          TX: clk0
+        X0Y12:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y13:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y14:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y15:
+          RX: clk0-1
+          TX: clk0-1
+      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
+  FF_K7:
+    TCL_CALL:
+      command: BuildMGTCores
+      GT_TYPE: GTY
+      freerun_frequency: 50
+      clocking:
+        TX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 312.5
+          OUTCLK_SOURCE: TXPROGDIVCLK
+        RX:
+          LINE_RATE: 10
+          PLL_TYPE: CPLL
+          REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXPROGDIVCLK
+      protocol:
+        TX:
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
+        RX:
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
+          INT_DATA_WIDTH: 32
+      core:
+        LOCATE_TX_USER_CLOCKING: CORE
+        LOCATE_RX_USER_CLOCKING: CORE
+        LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
+      links:
+        X0Y0:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y1:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y2:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y3:
+          RX: clk0+1
+          TX: clk0+1
+        X0Y4:
+          RX: clk0
+          TX: clk0
+        X0Y5:
+          RX: clk0
+          TX: clk0
+        X0Y6:
+          RX: clk0
+          TX: clk0
+        X0Y7:
+          RX: clk0
+          TX: clk0
+        X0Y8:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y9:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y10:
+          RX: clk0-1
+          TX: clk0-1
+        X0Y11:
+          RX: clk0-1
+          TX: clk0-1
+      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
