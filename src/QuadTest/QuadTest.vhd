@@ -228,19 +228,19 @@ begin  -- architecture QuadTest
     Mon.FF_K1.CHANNEL(iChan).INFO.eyescandataerror_out  <= FF_K1_channel_out(iChan).eyescandataerror_out ;
     Mon.FF_K1.CHANNEL(iChan).INFO.gtpowergood_out       <= FF_K1_channel_out(iChan).gtpowergood_out      ;
     Mon.FF_K1.CHANNEL(iChan).INFO.rxbufstatus_out       <= FF_K1_channel_out(iChan).rxbufstatus_out      ;
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxbyteisaligned_out   <= FF_K1_channel_out(iChan).rxbyteisaligned_out      ;
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxbyterealign_out     <= FF_K1_channel_out(iChan).rxbyterealign_out      ;
     Mon.FF_K1.CHANNEL(iChan).INFO.rxcdrlock_out         <= FF_K1_channel_out(iChan).rxcdrlock_out        ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K1_channel_out(iChan).rxctrl2_out          ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.rxdatavalid_out       <= FF_K1_channel_out(iChan).rxdatavalid_out      ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.rxheader_out          <= FF_K1_channel_out(iChan).rxheader_out         ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.rxheadervalid_out     <= FF_K1_channel_out(iChan).rxheadervalid_out    ;
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxcommadet_out        <= FF_K1_channel_out(iChan).rxcommadet_out        ;
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxctrl0_out           <= FF_K1_channel_out(iChan).rxctrl0_out          ;
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxctrl1_out           <= FF_K1_channel_out(iChan).rxctrl1_out          ;
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K1_channel_out(iChan).rxctrl2_out          ;      
+    Mon.FF_K1.CHANNEL(iChan).INFO.rxctrl3_out           <= FF_K1_channel_out(iChan).rxctrl3_out          ;
     Mon.FF_K1.CHANNEL(iChan).INFO.rxpmaresetdone_out    <= FF_K1_channel_out(iChan).rxpmaresetdone_out   ;
     Mon.FF_K1.CHANNEL(iChan).INFO.rxprbserr_out         <= FF_K1_channel_out(iChan).rxprbserr_out        ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.rxprgdivresetdone_out <= FF_K1_channel_out(iChan).rxprgdivresetdone_out;
     Mon.FF_K1.CHANNEL(iChan).INFO.rxresetdone_out       <= FF_K1_channel_out(iChan).rxresetdone_out      ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.rxstartofseq_out      <= FF_K1_channel_out(iChan).rxstartofseq_out     ;
     Mon.FF_K1.CHANNEL(iChan).INFO.txbufstatus_out       <= FF_K1_channel_out(iChan).txbufstatus_out      ;
     Mon.FF_K1.CHANNEL(iChan).INFO.txpmaresetdone_out    <= FF_K1_channel_out(iChan).txpmaresetdone_out   ;
-    Mon.FF_K1.CHANNEL(iChan).INFO.txprgdivresetdone_out <= FF_K1_channel_out(iChan).txprgdivresetdone_out;
     Mon.FF_K1.CHANNEL(iChan).INFO.txresetdone_out       <= FF_K1_channel_out(iChan).txresetdone_out      ;
 
 
@@ -252,11 +252,14 @@ begin  -- architecture QuadTest
     FF_K1_channel_in(iChan).gttxreset_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.gttxreset_in     ;
     FF_K1_channel_in(iChan).loopback_in       <= Ctrl.FF_K1.CHANNEL(iChan).INFO.loopback_in      ;
     FF_K1_channel_in(iChan).pcsrsvdin_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.pcsrsvdin_in     ;
+    FF_K1_channel_in(iChan).rx8b10ben_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rx8b10ben_in     ;
     FF_K1_channel_in(iChan).rxbufreset_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxbufreset_in    ;
     FF_K1_channel_in(iChan).rxcdrhold_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxcdrhold_in     ;
+    FF_K1_channel_in(iChan).rxcommadeten_in   <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxcommadeten_in  ;
     FF_K1_channel_in(iChan).rxdfelpmreset_in  <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxdfelpmreset_in ;
-    FF_K1_channel_in(iChan).rxgearboxslip_in  <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxgearboxslip_in ;
     FF_K1_channel_in(iChan).rxlpmen_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxlpmen_in       ;
+    FF_K1_channel_in(iChan).rxmcommaalignen_in <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxmcommaalignen_in  ;
+    FF_K1_channel_in(iChan).rxpcommaalignen_in <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxpcommaalignen_in  ;
     FF_K1_channel_in(iChan).rxpcsreset_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxpcsreset_in    ;
     FF_K1_channel_in(iChan).rxpmareset_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxpmareset_in    ;
     FF_K1_channel_in(iChan).rxprbscntreset_in <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxprbscntreset_in;
@@ -264,9 +267,11 @@ begin  -- architecture QuadTest
     FF_K1_channel_in(iChan).rxprogdivreset_in <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxprogdivreset_in;
     FF_K1_channel_in(iChan).rxrate_in         <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxrate_in        ;
     FF_K1_channel_in(iChan).rxuserrdy_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.rxuserrdy_in     ;
-    FF_K1_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txctrl2_in       ;
+    FF_K1_channel_in(iChan).tx8b10ben_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.tx8b10ben_in     ;
+    FF_K1_channel_in(iChan).txctrl0_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txctrl0_in       ;
+    FF_K1_channel_in(iChan).txctrl1_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txctrl1_in       ;
+--    FF_K1_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txctrl2_in       ;
     FF_K1_channel_in(iChan).txdiffctrl_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txdiffctrl_in    ;
---    FF_K1_channel_in(iChan).txheader_in       <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txheader_in      ;
     FF_K1_channel_in(iChan).txinhibit_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txinhibit_in     ;
     FF_K1_channel_in(iChan).txpcsreset_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txpcsreset_in    ;
     FF_K1_channel_in(iChan).txpmareset_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txpmareset_in    ;
@@ -276,20 +281,14 @@ begin  -- architecture QuadTest
     FF_K1_channel_in(iChan).txprbssel_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txprbssel_in     ;
     FF_K1_channel_in(iChan).txprecursor_in    <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txprecursor_in   ;
     FF_K1_channel_in(iChan).txprogdivreset_in <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txprogdivreset_in;
-    FF_K1_channel_in(iChan).txsequence_in     <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txsequence_in    ;
     FF_K1_channel_in(iChan).txuserrdy_in      <= Ctrl.FF_K1.CHANNEL(iChan).INFO.txuserrdy_in     ;
 
 
+    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.DATA <= FF_K1_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
+    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.K    <= FF_K1_channel_out(iChan).rxctrl2_out(3 downto 0);
+    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.DATA <= FF_K1_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
+    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.K    <= FF_K1_channel_in(iChan).txctrl2_in(3 downto 0);  
 
-
-
-
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.DATA_LSB <= FF_K1_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.DATA_MSB <= FF_K1_channel_out(iChan).gtwiz_userdata_rx_out(63 downto 32);
-    Mon.FF_K1.CHANNEL(iChan).INFO.RX_DATA.H        <= FF_K1_channel_out(iChan).rxctrl2_out(1 downto 0);
-    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.DATA_LSB <= FF_K1_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
-    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.DATA_MSB <= FF_K1_channel_in(iChan).gtwiz_userdata_tx_in(63 downto 32);    
-    Mon.FF_K1.CHANNEL(iChan).INFO.TX_DATA.H        <= FF_K1_channel_in(iChan).txctrl2_in(1 downto 0);  
 
 
     FF_K1_channel_in(iChan).gthrxn_in <= rx_n(FF_K1_LINK_START-1 + iChan);
@@ -302,19 +301,16 @@ begin  -- architecture QuadTest
         clk         => FF_K1_Common_Out.gtwiz_userclk_rx_usrclk_out,
         clk_axi     => clk_axi,
         reset       => reset,
-        tx_fixed(31 downto  0) => Ctrl.FF_K1.CHANNEL(iChan).INFO.TX_FIXED_LSB,
-        tx_fixed(63 downto 32) => Ctrl.FF_K1.CHANNEL(iChan).INFO.TX_FIXED_MSB,
-        tx_fixed(65 downto 64) => Ctrl.FF_K1.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
+        tx_fixed(31 downto  0) => Ctrl.FF_K1.CHANNEL(iChan).INFO.TX_FIXED,
+        tx_fixed(35 downto 32) => Ctrl.FF_K1.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
         tx_fixed_en            => Ctrl.FF_K1.CHANNEL(iChan).INFO.TX_FIXED_EN,
         rx_data     => FF_K1_channel_out(iChan).gtwiz_userdata_rx_out,
-        rx_h_data   => FF_K1_channel_out(iChan).rxheader_out(1 downto 0),
+        rx_k_data   => FF_K1_channel_out(iChan).rxctrl2_out(3 downto 0),
         tx_data     => FF_K1_channel_in(iChan).gtwiz_userdata_tx_in,
-        tx_h_data   => FF_K1_channel_in(iChan).txheader_in(1 downto 0),  
+        tx_k_data   => FF_K1_channel_in(iChan).txctrl2_in(3 downto 0),  
         error_rate  => Mon.FF_K1.CHANNEL(iChan).INFO.ERROR_RATE,
         error_count => Mon.FF_K1.CHANNEL(iChan).INFO.ERROR_COUNT);
   end generate FF_K1;
-
-
 
   -------------------------------------------------------------------------------
   -- FF_K2
@@ -391,19 +387,19 @@ begin  -- architecture QuadTest
     Mon.FF_K2.CHANNEL(iChan).INFO.eyescandataerror_out  <= FF_K2_channel_out(iChan).eyescandataerror_out ;
     Mon.FF_K2.CHANNEL(iChan).INFO.gtpowergood_out       <= FF_K2_channel_out(iChan).gtpowergood_out      ;
     Mon.FF_K2.CHANNEL(iChan).INFO.rxbufstatus_out       <= FF_K2_channel_out(iChan).rxbufstatus_out      ;
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxbyteisaligned_out   <= FF_K2_channel_out(iChan).rxbyteisaligned_out      ;
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxbyterealign_out     <= FF_K2_channel_out(iChan).rxbyterealign_out      ;
     Mon.FF_K2.CHANNEL(iChan).INFO.rxcdrlock_out         <= FF_K2_channel_out(iChan).rxcdrlock_out        ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K2_channel_out(iChan).rxctrl2_out          ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.rxdatavalid_out       <= FF_K2_channel_out(iChan).rxdatavalid_out      ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.rxheader_out          <= FF_K2_channel_out(iChan).rxheader_out         ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.rxheadervalid_out     <= FF_K2_channel_out(iChan).rxheadervalid_out    ;
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxcommadet_out        <= FF_K2_channel_out(iChan).rxcommadet_out        ;
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxctrl0_out           <= FF_K2_channel_out(iChan).rxctrl0_out          ;
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxctrl1_out           <= FF_K2_channel_out(iChan).rxctrl1_out          ;
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K2_channel_out(iChan).rxctrl2_out          ;      
+    Mon.FF_K2.CHANNEL(iChan).INFO.rxctrl3_out           <= FF_K2_channel_out(iChan).rxctrl3_out          ;
     Mon.FF_K2.CHANNEL(iChan).INFO.rxpmaresetdone_out    <= FF_K2_channel_out(iChan).rxpmaresetdone_out   ;
     Mon.FF_K2.CHANNEL(iChan).INFO.rxprbserr_out         <= FF_K2_channel_out(iChan).rxprbserr_out        ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.rxprgdivresetdone_out <= FF_K2_channel_out(iChan).rxprgdivresetdone_out;
     Mon.FF_K2.CHANNEL(iChan).INFO.rxresetdone_out       <= FF_K2_channel_out(iChan).rxresetdone_out      ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.rxstartofseq_out      <= FF_K2_channel_out(iChan).rxstartofseq_out     ;
     Mon.FF_K2.CHANNEL(iChan).INFO.txbufstatus_out       <= FF_K2_channel_out(iChan).txbufstatus_out      ;
     Mon.FF_K2.CHANNEL(iChan).INFO.txpmaresetdone_out    <= FF_K2_channel_out(iChan).txpmaresetdone_out   ;
-    Mon.FF_K2.CHANNEL(iChan).INFO.txprgdivresetdone_out <= FF_K2_channel_out(iChan).txprgdivresetdone_out;
     Mon.FF_K2.CHANNEL(iChan).INFO.txresetdone_out       <= FF_K2_channel_out(iChan).txresetdone_out      ;
 
 
@@ -415,11 +411,14 @@ begin  -- architecture QuadTest
     FF_K2_channel_in(iChan).gttxreset_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.gttxreset_in     ;
     FF_K2_channel_in(iChan).loopback_in       <= Ctrl.FF_K2.CHANNEL(iChan).INFO.loopback_in      ;
     FF_K2_channel_in(iChan).pcsrsvdin_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.pcsrsvdin_in     ;
+    FF_K2_channel_in(iChan).rx8b10ben_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rx8b10ben_in     ;
     FF_K2_channel_in(iChan).rxbufreset_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxbufreset_in    ;
     FF_K2_channel_in(iChan).rxcdrhold_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxcdrhold_in     ;
+    FF_K2_channel_in(iChan).rxcommadeten_in   <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxcommadeten_in  ;
     FF_K2_channel_in(iChan).rxdfelpmreset_in  <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxdfelpmreset_in ;
-    FF_K2_channel_in(iChan).rxgearboxslip_in  <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxgearboxslip_in ;
     FF_K2_channel_in(iChan).rxlpmen_in        <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxlpmen_in       ;
+    FF_K2_channel_in(iChan).rxmcommaalignen_in <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxmcommaalignen_in  ;
+    FF_K2_channel_in(iChan).rxpcommaalignen_in <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxpcommaalignen_in  ;
     FF_K2_channel_in(iChan).rxpcsreset_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxpcsreset_in    ;
     FF_K2_channel_in(iChan).rxpmareset_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxpmareset_in    ;
     FF_K2_channel_in(iChan).rxprbscntreset_in <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxprbscntreset_in;
@@ -427,9 +426,11 @@ begin  -- architecture QuadTest
     FF_K2_channel_in(iChan).rxprogdivreset_in <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxprogdivreset_in;
     FF_K2_channel_in(iChan).rxrate_in         <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxrate_in        ;
     FF_K2_channel_in(iChan).rxuserrdy_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.rxuserrdy_in     ;
-    FF_K2_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txctrl2_in       ;
+    FF_K2_channel_in(iChan).tx8b10ben_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.tx8b10ben_in     ;
+    FF_K2_channel_in(iChan).txctrl0_in        <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txctrl0_in       ;
+    FF_K2_channel_in(iChan).txctrl1_in        <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txctrl1_in       ;
+--    FF_K2_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txctrl2_in       ;
     FF_K2_channel_in(iChan).txdiffctrl_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txdiffctrl_in    ;
---    FF_K2_channel_in(iChan).txheader_in       <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txheader_in      ;
     FF_K2_channel_in(iChan).txinhibit_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txinhibit_in     ;
     FF_K2_channel_in(iChan).txpcsreset_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txpcsreset_in    ;
     FF_K2_channel_in(iChan).txpmareset_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txpmareset_in    ;
@@ -439,20 +440,14 @@ begin  -- architecture QuadTest
     FF_K2_channel_in(iChan).txprbssel_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txprbssel_in     ;
     FF_K2_channel_in(iChan).txprecursor_in    <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txprecursor_in   ;
     FF_K2_channel_in(iChan).txprogdivreset_in <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txprogdivreset_in;
-    FF_K2_channel_in(iChan).txsequence_in     <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txsequence_in    ;
     FF_K2_channel_in(iChan).txuserrdy_in      <= Ctrl.FF_K2.CHANNEL(iChan).INFO.txuserrdy_in     ;
 
 
+    Mon.FF_K2.CHANNEL(iChan).INFO.RX_DATA.DATA <= FF_K2_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
+    Mon.FF_K2.CHANNEL(iChan).INFO.RX_DATA.K    <= FF_K2_channel_out(iChan).rxctrl2_out(3 downto 0);
+    Mon.FF_K2.CHANNEL(iChan).INFO.TX_DATA.DATA <= FF_K2_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
+    Mon.FF_K2.CHANNEL(iChan).INFO.TX_DATA.K    <= FF_K2_channel_in(iChan).txctrl2_in(3 downto 0);  
 
-
-
-
-    Mon.FF_K2.CHANNEL(iChan).INFO.RX_DATA.DATA_LSB <= FF_K2_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
-    Mon.FF_K2.CHANNEL(iChan).INFO.RX_DATA.DATA_MSB <= FF_K2_channel_out(iChan).gtwiz_userdata_rx_out(63 downto 32);
-    Mon.FF_K2.CHANNEL(iChan).INFO.RX_DATA.H        <= FF_K2_channel_out(iChan).rxctrl2_out(1 downto 0);
-    Mon.FF_K2.CHANNEL(iChan).INFO.TX_DATA.DATA_LSB <= FF_K2_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
-    Mon.FF_K2.CHANNEL(iChan).INFO.TX_DATA.DATA_MSB <= FF_K2_channel_in(iChan).gtwiz_userdata_tx_in(63 downto 32);    
-    Mon.FF_K2.CHANNEL(iChan).INFO.TX_DATA.H        <= FF_K2_channel_in(iChan).txctrl2_in(1 downto 0);  
 
 
     FF_K2_channel_in(iChan).gthrxn_in <= rx_n(FF_K2_LINK_START-1 + iChan);
@@ -465,20 +460,17 @@ begin  -- architecture QuadTest
         clk         => FF_K2_Common_Out.gtwiz_userclk_rx_usrclk_out,
         clk_axi     => clk_axi,
         reset       => reset,
-        tx_fixed(31 downto  0) => Ctrl.FF_K2.CHANNEL(iChan).INFO.TX_FIXED_LSB,
-        tx_fixed(63 downto 32) => Ctrl.FF_K2.CHANNEL(iChan).INFO.TX_FIXED_MSB,
-        tx_fixed(65 downto 64) => Ctrl.FF_K2.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
+        tx_fixed(31 downto  0) => Ctrl.FF_K2.CHANNEL(iChan).INFO.TX_FIXED,
+        tx_fixed(35 downto 32) => Ctrl.FF_K2.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
         tx_fixed_en            => Ctrl.FF_K2.CHANNEL(iChan).INFO.TX_FIXED_EN,
         rx_data     => FF_K2_channel_out(iChan).gtwiz_userdata_rx_out,
-        rx_h_data   => FF_K2_channel_out(iChan).rxheader_out(1 downto 0),
+        rx_k_data   => FF_K2_channel_out(iChan).rxctrl2_out(3 downto 0),
         tx_data     => FF_K2_channel_in(iChan).gtwiz_userdata_tx_in,
-        tx_h_data   => FF_K2_channel_in(iChan).txheader_in(1 downto 0),  
+        tx_k_data   => FF_K2_channel_in(iChan).txctrl2_in(3 downto 0),  
         error_rate  => Mon.FF_K2.CHANNEL(iChan).INFO.ERROR_RATE,
         error_count => Mon.FF_K2.CHANNEL(iChan).INFO.ERROR_COUNT);
   end generate FF_K2;
-
-
-    -------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------
   -- FF_K3
   -------------------------------------------------------------------------------  
   Mon.FF_K3.COMMON.COUNTERS.REFCLK_FREQ <= ref_clk_freq(FF_K3_CLK_ID);
@@ -553,19 +545,19 @@ begin  -- architecture QuadTest
     Mon.FF_K3.CHANNEL(iChan).INFO.eyescandataerror_out  <= FF_K3_channel_out(iChan).eyescandataerror_out ;
     Mon.FF_K3.CHANNEL(iChan).INFO.gtpowergood_out       <= FF_K3_channel_out(iChan).gtpowergood_out      ;
     Mon.FF_K3.CHANNEL(iChan).INFO.rxbufstatus_out       <= FF_K3_channel_out(iChan).rxbufstatus_out      ;
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxbyteisaligned_out   <= FF_K3_channel_out(iChan).rxbyteisaligned_out      ;
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxbyterealign_out     <= FF_K3_channel_out(iChan).rxbyterealign_out      ;
     Mon.FF_K3.CHANNEL(iChan).INFO.rxcdrlock_out         <= FF_K3_channel_out(iChan).rxcdrlock_out        ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K3_channel_out(iChan).rxctrl2_out          ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.rxdatavalid_out       <= FF_K3_channel_out(iChan).rxdatavalid_out      ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.rxheader_out          <= FF_K3_channel_out(iChan).rxheader_out         ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.rxheadervalid_out     <= FF_K3_channel_out(iChan).rxheadervalid_out    ;
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxcommadet_out        <= FF_K3_channel_out(iChan).rxcommadet_out        ;
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxctrl0_out           <= FF_K3_channel_out(iChan).rxctrl0_out          ;
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxctrl1_out           <= FF_K3_channel_out(iChan).rxctrl1_out          ;
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K3_channel_out(iChan).rxctrl2_out          ;      
+    Mon.FF_K3.CHANNEL(iChan).INFO.rxctrl3_out           <= FF_K3_channel_out(iChan).rxctrl3_out          ;
     Mon.FF_K3.CHANNEL(iChan).INFO.rxpmaresetdone_out    <= FF_K3_channel_out(iChan).rxpmaresetdone_out   ;
     Mon.FF_K3.CHANNEL(iChan).INFO.rxprbserr_out         <= FF_K3_channel_out(iChan).rxprbserr_out        ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.rxprgdivresetdone_out <= FF_K3_channel_out(iChan).rxprgdivresetdone_out;
     Mon.FF_K3.CHANNEL(iChan).INFO.rxresetdone_out       <= FF_K3_channel_out(iChan).rxresetdone_out      ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.rxstartofseq_out      <= FF_K3_channel_out(iChan).rxstartofseq_out     ;
     Mon.FF_K3.CHANNEL(iChan).INFO.txbufstatus_out       <= FF_K3_channel_out(iChan).txbufstatus_out      ;
     Mon.FF_K3.CHANNEL(iChan).INFO.txpmaresetdone_out    <= FF_K3_channel_out(iChan).txpmaresetdone_out   ;
-    Mon.FF_K3.CHANNEL(iChan).INFO.txprgdivresetdone_out <= FF_K3_channel_out(iChan).txprgdivresetdone_out;
     Mon.FF_K3.CHANNEL(iChan).INFO.txresetdone_out       <= FF_K3_channel_out(iChan).txresetdone_out      ;
 
 
@@ -577,11 +569,14 @@ begin  -- architecture QuadTest
     FF_K3_channel_in(iChan).gttxreset_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.gttxreset_in     ;
     FF_K3_channel_in(iChan).loopback_in       <= Ctrl.FF_K3.CHANNEL(iChan).INFO.loopback_in      ;
     FF_K3_channel_in(iChan).pcsrsvdin_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.pcsrsvdin_in     ;
+    FF_K3_channel_in(iChan).rx8b10ben_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rx8b10ben_in     ;
     FF_K3_channel_in(iChan).rxbufreset_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxbufreset_in    ;
     FF_K3_channel_in(iChan).rxcdrhold_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxcdrhold_in     ;
+    FF_K3_channel_in(iChan).rxcommadeten_in   <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxcommadeten_in  ;
     FF_K3_channel_in(iChan).rxdfelpmreset_in  <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxdfelpmreset_in ;
-    FF_K3_channel_in(iChan).rxgearboxslip_in  <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxgearboxslip_in ;
     FF_K3_channel_in(iChan).rxlpmen_in        <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxlpmen_in       ;
+    FF_K3_channel_in(iChan).rxmcommaalignen_in <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxmcommaalignen_in  ;
+    FF_K3_channel_in(iChan).rxpcommaalignen_in <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxpcommaalignen_in  ;
     FF_K3_channel_in(iChan).rxpcsreset_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxpcsreset_in    ;
     FF_K3_channel_in(iChan).rxpmareset_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxpmareset_in    ;
     FF_K3_channel_in(iChan).rxprbscntreset_in <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxprbscntreset_in;
@@ -589,9 +584,11 @@ begin  -- architecture QuadTest
     FF_K3_channel_in(iChan).rxprogdivreset_in <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxprogdivreset_in;
     FF_K3_channel_in(iChan).rxrate_in         <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxrate_in        ;
     FF_K3_channel_in(iChan).rxuserrdy_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.rxuserrdy_in     ;
-    FF_K3_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txctrl2_in       ;
+    FF_K3_channel_in(iChan).tx8b10ben_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.tx8b10ben_in     ;
+    FF_K3_channel_in(iChan).txctrl0_in        <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txctrl0_in       ;
+    FF_K3_channel_in(iChan).txctrl1_in        <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txctrl1_in       ;
+--    FF_K3_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txctrl2_in       ;
     FF_K3_channel_in(iChan).txdiffctrl_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txdiffctrl_in    ;
---    FF_K3_channel_in(iChan).txheader_in       <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txheader_in      ;
     FF_K3_channel_in(iChan).txinhibit_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txinhibit_in     ;
     FF_K3_channel_in(iChan).txpcsreset_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txpcsreset_in    ;
     FF_K3_channel_in(iChan).txpmareset_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txpmareset_in    ;
@@ -601,20 +598,14 @@ begin  -- architecture QuadTest
     FF_K3_channel_in(iChan).txprbssel_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txprbssel_in     ;
     FF_K3_channel_in(iChan).txprecursor_in    <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txprecursor_in   ;
     FF_K3_channel_in(iChan).txprogdivreset_in <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txprogdivreset_in;
-    FF_K3_channel_in(iChan).txsequence_in     <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txsequence_in    ;
     FF_K3_channel_in(iChan).txuserrdy_in      <= Ctrl.FF_K3.CHANNEL(iChan).INFO.txuserrdy_in     ;
 
 
+    Mon.FF_K3.CHANNEL(iChan).INFO.RX_DATA.DATA <= FF_K3_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
+    Mon.FF_K3.CHANNEL(iChan).INFO.RX_DATA.K    <= FF_K3_channel_out(iChan).rxctrl2_out(3 downto 0);
+    Mon.FF_K3.CHANNEL(iChan).INFO.TX_DATA.DATA <= FF_K3_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
+    Mon.FF_K3.CHANNEL(iChan).INFO.TX_DATA.K    <= FF_K3_channel_in(iChan).txctrl2_in(3 downto 0);  
 
-
-
-
-    Mon.FF_K3.CHANNEL(iChan).INFO.RX_DATA.DATA_LSB <= FF_K3_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
-    Mon.FF_K3.CHANNEL(iChan).INFO.RX_DATA.DATA_MSB <= FF_K3_channel_out(iChan).gtwiz_userdata_rx_out(63 downto 32);
-    Mon.FF_K3.CHANNEL(iChan).INFO.RX_DATA.H        <= FF_K3_channel_out(iChan).rxctrl2_out(1 downto 0);
-    Mon.FF_K3.CHANNEL(iChan).INFO.TX_DATA.DATA_LSB <= FF_K3_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
-    Mon.FF_K3.CHANNEL(iChan).INFO.TX_DATA.DATA_MSB <= FF_K3_channel_in(iChan).gtwiz_userdata_tx_in(63 downto 32);    
-    Mon.FF_K3.CHANNEL(iChan).INFO.TX_DATA.H        <= FF_K3_channel_in(iChan).txctrl2_in(1 downto 0);  
 
 
     FF_K3_channel_in(iChan).gthrxn_in <= rx_n(FF_K3_LINK_START-1 + iChan);
@@ -627,20 +618,17 @@ begin  -- architecture QuadTest
         clk         => FF_K3_Common_Out.gtwiz_userclk_rx_usrclk_out,
         clk_axi     => clk_axi,
         reset       => reset,
-        tx_fixed(31 downto  0) => Ctrl.FF_K3.CHANNEL(iChan).INFO.TX_FIXED_LSB,
-        tx_fixed(63 downto 32) => Ctrl.FF_K3.CHANNEL(iChan).INFO.TX_FIXED_MSB,
-        tx_fixed(65 downto 64) => Ctrl.FF_K3.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
+        tx_fixed(31 downto  0) => Ctrl.FF_K3.CHANNEL(iChan).INFO.TX_FIXED,
+        tx_fixed(35 downto 32) => Ctrl.FF_K3.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
         tx_fixed_en            => Ctrl.FF_K3.CHANNEL(iChan).INFO.TX_FIXED_EN,
         rx_data     => FF_K3_channel_out(iChan).gtwiz_userdata_rx_out,
-        rx_h_data   => FF_K3_channel_out(iChan).rxheader_out(1 downto 0),
+        rx_k_data   => FF_K3_channel_out(iChan).rxctrl2_out(3 downto 0),
         tx_data     => FF_K3_channel_in(iChan).gtwiz_userdata_tx_in,
-        tx_h_data   => FF_K3_channel_in(iChan).txheader_in(1 downto 0),  
+        tx_k_data   => FF_K3_channel_in(iChan).txctrl2_in(3 downto 0),  
         error_rate  => Mon.FF_K3.CHANNEL(iChan).INFO.ERROR_RATE,
         error_count => Mon.FF_K3.CHANNEL(iChan).INFO.ERROR_COUNT);
   end generate FF_K3;
-
-
-    -------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------
   -- FF_K7
   -------------------------------------------------------------------------------  
   Mon.FF_K7.COMMON.COUNTERS.REFCLK_FREQ <= ref_clk_freq(FF_K7_CLK_ID);
@@ -715,19 +703,19 @@ begin  -- architecture QuadTest
     Mon.FF_K7.CHANNEL(iChan).INFO.eyescandataerror_out  <= FF_K7_channel_out(iChan).eyescandataerror_out ;
     Mon.FF_K7.CHANNEL(iChan).INFO.gtpowergood_out       <= FF_K7_channel_out(iChan).gtpowergood_out      ;
     Mon.FF_K7.CHANNEL(iChan).INFO.rxbufstatus_out       <= FF_K7_channel_out(iChan).rxbufstatus_out      ;
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxbyteisaligned_out   <= FF_K7_channel_out(iChan).rxbyteisaligned_out      ;
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxbyterealign_out     <= FF_K7_channel_out(iChan).rxbyterealign_out      ;
     Mon.FF_K7.CHANNEL(iChan).INFO.rxcdrlock_out         <= FF_K7_channel_out(iChan).rxcdrlock_out        ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K7_channel_out(iChan).rxctrl2_out          ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.rxdatavalid_out       <= FF_K7_channel_out(iChan).rxdatavalid_out      ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.rxheader_out          <= FF_K7_channel_out(iChan).rxheader_out         ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.rxheadervalid_out     <= FF_K7_channel_out(iChan).rxheadervalid_out    ;
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxcommadet_out        <= FF_K7_channel_out(iChan).rxcommadet_out        ;
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxctrl0_out           <= FF_K7_channel_out(iChan).rxctrl0_out          ;
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxctrl1_out           <= FF_K7_channel_out(iChan).rxctrl1_out          ;
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxctrl2_out           <= FF_K7_channel_out(iChan).rxctrl2_out          ;      
+    Mon.FF_K7.CHANNEL(iChan).INFO.rxctrl3_out           <= FF_K7_channel_out(iChan).rxctrl3_out          ;
     Mon.FF_K7.CHANNEL(iChan).INFO.rxpmaresetdone_out    <= FF_K7_channel_out(iChan).rxpmaresetdone_out   ;
     Mon.FF_K7.CHANNEL(iChan).INFO.rxprbserr_out         <= FF_K7_channel_out(iChan).rxprbserr_out        ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.rxprgdivresetdone_out <= FF_K7_channel_out(iChan).rxprgdivresetdone_out;
     Mon.FF_K7.CHANNEL(iChan).INFO.rxresetdone_out       <= FF_K7_channel_out(iChan).rxresetdone_out      ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.rxstartofseq_out      <= FF_K7_channel_out(iChan).rxstartofseq_out     ;
     Mon.FF_K7.CHANNEL(iChan).INFO.txbufstatus_out       <= FF_K7_channel_out(iChan).txbufstatus_out      ;
     Mon.FF_K7.CHANNEL(iChan).INFO.txpmaresetdone_out    <= FF_K7_channel_out(iChan).txpmaresetdone_out   ;
-    Mon.FF_K7.CHANNEL(iChan).INFO.txprgdivresetdone_out <= FF_K7_channel_out(iChan).txprgdivresetdone_out;
     Mon.FF_K7.CHANNEL(iChan).INFO.txresetdone_out       <= FF_K7_channel_out(iChan).txresetdone_out      ;
 
 
@@ -739,11 +727,14 @@ begin  -- architecture QuadTest
     FF_K7_channel_in(iChan).gttxreset_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.gttxreset_in     ;
     FF_K7_channel_in(iChan).loopback_in       <= Ctrl.FF_K7.CHANNEL(iChan).INFO.loopback_in      ;
     FF_K7_channel_in(iChan).pcsrsvdin_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.pcsrsvdin_in     ;
+    FF_K7_channel_in(iChan).rx8b10ben_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rx8b10ben_in     ;
     FF_K7_channel_in(iChan).rxbufreset_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxbufreset_in    ;
     FF_K7_channel_in(iChan).rxcdrhold_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxcdrhold_in     ;
+    FF_K7_channel_in(iChan).rxcommadeten_in   <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxcommadeten_in  ;
     FF_K7_channel_in(iChan).rxdfelpmreset_in  <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxdfelpmreset_in ;
-    FF_K7_channel_in(iChan).rxgearboxslip_in  <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxgearboxslip_in ;
     FF_K7_channel_in(iChan).rxlpmen_in        <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxlpmen_in       ;
+    FF_K7_channel_in(iChan).rxmcommaalignen_in <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxmcommaalignen_in  ;
+    FF_K7_channel_in(iChan).rxpcommaalignen_in <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxpcommaalignen_in  ;
     FF_K7_channel_in(iChan).rxpcsreset_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxpcsreset_in    ;
     FF_K7_channel_in(iChan).rxpmareset_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxpmareset_in    ;
     FF_K7_channel_in(iChan).rxprbscntreset_in <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxprbscntreset_in;
@@ -751,9 +742,11 @@ begin  -- architecture QuadTest
     FF_K7_channel_in(iChan).rxprogdivreset_in <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxprogdivreset_in;
     FF_K7_channel_in(iChan).rxrate_in         <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxrate_in        ;
     FF_K7_channel_in(iChan).rxuserrdy_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.rxuserrdy_in     ;
-    FF_K7_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txctrl2_in       ;
+    FF_K7_channel_in(iChan).tx8b10ben_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.tx8b10ben_in     ;
+    FF_K7_channel_in(iChan).txctrl0_in        <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txctrl0_in       ;
+    FF_K7_channel_in(iChan).txctrl1_in        <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txctrl1_in       ;
+--    FF_K7_channel_in(iChan).txctrl2_in        <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txctrl2_in       ;
     FF_K7_channel_in(iChan).txdiffctrl_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txdiffctrl_in    ;
---    FF_K7_channel_in(iChan).txheader_in       <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txheader_in      ;
     FF_K7_channel_in(iChan).txinhibit_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txinhibit_in     ;
     FF_K7_channel_in(iChan).txpcsreset_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txpcsreset_in    ;
     FF_K7_channel_in(iChan).txpmareset_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txpmareset_in    ;
@@ -763,20 +756,14 @@ begin  -- architecture QuadTest
     FF_K7_channel_in(iChan).txprbssel_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txprbssel_in     ;
     FF_K7_channel_in(iChan).txprecursor_in    <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txprecursor_in   ;
     FF_K7_channel_in(iChan).txprogdivreset_in <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txprogdivreset_in;
-    FF_K7_channel_in(iChan).txsequence_in     <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txsequence_in    ;
     FF_K7_channel_in(iChan).txuserrdy_in      <= Ctrl.FF_K7.CHANNEL(iChan).INFO.txuserrdy_in     ;
 
 
+    Mon.FF_K7.CHANNEL(iChan).INFO.RX_DATA.DATA <= FF_K7_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
+    Mon.FF_K7.CHANNEL(iChan).INFO.RX_DATA.K    <= FF_K7_channel_out(iChan).rxctrl2_out(3 downto 0);
+    Mon.FF_K7.CHANNEL(iChan).INFO.TX_DATA.DATA <= FF_K7_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
+    Mon.FF_K7.CHANNEL(iChan).INFO.TX_DATA.K    <= FF_K7_channel_in(iChan).txctrl2_in(3 downto 0);  
 
-
-
-
-    Mon.FF_K7.CHANNEL(iChan).INFO.RX_DATA.DATA_LSB <= FF_K7_channel_out(iChan).gtwiz_userdata_rx_out(31 downto  0);
-    Mon.FF_K7.CHANNEL(iChan).INFO.RX_DATA.DATA_MSB <= FF_K7_channel_out(iChan).gtwiz_userdata_rx_out(63 downto 32);
-    Mon.FF_K7.CHANNEL(iChan).INFO.RX_DATA.H        <= FF_K7_channel_out(iChan).rxctrl2_out(1 downto 0);
-    Mon.FF_K7.CHANNEL(iChan).INFO.TX_DATA.DATA_LSB <= FF_K7_channel_in(iChan).gtwiz_userdata_tx_in(31 downto  0);
-    Mon.FF_K7.CHANNEL(iChan).INFO.TX_DATA.DATA_MSB <= FF_K7_channel_in(iChan).gtwiz_userdata_tx_in(63 downto 32);    
-    Mon.FF_K7.CHANNEL(iChan).INFO.TX_DATA.H        <= FF_K7_channel_in(iChan).txctrl2_in(1 downto 0);  
 
 
     FF_K7_channel_in(iChan).gtyrxn_in <= rx_n(FF_K7_LINK_START-1 + iChan);
@@ -789,14 +776,13 @@ begin  -- architecture QuadTest
         clk         => FF_K7_Common_Out.gtwiz_userclk_rx_usrclk_out,
         clk_axi     => clk_axi,
         reset       => reset,
-        tx_fixed(31 downto  0) => Ctrl.FF_K7.CHANNEL(iChan).INFO.TX_FIXED_LSB,
-        tx_fixed(63 downto 32) => Ctrl.FF_K7.CHANNEL(iChan).INFO.TX_FIXED_MSB,
-        tx_fixed(65 downto 64) => Ctrl.FF_K7.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
+        tx_fixed(31 downto  0) => Ctrl.FF_K7.CHANNEL(iChan).INFO.TX_FIXED,
+        tx_fixed(35 downto 32) => Ctrl.FF_K7.CHANNEL(iChan).INFO.TX_FIXED_HEADER,
         tx_fixed_en            => Ctrl.FF_K7.CHANNEL(iChan).INFO.TX_FIXED_EN,
         rx_data     => FF_K7_channel_out(iChan).gtwiz_userdata_rx_out,
-        rx_h_data   => FF_K7_channel_out(iChan).rxheader_out(1 downto 0),
+        rx_k_data   => FF_K7_channel_out(iChan).rxctrl2_out(3 downto 0),
         tx_data     => FF_K7_channel_in(iChan).gtwiz_userdata_tx_in,
-        tx_h_data   => FF_K7_channel_in(iChan).txheader_in(1 downto 0),  
+        tx_k_data   => FF_K7_channel_in(iChan).txctrl2_in(3 downto 0),  
         error_rate  => Mon.FF_K7.CHANNEL(iChan).INFO.ERROR_RATE,
         error_count => Mon.FF_K7.CHANNEL(iChan).INFO.ERROR_COUNT);
   end generate FF_K7;

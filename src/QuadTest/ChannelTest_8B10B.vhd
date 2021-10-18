@@ -9,6 +9,8 @@ entity ChannelTest is
     clk       : in  std_logic;
     clk_axi   : in  std_logic;
     reset     : in  std_logic;
+    tx_fixed    : in  std_logic_vector(35 downto 0);
+    tx_fixed_en : in  std_logic;
     rx_data   : in  std_logic_vector(31 downto 0);
     rx_k_data : in  std_logic_vector(3 downto 0);
     tx_data   : out std_logic_vector(31 downto 0);
@@ -61,6 +63,12 @@ begin  -- architecture behavioral
         tx_data <= std_logic_vector(counter);
         tx_k_data <= x"0";        
       end if;
+
+      if tx_fixed_en = '1' then
+        tx_data <= tx_fixed(31 downto 0);
+        tx_k_data <= tx_fixed(35 downto 32);
+      end if;
+
     end if;
   end process data_gen;
 

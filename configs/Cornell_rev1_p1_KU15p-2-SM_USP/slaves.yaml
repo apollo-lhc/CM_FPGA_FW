@@ -114,21 +114,24 @@ CORES:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXPROGDIVCLK
+          OUTCLK_SOURCE: TXOUTCLKPMA
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXPROGDIVCLK
+          REFCLK_FREQUENCY: 312.5   
+          OUTCLK_SOURCE: RXOUTCLKPMA  
       protocol:
         TX:
-          DATA_ENCODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_ENCODING: 8B10B
+          INT_DATA_WIDTH: 40
         RX:
-          DATA_DECODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_DECODING: 8B10B
+          COMMA_PRESET: K28.1     
+          COMMA_P_ENABLE: true    
+          COMMA_M_ENABLE: true    
+          COMMA_P_VAL: 1001111100 
+          COMMA_M_VAL: 0110000011 
+          COMMA_MASK: 1111111111  
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
@@ -181,21 +184,24 @@ CORES:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXPROGDIVCLK
+          OUTCLK_SOURCE: TXOUTCLKPMA
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXPROGDIVCLK
+          REFCLK_FREQUENCY: 312.5   
+          OUTCLK_SOURCE: RXOUTCLKPMA  
       protocol:
         TX:
-          DATA_ENCODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_ENCODING: 8B10B
+          INT_DATA_WIDTH: 40
         RX:
-          DATA_DECODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_DECODING: 8B10B
+          COMMA_PRESET: K28.1     
+          COMMA_P_ENABLE: true    
+          COMMA_M_ENABLE: true    
+          COMMA_P_VAL: 1001111100 
+          COMMA_M_VAL: 0110000011 
+          COMMA_MASK: 1111111111  
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
@@ -248,21 +254,24 @@ CORES:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXPROGDIVCLK
+          OUTCLK_SOURCE: TXOUTCLKPMA
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXPROGDIVCLK
+          REFCLK_FREQUENCY: 312.5   
+          OUTCLK_SOURCE: RXOUTCLKPMA  
       protocol:
         TX:
-          DATA_ENCODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_ENCODING: 8B10B
+          INT_DATA_WIDTH: 40
         RX:
-          DATA_DECODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_DECODING: 8B10B
+          COMMA_PRESET: K28.1     
+          COMMA_P_ENABLE: true    
+          COMMA_M_ENABLE: true    
+          COMMA_P_VAL: 1001111100 
+          COMMA_M_VAL: 0110000011 
+          COMMA_MASK: 1111111111  
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
@@ -315,21 +324,24 @@ CORES:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXPROGDIVCLK
+          OUTCLK_SOURCE: TXOUTCLKPMA
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXPROGDIVCLK
+          REFCLK_FREQUENCY: 312.5   
+          OUTCLK_SOURCE: RXOUTCLKPMA  
       protocol:
         TX:
-          DATA_ENCODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_ENCODING: 8B10B
+          INT_DATA_WIDTH: 40
         RX:
-          DATA_DECODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
+          DATA_DECODING: 8B10B
+          COMMA_PRESET: K28.1     
+          COMMA_P_ENABLE: true    
+          COMMA_M_ENABLE: true    
+          COMMA_P_VAL: 1001111100 
+          COMMA_M_VAL: 0110000011 
+          COMMA_MASK: 1111111111  
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
