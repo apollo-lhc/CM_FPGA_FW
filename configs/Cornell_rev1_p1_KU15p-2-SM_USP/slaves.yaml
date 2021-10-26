@@ -103,93 +103,23 @@ AXI_SLAVES:
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/Quad_Test"
       map_template: "axi_generic/template_map_withbram.vhd"
 
-CORES:
-  FF_K1:
+CORES: 
+  FF_K6:
     TCL_CALL:
       command: BuildMGTCores
-      GT_TYPE: GTH
+      GT_TYPE: GTY
       freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXOUTCLKPMA
+          OUTCLK_SOURCE: TXOUTCLKPMA 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5   
-          OUTCLK_SOURCE: RXOUTCLKPMA  
-      protocol:
-        TX:
-          DATA_ENCODING: 8B10B
-          INT_DATA_WIDTH: 40
-        RX:
-          DATA_DECODING: 8B10B
-          COMMA_PRESET: K28.1     
-          COMMA_P_ENABLE: true    
-          COMMA_M_ENABLE: true    
-          COMMA_P_VAL: 1001111100 
-          COMMA_M_VAL: 0110000011 
-          COMMA_MASK: 1111111111  
-      core:
-        LOCATE_TX_USER_CLOCKING: CORE
-        LOCATE_RX_USER_CLOCKING: CORE
-        LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
-      links:
-        X0Y28:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y29:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y30:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y31:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y32:
-          RX: clk0
-          TX: clk0
-        X0Y33:
-          RX: clk0
-          TX: clk0
-        X0Y34:
-          RX: clk0
-          TX: clk0
-        X0Y35:
-          RX: clk0
-          TX: clk0
-        X0Y36:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y37:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y38:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y39:
-          RX: clk0-1
-          TX: clk0-1
-      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
-  FF_K2:
-    TCL_CALL:
-      command: BuildMGTCores
-      GT_TYPE: GTH
-      freerun_frequency: 50
-      clocking:
-        TX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXOUTCLKPMA
-        RX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5   
-          OUTCLK_SOURCE: RXOUTCLKPMA  
+          REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPMA 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -208,58 +138,34 @@ CORES:
         LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
       links:
         X0Y16:
-          RX: clk0+1
-          TX: clk0+1
+          RX: clk0
+          TX: clk0
         X0Y17:
-          RX: clk0+1
-          TX: clk0+1
+          RX: clk0
+          TX: clk0
         X0Y18:
-          RX: clk0+1
-          TX: clk0+1
+          RX: clk0
+          TX: clk0
         X0Y19:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y20:
           RX: clk0
           TX: clk0
-        X0Y21:
-          RX: clk0
-          TX: clk0
-        X0Y22:
-          RX: clk0
-          TX: clk0
-        X0Y23:
-          RX: clk0
-          TX: clk0
-        X0Y24:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y25:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y26:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y27:
-          RX: clk0-1
-          TX: clk0-1
       optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
-  FF_K3:
+  FF_K5:
     TCL_CALL:
       command: BuildMGTCores
-      GT_TYPE: GTH
+      GT_TYPE: GTY
       freerun_frequency: 50
       clocking:
         TX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXOUTCLKPMA
+          OUTCLK_SOURCE: TXOUTCLKPMA 
         RX:
           LINE_RATE: 10
           PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5   
-          OUTCLK_SOURCE: RXOUTCLKPMA  
+          REFCLK_FREQUENCY: 312.5    
+          OUTCLK_SOURCE: RXOUTCLKPMA 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -277,44 +183,20 @@ CORES:
         LOCATE_RX_USER_CLOCKING: CORE
         LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
       links:
-        X0Y4:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y5:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y6:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y7:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y8:
-          RX: clk0
-          TX: clk0
-        X0Y9:
-          RX: clk0
-          TX: clk0
-        X0Y10:
-          RX: clk0
-          TX: clk0
-        X0Y11:
-          RX: clk0
-          TX: clk0
-        X0Y12:
+        X0Y20:
           RX: clk0-1
           TX: clk0-1
-        X0Y13:
+        X0Y21:
           RX: clk0-1
           TX: clk0-1
-        X0Y14:
+        X0Y22:
           RX: clk0-1
           TX: clk0-1
-        X0Y15:
+        X0Y23:
           RX: clk0-1
           TX: clk0-1
       optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
-  FF_K7:
+  FF_K4:
     TCL_CALL:
       command: BuildMGTCores
       GT_TYPE: GTY
@@ -329,7 +211,7 @@ CORES:
           LINE_RATE: 10
           PLL_TYPE: CPLL
           REFCLK_FREQUENCY: 312.5   
-          OUTCLK_SOURCE: RXOUTCLKPMA  
+          OUTCLK_SOURCE: RXOUTCLKPMA 
       protocol:
         TX:
           DATA_ENCODING: 8B10B
@@ -347,40 +229,16 @@ CORES:
         LOCATE_RX_USER_CLOCKING: CORE
         LOCATE_RESET_CONTROLLER: EXAMPLE_DESIGN
       links:
-        X0Y0:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y1:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y2:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y3:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y4:
+        X0Y24:
           RX: clk0
           TX: clk0
-        X0Y5:
+        X0Y25:
           RX: clk0
           TX: clk0
-        X0Y6:
+        X0Y26:
           RX: clk0
           TX: clk0
-        X0Y7:
+        X0Y27:
           RX: clk0
           TX: clk0
-        X0Y8:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y9:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y10:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y11:
-          RX: clk0-1
-          TX: clk0-1
       optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"

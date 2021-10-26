@@ -39,25 +39,37 @@ entity top is
 --    p_atca_ttc_in    : in  std_logic;
 --    n_atca_ttc_in    : in  std_logic;
 
-    refclk_i_p       : in  std_logic_vector(4 downto 1);
-    refclk_i_n       : in  std_logic_vector(4 downto 1);
+    refclk_i_p       : in  std_logic_vector(2 downto 1);
+    refclk_i_n       : in  std_logic_vector(2 downto 1);
 
-    n_ff1_recv       : in  std_logic_vector(11 downto 0);
-    p_ff1_recv       : in  std_logic_vector(11 downto 0);
-    n_ff1_xmit       : out std_logic_vector(11 downto 0);
-    p_ff1_xmit       : out std_logic_vector(11 downto 0);
-    n_ff2_recv       : in  std_logic_vector(11 downto 0);
-    p_ff2_recv       : in  std_logic_vector(11 downto 0);
-    n_ff2_xmit       : out std_logic_vector(11 downto 0);
-    p_ff2_xmit       : out std_logic_vector(11 downto 0);
-    n_ff3_recv       : in  std_logic_vector(11 downto 0);
-    p_ff3_recv       : in  std_logic_vector(11 downto 0);
-    n_ff3_xmit       : out std_logic_vector(11 downto 0);
-    p_ff3_xmit       : out std_logic_vector(11 downto 0);
-    n_ff7_recv       : in  std_logic_vector(11 downto 0);
-    p_ff7_recv       : in  std_logic_vector(11 downto 0);
-    n_ff7_xmit       : out std_logic_vector(11 downto 0);
-    p_ff7_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff1_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff1_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff1_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff1_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff2_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff2_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff2_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff2_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff3_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff3_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff3_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff3_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff7_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff7_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff7_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff7_xmit       : out std_logic_vector(11 downto 0);
+    n_ff4_recv       : in  std_logic_vector(3 downto 0);
+    p_ff4_recv       : in  std_logic_vector(3 downto 0);
+    n_ff4_xmit       : out std_logic_vector(3 downto 0);
+    p_ff4_xmit       : out std_logic_vector(3 downto 0);
+    n_ff5_recv       : in  std_logic_vector(3 downto 0);
+    p_ff5_recv       : in  std_logic_vector(3 downto 0);
+    n_ff5_xmit       : out std_logic_vector(3 downto 0);
+    p_ff5_xmit       : out std_logic_vector(3 downto 0);
+    n_ff6_recv       : in  std_logic_vector(3 downto 0);
+    p_ff6_recv       : in  std_logic_vector(3 downto 0);
+    n_ff6_xmit       : out std_logic_vector(3 downto 0);
+    p_ff6_xmit       : out std_logic_vector(3 downto 0);
 
     
     -- tri-color LED
@@ -412,28 +424,41 @@ begin  -- architecture structure
 
   QuadTest_1: entity work.QuadTest
     generic map (
-      CHANNEL_COUNT => 48)
+      CHANNEL_COUNT => 12)
     port map (
       clk_axi     => axi_clk,
       reset_axi_n => axi_rst_n,
       refclk_i_p  => refclk_i_p,
       refclk_i_n  => refclk_i_n,
-      tx_n(12 downto  1)     => n_ff1_xmit(11 downto  0),
-      tx_n(24 downto 13)     => n_ff2_xmit(11 downto  0),
-      tx_n(36 downto 25)     => n_ff3_xmit(11 downto  0),
-      tx_n(48 downto 37)     => n_ff7_xmit(11 downto  0),
-      tx_p(12 downto  1)     => p_ff1_xmit(11 downto  0),
-      tx_p(24 downto 13)     => p_ff2_xmit(11 downto  0),
-      tx_p(36 downto 25)     => p_ff3_xmit(11 downto  0),
-      tx_p(48 downto 37)     => p_ff7_xmit(11 downto  0),
-      rx_n(12 downto  1)     => n_ff1_recv(11 downto  0),
-      rx_n(24 downto 13)     => n_ff2_recv(11 downto  0),
-      rx_n(36 downto 25)     => n_ff3_recv(11 downto  0),
-      rx_n(48 downto 37)     => n_ff7_recv(11 downto  0),      
-      rx_p(12 downto  1)     => p_ff1_recv(11 downto  0),
-      rx_p(24 downto 13)     => p_ff2_recv(11 downto  0),
-      rx_p(36 downto 25)     => p_ff3_recv(11 downto  0),
-      rx_p(48 downto 37)     => p_ff7_recv(11 downto  0),
+      tx_n( 4 downto  1)     => n_ff4_xmit(3 downto  0),
+      tx_n( 8 downto  5)     => n_ff5_xmit(3 downto  0),
+      tx_n(12 downto  9)     => n_ff6_xmit(3 downto  0),
+      tx_p( 4 downto  1)     => p_ff4_xmit(3 downto  0),
+      tx_p( 8 downto  5)     => p_ff5_xmit(3 downto  0),
+      tx_p(12 downto  9)     => p_ff6_xmit(3 downto  0),
+      rx_n( 4 downto  1)     => n_ff4_recv(3 downto  0),
+      rx_n( 8 downto  5)     => n_ff5_recv(3 downto  0),
+      rx_n(12 downto  9)     => n_ff6_recv(3 downto  0),
+      rx_p( 4 downto  1)     => p_ff4_recv(3 downto  0),
+      rx_p( 8 downto  5)     => p_ff5_recv(3 downto  0),
+      rx_p(12 downto  9)     => p_ff6_recv(3 downto  0),
+
+--      tx_n(12 downto  1)     => n_ff1_xmit(11 downto  0),
+--      tx_n(24 downto 13)     => n_ff2_xmit(11 downto  0),
+--      tx_n(36 downto 25)     => n_ff3_xmit(11 downto  0),
+--      tx_n(48 downto 37)     => n_ff7_xmit(11 downto  0),
+--      tx_p(12 downto  1)     => p_ff1_xmit(11 downto  0),
+--      tx_p(24 downto 13)     => p_ff2_xmit(11 downto  0),
+--      tx_p(36 downto 25)     => p_ff3_xmit(11 downto  0),
+--      tx_p(48 downto 37)     => p_ff7_xmit(11 downto  0),
+--      rx_n(12 downto  1)     => n_ff1_recv(11 downto  0),
+--      rx_n(24 downto 13)     => n_ff2_recv(11 downto  0),
+--      rx_n(36 downto 25)     => n_ff3_recv(11 downto  0),
+--      rx_n(48 downto 37)     => n_ff7_recv(11 downto  0),      
+--      rx_p(12 downto  1)     => p_ff1_recv(11 downto  0),
+--      rx_p(24 downto 13)     => p_ff2_recv(11 downto  0),
+--      rx_p(36 downto 25)     => p_ff3_recv(11 downto  0),
+--      rx_p(48 downto 37)     => p_ff7_recv(11 downto  0),
       readMOSI    => local_AXI_ReadMOSI(2),
       readMISO    => local_AXI_ReadMISO(2),
       writeMOSI   => local_AXI_WriteMOSI(2),
