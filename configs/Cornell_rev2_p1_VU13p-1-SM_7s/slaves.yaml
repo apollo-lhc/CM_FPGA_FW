@@ -16,7 +16,7 @@ AXI_SLAVES:
         axi_rstn: ${::EXT_RESET} 
         axi_freq: 50000000 
       addr:
-        offset: 0xB3D44000
+        offset: 0x81004000
         range: 4K
       remote_slave: "1"
     XML:
@@ -29,7 +29,7 @@ AXI_SLAVES:
       enable_i2c_pins: 1
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: 0xB3D42000
+        offset: 0x81002000
         range: 4K
       remote_slave: "1"
     XML:
@@ -41,14 +41,16 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: 0xB3D40000 
+        offset: 0x81000000 
         range: 4K
       remote_slave: "1"
     XML:
-      - "address_table/modules/V_IO.xml"
+      - "address_table/modules/CM_IO.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
     UHAL_BASE: 0xC1000000
     HDL: 
-      out_dir: "src/CM_IO"    
+      out_dir: "configs/Cornell_rev1_p2_VU7p-1-SM_7s/autogen/CM_IO"    
       map_template: "axi_generic/template_map.vhd"
   
   CM_V_INFO:
@@ -56,14 +58,14 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: 0xB3D43000
+        offset: 0x81003000
         range: 4K
       remote_slave: "1"
     XML:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
     HDL: 
-      out_dir: "src/CM_FW_info"
+      out_dir: "configs/Cornell_rev1_p2_VU7p-1-SM_7s/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
                   
   VIRTEX_IPBUS:
@@ -71,8 +73,8 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: 0xBC000000
-        range: 32M
+        offset: 0x80000000
+        range: 16M
       type: AXI4
       data_width: "64"
       remote_slave: "1"
