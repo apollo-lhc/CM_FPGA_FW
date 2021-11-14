@@ -96,8 +96,12 @@ set_property CONFIG.C_GT_LOC_2           {X} 	      [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.interface_mode       {Streaming}  [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.SupportLevel         {1}          [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.C_USE_CHIPSCOPE      {true}       [get_bd_cells ${C2C_PHY}]
-set_property CONFIG.drp_mode             {AXI4_LITE}  [get_bd_cells ${C2C_PHY}]
+#set_property CONFIG.drp_mode             {AXI4_LITE}  [get_bd_cells ${C2C_PHY}]
+set_property CONFIG.drp_mode             {NATIVE}  [get_bd_cells ${C2C_PHY}]
 set_property CONFIG.TransceiverControl   {true}       [get_bd_cells ${C2C_PHY}]
+
+#expose the DRP interface
+make_bd_intf_pins_external  -name ${C2C_PHY}_DRP                       [get_bd_intf_pins ${C2C_PHY}/GT0_DRP]
 
 #expose debugging signals to top
 make_bd_pins_external       -name ${C2C_PHY}_STATUS_channel_up         [get_bd_pins ${C2C_PHY}/channel_up     ]
@@ -112,6 +116,7 @@ make_bd_pins_external       -name ${C2C_PHY}_power_down     [get_bd_pins ${C2C_P
 make_bd_pins_external       -name ${C2C_PHY}_link_reset_out [get_bd_pins ${C2C_PHY}/link_reset_out]      
 make_bd_pins_external       -name ${C2C_PHY}_user_clk_out   [get_bd_pins ${C2C_PHY}/user_clk_out]
 
+make_bd_pins_external       -name ${C2C}_aurora_pma_init_in [get_bd_pins ${C2C}/aurora_pma_init_in]                                                   
 
 
 #connect C2C core with the C2C-mode Auroroa core

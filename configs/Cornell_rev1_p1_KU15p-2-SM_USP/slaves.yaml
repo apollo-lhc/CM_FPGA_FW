@@ -6,23 +6,6 @@ AXI_CONTROL_SETS:
       axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 AXI_SLAVES:
-  K_C2C_PHY:
-    TCL_CALL: 
-      command: AXI_DEV_CONNECT
-      axi_control: 
-        axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
-        axi_clk: "${::EXT_CLK}"
-        axi_rstn: "${::EXT_RESET}"
-        axi_freq: "${::EXT_CLK_FREQ}"
-
-      addr:
-        offset: "0xB1000000"
-        range:  "4K"
-      remote_slave: "1"
-    XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0x86000000
-
   KINTEX_SYS_MGMT:
     TCL_CALL:
       command: AXI_IP_SYS_MGMT
@@ -67,6 +50,26 @@ AXI_SLAVES:
     HDL: 
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
+
+  K_C2C_INTF:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB1004000"
+        range:  "8K"
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/C2C_INTFS.xml"
+      - "address_table/modules/C2C_INTF.xml"
+      - "address_table/modules/DRP_USP_GTH.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_CNT.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/C2C_INTF"    
+      map_template: "axi_generic/template_map_withbram.vhd"
                 
   KINTEX_IPBUS:
     TCL_CALL:
@@ -91,10 +94,9 @@ AXI_SLAVES:
       remote_slave: "1"
     XML: 
       - "address_table/modules/QuadTest.xml"
-      - "address_table/modules/QuadTest_FF_12_GTH.xml"
-      - "address_table/modules/QuadTest_FF_4_GTH.xml"
-      - "address_table/modules/USP_GTH_COMMON.xml"
-      - "address_table/modules/USP_GTH_Channel.xml"
+      - "address_table/modules/QuadTest_FF_4_GTY.xml"
+      - "address_table/modules/USP_GTY_COMMON.xml"
+      - "address_table/modules/USP_GTY_Channel.xml"
       - "address_table/modules/Channel_Status.xml"
       - "address_table/modules/Channel_DEBUG_USP.xml"
       - "address_table/modules/DRP_USP_GTY.xml"
@@ -111,27 +113,22 @@ CORES:
       freerun_frequency: 50
       clocking:
         TX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
+          LINE_RATE: 25
+          PLL_TYPE: QPLL0
           REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXOUTCLKPMA 
+          OUTCLK_SOURCE: TXOUTCLKPCS
         RX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
+          LINE_RATE: 25
+          PLL_TYPE: QPLL0
           REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXOUTCLKPMA 
+          OUTCLK_SOURCE: RXOUTCLKPCS 
       protocol:
         TX:
-          DATA_ENCODING: 8B10B
-          INT_DATA_WIDTH: 40
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
         RX:
-          DATA_DECODING: 8B10B
-          COMMA_PRESET: K28.1     
-          COMMA_P_ENABLE: true    
-          COMMA_M_ENABLE: true    
-          COMMA_P_VAL: 1001111100 
-          COMMA_M_VAL: 0110000011 
-          COMMA_MASK: 1111111111  
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
@@ -149,7 +146,6 @@ CORES:
         X0Y19:
           RX: clk0
           TX: clk0
-      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
   FF_K5:
     TCL_CALL:
       command: BuildMGTCores
@@ -157,27 +153,22 @@ CORES:
       freerun_frequency: 50
       clocking:
         TX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
+          LINE_RATE: 25
+          PLL_TYPE: QPLL0
           REFCLK_FREQUENCY: 312.5
           OUTCLK_SOURCE: TXOUTCLKPMA 
         RX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
+          LINE_RATE: 25
+          PLL_TYPE: QPLL0
           REFCLK_FREQUENCY: 312.5    
           OUTCLK_SOURCE: RXOUTCLKPMA 
       protocol:
         TX:
-          DATA_ENCODING: 8B10B
-          INT_DATA_WIDTH: 40
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
         RX:
-          DATA_DECODING: 8B10B
-          COMMA_PRESET: K28.1     
-          COMMA_P_ENABLE: true    
-          COMMA_M_ENABLE: true    
-          COMMA_P_VAL: 1001111100 
-          COMMA_M_VAL: 0110000011 
-          COMMA_MASK: 1111111111  
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
@@ -195,7 +186,6 @@ CORES:
         X0Y23:
           RX: clk0-1
           TX: clk0-1
-      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"
   FF_K4:
     TCL_CALL:
       command: BuildMGTCores
@@ -203,27 +193,22 @@ CORES:
       freerun_frequency: 50
       clocking:
         TX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
+          LINE_RATE: 25
+          PLL_TYPE: QPLL0
           REFCLK_FREQUENCY: 312.5
           OUTCLK_SOURCE: TXOUTCLKPMA
         RX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
+          LINE_RATE: 25
+          PLL_TYPE: QPLL0
           REFCLK_FREQUENCY: 312.5   
           OUTCLK_SOURCE: RXOUTCLKPMA 
       protocol:
         TX:
-          DATA_ENCODING: 8B10B
-          INT_DATA_WIDTH: 40
+          DATA_ENCODING: 64B66B
+          USER_DATA_WIDTH: 64
         RX:
-          DATA_DECODING: 8B10B
-          COMMA_PRESET: K28.1     
-          COMMA_P_ENABLE: true    
-          COMMA_M_ENABLE: true    
-          COMMA_P_VAL: 1001111100 
-          COMMA_M_VAL: 0110000011 
-          COMMA_MASK: 1111111111  
+          DATA_DECODING: 64B66B
+          USER_DATA_WIDTH: 64
       core:
         LOCATE_TX_USER_CLOCKING: CORE
         LOCATE_RX_USER_CLOCKING: CORE
@@ -241,4 +226,3 @@ CORES:
         X0Y27:
           RX: clk0
           TX: clk0
-      optional: "cpllfbclklost_out cplllock_out cpllrefclklost_out cpllreset_in"

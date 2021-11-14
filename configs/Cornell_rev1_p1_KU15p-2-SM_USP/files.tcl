@@ -19,6 +19,10 @@ set vhdl_files "\
      regmap_helper/axiReg/axiRegBlocking.vhd \
      ${autogen_path}/CM_IO/K_IO_PKG.vhd \
      ${autogen_path}/CM_IO/K_IO_map.vhd \
+     ${autogen_path}/C2C_INTF/K_C2C_INTF_map.vhd \
+     ${autogen_path}/C2C_INTF/K_C2C_INTF_PKG.vhd \
+     src/C2C_INTF/C2C_Intf.vhd \
+     src/C2C_INTF/CM_phy_lane_control.vhd \
      src/misc/RGB_PWM.vhd \
      src/misc/LED_PWM.vhd \
      src/misc/rate_counter.vhd \
@@ -27,7 +31,7 @@ set vhdl_files "\
      ${autogen_path}/CM_FW_info/CM_K_INFO_map.vhd \
      ${autogen_path}/Quad_Test/QUAD_TEST_PKG.vhd \
      ${autogen_path}/Quad_Test/QUAD_TEST_map.vhd \
-     src/QuadTest/ChannelTest_8B10B.vhd \
+     src/QuadTest/ChannelTest_64B66B.vhd \
      src/QuadTest/QuadTest_4chFF.vhd \
      "
 #     src/QuadTest/QuadTest.vhd \
@@ -35,6 +39,8 @@ set vhdl_files "\
 #     src/QuadTest/FF_K1_example_init.v \
 #     src/QuadTest/FF_K1_example_reset_sync.v \
 #     src/QuadTest/FF_K1_example_bit_sync.v \
+#     src/QuadTest/ChannelTest_8B10B.vhd \
+#     src/QuadTest/QuadTest_4chFF.vhd \
 
 
 set xdc_files "\
@@ -46,8 +52,9 @@ set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.xci \
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
+              ${autogen_path}/../cores/map_withbram_ila.tcl \
     	      "
 
 #              ${autogen_path}/../cores/my_ila.tcl \
-#              ${autogen_path}/../cores/map_withbram_ila.tcl \
+
 

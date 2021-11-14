@@ -11,6 +11,7 @@ entity ChannelTest is
     reset       : in  std_logic;
     tx_fixed    : in  std_logic_vector(65 downto 0);
     tx_fixed_en : in  std_logic;
+    rx_data_valid: in std_logic;
     rx_data     : in  std_logic_vector(63 downto 0);
     rx_H_data   : in  std_logic_vector(1 downto 0);
     tx_data     : out std_logic_vector(63 downto 0);
@@ -81,43 +82,45 @@ begin  -- architecture behavioral
       check_counter <= x"00000000";
     elsif clk'event and clk = '1' then  -- rising clock edge
       rx_error <= '0';
-      case search_mode is
-        when "00" =>
-          -- wait for a K-char word
-          if rx_h_data = "10" then
-            search_mode <= "01";
-          end if;
-        when "01" =>
-          --grab the current counter value
-          if rx_h_data = "10" then
-            rx_error <= '1';
-          else
-            check_counter <= unsigned(rx_data(31 downto 0)) + 1;
-            search_mode <= "10";            
-          end if;
-        when "10" =>
-          --process counter values          
-          if rx_h_data = "01" then
-            if rx_data(31 downto 0) /= std_logic_vector(check_counter) then
-              rx_error <= '1';
-              -- go back to searching
-              search_mode <= "00";
+      if rx_data_valid = '1' then
+        case search_mode is
+          when "00" =>
+            -- wait for a K-char word
+            if rx_h_data = "10" then
+              search_mode <= "01";
             end if;
-            check_counter <= check_counter +1 ;
-          elsif rx_h_data = "10"  then
-            check_counter <= check_counter +1 ;
-            if check_counter(8 downto 0) = "100000000" then
+          when "01" =>
+            --grab the current counter value
+            if rx_h_data = "10" then
+              rx_error <= '1';
+            else
+              check_counter <= unsigned(rx_data(31 downto 0)) + 1;
+              search_mode <= "10";            
+            end if;
+          when "10" =>
+            --process counter values          
+            if rx_h_data = "01" then
+              if rx_data(31 downto 0) /= std_logic_vector(check_counter) then
+                rx_error <= '1';
+                -- go back to searching
+                search_mode <= "00";
+              end if;
+              check_counter <= check_counter +1 ;
+            elsif rx_h_data = "10"  then
+              check_counter <= check_counter +1 ;
+              if check_counter(8 downto 0) = "100000000" then
               --nothing
+              else
+                rx_error <= '1';
+                search_mode <= "00";
+              end if;
             else
               rx_error <= '1';
               search_mode <= "00";
-            end if;
-          else
-            rx_error <= '1';
-            search_mode <= "00";
-          end if;          
-        when others => null;
-      end case;
+            end if;          
+          when others => null;
+        end case;
+      end if;
     end if;
   end process data_proc;
 end architecture behavioral;
