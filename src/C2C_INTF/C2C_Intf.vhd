@@ -120,7 +120,7 @@ begin
 
 
     
-    assignment: process (CTRL_local.C2C(iLane),Mon.C2C(iLane)) is
+    assignment: process (CTRL_local.C2C(iLane),Mon.C2C(iLane),PRBS_CNT_RST,PRBS_FORCE_ERR,aurora_init_buf,phy_reset ) is
     begin  -- process assignment
       CTRL.C2C(iLane) <= Ctrl_local.C2C(iLane);
       CTRL.C2C(iLane).DEBUG.RX.PRBS_CNT_RST   <= PRBS_CNT_RST(iLane);
@@ -178,7 +178,11 @@ begin
         lock             => phylanelock(iLane),
         state_out        => Mon_local.C2C(iLane).COUNTERS.PHYLANE_STATE,
         xcvr_reset       => phy_reset(iLane),
-        xcvr_reset_done  => Mon_local.C2C(iLane).DEBUG.RX.PMA_RESET_DONE,        
+        xcvr_reset_done  => Mon_local.C2C(iLane).DEBUG.RX.PMA_RESET_DONE,
+        single_bit_error    => Mon_local.C2C(iLane).STATUS.LINK_ERROR,
+        single_bit_rate_max => CTRL_local.C2C(iLane).PHY_MAX_SINGLE_BIT_ERROR_RATE,
+        multi_bit_error     => Mon_local.C2C(iLane).STATUS.MB_ERROR,
+        multi_bit_rate_max  => CTRL_local.C2C(iLane).PHY_MAX_MULTI_BIT_ERROR_RATE,
         count_errors_all_time          => Mon_local.C2C(iLane).COUNTERS.ERRORS_ALL_TIME,         
         COUNT_ERRORS_SINCE_LOCKED      => MON_LOCAL.C2C(iLane).COUNTERS.ERRORS_SINCE_LOCKED,     
         COUNT_ERROR_WAITS_SINCE_LOCKED => MON_LOCAL.C2C(iLane).COUNTERS.ERROR_WAITS_SINCE_LOCKED,

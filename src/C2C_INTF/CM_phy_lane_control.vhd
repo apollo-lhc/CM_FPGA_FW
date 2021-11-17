@@ -13,19 +13,23 @@ entity CM_phy_lane_control is
                                               --this might be required to be 32
     ERROR_WAIT_TIME   : integer := 50000000); --Wait time for error checking state
   port (              
-    clk               : in  std_logic;
-    reset             : in  std_logic;
-    reset_counter     : in  std_logic;
-    enable            : in  std_logic;
-    phy_lane_up       : in  std_logic;
-    phy_lane_stable   : in  std_logic_vector(19 downto 0);
-    read_time         : in  std_logic_vector(23 downto 0);
-    failed_cnt_to_rst : in  std_logic_vector( 7 downto 0);
-    initialize_out    : out std_logic;
-    lock              : out std_logic;
-    xcvr_reset        : out std_logic;
-    xcvr_reset_done   : in  std_logic;
-    state_out         : out std_logic_vector(2 downto 0);
+    clk                 : in  std_logic;
+    reset               : in  std_logic;
+    reset_counter       : in  std_logic;
+    enable              : in  std_logic;
+    phy_lane_up         : in  std_logic;
+    phy_lane_stable     : in  std_logic_vector(19 downto 0);
+    read_time           : in  std_logic_vector(23 downto 0);
+    failed_cnt_to_rst   : in  std_logic_vector( 7 downto 0);
+    initialize_out      : out std_logic;
+    lock                : out std_logic;
+    xcvr_reset          : out std_logic;
+    xcvr_reset_done     : in  std_logic;
+    single_bit_error    : in  std_logic;
+    single_bit_rate_max : in  std_logic_vector(15 downto 0);
+    multi_bit_error     : in  std_logic;
+    multi_bit_rate_max  : in  std_logic_vector(15 downto 0);    
+    state_out           : out std_logic_vector(2 downto 0);
     count_errors_all_time          : out std_logic_vector(DATA_WIDTH-1 downto 0);
     count_errors_since_locked      : out std_logic_vector(DATA_WIDTH-1 downto 0);
     count_error_waits_since_locked : out std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -64,12 +68,14 @@ architecture behavioral of CM_phy_lane_control is
   
   --- *** COUNTER *** ---
   signal reset_shortterm_counter  : std_logic;
-  signal transition_to_error_wait: std_logic;
-  signal transceiver_reset       : std_logic;
+  signal reset_rate_counter       : std_logic;
+  signal transition_to_error_wait : std_logic;
+  signal transceiver_reset        : std_logic;
 
-  signal error_while_locked      : std_logic;
-
-
+  signal error_while_locked       : std_logic;
+  
+  signal single_bit_error_rate    : std_logic_vector(15 downto 0);
+  signal multi_bit_error_rate     : std_logic_vector(15 downto 0);
   
 begin
 
@@ -148,13 +154,20 @@ begin
             elsif timeout_to_initialize_cntr = TIMEOUT_TO_INITIALIZE_CNTR_MAX then
               --we are still seeing errors on the link even over REAT_TIME
               --tics, so let's re-initialize the link.
+              if failed_cnt /= FAILED_CNT_MAX then
+                failed_cnt <= failed_cnt + 1;
+              end if;
               state <= INITIALIZING;
             end if;
           when LOCKED =>
             ---LOCKED------------------------------------------------------------
-            if phy_lane_up = '0' then              
+            if ( phy_lane_up = '0' or
+                 unsigned(multi_bit_error_rate)  >= unsigned(multi_bit_rate_max) or
+                 unsigned(single_bit_error_rate) >= unsigned(single_bit_rate_max)
+                 )then              
               state <= ERROR_WAIT;
             end if;
+            
           when ERROR_WAIT =>
             ---ERROR_WAIT--------------------------------------------------------
             if phy_up_cnt = PHY_UP_CNT_MAX then
@@ -164,7 +177,11 @@ begin
             elsif error_wait_cntr = ERROR_WAIT_TIME then
               -- we've waited a long time and still have errors, so let's try
               -- to re-initialize the link
+              if failed_cnt /= FAILED_CNT_MAX then
+                failed_cnt <= failed_cnt + 1;
+              end if;
               state <= INITIALIZING;
+              
               
             end if;
           when others => --reset
@@ -252,7 +269,7 @@ begin
         when INITIALIZING => --force initialize
           initialize_out               <= '1';
         when WAITING => --hold at 0    
-        when LOCKED | ERROR_WAIT =>    
+        when LOCKED | ERROR_WAIT =>
           reset_shortterm_counter      <= '0';
           lock                         <= '1';
           if phy_lane_up = '0' then    
@@ -282,6 +299,32 @@ begin
       when others         => state_out <= "101"; -- UNKNOWN
     end case;
   end process SM_to_slv;
+
+
+  --rate counters for single and multibit errors
+  reset_rate_counter        <= reset_shortterm_counter; -- different names for
+                                                        -- the same signal
+  single_bit_error_rate_counter: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => CLKFREQ)
+    port map (
+      clk_A             => clk,
+      clk_B             => clk,
+      reset_A_async     => reset_rate_counter,
+      event_b           => single_bit_error,
+      rate(15 downto 0) => single_bit_error_rate,
+      rate(31 downto 16) => open);
+  multi_bit_error_rate_counter: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => CLKFREQ)
+    port map (
+      clk_A             => clk,
+      clk_B             => clk,
+      reset_A_async     => reset_rate_counter,
+      event_b           => multi_bit_error,
+      rate(15 downto 0) => multi_bit_error_rate,
+      rate(31 downto 16) => open);
+
   
   --Counter for monitoring
   counter_errors_all_time: entity work.counter
