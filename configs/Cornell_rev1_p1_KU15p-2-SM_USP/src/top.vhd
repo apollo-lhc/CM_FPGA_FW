@@ -21,10 +21,10 @@ entity top is
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
     p_util_clk_chan0 : in std_logic;
-    n_mgt_z2k        : in  std_logic_vector(1 downto 1);
-    p_mgt_z2k        : in  std_logic_vector(1 downto 1);
-    n_mgt_k2z        : out std_logic_vector(1 downto 1);
-    p_mgt_k2z        : out std_logic_vector(1 downto 1);
+    n_mgt_z2k        : in  std_logic_vector(2 downto 1);
+    p_mgt_z2k        : in  std_logic_vector(2 downto 1);
+    n_mgt_k2z        : out std_logic_vector(2 downto 1);
+    p_mgt_k2z        : out std_logic_vector(2 downto 1);
 
     k_fpga_i2c_scl   : inout std_logic;
     k_fpga_i2c_sda   : inout std_logic;
@@ -75,10 +75,10 @@ architecture structure of top is
   signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
 
-  signal C2C_Mon  : K_IO_C2C_MON_t;
-  signal C2C_Ctrl : K_IO_C2C_Ctrl_t;
+  signal C2C_Mon  : K_IO_C2C_MON_array_t;
+  signal C2C_Ctrl : K_IO_C2C_Ctrl_array_t;
 
-  signal clk_K_C2C_PHY_user                  : STD_logic;
+  signal clk_K_C2C_PHY_user                  : STD_logic_vector(2 downto 1);
 
 
   signal BRAM_write : std_logic;
@@ -204,52 +204,102 @@ begin  -- architecture structure
       KINTEX_IPBUS_wvalid(0)              => ext_AXI_WriteMOSI.data_valid,          
       reset_n                             => locked_clk200,--reset,
 
-      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.DEBUG.CPLL_LOCK,
-      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.DEBUG.DMONITOR,
-      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.DEBUG.EYESCAN_DATA_ERROR,
+      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon(1).DEBUG.CPLL_LOCK,
+      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon(1).DEBUG.DMONITOR,
+      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon(1).DEBUG.EYESCAN_DATA_ERROR,
       
-      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.DEBUG.EYESCAN_RESET,
-      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.DEBUG.EYESCAN_TRIGGER,
-      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.DEBUG.PCS_RSV_DIN,
-      K_C2C_PHY_DEBUG_qplllock(0)         => C2C_Mon.DEBUG.QPLL_LOCK,
-      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.DEBUG.RX.BUF_RESET,
-      K_C2C_PHY_DEBUG_rxbufstatus         => C2C_Mon.DEBUG.RX.BUF_STATUS,
-      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.DEBUG.RX.CDR_HOLD,
-      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.DEBUG.RX.DFE_LPM_RESET,
-      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.DEBUG.RX.LPM_EN,
-      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.DEBUG.RX.PCS_RESET,
-      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.DEBUG.RX.PMA_RESET,
-      K_C2C_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon.DEBUG.RX.RESET_DONE,
-      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.DEBUG.RX.PRBS_CNT_RST,
-      K_C2C_PHY_DEBUG_rxprbserr(0)        => C2C_Mon.DEBUG.RX.PRBS_ERR,
-      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.DEBUG.RX.PRBS_SEL,
-      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.DEBUG.RX.RATE,
-      K_C2C_PHY_DEBUG_rxresetdone(0)      => C2C_Mon.DEBUG.RX.RESET_DONE,
-      K_C2C_PHY_DEBUG_txbufstatus         => C2C_Mon.DEBUG.TX.BUF_STATUS,
-      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.DEBUG.TX.DIFF_CTRL,
-      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.DEBUG.TX.INHIBIT,
-      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.DEBUG.TX.PCS_RESET,
-      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.DEBUG.TX.PMA_RESET,
-      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.DEBUG.TX.POLARITY,
-      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.DEBUG.TX.POST_CURSOR,
-      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.DEBUG.TX.PRBS_FORCE_ERR,
-      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.DEBUG.TX.PRBS_SEL,
-      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.DEBUG.TX.PRE_CURSOR,
-      K_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON.DEBUG.TX.RESET_DONE,
+      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl(1).DEBUG.EYESCAN_RESET,
+      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl(1).DEBUG.EYESCAN_TRIGGER,
+      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl(1).DEBUG.PCS_RSV_DIN,
+      K_C2C_PHY_DEBUG_qplllock(0)         => C2C_Mon(1).DEBUG.QPLL_LOCK,
+      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl(1).DEBUG.RX.BUF_RESET,
+      K_C2C_PHY_DEBUG_rxbufstatus         => C2C_Mon(1).DEBUG.RX.BUF_STATUS,
+      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl(1).DEBUG.RX.CDR_HOLD,
+      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl(1).DEBUG.RX.DFE_LPM_RESET,
+      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl(1).DEBUG.RX.LPM_EN,
+      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl(1).DEBUG.RX.PCS_RESET,
+      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl(1).DEBUG.RX.PMA_RESET,
+      K_C2C_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon(1).DEBUG.RX.RESET_DONE,
+      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl(1).DEBUG.RX.PRBS_CNT_RST,
+      K_C2C_PHY_DEBUG_rxprbserr(0)        => C2C_Mon(1).DEBUG.RX.PRBS_ERR,
+      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl(1).DEBUG.RX.PRBS_SEL,
+      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl(1).DEBUG.RX.RATE,
+      K_C2C_PHY_DEBUG_rxresetdone(0)      => C2C_Mon(1).DEBUG.RX.RESET_DONE,
+      K_C2C_PHY_DEBUG_txbufstatus         => C2C_Mon(1).DEBUG.TX.BUF_STATUS,
+      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl(1).DEBUG.TX.DIFF_CTRL,
+      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl(1).DEBUG.TX.INHIBIT,
+      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl(1).DEBUG.TX.PCS_RESET,
+      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl(1).DEBUG.TX.PMA_RESET,
+      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl(1).DEBUG.TX.POLARITY,
+      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl(1).DEBUG.TX.POST_CURSOR,
+      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl(1).DEBUG.TX.PRBS_FORCE_ERR,
+      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl(1).DEBUG.TX.PRBS_SEL,
+      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl(1).DEBUG.TX.PRE_CURSOR,
+      K_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON(1).DEBUG.TX.RESET_DONE,
 
-      K_C2C_PHY_STATUS_channel_up         => C2C_Mon.STATUS.CHANNEL_UP,      
-      K_C2C_PHY_STATUS_gt_pll_lock        => C2C_MON.STATUS.PHY_GT_PLL_LOCK,
-      K_C2C_PHY_STATUS_hard_err           => C2C_Mon.STATUS.PHY_HARD_ERR,
-      K_C2C_PHY_STATUS_lane_up            => C2C_Mon.STATUS.PHY_LANE_UP(0 downto 0),
-      K_C2C_PHY_STATUS_mmcm_not_locked    => C2C_Mon.STATUS.PHY_MMCM_LOL,
-      K_C2C_PHY_STATUS_soft_err           => C2C_Mon.STATUS.PHY_SOFT_ERR,
+      K_C2C_PHY_STATUS_channel_up         => C2C_Mon(1).STATUS.CHANNEL_UP,      
+      K_C2C_PHY_STATUS_gt_pll_lock        => C2C_MON(1).STATUS.PHY_GT_PLL_LOCK,
+      K_C2C_PHY_STATUS_hard_err           => C2C_Mon(1).STATUS.PHY_HARD_ERR,
+      K_C2C_PHY_STATUS_lane_up            => C2C_Mon(1).STATUS.PHY_LANE_UP(0 downto 0),
+      K_C2C_PHY_STATUS_mmcm_not_locked    => C2C_Mon(1).STATUS.PHY_MMCM_LOL,
+      K_C2C_PHY_STATUS_soft_err           => C2C_Mon(1).STATUS.PHY_SOFT_ERR,
 
-      K_C2C_aurora_do_cc                => C2C_Mon.STATUS.DO_CC,
-      K_C2C_axi_c2c_config_error_out    => C2C_Mon.STATUS.CONFIG_ERROR,
-      K_C2C_axi_c2c_link_status_out     => C2C_MON.STATUS.LINK_GOOD,
-      K_C2C_axi_c2c_multi_bit_error_out => C2C_MON.STATUS.MB_ERROR,
+      K_C2C_aurora_do_cc                => C2C_Mon(1).STATUS.DO_CC,
+      K_C2C_axi_c2c_config_error_out    => C2C_Mon(1).STATUS.CONFIG_ERROR,
+      K_C2C_axi_c2c_link_status_out     => C2C_MON(1).STATUS.LINK_GOOD,
+      K_C2C_axi_c2c_multi_bit_error_out => C2C_MON(1).STATUS.MB_ERROR,
       K_C2C_phy_power_down              => '0',
-      K_C2C_PHY_user_clk_out            => clk_K_C2C_PHY_user,
+      K_C2C_PHY_user_clk_out            => clk_K_C2C_PHY_user(1),
+
+      K_C2CB_PHY_DEBUG_cplllock(0)         => C2cb_Mon(2).DEBUG.CPLL_LOCK,
+      K_C2CB_PHY_DEBUG_dmonitorout         => C2cb_Mon(2).DEBUG.DMONITOR,
+      K_C2CB_PHY_DEBUG_eyescandataerror(0) => C2cb_Mon(2).DEBUG.EYESCAN_DATA_ERROR,
+      
+      K_C2CB_PHY_DEBUG_eyescanreset(0)     => C2CB_Ctrl(2).DEBUG.EYESCAN_RESET,
+      K_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2CB_Ctrl(2).DEBUG.EYESCAN_TRIGGER,
+      K_C2CB_PHY_DEBUG_pcsrsvdin           => C2CB_Ctrl(2).DEBUG.PCS_RSV_DIN,
+      K_C2CB_PHY_DEBUG_qplllock(0)         => C2cb_Mon(2).DEBUG.QPLL_LOCK,
+      K_C2CB_PHY_DEBUG_rxbufreset(0)       => C2CB_Ctrl(2).DEBUG.RX.BUF_RESET,
+      K_C2CB_PHY_DEBUG_rxbufstatus         => C2cb_Mon(2).DEBUG.RX.BUF_STATUS,
+      K_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2CB_Ctrl(2).DEBUG.RX.CDR_HOLD,
+      K_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2CB_Ctrl(2).DEBUG.RX.DFE_LPM_RESET,
+      K_C2CB_PHY_DEBUG_rxlpmen(0)          => C2CB_Ctrl(2).DEBUG.RX.LPM_EN,
+      K_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2CB_Ctrl(2).DEBUG.RX.PCS_RESET,
+      K_C2CB_PHY_DEBUG_rxpmareset(0)       => C2CB_Ctrl(2).DEBUG.RX.PMA_RESET,
+      K_C2CB_PHY_DEBUG_rxpmaresetdone      => open,--C2cb_Mon(2).DEBUG.RX.RESET_DONE,
+      K_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2CB_Ctrl(2).DEBUG.RX.PRBS_CNT_RST,
+      K_C2CB_PHY_DEBUG_rxprbserr(0)        => C2cb_Mon(2).DEBUG.RX.PRBS_ERR,
+      K_C2CB_PHY_DEBUG_rxprbssel           => C2CB_Ctrl(2).DEBUG.RX.PRBS_SEL,
+      K_C2CB_PHY_DEBUG_rxrate              => C2CB_Ctrl(2).DEBUG.RX.RATE,
+      K_C2CB_PHY_DEBUG_rxresetdone(0)      => C2cb_Mon(2).DEBUG.RX.RESET_DONE,
+      K_C2CB_PHY_DEBUG_txbufstatus         => C2cb_Mon(2).DEBUG.TX.BUF_STATUS,
+      K_C2CB_PHY_DEBUG_txdiffctrl          => C2CB_Ctrl(2).DEBUG.TX.DIFF_CTRL,
+      K_C2CB_PHY_DEBUG_txinhibit(0)        => C2CB_Ctrl(2).DEBUG.TX.INHIBIT,
+      K_C2CB_PHY_DEBUG_txpcsreset(0)       => C2CB_Ctrl(2).DEBUG.TX.PCS_RESET,
+      K_C2CB_PHY_DEBUG_txpmareset(0)       => C2CB_Ctrl(2).DEBUG.TX.PMA_RESET,
+      K_C2CB_PHY_DEBUG_txpolarity(0)       => C2CB_Ctrl(2).DEBUG.TX.POLARITY,
+      K_C2CB_PHY_DEBUG_txpostcursor        => C2CB_Ctrl(2).DEBUG.TX.POST_CURSOR,
+      K_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2CB_Ctrl(2).DEBUG.TX.PRBS_FORCE_ERR,
+      K_C2CB_PHY_DEBUG_txprbssel           => C2CB_Ctrl(2).DEBUG.TX.PRBS_SEL,
+      K_C2CB_PHY_DEBUG_txprecursor         => C2CB_Ctrl(2).DEBUG.TX.PRE_CURSOR,
+      K_C2CB_PHY_DEBUG_txresetdone(0)      => C2CB_MON(2).DEBUG.TX.RESET_DONE,
+
+      K_C2CB_PHY_STATUS_channel_up         => C2cb_Mon(2).STATUS.CHANNEL_UP,      
+      K_C2CB_PHY_STATUS_gt_pll_lock        => C2CB_MON(2).STATUS.PHY_GT_PLL_LOCK,
+      K_C2CB_PHY_STATUS_hard_err           => C2cb_Mon(2).STATUS.PHY_HARD_ERR,
+      K_C2CB_PHY_STATUS_lane_up            => C2cb_Mon(2).STATUS.PHY_LANE_UP(0 downto 0),
+      K_C2CB_PHY_STATUS_mmcm_not_locked    => C2cb_Mon(2).STATUS.PHY_MMCM_LOL,
+      K_C2CB_PHY_STATUS_soft_err           => C2cb_Mon(2).STATUS.PHY_SOFT_ERR,
+
+      K_C2CB_aurora_do_cc                => C2cb_Mon(2).STATUS.DO_CC,
+      K_C2CB_axi_c2c_config_error_out    => C2cb_Mon(2).STATUS.CONFIG_ERROR,
+      K_C2CB_axi_c2c_link_status_out     => C2CB_MON(2).STATUS.LINK_GOOD,
+      K_C2CB_axi_c2c_multi_bit_error_out => C2CB_MON(2).STATUS.MB_ERROR,
+      K_C2CB_phy_power_down              => '0',
+      K_C2CB_PHY_user_clk_out            => clk_K_C2CB_PHY_user(2),
+
+
+
       KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
       KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
 );
@@ -272,7 +322,7 @@ begin  -- architecture structure
       CLK_A_1_SECOND => 2000000)
     port map (
       clk_A         => clk_200,
-      clk_B         => clk_K_C2C_PHY_user,
+      clk_B         => clk_K_C2C_PHY_user(0),
       reset_A_async => AXI_RESET,
       event_b       => '1',
       rate          => C2C_Mon.USER_FREQ);
@@ -285,10 +335,12 @@ begin  -- architecture structure
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
-      Mon.C2C                 => C2C_Mon,
+      Mon.C2C(1)              => C2C_Mon,
+      Mon.C2C(2)              => C2CB_Mon,
       Mon.CLK_200_LOCKED      => locked_clk200,      
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
-      Ctrl.C2C                => C2C_Ctrl,
+      Ctrl.C2C(1)             => C2C_Ctrl,
+      Ctrl.C2C(2)             => C2CB_Ctrl,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
