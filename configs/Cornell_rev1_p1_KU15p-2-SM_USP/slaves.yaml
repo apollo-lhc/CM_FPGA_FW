@@ -84,4 +84,13 @@ AXI_SLAVES:
 
 
 
-
+  CM1_PB_UART:
+    TCL_CALL:
+      command: "AXI_IP_UART"
+      addr:
+        offset: "0xB1004000"
+        range:  "4K"
+      baud_rate: "115200"
+      irq_port: "K_C2C/axi_c2c_s2m_intr_in"
+      axi_control: "${::AXI_MASTER_CTRL}"
+      remote_slave: "1"

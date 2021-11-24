@@ -23,6 +23,11 @@ set vhdl_files "\
      src/CM_FW_info/CM_K_info.vhd \
      configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info/CM_K_INFO_PKG.vhd \
      configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info/CM_K_INFO_map.vhd \
+     src/picoblaze/kcpsm6.vhd \
+     src/picoblaze/uart_rx6.vhd \
+     src/picoblaze/uart_tx6.vhd \
+     src/picoblaze/uC.vhd \
+     src/picoblaze/picoblaze/cli.vhd \
      "
 
 set xdc_files "\

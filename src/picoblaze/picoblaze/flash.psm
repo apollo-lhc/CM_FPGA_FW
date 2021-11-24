@@ -1,0 +1,402 @@
+;;; ============================================================================
+;;; Register map (x means use explicity, y implicitly)
+;;; ============================================================================
+;;; | name (A)             | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB | sC | sD | sE | sF |
+;;; |----------------------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+;;; | spi_start            |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | spi_end              |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | spi_byte_rd          |    | x  | x  | x  |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | spi_byte_wr          |    | x  | x  | x  |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | spi_byte_wrb         |    | x  | x  | x  |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; |----------------------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+;;; | flash_read_info      |    | y  | y  | y  | x  | x  |    |    |    |    |    |    |    |    |    |    |
+;;; | flash_read_status    | x  | y  | y  | y  |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | flash_write_status   |    | y  | y  | y  | x  |    |    |    |    |    |    |    |    |    |    |    |
+;;; | flash_busy           | x  | y  | y  | y  |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | flash_erase          | y  | y  | y  | y  |    |    |    |    |    |    |    |    |    |    |    |    |
+;;; | flash_read           |    | y  | y  | y  | x  | x  | x  |    |    |    |    |    |    |    |    |    |
+;;; | flash_write          |    | y  | y  | y  | x  | x  |    |    |    |    |    |    |    |    |    |    |
+;;; |----------------------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+
+	
+;;; ============================================================================
+;;; CONSTANTS
+;;; ============================================================================
+
+CONSTANT FLASH_PORT,	0C
+
+;;; Commands for the NP5Q128A13ESC0E
+CONSTANT FLASH_CMD_RD_INFO,		9F 	; read HW identification
+CONSTANT FLASH_CMD_RD_STATUS,		05	; read status register
+CONSTANT FLASH_CMD_WR_STATUS,		01	; write status register
+
+CONSTANT FLASH_CMD_WR_ENBL, 		06	; memory write enable cmd byte
+CONSTANT FLASH_CMD_WR_DSBL, 		04	; memory write disable cmd byte
+
+CONSTANT FLASH_CMD_READ,		03
+;CONSTANT FLASH_CMD_WRITE, 		22	; memory page program cmd byte
+CONSTANT FLASH_CMD_WRITE, 		02	; memory page program cmd byte
+CONSTANT FLASH_CMD_ERASE,		C7 	; bulk erase
+
+
+
+
+
+	
+;;; ============================================================================
+;;; ============================================================================
+;;; SPI tools
+;;; ============================================================================
+;;; ============================================================================
+
+;;; ============================================================================
+;;; Start the SPI command sequence
+;;; ============================================================================
+spi_start:
+	OUTPUTK 03, FLASH_PORT	; set clock high and S high
+	OUTPUTK 01, FLASH_PORT	; drop S low and keep clock high
+	RETURN
+;;; ============================================================================
+;;; End the SPI command sequence
+;;; ============================================================================
+spi_end:
+	OUTPUTK 03, FLASH_PORT	; return SPI clock/S high
+	RETURN
+;;; ============================================================================
+;;; Read one SPI byte
+	;; reads one byte into s1
+	;; uses s1-s3
+	;; SPI clock should already be high and SPI_S low
+;;; ============================================================================
+spi_byte_rd:
+	LOAD S3, 07		; begin count down for byte at 7
+spi_byte_rd_l:
+	OUTPUTK 00, FLASH_PORT 	; falling clock edge
+	COMPARE S3, 07		; no op
+	COMPARE S3, 07		; no op
+	OUTPUTK 01, FLASH_PORT	; rising clock tick
+	INPUT s2, FLASH_PORT	; read input
+	RR s2			; pop 
+	RR s2			; pop 
+	RR s2			; pop the last bit into C
+	SLA s1			; shift s1 one bit and pull in C
+	SUB s3, 01 		; subtract 1 from counter
+	JUMP NC, spi_byte_rd_l
+	RETURN
+	
+;;; ============================================================================
+;;; Write one SPI byte
+	;; writes one byte from s1
+	;; uses s1-s3
+	;; SPI clock should already be high and SPI_S low
+;;; ============================================================================
+spi_byte_wr:
+	LOAD s3, 07		; begin byte countdown at 7
+spi_byte_wr_l:
+	LOAD s2,s1		; load current bits
+	AND s2, 80		; mask out everything but bit 7
+				; this is the bit we write
+	RL s2			; rotate bit 7 into bit 2
+	RL s2
+	RL s2
+	OUTPUT s2, FLASH_PORT	; clock out this bit
+				; also brings SPI_CLK low
+	XOR s2,01		; toggle clock bit
+	OUTPUT s2, FLASH_PORT	; finish this bit
+	RL s1			; shift to the next bit in s1
+	SUB s3, 01		; subtract 1 from counter
+	JUMP NC, spi_byte_wr_l	; loop until we clock out 8 bits
+	RETURN
+	
+;;; ============================================================================
+;;; Write one SPI byte bitswapped
+	;; writes one byte from s1
+	;; uses s1-s3
+	;; SPI clock should already be high and SPI_S low
+;;; ============================================================================
+spi_byte_wrb:
+	LOAD s3, 07		; begin byte countdown at 7
+	RR s1			; rotate bit 0 to bit 7
+spi_byte_wrb_l:
+	LOAD s2,s1		; load current bits
+	AND s2, 80		; mask out everything but bit 7
+				; this is the bit we write
+	RL s2			; rotate bit 7 into bit 2
+	RL s2
+	RL s2
+	OUTPUT s2, FLASH_PORT	; clock out this bit
+				; also brings SPI_CLK low
+	XOR s2,01		; toggle clock bit
+	OUTPUT s2, FLASH_PORT	; finish this bit
+	RR s1			; shift to the next bit in s1
+	SUB s3, 01		; subtract 1 from counter
+	JUMP NC, spi_byte_wrb_l	; loop until we clock out 8 bits
+	RL s1
+	RETURN
+
+
+
+
+
+
+
+
+
+
+	
+;;; ============================================================================
+;;; ============================================================================
+;;; Flash commands
+;;; ============================================================================
+;;; ============================================================================
+
+;;; ============================================================================
+;;; read the flash info
+	;; stores the 3 bytes of info in the scratchpad
+	;; existing scratchpad data is lost
+	;; uses s1,s1-s3,s4,s5
+;;; ============================================================================	
+flash_read_info:
+	LOAD s4, MEM_USER_2	;write data into MEM_USER_2
+	LOAD s5, 03		;count of bytes to read
+	
+	LOAD s1, FLASH_CMD_RD_INFO	; load the command to be written
+	
+	CALL spi_start		; start the SPI command sequence
+	CALL spi_byte_wr	; write CMD byte
+	;; read out	
+flash_read_info_loop:	
+	CALL spi_byte_rd	; get first byte
+	STORE s1, (s4) 		; store the byte
+	ADD s4, 01		; move scratch pointer
+	SUB s5, 01
+	JUMP NZ, flash_read_info_loop
+		
+	CALL spi_end		; end spi command sequence
+	RETURN
+	
+;;; ============================================================================
+;;; flash read status
+	;; uses s0-s1,s1-s3
+	;; stores 1 byte in s0
+;;; ============================================================================
+flash_read_status:
+	LOAD s1, FLASH_CMD_RD_STATUS 	; load the SPI command
+	CALL spi_start
+	CALL spi_byte_wr 		; write CMD byte in s1
+	CALL spi_byte_rd		; read one byte
+	CALL spi_end
+	RETURN
+
+;;; ============================================================================
+;;; flash busy check
+	;; uses s0-s1,s1-s3
+;;; ============================================================================
+flash_busy:	
+	LOAD s1, FLASH_CMD_RD_STATUS 	; load the SPI command
+	CALL spi_start
+	CALL spi_byte_wr 		; write CMD byte in s1
+flash_busy_loop:
+	CALL spi_byte_rd		; read one byte
+	RR s1				; pop bit zero into C (write status)
+	JUMP C, flash_busy_loop		; loop until write status is 0
+	CALL spi_end
+	RETURN
+	
+;;; ============================================================================
+;;; write flash status
+	;; write s0 to status register
+	;; uses s0-s4
+;;; ============================================================================
+flash_write_status:
+	LOAD s4,s0			; store s0 in s4 because it is changed in calls
+	CALL flash_write_enable		
+	LOAD s1, FLASH_CMD_WR_STATUS 	; load the SPI command
+	CALL spi_start	
+	CALL spi_byte_wr 		; write CMD byte in s1
+	LOAD s1, s4			; load s4 into s1
+	CALL spi_byte_wr		; write status registers
+	CALL spi_end
+	RETURN
+	
+;;; ============================================================================
+;;; bulk erase (blocking)
+	;; uses  s1-s3
+;;; ============================================================================
+flash_erase:
+	CALL flash_write_enable
+
+	LOAD s1, FLASH_CMD_ERASE	 	; load the SPI command
+	CALL spi_start
+	CALL spi_byte_wr 		; write CMD byte in s1
+	CALL spi_end
+	
+	CALL flash_busy			; wait until finished
+	RETURN
+		
+;;; ============================================================================	
+;;; set flash write enable
+	;; uses s0-s1,s1-s3
+;;; ============================================================================
+flash_write_enable:				
+	LOAD s1, FLASH_CMD_WR_ENBL	 	; load the SPI command
+	CALL spi_start
+	CALL spi_byte_wr 		; write CMD byte in s1
+	CALL spi_end
+;	CALL flash_busy
+	RETURN
+	
+;;; ============================================================================
+;;; set flash write disable
+;;; ============================================================================
+flash_wr_dsbl:	
+	LOAD s1, FLASH_CMD_WR_DSBL	 	; load the SPI command
+	CALL spi_start
+	CALL spi_byte_wr 		; write CMD byte in s1
+	CALL spi_end
+	RETURN
+	
+;;; ============================================================================
+;;; flash read from memory to scratchpad
+	;; put address in MEM_USER_1 little endian (3 bytes)
+	;; put size of read in the 4th byte of MEM_USER_1
+;;; ============================================================================
+flash_read:
+	;; Load bytes to write -1
+	LOAD s6, MEM_USER_1
+	ADD s6,03		;move to the size word
+	FETCH s6, (s6)
+	SUB s6,01		; s6 needs to be n-1 for loop logic
+	;; check size less than 128 (MEM_USER_2 + MEM_USER_3)
+	COMPARE s6,80
+	JUMP C, flash_read_start 
+	JUMP ERROR_BAD_ARG
+
+flash_read_start:	
+	LOAD s4, MEM_USER_1 	; reset our memory
+	ADD s4,02		; move to MSB of address
+	LOAD s1, FLASH_CMD_READ	; load the SPI command
+	CALL spi_start
+	CALL spi_byte_wr	; write CMD byte
+	;; write address
+	fetch s1, (s4)		;MSB
+	CALL spi_byte_wr
+	SUB s4, 01
+	fetch s1, (s4)
+	CALL spi_byte_wr
+	SUB s4, 01
+	fetch s1, (s4)		;LSB
+	CALL spi_byte_wr
+
+
+	LOAD s4, MEM_USER_2
+flash_read_loop:
+	CALL spi_byte_rd
+	STORE s1, (s4)
+	ADD s4, 01 		; move forward in MEM_USER_2/3
+	SUB s6,01		; count down memory request
+	JUMP NC, flash_read_loop
+	CALL spi_end
+	;; end read
+	
+	;; update address
+	LOAD s6, MEM_USER_1
+	ADD s6,03
+	FETCH s6, (s6)		; get read size
+	;; add to LSB
+	LOAD s4, MEM_USER_1
+	FETCH s5, (s4)
+	ADD s5, s6
+	STORE s5, (s4)		;update the address in memory	
+	JUMP NC, flash_read_end	;if no carry, jump to the end
+	;; process carry
+	ADD s4,01
+	FETCH s5,(s4)
+	ADD s5,01
+	STORE s5,(s4)
+	JUMP NC, flash_read_end	;if no carry, jump to the end
+	;; process carry
+	ADD s4,01
+	FETCH s5,(s4)
+	ADD s5,01
+	STORE s5,(s4)
+flash_read_end:	
+	RETURN
+
+	
+;;;============================================================================
+;;;write from scratchpad to flash
+	;; address located in MEM_USER_1[0..2]
+	;; write size in MEM_USER_1[3]
+	;; data in MEM_USER_2/3 (128Bytes)
+;;;============================================================================
+flash_write:
+	;; load the number of bytes to write and check for a valid number
+	LOAD s5,MEM_USER_1	;
+	ADD s5,03		;
+	FETCH s5, (s5)		; Load the number of bytes to write
+	COMPARE s5, 00
+	JUMP Z, ERROR_BAD_ARG 	; remote zero byte writes
+	SUB s5,01 		; logic uses N-1
+	COMPARE s5, 80		; must be less than 128
+	JUMP NC, ERROR_BAD_ARG
+
+	;; begin write command
+	CALL flash_write_enable    	; enable write
+	CALL spi_start
+	LOAD s1, FLASH_CMD_WRITE	; load the SPI command
+	CALL spi_byte_wr
+	
+	;; address bytes are in MEM_USER_1 bytes 0..2 little endian
+	LOAD s4, MEM_USER_1
+	ADD s4, 02	
+flash_write_addr_loop:
+	;; write 24 bits of address big endian
+	FETCH s1, (s4)
+	CALL spi_byte_wr
+	SUB s4,01
+	COMPARE s4, MEM_USER_1
+	JUMP NC, flash_write_addr_loop
+
+	;; write data from MEM_USER_2, through MEM_USER_3, up to (MEM_USER_1[3])		
+	LOAD s4, MEM_USER_2	; pointer to data we are going to write
+flash_write_data_loop:	
+	FETCH s1, (s4)
+	CALL spi_byte_wr 	; write byte
+	ADD s4, 01		;move forward in bytes
+	SUB s5, 01		;move back in write size
+	JUMP NC, flash_write_data_loop
+	CALL spi_end
+
+	;; update address
+	LOAD s5,MEM_USER_1	;
+	ADD s5,03		;
+	FETCH s5, (s5)		; Load the number of bytes to write
+
+	LOAD s4, MEM_USER_1	
+	FETCH s3, (s4)
+	ADD s3,s5		;Add size to LSB
+	STORE s3,(s4)		;store updated address
+	JUMP NC, flash_write_end	;finish if no carry
+
+	ADD s4,01		;middle address byte
+	FETCH s3,(s4)
+	ADD s3,01
+	STORE s3,(s4)
+	JUMP NC,flash_write_end
+
+	ADD s4,01		;MSB address
+	FETCH s3,(s4)
+	ADD s3,01
+	STORE s3,(s4)	
+		
+flash_write_end:	
+	RETURN				
+
+
+
+
+
+
+
+
