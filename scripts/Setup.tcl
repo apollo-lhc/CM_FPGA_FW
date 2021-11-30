@@ -47,12 +47,15 @@ for {set j 0} {$j < [llength $vhdl_files ] } {incr j} {
     puts "Adding $filename"
 }
 
+check_syntax
+
 #Add xdc files
 for {set j 0} {$j < [llength $xdc_files ] } {incr j} {
     set filename "${apollo_root_path}/[lindex $xdc_files $j]"
     read_xdc $filename
     puts "Adding $filename"
 }
+
 
 #Add xci files
 for {set j 0} {$j < [llength $xci_files ] } {incr j} {
@@ -78,7 +81,7 @@ for {set j 0} {$j < [llength $xci_files ] } {incr j} {
 }
 
 
-check_syntax -fileset sources_1
+#check_syntax -fileset sources_1
 
 #Add bd files
 foreach bd_name [array names bd_files] {

@@ -1,6 +1,6 @@
 <node id="CM_IO">  
-  <node id="C2C_1" address="0x00000000" fw_info="type=array" module="file://CM_IO_C2C.xml"/>
-  <node id="C2C_2" address="0x00000100" fw_info="type=array" module="file://CM_IO_C2C.xml"/>
+  <node id="C2C_1" address="0x00000000" fwinfo="type=array" module="file://CM_IO_C2C.xml"/>
+  <node id="C2C_2" address="0x00000100" fwinfo="type=array" module="file://CM_IO_C2C.xml"/>
 
   <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
   <node id="RGB"  address="0x00000200">
