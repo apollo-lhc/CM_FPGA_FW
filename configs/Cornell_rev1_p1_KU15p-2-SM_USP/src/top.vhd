@@ -241,12 +241,19 @@ begin  -- architecture structure
       K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl(1).DEBUG.TX.PRE_CURSOR,
       K_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON(1).DEBUG.TX.RESET_DONE,
 
-      K_C2C_PHY_STATUS_channel_up         => C2C_Mon(1).STATUS.CHANNEL_UP,      
-      K_C2C_PHY_STATUS_gt_pll_lock        => C2C_MON(1).STATUS.PHY_GT_PLL_LOCK,
-      K_C2C_PHY_STATUS_hard_err           => C2C_Mon(1).STATUS.PHY_HARD_ERR,
-      K_C2C_PHY_STATUS_lane_up            => C2C_Mon(1).STATUS.PHY_LANE_UP(0 downto 0),
-      K_C2C_PHY_STATUS_mmcm_not_locked    => C2C_Mon(1).STATUS.PHY_MMCM_LOL,
-      K_C2C_PHY_STATUS_soft_err           => C2C_Mon(1).STATUS.PHY_SOFT_ERR,
+      K_C2C_PHY_DRP_daddr                 => C2C_Ctrl(1).drp.address,
+      K_C2C_PHY_DRP_den                   => C2C_Ctrl(1).drp.enable,
+      K_C2C_PHY_DRP_di                    => C2C_Ctrl(1).drp.wr_data,
+      K_C2C_PHY_DRP_do                    => C2C_Mon(1).drp.rd_data,
+      K_C2C_PHY_DRP_drdy                  => C2C_Mon(1).drp.rd_data_valid,
+      K_C2C_PHY_DRP_dwe                   => C2C_Ctrl(1).drp.wr_enable,   
+      
+      K_C2C_PHY_channel_up                => C2C_Mon(1).STATUS.CHANNEL_UP,      
+      K_C2C_PHY_gt_pll_lock               => C2C_MON(1).STATUS.PHY_GT_PLL_LOCK,
+      K_C2C_PHY_hard_err                  => C2C_Mon(1).STATUS.PHY_HARD_ERR,
+      K_C2C_PHY_lane_up                   => C2C_Mon(1).STATUS.PHY_LANE_UP(0 downto 0),
+      K_C2C_PHY_mmcm_not_locked_out       => C2C_Mon(1).STATUS.PHY_MMCM_LOL,
+      K_C2C_PHY_soft_err                  => C2C_Mon(1).STATUS.PHY_SOFT_ERR,
 
       K_C2C_aurora_do_cc                => C2C_Mon(1).STATUS.DO_CC,
       k_c2c_aurora_pma_init_in          => C2C_Ctrl(1).status.initialize,
@@ -254,7 +261,7 @@ begin  -- architecture structure
       K_C2C_axi_c2c_link_status_out     => C2C_MON(1).STATUS.LINK_GOOD,
       K_C2C_axi_c2c_multi_bit_error_out => C2C_MON(1).STATUS.MB_ERROR,
       K_C2C_phy_power_down              => '0',
-      K_C2C_PHY_user_clk_out            => clk_K_C2C_PHY_user(1),
+      K_C2C_PHY_clk                     => clk_K_C2C_PHY_user(1),
 
       K_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon(2).DEBUG.CPLL_LOCK,
       K_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon(2).DEBUG.DMONITOR,
@@ -289,12 +296,19 @@ begin  -- architecture structure
       K_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl(2).DEBUG.TX.PRE_CURSOR,
       K_C2CB_PHY_DEBUG_txresetdone(0)      => C2C_Mon(2).DEBUG.TX.RESET_DONE,
 
-      K_C2CB_PHY_STATUS_channel_up         => C2C_Mon(2).STATUS.CHANNEL_UP,      
-      K_C2CB_PHY_STATUS_gt_pll_lock        => C2C_Mon(2).STATUS.PHY_GT_PLL_LOCK,
-      K_C2CB_PHY_STATUS_hard_err           => C2C_Mon(2).STATUS.PHY_HARD_ERR,
-      K_C2CB_PHY_STATUS_lane_up            => C2C_Mon(2).STATUS.PHY_LANE_UP(0 downto 0),
+      K_C2Cb_PHY_DRP_daddr                 => C2C_Ctrl(2).drp.address,
+      K_C2Cb_PHY_DRP_den                   => C2C_Ctrl(2).drp.enable,
+      K_C2Cb_PHY_DRP_di                    => C2C_Ctrl(2).drp.wr_data,
+      K_C2Cb_PHY_DRP_do                    => C2C_Mon(2).drp.rd_data,
+      K_C2Cb_PHY_DRP_drdy                  => C2C_Mon(2).drp.rd_data_valid,
+      K_C2Cb_PHY_DRP_dwe                   => C2C_Ctrl(2).drp.wr_enable,   
+
+      K_C2CB_PHY_channel_up         => C2C_Mon(2).STATUS.CHANNEL_UP,      
+      K_C2CB_PHY_gt_pll_lock         => C2C_Mon(2).STATUS.PHY_GT_PLL_LOCK,
+      K_C2CB_PHY_hard_err           => C2C_Mon(2).STATUS.PHY_HARD_ERR,
+      K_C2CB_PHY_lane_up            => C2C_Mon(2).STATUS.PHY_LANE_UP(0 downto 0),
 --      K_C2CB_PHY_STATUS_mmcm_not_locked    => C2C_Mon(2).STATUS.PHY_MMCM_LOL,
-      K_C2CB_PHY_STATUS_soft_err           => C2C_Mon(2).STATUS.PHY_SOFT_ERR,
+      K_C2CB_PHY_soft_err           => C2C_Mon(2).STATUS.PHY_SOFT_ERR,
 
       K_C2CB_aurora_do_cc                => C2C_Mon(2).STATUS.DO_CC,
       k_c2cB_aurora_pma_init_in          => C2C_Ctrl(2).status.initialize,
@@ -309,7 +323,8 @@ begin  -- architecture structure
       KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
       KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
 );
-
+  C2C_Mon(2).STATUS.PHY_MMCM_LOL <= C2C_Mon(1).STATUS.PHY_MMCM_LOL;
+  
   RGB_pwm_1: entity work.RGB_pwm
     generic map (
       CLKFREQ => 200000000,
