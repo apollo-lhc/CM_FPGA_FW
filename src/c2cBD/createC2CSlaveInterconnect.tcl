@@ -147,6 +147,10 @@ connect_bd_net [get_bd_pins   ${C2C}/m_aresetn] [get_bd_pins ${AXI_MASTER_RSTN}]
 connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_aclk]
 connect_bd_net [get_bd_ports ${AXI_MASTER_CLK}] [get_bd_pins ${C2C}/m_axi_lite_aclk]
 
+#enable eyescans by default
+set_property ES_EYE_SCAN_EN True [get_cells -hierarchical -regexp .*${C2C_PHY}.*CHANNEL_PRIM_INST]
+
+
 endgroup
 
 #================================================================================

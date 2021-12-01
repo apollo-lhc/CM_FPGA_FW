@@ -26,10 +26,11 @@ entity CM_phy_lane_control is
     xcvr_reset          : out std_logic;
     xcvr_reset_done     : in  std_logic;
     single_bit_error    : in  std_logic;
-    single_bit_rate_max : in  std_logic_vector(15 downto 0);
+    single_bit_rate_max : in  std_logic_vector(31 downto 0);
     multi_bit_error     : in  std_logic;
-    multi_bit_rate_max  : in  std_logic_vector(15 downto 0);    
+    multi_bit_rate_max  : in  std_logic_vector(31 downto 0);    
     state_out           : out std_logic_vector(2 downto 0);
+    count_waiting_timeouts         : out std_logic_vector(DATA_WIDTH-1 downto 0);
     count_errors_all_time          : out std_logic_vector(DATA_WIDTH-1 downto 0);
     count_errors_since_locked      : out std_logic_vector(DATA_WIDTH-1 downto 0);
     count_error_waits_since_locked : out std_logic_vector(DATA_WIDTH-1 downto 0);
@@ -45,15 +46,20 @@ architecture behavioral of CM_phy_lane_control is
   
   signal   error_wait_cntr                : integer range 0 to ERROR_WAIT_TIME;
   
-  signal   init_wait_cntr                 : integer range 0 to 31;
-  constant INIT_WAIT_CNTR_MAX             : integer range 0 to 31 := 31;
+  signal   init_wait_cntr                 : integer range 0 to 63;
+  constant INIT_WAIT_CNTR_MAX             : integer range 0 to 63 := 63;
+  constant INIT_WAIT_CNTR_HALFWAY         : integer range 0 to 63 := INIT_WAIT_CNTR_MAX/2;
                                            
   signal   phy_up_cnt                     : integer range 0 to (2**(phy_lane_stable'length)) -1;
   signal   PHY_UP_CNT_MAX                 : integer range 0 to (2**(phy_lane_stable'length)) -1;
 
   signal   failed_cnt                     : integer range 0 to (2**(FAILED_CNT_TO_RST'length))-1;
   signal   FAILED_CNT_MAX                 : integer range 0 to (2**(FAILED_CNT_TO_RST'length))-1;
-  
+
+
+  signal   pma_reset_wait_cntr                 : integer range 0 to 127;
+  constant PMA_RESET_WAIT_CNTR_MAX             : integer range 0 to 127 := 127;
+
   --- *** STATE_MACINE *** ---
   type state_t is (IDLE,
                    WAITING,
@@ -74,9 +80,10 @@ architecture behavioral of CM_phy_lane_control is
 
   signal error_while_locked       : std_logic;
   
-  signal single_bit_error_rate    : std_logic_vector(15 downto 0);
-  signal multi_bit_error_rate     : std_logic_vector(15 downto 0);
-  
+  signal single_bit_error_rate    : std_logic_vector(31 downto 0);
+  signal multi_bit_error_rate     : std_logic_vector(31 downto 0);
+
+  signal waiting_timeout          : std_logic;
 begin
 
 ----------------------------------------------------------------------------------------------------------------
@@ -133,9 +140,12 @@ begin
             state <= PMA_RESET_WAIT;
           when PMA_RESET_WAIT =>
             ---PMA_RESET_WAIT--------------------------------------------------------
-            if xcvr_reset_done = '1' then
+            if pma_reset_wait_cntr = PMA_RESET_WAIT_CNTR_MAX then
               state <= WAITING;
             end if;
+--            if xcvr_reset_done = '1' then
+--              state <= WAITING;
+--            end if;
           when INITIALIZING => --move to WAITING after 32 clk's
             ---INITIALIZING------------------------------------------------------
             if failed_cnt = FAILED_CNT_MAX then
@@ -199,8 +209,9 @@ begin
       init_wait_cntr             <= 0;
       timeout_to_initialize_cntr <= 0;
       error_wait_cntr            <= 0;
-      
+      waiting_timeout            <= '0';
     elsif clk'event and clk='1' then --rising clk edge
+      waiting_timeout            <= '0';
       case state is
         when INITIALIZING => --count 32 clk's
           ---INITIALIZING--------------------------------------------------------
@@ -214,6 +225,7 @@ begin
           ---WAITING-------------------------------------------------------------
           if timeout_to_initialize_cntr = TIMEOUT_TO_INITIALIZE_CNTR_MAX then
             timeout_to_initialize_cntr <= 0;
+            waiting_timeout <= '1';
           else
             timeout_to_initialize_cntr <= timeout_to_initialize_cntr + 1;
           end if;
@@ -225,7 +237,12 @@ begin
           else
             error_wait_cntr <= error_wait_cntr + 1;
           end if;
-          
+        when PMA_RESET_WAIT =>
+          if pma_reset_wait_cntr = PMA_RESET_WAIT_CNTR_MAX then
+            pma_reset_wait_cntr <= 0;
+          else
+            pma_reset_wait_cntr <= pma_reset_wait_cntr + 1;
+          end if;
         when others => null;
       end case;
     end if;
@@ -257,7 +274,7 @@ begin
       transceiver_reset         <= '0';
       lock                      <= '0';
     elsif clk'event and clk='1' then --rising clk edge
-      initialize_out            <= '0';
+--      initialize_out            <= '0';
       transceiver_reset         <= '0';
 
       lock                      <= '0';
@@ -267,7 +284,11 @@ begin
       
       case state is
         when INITIALIZING => --force initialize
-          initialize_out               <= '1';
+          if init_wait_cntr = 0 then
+            initialize_out               <= '1';
+          elsif init_wait_cntr = INIT_WAIT_CNTR_HALFWAY then
+            initialize_out               <= '0';
+          end if;
         when WAITING => --hold at 0    
         when LOCKED | ERROR_WAIT =>
           reset_shortterm_counter      <= '0';
@@ -312,8 +333,7 @@ begin
       clk_B             => clk,
       reset_A_async     => reset_rate_counter,
       event_b           => single_bit_error,
-      rate(15 downto 0) => single_bit_error_rate,
-      rate(31 downto 16) => open);
+      rate              => single_bit_error_rate);
   multi_bit_error_rate_counter: entity work.rate_counter
     generic map (
       CLK_A_1_SECOND => CLKFREQ)
@@ -322,8 +342,7 @@ begin
       clk_B             => clk,
       reset_A_async     => reset_rate_counter,
       event_b           => multi_bit_error,
-      rate(15 downto 0) => multi_bit_error_rate,
-      rate(31 downto 16) => open);
+      rate              => multi_bit_error_rate);
 
   
   --Counter for monitoring
@@ -382,6 +401,21 @@ begin
       enable      => enable,
       event       => transceiver_reset,
       count       => count_xcvr_resets,
+      at_max      => open);
+
+  Count_wait_timeouts: entity work.counter
+    generic map (
+      roll_over   => '0',
+      end_value   => x"FFFFFFFF",
+      start_value => x"00000000",
+      DATA_WIDTH  => DATA_WIDTH)
+    port map (
+      clk         => clk,
+      reset_async => reset_counter,
+      reset_sync  => '0',
+      enable      => enable,
+      event       => waiting_timeout,
+      count       => count_waiting_timeouts,
       at_max      => open);
 
 end architecture behavioral;

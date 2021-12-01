@@ -226,3 +226,32 @@ CORES:
         X0Y27:
           RX: clk0
           TX: clk0
+  PHY_ILA:
+    TCL_CALL:
+      command: BuildILA
+      ADV_TRIGGER: true
+      probes:
+        0:
+          TYPE: 0
+          WIDTH: 11
+          MU_CNT: 2
+        1:
+          TYPE: 0
+          WIDTH: 32
+          MU_CNT: 2
+        2:
+          TYPE: 0
+          WIDTH: 32
+          MU_CNT: 2
+        3:
+          TYPE: 0
+          WIDTH: 32
+          MU_CNT: 2
+        4:
+          TYPE: 0
+          WIDTH: 32
+          MU_CNT: 2
+        5:
+          TYPE: 0
+          WIDTH: 32
+          MU_CNT: 2
