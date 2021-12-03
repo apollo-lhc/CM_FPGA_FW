@@ -1,0 +1,4 @@
+<node id="C2C_INTFS">  
+  <node id="C2C_1"    address="0x000" fwinfo="type=array" module="file://C2C_INTF.xml"/>
+  <node id="C2C_2"    address="0x800" fwinfo="type=array" module="file://C2C_INTF.xml"/>
+</node>

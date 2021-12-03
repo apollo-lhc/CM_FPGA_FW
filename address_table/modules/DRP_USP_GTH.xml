@@ -46,8 +46,8 @@
   <node id="ES_SDATA_MASK9"        address="0x00F5" mask="0xFFFF" permission="rw"/>
 
   <node id="ES_HORZ_OFFSET"        address="0x004F">
-    <node id="REG"                 address="0x0000" mask="0x0FFF" permission="rw"/>    
-    <node id="OFFSET"              address="0x0000" mask="0x07FF" permission="rw"/>    
+    <node id="REG"                 address="0x0000" mask="0xFFF0" permission="rw"/>    
+    <node id="OFFSET"              address="0x0000" mask="0x7FF0" permission="rw"/>    
     <node id="PHASE_UNIFICATION"   address="0x0000" mask="0x8000" permission="rw"/>
   </node>
   <node id="RXOUT_DIV"             address="0x0063" mask="0x0007" permission="rw"/>
@@ -63,7 +63,5 @@
   <node id="ES_ERROR_COUNT"        address="0x0251" mask="0xFFFF" permission="r"/>
   <node id="ES_SAMPLE_COUNT"       address="0x0252" mask="0xFFFF" permission="r"/>
   <node id="ES_CONTROL_STATUS"     address="0x0253" mask="0x000F" permission="r"/>
-  <node id="RX_PRBS_ERR_CNT_LSB"   address="0x025E" mask="0xFFFF" permission="r"/>
-  <node id="RX_PRBS_ERR_CNT_MSB"   address="0x025F" mask="0xFFFF" permission="r"/>
   
 </node>

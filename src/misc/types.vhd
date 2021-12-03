@@ -39,6 +39,8 @@ package types is
 
   type u16_array_t is array (integer range <>) of unsigned(47 downto 0);
 
+  type int_array_t  is array (integer range <>) of integer;
+
 end package types;
 
               

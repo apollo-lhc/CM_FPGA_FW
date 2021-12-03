@@ -43,8 +43,14 @@ read_vhdl ${timestamp_file}
 puts "Adding ${timestamp_file}"
 for {set j 0} {$j < [llength $vhdl_files ] } {incr j} {
     set filename "${apollo_root_path}/[lindex $vhdl_files $j]"
-    read_vhdl $filename
-    puts "Adding $filename"
+    if { [file extension ${filename} ] == ".v" } {
+	read_verilog $filename
+	puts "Adding verilog file: $filename"
+    } else {
+	read_vhdl $filename
+	puts "Adding VHDL file: $filename"
+    }
+
 }
 
 check_syntax

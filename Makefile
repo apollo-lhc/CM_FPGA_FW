@@ -32,9 +32,14 @@ ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
 
 define CONFIGS_template =
- $(1): clean
+ $(1): clean autogen_clean_$(1)
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
+define CONFIGS_autoclean_template =
+ autogen_clean_$(1): 
+	@rm -rf configs/$(1)/autogen/*
+endef
+
 ################################################################################
 # Short build names
 #################################################################################
@@ -96,6 +101,8 @@ clean_ip_%:
 
 clean_everything: clean clean_prebuild
 
+#generate autogen cleanup for this config
+$(foreach config,$(CONFIGS),$(eval $(call CONFIGS_autoclean_template,$(config))))
 
 #################################################################################
 # Open vivado
@@ -104,7 +111,7 @@ clean_everything: clean clean_prebuild
 open_project : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado top.xpr
+	vivado top.xpr -source ../scripts/OpenProject.tcl
 open_synth :
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\

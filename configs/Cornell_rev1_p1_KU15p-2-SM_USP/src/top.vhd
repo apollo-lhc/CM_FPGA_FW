@@ -6,7 +6,7 @@ use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
-
+use work.K_C2C_INTF_CTRL.all;
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -38,6 +38,38 @@ entity top is
 --    n_atca_tts_out   : out std_logic;
 --    p_atca_ttc_in    : in  std_logic;
 --    n_atca_ttc_in    : in  std_logic;
+
+    refclk_i_p       : in  std_logic_vector(2 downto 1);
+    refclk_i_n       : in  std_logic_vector(2 downto 1);
+
+--    n_ff1_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff1_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff1_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff1_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff2_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff2_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff2_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff2_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff3_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff3_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff3_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff3_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff7_recv       : in  std_logic_vector(11 downto 0);
+--    p_ff7_recv       : in  std_logic_vector(11 downto 0);
+--    n_ff7_xmit       : out std_logic_vector(11 downto 0);
+--    p_ff7_xmit       : out std_logic_vector(11 downto 0);
+--    n_ff4_recv       : in  std_logic_vector(3 downto 0);
+--    p_ff4_recv       : in  std_logic_vector(3 downto 0);
+--    n_ff4_xmit       : out std_logic_vector(3 downto 0);
+--    p_ff4_xmit       : out std_logic_vector(3 downto 0);
+--    n_ff5_recv       : in  std_logic_vector(3 downto 0);
+--    p_ff5_recv       : in  std_logic_vector(3 downto 0);
+--    n_ff5_xmit       : out std_logic_vector(3 downto 0);
+--    p_ff5_xmit       : out std_logic_vector(3 downto 0);
+--    n_ff6_recv       : in  std_logic_vector(3 downto 0);
+--    p_ff6_recv       : in  std_logic_vector(3 downto 0);
+--    n_ff6_xmit       : out std_logic_vector(3 downto 0);
+--    p_ff6_xmit       : out std_logic_vector(3 downto 0);
 
     
     -- tri-color LED
@@ -75,10 +107,10 @@ architecture structure of top is
   signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
 
-  signal C2C_Mon  : K_IO_C2C_MON_t_array;
-  signal C2C_Ctrl : K_IO_C2C_Ctrl_t_array;
+  signal C2C_Mon  : K_C2C_INTF_MON_t;
+  signal C2C_Ctrl : K_C2C_INTF_Ctrl_t;
 
-  signal clk_K_C2C_PHY_user                  : STD_logic_vector(2 downto 1);
+  signal clk_K_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
 
 
   signal BRAM_write : std_logic;
@@ -167,7 +199,46 @@ begin  -- architecture structure
       CM_K_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
+      
+--      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
+--      QUAD_TEST_arprot                    => local_AXI_ReadMOSI(2).protection_type,      
+--      QUAD_TEST_arready                => local_AXI_ReadMISO(2).ready_for_address,    
+--      QUAD_TEST_arvalid                => local_AXI_ReadMOSI(2).address_valid,        
+--      QUAD_TEST_awaddr                    => local_AXI_WriteMOSI(2).address,             
+--      QUAD_TEST_awprot                    => local_AXI_WriteMOSI(2).protection_type,     
+--      QUAD_TEST_awready                => local_AXI_WriteMISO(2).ready_for_address,   
+--      QUAD_TEST_awvalid                => local_AXI_WriteMOSI(2).address_valid,       
+--      QUAD_TEST_bready                 => local_AXI_WriteMOSI(2).ready_for_response,  
+--      QUAD_TEST_bresp                     => local_AXI_WriteMISO(2).response,            
+--      QUAD_TEST_bvalid                 => local_AXI_WriteMISO(2).response_valid,      
+--      QUAD_TEST_rdata                     => local_AXI_ReadMISO(2).data,                 
+--      QUAD_TEST_rready                 => local_AXI_ReadMOSI(2).ready_for_data,       
+--      QUAD_TEST_rresp                     => local_AXI_ReadMISO(2).response,             
+--      QUAD_TEST_rvalid                 => local_AXI_ReadMISO(2).data_valid,           
+--      QUAD_TEST_wdata                     => local_AXI_WriteMOSI(2).data,                
+--      QUAD_TEST_wready                 => local_AXI_WriteMISO(2).ready_for_data,       
+--      QUAD_TEST_wstrb                     => local_AXI_WriteMOSI(2).data_write_strobe,   
+--      QUAD_TEST_wvalid                 => local_AXI_WriteMOSI(2).data_valid,          
 
+      K_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
+      K_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
+      K_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
+      K_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
+      K_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
+      K_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
+      K_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
+      K_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
+      K_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
+      K_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
+      K_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
+      K_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
+      K_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
+      K_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
+      K_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
+      K_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
+      K_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
+      K_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
+      K_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
 
 
 
@@ -208,122 +279,233 @@ begin  -- architecture structure
       KINTEX_IPBUS_wvalid(0)              => ext_AXI_WriteMOSI.data_valid,          
       reset_n                             => locked_clk200,--reset,
 
-      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon(1).DEBUG.CPLL_LOCK,
-      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon(1).DEBUG.DMONITOR,
-      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon(1).DEBUG.EYESCAN_DATA_ERROR,
+--<<<<<<< HEAD
+--      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon(1).DEBUG.CPLL_LOCK,
+--      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon(1).DEBUG.DMONITOR,
+--      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon(1).DEBUG.EYESCAN_DATA_ERROR,
+--      
+--      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl(1).DEBUG.EYESCAN_RESET,
+--      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl(1).DEBUG.EYESCAN_TRIGGER,
+--      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl(1).DEBUG.PCS_RSV_DIN,
+--      K_C2C_PHY_DEBUG_qplllock(0)         => C2C_Mon(1).DEBUG.QPLL_LOCK,
+--      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl(1).DEBUG.RX.BUF_RESET,
+--      K_C2C_PHY_DEBUG_rxbufstatus         => C2C_Mon(1).DEBUG.RX.BUF_STATUS,
+--      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl(1).DEBUG.RX.CDR_HOLD,
+--      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl(1).DEBUG.RX.DFE_LPM_RESET,
+--      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl(1).DEBUG.RX.LPM_EN,
+--      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl(1).DEBUG.RX.PCS_RESET,
+--      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl(1).DEBUG.RX.PMA_RESET,
+--      K_C2C_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon(1).DEBUG.RX.RESET_DONE,
+--      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl(1).DEBUG.RX.PRBS_CNT_RST,
+--      K_C2C_PHY_DEBUG_rxprbserr(0)        => C2C_Mon(1).DEBUG.RX.PRBS_ERR,
+--      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl(1).DEBUG.RX.PRBS_SEL,
+--      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl(1).DEBUG.RX.RATE,
+--      K_C2C_PHY_DEBUG_rxresetdone(0)      => C2C_Mon(1).DEBUG.RX.RESET_DONE,
+--      K_C2C_PHY_DEBUG_txbufstatus         => C2C_Mon(1).DEBUG.TX.BUF_STATUS,
+--      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl(1).DEBUG.TX.DIFF_CTRL,
+--      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl(1).DEBUG.TX.INHIBIT,
+--      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl(1).DEBUG.TX.PCS_RESET,
+--      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl(1).DEBUG.TX.PMA_RESET,
+--      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl(1).DEBUG.TX.POLARITY,
+--      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl(1).DEBUG.TX.POST_CURSOR,
+--      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl(1).DEBUG.TX.PRBS_FORCE_ERR,
+--      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl(1).DEBUG.TX.PRBS_SEL,
+--      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl(1).DEBUG.TX.PRE_CURSOR,
+--      K_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON(1).DEBUG.TX.RESET_DONE,
+--
+--      K_C2C_PHY_DRP_daddr                 => C2C_Ctrl(1).drp.address,
+--      K_C2C_PHY_DRP_den                   => C2C_Ctrl(1).drp.enable,
+--      K_C2C_PHY_DRP_di                    => C2C_Ctrl(1).drp.wr_data,
+--      K_C2C_PHY_DRP_do                    => C2C_Mon(1).drp.rd_data,
+--      K_C2C_PHY_DRP_drdy                  => C2C_Mon(1).drp.rd_data_valid,
+--      K_C2C_PHY_DRP_dwe                   => C2C_Ctrl(1).drp.wr_enable,   
+--      
+--      K_C2C_PHY_channel_up                => C2C_Mon(1).STATUS.CHANNEL_UP,      
+--      K_C2C_PHY_gt_pll_lock               => C2C_MON(1).STATUS.PHY_GT_PLL_LOCK,
+--      K_C2C_PHY_hard_err                  => C2C_Mon(1).STATUS.PHY_HARD_ERR,
+--      K_C2C_PHY_lane_up                   => C2C_Mon(1).STATUS.PHY_LANE_UP(0 downto 0),
+--      K_C2C_PHY_mmcm_not_locked_out       => C2C_Mon(1).STATUS.PHY_MMCM_LOL,
+--      K_C2C_PHY_soft_err                  => C2C_Mon(1).STATUS.PHY_SOFT_ERR,
+--
+--      K_C2C_aurora_do_cc                => C2C_Mon(1).STATUS.DO_CC,
+--      k_c2c_aurora_pma_init_in          => C2C_Ctrl(1).status.initialize,
+--      K_C2C_axi_c2c_config_error_out    => C2C_Mon(1).STATUS.CONFIG_ERROR,
+--      K_C2C_axi_c2c_link_status_out     => C2C_MON(1).STATUS.LINK_GOOD,
+--      K_C2C_axi_c2c_multi_bit_error_out => C2C_MON(1).STATUS.MB_ERROR,
+--      K_C2C_phy_power_down              => '0',
+--      K_C2C_PHY_clk                     => clk_K_C2C_PHY_user(1),
+--
+--      K_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon(2).DEBUG.CPLL_LOCK,
+--      K_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon(2).DEBUG.DMONITOR,
+--      K_C2CB_PHY_DEBUG_eyescandataerror(0) => C2C_Mon(2).DEBUG.EYESCAN_DATA_ERROR,
+--      
+--      K_C2CB_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl(2).DEBUG.EYESCAN_RESET,
+--      K_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl(2).DEBUG.EYESCAN_TRIGGER,
+--      K_C2CB_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl(2).DEBUG.PCS_RSV_DIN,
+--      K_C2CB_PHY_DEBUG_qplllock(0)         => C2C_Mon(2).DEBUG.QPLL_LOCK,
+--      K_C2CB_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl(2).DEBUG.RX.BUF_RESET,
+--      K_C2CB_PHY_DEBUG_rxbufstatus         => C2C_Mon(2).DEBUG.RX.BUF_STATUS,
+--      K_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl(2).DEBUG.RX.CDR_HOLD,
+--      K_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl(2).DEBUG.RX.DFE_LPM_RESET,
+--      K_C2CB_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl(2).DEBUG.RX.LPM_EN,
+--      K_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl(2).DEBUG.RX.PCS_RESET,
+--      K_C2CB_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl(2).DEBUG.RX.PMA_RESET,
+--      K_C2CB_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon(2).DEBUG.RX.RESET_DONE,
+--      K_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl(2).DEBUG.RX.PRBS_CNT_RST,
+--      K_C2CB_PHY_DEBUG_rxprbserr(0)        => C2C_Mon(2).DEBUG.RX.PRBS_ERR,
+--      K_C2CB_PHY_DEBUG_rxprbssel           => C2C_Ctrl(2).DEBUG.RX.PRBS_SEL,
+--      K_C2CB_PHY_DEBUG_rxrate              => C2C_Ctrl(2).DEBUG.RX.RATE,
+--      K_C2CB_PHY_DEBUG_rxresetdone(0)      => C2C_Mon(2).DEBUG.RX.RESET_DONE,
+--      K_C2CB_PHY_DEBUG_txbufstatus         => C2C_Mon(2).DEBUG.TX.BUF_STATUS,
+--      K_C2CB_PHY_DEBUG_txdiffctrl          => C2C_Ctrl(2).DEBUG.TX.DIFF_CTRL,
+--      K_C2CB_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl(2).DEBUG.TX.INHIBIT,
+--      K_C2CB_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl(2).DEBUG.TX.PCS_RESET,
+--      K_C2CB_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl(2).DEBUG.TX.PMA_RESET,
+--      K_C2CB_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl(2).DEBUG.TX.POLARITY,
+--      K_C2CB_PHY_DEBUG_txpostcursor        => C2C_Ctrl(2).DEBUG.TX.POST_CURSOR,
+--      K_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl(2).DEBUG.TX.PRBS_FORCE_ERR,
+--      K_C2CB_PHY_DEBUG_txprbssel           => C2C_Ctrl(2).DEBUG.TX.PRBS_SEL,
+--      K_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl(2).DEBUG.TX.PRE_CURSOR,
+--      K_C2CB_PHY_DEBUG_txresetdone(0)      => C2C_Mon(2).DEBUG.TX.RESET_DONE,
+--
+--      K_C2Cb_PHY_DRP_daddr                 => C2C_Ctrl(2).drp.address,
+--      K_C2Cb_PHY_DRP_den                   => C2C_Ctrl(2).drp.enable,
+--      K_C2Cb_PHY_DRP_di                    => C2C_Ctrl(2).drp.wr_data,
+--      K_C2Cb_PHY_DRP_do                    => C2C_Mon(2).drp.rd_data,
+--      K_C2Cb_PHY_DRP_drdy                  => C2C_Mon(2).drp.rd_data_valid,
+--      K_C2Cb_PHY_DRP_dwe                   => C2C_Ctrl(2).drp.wr_enable,   
+--
+--      K_C2CB_PHY_channel_up         => C2C_Mon(2).STATUS.CHANNEL_UP,      
+--      K_C2CB_PHY_gt_pll_lock         => C2C_Mon(2).STATUS.PHY_GT_PLL_LOCK,
+--      K_C2CB_PHY_hard_err           => C2C_Mon(2).STATUS.PHY_HARD_ERR,
+--      K_C2CB_PHY_lane_up            => C2C_Mon(2).STATUS.PHY_LANE_UP(0 downto 0),
+----      K_C2CB_PHY_STATUS_mmcm_not_locked    => C2C_Mon(2).STATUS.PHY_MMCM_LOL,
+--      K_C2CB_PHY_soft_err           => C2C_Mon(2).STATUS.PHY_SOFT_ERR,
+--
+--      K_C2CB_aurora_do_cc                => C2C_Mon(2).STATUS.DO_CC,
+--      k_c2cB_aurora_pma_init_in          => C2C_Ctrl(2).status.initialize,
+--      K_C2CB_axi_c2c_config_error_out    => C2C_Mon(2).STATUS.CONFIG_ERROR,
+--      K_C2CB_axi_c2c_link_status_out     => C2C_Mon(2).STATUS.LINK_GOOD,
+--      K_C2CB_axi_c2c_multi_bit_error_out => C2C_Mon(2).STATUS.MB_ERROR,
+--      K_C2CB_phy_power_down              => '0',
+----      K_C2CB_PHY_user_clk_out            => clk_K_C2C_PHY_user(2),
+--
+--
+--
+--=======
+      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
       
-      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl(1).DEBUG.EYESCAN_RESET,
-      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl(1).DEBUG.EYESCAN_TRIGGER,
-      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl(1).DEBUG.PCS_RSV_DIN,
-      K_C2C_PHY_DEBUG_qplllock(0)         => C2C_Mon(1).DEBUG.QPLL_LOCK,
-      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl(1).DEBUG.RX.BUF_RESET,
-      K_C2C_PHY_DEBUG_rxbufstatus         => C2C_Mon(1).DEBUG.RX.BUF_STATUS,
-      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl(1).DEBUG.RX.CDR_HOLD,
-      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl(1).DEBUG.RX.DFE_LPM_RESET,
-      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl(1).DEBUG.RX.LPM_EN,
-      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl(1).DEBUG.RX.PCS_RESET,
-      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl(1).DEBUG.RX.PMA_RESET,
-      K_C2C_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon(1).DEBUG.RX.RESET_DONE,
-      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl(1).DEBUG.RX.PRBS_CNT_RST,
-      K_C2C_PHY_DEBUG_rxprbserr(0)        => C2C_Mon(1).DEBUG.RX.PRBS_ERR,
-      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl(1).DEBUG.RX.PRBS_SEL,
-      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl(1).DEBUG.RX.RATE,
-      K_C2C_PHY_DEBUG_rxresetdone(0)      => C2C_Mon(1).DEBUG.RX.RESET_DONE,
-      K_C2C_PHY_DEBUG_txbufstatus         => C2C_Mon(1).DEBUG.TX.BUF_STATUS,
-      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl(1).DEBUG.TX.DIFF_CTRL,
-      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl(1).DEBUG.TX.INHIBIT,
-      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl(1).DEBUG.TX.PCS_RESET,
-      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl(1).DEBUG.TX.PMA_RESET,
-      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl(1).DEBUG.TX.POLARITY,
-      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl(1).DEBUG.TX.POST_CURSOR,
-      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl(1).DEBUG.TX.PRBS_FORCE_ERR,
-      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl(1).DEBUG.TX.PRBS_SEL,
-      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl(1).DEBUG.TX.PRE_CURSOR,
-      K_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON(1).DEBUG.TX.RESET_DONE,
+      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_RESET,
+      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_TRIGGER,
+      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(1).DEBUG.PCS_RSV_DIN,
+      K_C2C_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(1).DEBUG.QPLL_LOCK,
+      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.BUF_RESET,
+      K_C2C_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(1).DEBUG.RX.BUF_STATUS,
+      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(1).DEBUG.RX.CDR_HOLD,
+      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(1).DEBUG.RX.DFE_LPM_RESET,
+      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(1).DEBUG.RX.LPM_EN,
+      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PCS_RESET,
+      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PMA_RESET,
+      K_C2C_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(1).DEBUG.RX.PMA_RESET_DONE,
+      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_CNT_RST,
+      K_C2C_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(1).DEBUG.RX.PRBS_ERR,
+      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_SEL,
+      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(1).DEBUG.RX.RATE,
+      K_C2C_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(1).DEBUG.RX.RESET_DONE,
+      K_C2C_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(1).DEBUG.TX.BUF_STATUS,
+      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(1).DEBUG.TX.DIFF_CTRL,
+      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(1).DEBUG.TX.INHIBIT,
+      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PCS_RESET,
+      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PMA_RESET,
+      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.POLARITY,
+      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(1).DEBUG.TX.POST_CURSOR,
+      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_FORCE_ERR,
+      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_SEL,
+      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(1).DEBUG.TX.PRE_CURSOR,
+      K_C2C_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(1).DEBUG.TX.RESET_DONE,
 
-      K_C2C_PHY_DRP_daddr                 => C2C_Ctrl(1).drp.address,
-      K_C2C_PHY_DRP_den                   => C2C_Ctrl(1).drp.enable,
-      K_C2C_PHY_DRP_di                    => C2C_Ctrl(1).drp.wr_data,
-      K_C2C_PHY_DRP_do                    => C2C_Mon(1).drp.rd_data,
-      K_C2C_PHY_DRP_drdy                  => C2C_Mon(1).drp.rd_data_valid,
-      K_C2C_PHY_DRP_dwe                   => C2C_Ctrl(1).drp.wr_enable,   
-      
-      K_C2C_PHY_channel_up                => C2C_Mon(1).STATUS.CHANNEL_UP,      
-      K_C2C_PHY_gt_pll_lock               => C2C_MON(1).STATUS.PHY_GT_PLL_LOCK,
-      K_C2C_PHY_hard_err                  => C2C_Mon(1).STATUS.PHY_HARD_ERR,
-      K_C2C_PHY_lane_up                   => C2C_Mon(1).STATUS.PHY_LANE_UP(0 downto 0),
-      K_C2C_PHY_mmcm_not_locked_out       => C2C_Mon(1).STATUS.PHY_MMCM_LOL,
-      K_C2C_PHY_soft_err                  => C2C_Mon(1).STATUS.PHY_SOFT_ERR,
+      K_C2C_PHY_channel_up         => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+      K_C2C_PHY_gt_pll_lock        => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+      K_C2C_PHY_hard_err           => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+      K_C2C_PHY_lane_up            => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0),
+      K_C2C_PHY_mmcm_not_locked_out    => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+      K_C2C_PHY_soft_err           => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
 
-      K_C2C_aurora_do_cc                => C2C_Mon(1).STATUS.DO_CC,
-      k_c2c_aurora_pma_init_in          => C2C_Ctrl(1).status.initialize,
-      K_C2C_axi_c2c_config_error_out    => C2C_Mon(1).STATUS.CONFIG_ERROR,
-      K_C2C_axi_c2c_link_status_out     => C2C_MON(1).STATUS.LINK_GOOD,
-      K_C2C_axi_c2c_multi_bit_error_out => C2C_MON(1).STATUS.MB_ERROR,
+      K_C2C_aurora_do_cc                =>  C2C_Mon.C2C(1).STATUS.DO_CC,
+      K_C2C_aurora_pma_init_in          => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+      K_C2C_axi_c2c_config_error_out    =>  C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+      K_C2C_axi_c2c_link_status_out     =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
+      K_C2C_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
       K_C2C_phy_power_down              => '0',
       K_C2C_PHY_clk                     => clk_K_C2C_PHY_user(1),
+      K_C2C_PHY_DRP_daddr               => C2C_Ctrl.C2C(1).DRP.address,
+      K_C2C_PHY_DRP_den                 => C2C_Ctrl.C2C(1).DRP.enable,
+      K_C2C_PHY_DRP_di                  => C2C_Ctrl.C2C(1).DRP.wr_data,
+      K_C2C_PHY_DRP_do                  => C2C_MON.C2C(1).DRP.rd_data,
+      K_C2C_PHY_DRP_drdy                => C2C_MON.C2C(1).DRP.rd_data_valid,
+      K_C2C_PHY_DRP_dwe                 => C2C_Ctrl.C2C(1).DRP.wr_enable,
 
-      K_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon(2).DEBUG.CPLL_LOCK,
-      K_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon(2).DEBUG.DMONITOR,
-      K_C2CB_PHY_DEBUG_eyescandataerror(0) => C2C_Mon(2).DEBUG.EYESCAN_DATA_ERROR,
+      K_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+      K_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(2).DEBUG.DMONITOR,
+      K_C2CB_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(2).DEBUG.EYESCAN_DATA_ERROR,
       
-      K_C2CB_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl(2).DEBUG.EYESCAN_RESET,
-      K_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl(2).DEBUG.EYESCAN_TRIGGER,
-      K_C2CB_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl(2).DEBUG.PCS_RSV_DIN,
-      K_C2CB_PHY_DEBUG_qplllock(0)         => C2C_Mon(2).DEBUG.QPLL_LOCK,
-      K_C2CB_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl(2).DEBUG.RX.BUF_RESET,
-      K_C2CB_PHY_DEBUG_rxbufstatus         => C2C_Mon(2).DEBUG.RX.BUF_STATUS,
-      K_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl(2).DEBUG.RX.CDR_HOLD,
-      K_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl(2).DEBUG.RX.DFE_LPM_RESET,
-      K_C2CB_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl(2).DEBUG.RX.LPM_EN,
-      K_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl(2).DEBUG.RX.PCS_RESET,
-      K_C2CB_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl(2).DEBUG.RX.PMA_RESET,
-      K_C2CB_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon(2).DEBUG.RX.RESET_DONE,
-      K_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl(2).DEBUG.RX.PRBS_CNT_RST,
-      K_C2CB_PHY_DEBUG_rxprbserr(0)        => C2C_Mon(2).DEBUG.RX.PRBS_ERR,
-      K_C2CB_PHY_DEBUG_rxprbssel           => C2C_Ctrl(2).DEBUG.RX.PRBS_SEL,
-      K_C2CB_PHY_DEBUG_rxrate              => C2C_Ctrl(2).DEBUG.RX.RATE,
-      K_C2CB_PHY_DEBUG_rxresetdone(0)      => C2C_Mon(2).DEBUG.RX.RESET_DONE,
-      K_C2CB_PHY_DEBUG_txbufstatus         => C2C_Mon(2).DEBUG.TX.BUF_STATUS,
-      K_C2CB_PHY_DEBUG_txdiffctrl          => C2C_Ctrl(2).DEBUG.TX.DIFF_CTRL,
-      K_C2CB_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl(2).DEBUG.TX.INHIBIT,
-      K_C2CB_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl(2).DEBUG.TX.PCS_RESET,
-      K_C2CB_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl(2).DEBUG.TX.PMA_RESET,
-      K_C2CB_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl(2).DEBUG.TX.POLARITY,
-      K_C2CB_PHY_DEBUG_txpostcursor        => C2C_Ctrl(2).DEBUG.TX.POST_CURSOR,
-      K_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl(2).DEBUG.TX.PRBS_FORCE_ERR,
-      K_C2CB_PHY_DEBUG_txprbssel           => C2C_Ctrl(2).DEBUG.TX.PRBS_SEL,
-      K_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl(2).DEBUG.TX.PRE_CURSOR,
-      K_C2CB_PHY_DEBUG_txresetdone(0)      => C2C_Mon(2).DEBUG.TX.RESET_DONE,
+      K_C2CB_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_RESET,
+      K_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_TRIGGER,
+      K_C2CB_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(2).DEBUG.PCS_RSV_DIN,
+      K_C2CB_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(2).DEBUG.QPLL_LOCK,
+      K_C2CB_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.BUF_RESET,
+      K_C2CB_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(2).DEBUG.RX.BUF_STATUS,
+      K_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.CDR_HOLD,
+      K_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(2).DEBUG.RX.DFE_LPM_RESET,
+      K_C2CB_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(2).DEBUG.RX.LPM_EN,
+      K_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PCS_RESET,
+      K_C2CB_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PMA_RESET,
+      K_C2CB_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(2).DEBUG.RX.PMA_RESET_DONE,
+      K_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_CNT_RST,
+      K_C2CB_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(2).DEBUG.RX.PRBS_ERR,
+      K_C2CB_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_SEL,
+      K_C2CB_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(2).DEBUG.RX.RATE,
+      K_C2CB_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(2).DEBUG.RX.RESET_DONE,
+      K_C2CB_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(2).DEBUG.TX.BUF_STATUS,
+      K_C2CB_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(2).DEBUG.TX.DIFF_CTRL,
+      K_C2CB_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.INHIBIT,
+      K_C2CB_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PCS_RESET,
+      K_C2CB_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PMA_RESET,
+      K_C2CB_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.POLARITY,
+      K_C2CB_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(2).DEBUG.TX.POST_CURSOR,
+      K_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_FORCE_ERR,
+      K_C2CB_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_SEL,
+      K_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(2).DEBUG.TX.PRE_CURSOR,
+      K_C2CB_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(2).DEBUG.TX.RESET_DONE,
 
-      K_C2Cb_PHY_DRP_daddr                 => C2C_Ctrl(2).drp.address,
-      K_C2Cb_PHY_DRP_den                   => C2C_Ctrl(2).drp.enable,
-      K_C2Cb_PHY_DRP_di                    => C2C_Ctrl(2).drp.wr_data,
-      K_C2Cb_PHY_DRP_do                    => C2C_Mon(2).drp.rd_data,
-      K_C2Cb_PHY_DRP_drdy                  => C2C_Mon(2).drp.rd_data_valid,
-      K_C2Cb_PHY_DRP_dwe                   => C2C_Ctrl(2).drp.wr_enable,   
+      K_C2CB_PHY_channel_up         => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+      K_C2CB_PHY_gt_pll_lock        => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+      K_C2CB_PHY_hard_err           => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+      K_C2CB_PHY_lane_up            => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
+--      K_C2CB_PHY_mmcm_not_locked    => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      K_C2CB_PHY_soft_err           => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
 
-      K_C2CB_PHY_channel_up         => C2C_Mon(2).STATUS.CHANNEL_UP,      
-      K_C2CB_PHY_gt_pll_lock         => C2C_Mon(2).STATUS.PHY_GT_PLL_LOCK,
-      K_C2CB_PHY_hard_err           => C2C_Mon(2).STATUS.PHY_HARD_ERR,
-      K_C2CB_PHY_lane_up            => C2C_Mon(2).STATUS.PHY_LANE_UP(0 downto 0),
---      K_C2CB_PHY_STATUS_mmcm_not_locked    => C2C_Mon(2).STATUS.PHY_MMCM_LOL,
-      K_C2CB_PHY_soft_err           => C2C_Mon(2).STATUS.PHY_SOFT_ERR,
-
-      K_C2CB_aurora_do_cc                => C2C_Mon(2).STATUS.DO_CC,
-      k_c2cB_aurora_pma_init_in          => C2C_Ctrl(2).status.initialize,
-      K_C2CB_axi_c2c_config_error_out    => C2C_Mon(2).STATUS.CONFIG_ERROR,
-      K_C2CB_axi_c2c_link_status_out     => C2C_Mon(2).STATUS.LINK_GOOD,
-      K_C2CB_axi_c2c_multi_bit_error_out => C2C_Mon(2).STATUS.MB_ERROR,
+      K_C2CB_aurora_do_cc                =>  C2C_Mon.C2C(2).STATUS.DO_CC,
+      K_C2CB_aurora_pma_init_in          => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+      K_C2CB_axi_c2c_config_error_out    =>  C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+      K_C2CB_axi_c2c_link_status_out     =>  C2C_MON.C2C(2).STATUS.LINK_GOOD,
+      K_C2CB_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(2).STATUS.MB_ERROR,
       K_C2CB_phy_power_down              => '0',
---      K_C2CB_PHY_user_clk_out            => clk_K_C2C_PHY_user(2),
+--      K_C2CB_PHY_user_clk_out            => clk_K_C2CB_PHY_user,
+      K_C2CB_PHY_DRP_daddr               => C2C_Ctrl.C2C(2).DRP.address,
+      K_C2CB_PHY_DRP_den                 => C2C_Ctrl.C2C(2).DRP.enable,
+      K_C2CB_PHY_DRP_di                  => C2C_Ctrl.C2C(2).DRP.wr_data,
+      K_C2CB_PHY_DRP_do                  => C2C_MON.C2C(2).DRP.rd_data,
+      K_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
+      K_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
 
-
-
+      
       KINTEX_SYS_MGMT_sda                 =>k_fpga_i2c_sda,
       KINTEX_SYS_MGMT_scl                 =>k_fpga_i2c_scl
 );
-  C2C_Mon(2).STATUS.PHY_MMCM_LOL <= C2C_Mon(1).STATUS.PHY_MMCM_LOL;
+  C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL <= C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL;
   
   RGB_pwm_1: entity work.RGB_pwm
     generic map (
@@ -346,9 +528,8 @@ begin  -- architecture structure
       clk_B         => clk_K_C2C_PHY_user(1),
       reset_A_async => AXI_RESET,
       event_b       => '1',
-      rate          => C2C_Mon(1).USER_FREQ);
-  C2C_Mon(2).USER_FREQ <= C2C_Mon(1).USER_FREQ;
-
+      rate          => C2C_Mon.C2C(1).USER_FREQ);
+  C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
   
   K_IO_interface_1: entity work.K_IO_map
     port map (
@@ -358,12 +539,8 @@ begin  -- architecture structure
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
-      Mon.C2C(1)              => C2C_Mon(1),
-      Mon.C2C(2)              => C2C_Mon(2),
       Mon.CLK_200_LOCKED      => locked_clk200,      
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
-      Ctrl.C2C(1)             => C2C_Ctrl(1),
-      Ctrl.C2C(2)             => C2C_Ctrl(2),
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
@@ -446,4 +623,63 @@ begin  -- architecture structure
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
 
+--  QuadTest_1: entity work.QuadTest
+--    generic map (
+--      CHANNEL_COUNT => 12)
+--    port map (
+--      clk_axi     => axi_clk,
+--      reset_axi_n => axi_rst_n,
+--      refclk_i_p  => refclk_i_p,
+--      refclk_i_n  => refclk_i_n,
+--      tx_n( 4 downto  1)     => n_ff4_xmit(3 downto  0),
+--      tx_n( 8 downto  5)     => n_ff5_xmit(3 downto  0),
+--      tx_n(12 downto  9)     => n_ff6_xmit(3 downto  0),
+--      tx_p( 4 downto  1)     => p_ff4_xmit(3 downto  0),
+--      tx_p( 8 downto  5)     => p_ff5_xmit(3 downto  0),
+--      tx_p(12 downto  9)     => p_ff6_xmit(3 downto  0),
+--      rx_n( 4 downto  1)     => n_ff4_recv(3 downto  0),
+--      rx_n( 8 downto  5)     => n_ff5_recv(3 downto  0),
+--      rx_n(12 downto  9)     => n_ff6_recv(3 downto  0),
+--      rx_p( 4 downto  1)     => p_ff4_recv(3 downto  0),
+--      rx_p( 8 downto  5)     => p_ff5_recv(3 downto  0),
+--      rx_p(12 downto  9)     => p_ff6_recv(3 downto  0),
+--
+----      tx_n(12 downto  1)     => n_ff1_xmit(11 downto  0),
+----      tx_n(24 downto 13)     => n_ff2_xmit(11 downto  0),
+----      tx_n(36 downto 25)     => n_ff3_xmit(11 downto  0),
+----      tx_n(48 downto 37)     => n_ff7_xmit(11 downto  0),
+----      tx_p(12 downto  1)     => p_ff1_xmit(11 downto  0),
+----      tx_p(24 downto 13)     => p_ff2_xmit(11 downto  0),
+----      tx_p(36 downto 25)     => p_ff3_xmit(11 downto  0),
+----      tx_p(48 downto 37)     => p_ff7_xmit(11 downto  0),
+----      rx_n(12 downto  1)     => n_ff1_recv(11 downto  0),
+----      rx_n(24 downto 13)     => n_ff2_recv(11 downto  0),
+----      rx_n(36 downto 25)     => n_ff3_recv(11 downto  0),
+----      rx_n(48 downto 37)     => n_ff7_recv(11 downto  0),      
+----      rx_p(12 downto  1)     => p_ff1_recv(11 downto  0),
+----      rx_p(24 downto 13)     => p_ff2_recv(11 downto  0),
+----      rx_p(36 downto 25)     => p_ff3_recv(11 downto  0),
+----      rx_p(48 downto 37)     => p_ff7_recv(11 downto  0),
+--      readMOSI    => local_AXI_ReadMOSI(2),
+--      readMISO    => local_AXI_ReadMISO(2),
+--      writeMOSI   => local_AXI_WriteMOSI(2),
+--      writeMISO   => local_AXI_WriteMISO(2));
+
+
+  C2C_INTF_1: entity work.C2C_INTF
+    generic map (
+      ERROR_WAIT_TIME => 90000000)
+    port map (
+      clk_axi          => AXI_CLK,
+      reset_axi_n      => AXI_RST_N,
+      readMOSI         => local_AXI_readMOSI(2),
+      readMISO         => local_AXI_readMISO(2),
+      writeMOSI        => local_AXI_writeMOSI(2),
+      writeMISO        => local_AXI_writeMISO(2),
+      clk_C2C(1)       => clk_K_C2C_PHY_user(1),
+      clk_C2C(2)       => clk_K_C2C_PHY_user(1),
+      Mon              => C2C_Mon,
+      Ctrl             => C2C_Ctrl);
+
+  
 end architecture structure;
