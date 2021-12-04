@@ -6,36 +6,6 @@ AXI_CONTROL_SETS:
       axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 AXI_SLAVES:
-  K_C2C_PHY:
-    TCL_CALL: 
-      command: AXI_DEV_CONNECT
-      axi_control: 
-        axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
-        axi_clk: "${::EXT_CLK}"
-        axi_rstn: "${::EXT_RESET}"
-        axi_freq: "${::EXT_CLK_FREQ}"
-
-      addr:
-        offset: "0x81000000"
-        range:  "4K"
-      remote_slave: "1"
-    XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0x86000000
-
-  KINTEX_SYS_MGMT:
-    TCL_CALL:
-      command: AXI_IP_SYS_MGMT
-      enable_i2c_pins: 1
-      axi_control: "${::AXI_MASTER_CTRL}"
-      addr:
-        offset: "0x81001000"
-        range: "4K"
-      remote_slave: "1"
-    XML:
-      - "address_table/modules/KINTEX_SYS_MGMT.xml"
-    UHAL_BASE: 0x80000000
-  
   K_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
@@ -52,7 +22,18 @@ AXI_SLAVES:
     HDL: 
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/CM_IO"    
       map_template: "axi_generic/template_map.vhd"
-  
+  KINTEX_SYS_MGMT:
+    TCL_CALL:
+      command: AXI_IP_SYS_MGMT
+      enable_i2c_pins: 1
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0x81001000"
+        range: "4K"
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/KINTEX_SYS_MGMT.xml"
+    UHAL_BASE: 0x80000000  
   CM_K_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
@@ -67,7 +48,26 @@ AXI_SLAVES:
     HDL: 
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
-                
+  K_C2C_INTF:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0x81004000"
+        range:  "8K"
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/C2C_INTFS.xml"
+      - "address_table/modules/C2C_INTF.xml"
+      - "address_table/modules/DRP_USP_GTH.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_CNT.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/C2C_INTF"    
+      map_template: "axi_generic/template_map_withbram.vhd"
+             
   KINTEX_IPBUS:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
@@ -81,116 +81,3 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
-
-  QUAD_TEST:
-    TCL_CALL:
-      command: AXI_PL_DEV_CONNECT
-      axi_control: "${::AXI_MASTER_CTRL}"
-      addr:
-        offset: "0x81100000"
-        range:  "1M"
-      remote_slave: "1"
-    XML: 
-      - "address_table/modules/QuadTest.xml"
-      - "address_table/modules/QuadTest_FF_12_GTH.xml"
-      - "address_table/modules/QuadTest_FF_4_GTH.xml"
-      - "address_table/modules/USP_GTH_COMMON.xml"
-      - "address_table/modules/USP_GTH_Channel.xml"
-      - "address_table/modules/Channel_Status.xml"
-      - "address_table/modules/Channel_DEBUG_USP.xml"
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0x86000000
-    HDL: 
-      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/Quad_Test"
-      map_template: "axi_generic/template_map_withbram.vhd"
-
-CORES:
-  FF_K1:
-    TCL_CALL:
-      command: BuildMGTCores
-      GT_TYPE: GTH
-      freerun_frequency: 50
-      clocking:
-        TX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5
-          OUTCLK_SOURCE: TXPROGDIVCLK
-          MASTER_CHANNEL: X0Y35
-        RX:
-          LINE_RATE: 10
-          PLL_TYPE: CPLL
-          REFCLK_FREQUENCY: 312.5    
-          OUTCLK_SOURCE: RXPROGDIVCLK
-          MASTER_CHANNEL: X0Y35
-      protocol:
-        TX:
-          DATA_ENCODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
-        RX:
-          DATA_DECODING: 64B66B
-          USER_DATA_WIDTH: 64
-          INT_DATA_WIDTH: 32
-      core:
-        LOCATE_TX_USER_CLOCKING: CORE
-        LOCATE_RX_USER_CLOCKING: CORE
-      links:
-        X0Y28:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y29:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y30:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y31:
-          RX: clk0+1
-          TX: clk0+1
-        X0Y32:
-          RX: clk0
-          TX: clk0
-        X0Y33:
-          RX: clk0
-          TX: clk0
-        X0Y34:
-          RX: clk0
-          TX: clk0
-        X0Y35:
-          RX: clk0
-          TX: clk0
-        X0Y36:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y37:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y38:
-          RX: clk0-1
-          TX: clk0-1
-        X0Y39:
-          RX: clk0-1
-          TX: clk0-1
-
-  FF_K1_ILA:
-    TCL_CALL:
-      command: BuildILA
-      ADV_TRIGGER: true
-      probes:
-        0:
-          TYPE: 0
-          WIDTH: 8
-          MU_CNT: 2
-        1:
-          TYPE: 0
-          WIDTH: 8
-          MU_CNT: 2
-        2:
-          TYPE: 0
-          WIDTH: 16
-          MU_CNT: 2
-        3:
-          TYPE: 0
-          WIDTH: 16
-          MU_CNT: 2
