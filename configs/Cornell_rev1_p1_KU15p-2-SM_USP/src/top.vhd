@@ -124,8 +124,8 @@ architecture structure of top is
   signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
   signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
-
-
+  signal pB_UART_tx : std_logic;
+  signal pB_UART_rx : std_logic;
 
   
   
@@ -150,6 +150,8 @@ begin  -- architecture structure
     port map (
       AXI_CLK                             => AXI_CLK,
       AXI_RST_N(0)                        => AXI_RST_N,
+      CM1_PB_UART_rxd                     => pB_UART_tx,
+      CM1_PB_UART_txd                     => pB_UART_rx,
       K_C2C_phy_Rx_rxn                  => n_mgt_z2k(1 downto 1),
       K_C2C_phy_Rx_rxp                  => p_mgt_z2k(1 downto 1),
       K_C2C_phy_Tx_txn                  => n_mgt_k2z(1 downto 1),
@@ -681,5 +683,11 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
+  uC_1: entity work.uC
+    port map (
+      clk     => AXI_CLK,
+      reset   => AXI_RESET,
+      UART_Rx => pB_UART_rx,
+      UART_Tx => pB_UART_tx);
   
 end architecture structure;
