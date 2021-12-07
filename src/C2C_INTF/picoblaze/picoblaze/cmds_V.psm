@@ -9,7 +9,7 @@
 ;;; Prints "g-2 Tracker LogicBoard V: #" to UART
 	;; molests s0-s2
 ;;; ============================================================================
-STRING startup$, "Nexys4: "
+STRING startup$, "C2C Link CTRL: "
 str_startup:
 	LOAD&RETURN s1, startup$
 	LOAD&RETURN s1, 00

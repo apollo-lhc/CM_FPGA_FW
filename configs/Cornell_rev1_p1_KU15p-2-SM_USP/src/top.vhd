@@ -680,14 +680,10 @@ begin  -- architecture structure
       writeMISO        => local_AXI_writeMISO(2),
       clk_C2C(1)       => clk_K_C2C_PHY_user(1),
       clk_C2C(2)       => clk_K_C2C_PHY_user(1),
+      UART_Rx          => pb_UART_Rx,
+      UART_Tx          => pb_UART_Tx,
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
-  uC_1: entity work.uC
-    port map (
-      clk     => AXI_CLK,
-      reset   => AXI_RESET,
-      UART_Rx => pB_UART_rx,
-      UART_Tx => pB_UART_tx);
   
 end architecture structure;

@@ -23,6 +23,8 @@ entity C2C_INTF is
     writeMOSI         : in  AXIWriteMOSI;
     writeMISO         : out AXIWriteMISO := DefaultAXIWriteMISO;
     clk_C2C           : in  std_logic_vector(2 downto 1);
+    UART_Rx : in  std_logic;              -- serial in
+    UART_Tx : out std_logic := '1';       -- serial out
     Mon               : in  K_C2C_INTF_MON_t;
     Ctrl              : out K_C2C_INTF_CTRL_t
     );
@@ -56,6 +58,9 @@ architecture behavioral of C2C_INTF is
   signal Mon_local  : K_C2C_INTF_MON_t;
   signal Ctrl_local : K_C2C_INTF_CTRL_t;
 
+  signal single_bit_error_rate : slv32_array_t(HW_LINK_COUNT*COUNTER_COUNT downto 1);
+  signal multi_bit_error_rate : slv32_array_t(HW_LINK_COUNT*COUNTER_COUNT downto 1);
+  constant IRQ_COUNT : std_logic_vector(31 downto 0) := std_logic_vector(to_unsigned(CLKFREQ/10,32));
   
 begin
   --reset
@@ -144,54 +149,75 @@ begin
     end process assignment;
 
     
---    partial_assignment: process (clk_axi) is
---    begin  -- process partial_assignment
---      if clk_axi'event and clk_axi = '1' then  -- rising clock edge
---        --assign everything
---        CM_C2C_Ctrl.Link(iLane).DEBUG                 <= CTRL.C2C(iLane).DEBUG;
---        CM_C2C_Ctrl.Link(iLane).status                     <= CTRL.C2C(iLane).status;
---        --override these signals with the CDC versions
---        CM_C2C_Ctrl.Link(iLane).DEBUG.RX.PRBS_CNT_RST <= CDC_PASSTHROUGH(iLane)(0);
---        CM_C2C_Ctrl.Link(iLane).DEBUG.RX.PRBS_SEL     <= CDC_PASSTHROUGH(iLane)((CDC_PRBS_SEL_LENGTH -1) + 1 downto 1);        
---      end if;
---    end process partial_assignment;
-    
 
     -------------------------------------------------------------------------------
     -- Phy_lane_control
     -------------------------------------------------------------------------------
 
-    Phy_lane_control_X: entity work.CM_phy_lane_control
+--    Phy_lane_control_X: entity work.CM_phy_lane_control
+--      generic map (
+--        CLKFREQ          => CLKFREQ,
+--        DATA_WIDTH       => DATA_WIDTH,
+--        ERROR_WAIT_TIME  => ERROR_WAIT_TIME)
+--      port map (
+--        clk              => clk_axi,
+--        reset            => reset,
+--        reset_counter    => CTRL_local.C2C(iLane).COUNTERS.RESET_COUNTERS,
+--        enable           => phycontrol_en(iLane),
+--        phy_lane_up      => Mon.C2C(iLane).status.phy_lane_up(0),
+--        phy_lane_stable  => CTRL_local.C2C(iLane).PHY_LANE_STABLE,
+--        failed_cnt_to_rst=> CTRL_local.C2C(iLane).PHY_LANE_ERRORS_TO_RESET,
+--        READ_TIME        => CTRL_local.C2C(iLane).PHY_READ_TIME,
+--        initialize_out   => aurora_init_buf(iLane),
+--        lock             => phylanelock(iLane),
+--        state_out        => Mon_local.C2C(iLane).COUNTERS.PHYLANE_STATE,
+--        xcvr_reset       => phy_reset(iLane),
+--        xcvr_reset_done  => Mon_local.C2C(iLane).DEBUG.RX.PMA_RESET_DONE,
+--        single_bit_error    => Mon_local.C2C(iLane).STATUS.LINK_ERROR,
+--        single_bit_rate_max => CTRL_local.C2C(iLane).PHY_MAX_SINGLE_BIT_ERROR_RATE,
+--        multi_bit_error     => Mon_local.C2C(iLane).STATUS.MB_ERROR,
+--        multi_bit_rate_max  => CTRL_local.C2C(iLane).PHY_MAX_MULTI_BIT_ERROR_RATE,
+--        count_waiting_timeouts         => Mon_local.C2C(iLane).COUNTERS.WAITING_TIMEOUTS, 
+--        count_errors_all_time          => Mon_local.C2C(iLane).COUNTERS.ERRORS_ALL_TIME,         
+--        COUNT_ERRORS_SINCE_LOCKED      => MON_LOCAL.C2C(iLane).COUNTERS.ERRORS_SINCE_LOCKED,     
+--        COUNT_ERROR_WAITS_SINCE_LOCKED => MON_LOCAL.C2C(iLane).COUNTERS.ERROR_WAITS_SINCE_LOCKED,
+--        COUNT_XCVR_RESETS              => MON_LOCAL.C2C(iLane).COUNTERS.XCVR_RESETS         
+--        );
+    single_bit_error_rate_counter: entity work.rate_counter
       generic map (
-        CLKFREQ          => CLKFREQ,
-        DATA_WIDTH       => DATA_WIDTH,
-        ERROR_WAIT_TIME  => ERROR_WAIT_TIME)
+        CLK_A_1_SECOND => CLKFREQ)
       port map (
-        clk              => clk_axi,
-        reset            => reset,
-        reset_counter    => CTRL_local.C2C(iLane).COUNTERS.RESET_COUNTERS,
-        enable           => phycontrol_en(iLane),
-        phy_lane_up      => Mon.C2C(iLane).status.phy_lane_up(0),
-        phy_lane_stable  => CTRL_local.C2C(iLane).PHY_LANE_STABLE,
-        failed_cnt_to_rst=> CTRL_local.C2C(iLane).PHY_LANE_ERRORS_TO_RESET,
-        READ_TIME        => CTRL_local.C2C(iLane).PHY_READ_TIME,
-        initialize_out   => aurora_init_buf(iLane),
-        lock             => phylanelock(iLane),
-        state_out        => Mon_local.C2C(iLane).COUNTERS.PHYLANE_STATE,
-        xcvr_reset       => phy_reset(iLane),
-        xcvr_reset_done  => Mon_local.C2C(iLane).DEBUG.RX.PMA_RESET_DONE,
-        single_bit_error    => Mon_local.C2C(iLane).STATUS.LINK_ERROR,
-        single_bit_rate_max => CTRL_local.C2C(iLane).PHY_MAX_SINGLE_BIT_ERROR_RATE,
-        multi_bit_error     => Mon_local.C2C(iLane).STATUS.MB_ERROR,
-        multi_bit_rate_max  => CTRL_local.C2C(iLane).PHY_MAX_MULTI_BIT_ERROR_RATE,
-        count_waiting_timeouts         => Mon_local.C2C(iLane).COUNTERS.WAITING_TIMEOUTS, 
-        count_errors_all_time          => Mon_local.C2C(iLane).COUNTERS.ERRORS_ALL_TIME,         
-        COUNT_ERRORS_SINCE_LOCKED      => MON_LOCAL.C2C(iLane).COUNTERS.ERRORS_SINCE_LOCKED,     
-        COUNT_ERROR_WAITS_SINCE_LOCKED => MON_LOCAL.C2C(iLane).COUNTERS.ERROR_WAITS_SINCE_LOCKED,
-        COUNT_XCVR_RESETS              => MON_LOCAL.C2C(iLane).COUNTERS.XCVR_RESETS         
-        );
-
-    
+        clk_A             => clk_axi,
+        clk_B             => clk_axi,
+        reset_A_async     => '0',
+        event_b           => Mon_local.C2C(iLane).STATUS.LINK_ERROR,
+        rate              => single_bit_error_rate(iLane));
+    multi_bit_error_rate_counter: entity work.rate_counter
+      generic map (
+        CLK_A_1_SECOND => CLKFREQ)
+      port map (
+        clk_A             => clk_axi,
+        clk_B             => clk_axi,
+        reset_A_async     => '0',
+        event_b           => Mon_local.C2C(iLane).STATUS.MB_ERROR,
+        rate              => multi_bit_error_rate(iLane));
+  
+    uC_1: entity work.uC
+      port map (
+        clk                   => clk_axi,
+        reset                 => reset,
+        UART_Rx               => UART_Rx,
+        UART_Tx               => UART_Tx,
+        irq_count             => IRQ_COUNT,
+        link_reset            => phy_reset(iLane),
+        link_reset_done       => Mon_local.C2C(iLane).DEBUG.RX.PMA_RESET_DONE,
+        link_init             => aurora_init_buf(iLane),
+        link_good             => Mon.C2C(iLane).status.LINK_GOOD,
+        lane_up               => Mon.C2C(iLane).status.phy_lane_up(0),
+        sb_err_rate           => single_bit_error_rate(iLane),
+        sb_err_rate_threshold => CTRL_local.C2C(iLane).PHY_MAX_SINGLE_BIT_ERROR_RATE,
+        mb_err_rate           => multi_bit_error_rate(iLane),
+        mb_err_rate_threshold => CTRL_local.C2C(iLane).PHY_MAX_MULTI_BIT_ERROR_RATE);
 
     -------------------------------------------------------------------------------
     -- COUNTERS

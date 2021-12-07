@@ -16,8 +16,21 @@ entity uC is
 
     -- UART_INT
     UART_Rx : in  std_logic;              -- serial in
-    UART_Tx : out std_logic := '1'       -- serial out
+    UART_Tx : out std_logic := '1';       -- serial out
 
+    --monitoring
+    irq_count             :  in std_logic_vector(31 downto 0);
+    link_reset            : out std_logic;
+    link_reset_done       :  in std_logic;
+    link_init             : out std_logic;
+    link_good             :  in std_logic;
+    lane_up               :  in std_logic;
+    
+    sb_err_rate           :  in std_logic_vector(31 downto 0);
+    sb_err_rate_threshold :  in std_logic_vector(31 downto 0);
+    mb_err_rate           :  in std_logic_vector(31 downto 0);
+    mb_err_rate_threshold :  in std_logic_vector(31 downto 0)
+    
     );
 
 
@@ -28,75 +41,75 @@ architecture arch of uC is
 --
 -- KCPSM6 uc
 -- 
-  component kcpsm6
-    generic(
-      hwbuild                 : std_logic_vector(7 downto 0)  := X"00";
-      interrupt_vector        : std_logic_vector(11 downto 0) := X"600";
-      scratch_pad_memory_size : integer                       := 256);
-    port (
-      address        : out std_logic_vector(11 downto 0);
-      instruction    : in  std_logic_vector(17 downto 0);
-      bram_enable    : out std_logic;
-      in_port        : in  std_logic_vector(7 downto 0);
-      out_port       : out std_logic_vector(7 downto 0);
-      port_id        : out std_logic_vector(7 downto 0);
-      write_strobe   : out std_logic;
-      k_write_strobe : out std_logic;
-      read_strobe    : out std_logic;
-      interrupt      : in  std_logic;
-      interrupt_ack  : out std_logic;
-      sleep          : in  std_logic;
-      reset          : in  std_logic;
-      clk            : in  std_logic);
-  end component;
-
+--  component kcpsm6
+--    generic(
+--      hwbuild                 : std_logic_vector(7 downto 0)  := X"00";
+--      interrupt_vector        : std_logic_vector(11 downto 0) := X"600";
+--      scratch_pad_memory_size : integer                       := 256);
+--    port (
+--      address        : out std_logic_vector(11 downto 0);
+--      instruction    : in  std_logic_vector(17 downto 0);
+--      bram_enable    : out std_logic;
+--      in_port        : in  std_logic_vector(7 downto 0);
+--      out_port       : out std_logic_vector(7 downto 0);
+--      port_id        : out std_logic_vector(7 downto 0);
+--      write_strobe   : out std_logic;
+--      k_write_strobe : out std_logic;
+--      read_strobe    : out std_logic;
+--      interrupt      : in  std_logic;
+--      interrupt_ack  : out std_logic;
+--      sleep          : in  std_logic;
+--      reset          : in  std_logic;
+--      clk            : in  std_logic);
+--  end component;
 --
--- KCPSM6 ROM
--- 
-  component cli
-    generic(
-      C_FAMILY             : string  := "US";
-      C_RAM_SIZE_KWORDS    : integer := 1;
-      C_JTAG_LOADER_ENABLE : integer := 1);
-    port (
-      address     : in  std_logic_vector(11 downto 0);
-      instruction : out std_logic_vector(17 downto 0);
-      enable      : in  std_logic;
-      rdl         : out std_logic;
-      clk         : in  std_logic);
-  end component;
+----
+---- KCPSM6 ROM
+---- 
+--  component cli
+--    generic(
+--      C_FAMILY             : string  := "US";
+--      C_RAM_SIZE_KWORDS    : integer := 2;
+--      C_JTAG_LOADER_ENABLE : integer := 0);
+--    port (
+--      address     : in  std_logic_vector(11 downto 0);
+--      instruction : out std_logic_vector(17 downto 0);
+--      enable      : in  std_logic;
+--      rdl         : out std_logic;
+--      clk         : in  std_logic);
+--  end component;
 
 --
 -- UART Transmitter     
 --
-  component uart_tx6
-    port (
-      data_in             : in  std_logic_vector(7 downto 0);
-      en_16_x_baud        : in  std_logic;
-      serial_out          : out std_logic;
-      buffer_write        : in  std_logic;
-      buffer_data_present : out std_logic;
-      buffer_half_full    : out std_logic;
-      buffer_full         : out std_logic;
-      buffer_reset        : in  std_logic;
-      clk                 : in  std_logic);
-  end component;
-
+--  component uart_tx6
+--    port (
+--      data_in             : in  std_logic_vector(7 downto 0);
+--      en_16_x_baud        : in  std_logic;
+--      serial_out          : out std_logic;
+--      buffer_write        : in  std_logic;
+--      buffer_data_present : out std_logic;
+--      buffer_half_full    : out std_logic;
+--      buffer_full         : out std_logic;
+--      buffer_reset        : in  std_logic;
+--      clk                 : in  std_logic);
+--  end component;
 --
--- UART Receiver
---
-  component uart_rx6
-    port (
-      serial_in           : in  std_logic;
-      en_16_x_baud        : in  std_logic;
-      data_out            : out std_logic_vector(7 downto 0);
-      buffer_read         : in  std_logic;
-      buffer_data_present : out std_logic;
-      buffer_half_full    : out std_logic;
-      buffer_full         : out std_logic;
-      buffer_reset        : in  std_logic;
-      clk                 : in  std_logic);
-  end component;
+----
+---- UART Receiver
+----
+--  component uart_rx6
+--    port (
+--      serial_in           : in  std_logic;
+--      en_16_x_baud        : in  std_logic;
+--      data_out            : out std_logic_vector(7 downto 0);
+--      buffer_read         : in  std_logic;
+--      buffer_data_present : out std_logic;
+--      buffer_half_full    : out std_logic;
+--      buffer_full         : out std_logic;
+--      buffer_reset        : in  std_logic;
+--      clk                 : in  std_logic);
+--  end component;
 
 -----------------------------------------------------------------------------
 -- Signals
@@ -128,20 +141,12 @@ architecture arch of uC is
   constant PB_PORT_UART_STATUS     : std_logic_vector(3 downto 0) := x"0";
   constant PB_PORT_UART_OUTPUT     : std_logic_vector(3 downto 0) := x"1";
   constant PB_PORT_UART_INPUT      : std_logic_vector(3 downto 0) := x"1";
-  constant PB_PORT_REG_CONTROL     : std_logic_vector(3 downto 0) := x"3";
-  constant PB_PORT_REG_STATUS      : std_logic_vector(3 downto 0) := x"3";
-  constant PB_PORT_REG_ADDR_LSB    : std_logic_vector(3 downto 0) := x"4";
-  constant PB_PORT_REG_ADDR_MSB    : std_logic_vector(3 downto 0) := x"5";
-  constant PB_PORT_REG_DATA_BYTE_0 : std_logic_vector(3 downto 0) := x"6";
-  constant PB_PORT_REG_DATA_BYTE_1 : std_logic_vector(3 downto 0) := x"7";
-  constant PB_PORT_REG_DATA_BYTE_2 : std_logic_vector(3 downto 0) := x"8";
-  constant PB_PORT_REG_DATA_BYTE_3 : std_logic_vector(3 downto 0) := x"9";
-  constant PB_PORT_FLASH           : std_logic_vector(3 downto 0) := x"C";
+  constant PB_PORT_LINK_CTRL       : std_logic_vector(3 downto 0) := x"3";
+  constant PB_PORT_LINK_MON        : std_logic_vector(3 downto 0) := x"3";
   
 --
 -- UART UART_TX signals
 --
-  signal UART_Tx_local : std_logic;
   signal UART_Tx_data_in      : std_logic_vector(7 downto 0);
   signal write_to_UART_Tx        : std_logic;
   signal UART_Tx_data_present : std_logic;
@@ -166,7 +171,14 @@ architecture arch of uC is
   signal en_16_x_baud : std_logic             := '0';
 
 
-
+--
+-- MOnitoring singals
+--
+  signal irq_counter        : unsigned(31 downto 0);
+  signal link_reset_local   : std_logic;
+  signal link_init_local    : std_logic;
+  signal err_sb_over_thresh : std_logic;
+  signal err_mb_over_thresh : std_logic;
   
 begin  -- architecture arch
 
@@ -177,7 +189,7 @@ begin  -- architecture arch
   processor : kcpsm6
     generic map (
       hwbuild                 => X"01",
-      interrupt_vector        => X"7FF",
+      interrupt_vector        => X"600",
       scratch_pad_memory_size => 256)
     port map(
       address        => address,
@@ -199,15 +211,34 @@ begin  -- architecture arch
 --Disable sleep and interrupts on kcpsm6
 --
   kcpsm6_sleep <= '0';
-  interrupt    <= interrupt_ack;
+--  interrupt    <= interrupt_ack;
   rst          <= kcpsm6_reset or reset;
 
+  interrupt_generator: process (clk, reset) is
+  begin  -- process interrupt_generator
+    if reset = '1' then                 -- asynchronous reset (active high)
+      irq_counter <= (others => '0');
+      interrupt <= '0';
+    elsif clk'event and clk = '1' then  -- rising clock edge
+      if interrupt_ack = '1' then
+        interrupt <= '0';
+      else
+        if irq_counter = unsigned(irq_count) then
+          interrupt <= '1';
+          irq_counter <= (others => '0');
+        else
+          irq_counter <= irq_counter + 1;
+        end if;
+      end if;
+    end if;
+  end process interrupt_generator;
+  
 --
 -- KCPSM6 ROM
 --
   program_rom : cli
     generic map(
-      C_FAMILY             => "7S",     --Family 'S6', 'V6' or '7S'
+      C_FAMILY             => "US",     --Family 'S6', 'V6' or '7S'
       C_RAM_SIZE_KWORDS    => 2,        --Program size '1', '2' or '4'
       C_JTAG_LOADER_ENABLE => 0)        --Include JTAG Loader when set to '1' 
     port map(
@@ -299,6 +330,14 @@ begin  -- architecture arch
         when PB_PORT_UART_INPUT =>
           -- (see 'buffer_read' pulse generation below) 
           in_port <= UART_Rx_data_out;
+        when PB_PORT_LINK_MON =>
+          in_port(0) <= link_reset_local;
+          in_port(1) <= link_reset_done;
+          in_port(2) <= link_init_local;
+          in_port(3) <= link_good;
+          in_port(4) <= lane_up;
+          in_port(5) <= err_sb_over_thresh;
+          in_port(6) <= err_mb_over_thresh;
         -----------------------------------------------------------------------
         -- others do nothing
         when others => in_port <= x"00";
@@ -339,6 +378,9 @@ begin  -- architecture arch
           when PB_PORT_UART_CONTROL =>
             UART_Tx_reset <= out_port(0);
             UART_Rx_reset <= out_port(1);
+          when PB_PORT_LINK_CTRL =>
+            link_reset_local <= out_port(0);
+            link_init_local  <= out_port(2);
           when others => null;
         end case;
       -------------------------------------------------------------------------
@@ -356,5 +398,27 @@ begin  -- architecture arch
                       else '0';
 
 
+
+  
+-----------------------------------------------------------------------------
+-- monitoring and control 
+-----------------------------------------------------------------------------
+link_mon: process (clk) is
+begin  -- process link_mon
+  if clk'event and clk = '1' then    -- rising clock edge
+    link_reset <= link_reset_local;
+    link_init  <= link_init_local;
+    if unsigned(sb_err_rate) > unsigned(sb_err_rate_threshold) then
+      err_sb_over_thresh <= '1';
+    else
+      err_sb_over_thresh <= '0';    
+    end if;
+    if unsigned(mb_err_rate) > unsigned(mb_err_rate_threshold) then
+      err_mb_over_thresh <= '1';
+    else
+      err_mb_over_thresh <= '0';    
+    end if;    
+  end if;
+end process link_mon;
   
 end architecture arch;

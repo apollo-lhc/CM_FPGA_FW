@@ -12,8 +12,8 @@
 ;;; | soft_reset | x  |    |
 ;;; | hard_reset | x  | x  | x  |    |    |    |    |    |    |    | x  |  x |
 ;;; | start	 | x  | x  |
-;;; | cli_loop   |
-;;; | print_EOL  |
+;;; | cli_loop   | x  | x  |
+;;; | print_EOL  | 
 ;;; ============================================================================
 ;;; Scratchpad memory map
 ;;; ============================================================================
@@ -52,6 +52,7 @@ CONSTANT UI_VERSION,	01
 ;;; START
 ;;; ============================================================================
 start:		
+	DISABLE INTERRUPT
 	CALL hard_reset
 	JUMP cli_loop
 
@@ -109,13 +110,16 @@ soft_reset:
 
 INCLUDE "cmds.psm"
 
+	
 ;;; ============================================================================
 ;;; Main UART UI LOOP
 	;; uses s0-s1
 ;;; ============================================================================
 cli_loop:
-	CALL uart_input_wait 		; wait for input
-	
+	ENABLE INTERRUPT
+	CALL uart_input_wait 		; Check if there is UART input
+	DISABLE INTERRUPT
+
 	INPUT s0, UART_INPUT		; read new char from UART
 
 	FETCH s1, CLI_BUFFER		; get current write pointer
@@ -134,6 +138,9 @@ cli_loop:
 
 	CALL C, cmd_find		; process a new command
 	JUMP cli_loop
+
+
+
 ;;; ============================================================================	
 ;;; Error for UI overflow
 	;; uses s0-s1
@@ -239,3 +246,4 @@ cli_process_bs_done:
 	RR s0			; set C to zero because there is no new command
 	RETURN
 
+INCLUDE "background_task.psm"
