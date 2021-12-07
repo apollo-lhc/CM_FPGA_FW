@@ -41,75 +41,75 @@ architecture arch of uC is
 --
 -- KCPSM6 uc
 -- 
---  component kcpsm6
---    generic(
---      hwbuild                 : std_logic_vector(7 downto 0)  := X"00";
---      interrupt_vector        : std_logic_vector(11 downto 0) := X"600";
---      scratch_pad_memory_size : integer                       := 256);
---    port (
---      address        : out std_logic_vector(11 downto 0);
---      instruction    : in  std_logic_vector(17 downto 0);
---      bram_enable    : out std_logic;
---      in_port        : in  std_logic_vector(7 downto 0);
---      out_port       : out std_logic_vector(7 downto 0);
---      port_id        : out std_logic_vector(7 downto 0);
---      write_strobe   : out std_logic;
---      k_write_strobe : out std_logic;
---      read_strobe    : out std_logic;
---      interrupt      : in  std_logic;
---      interrupt_ack  : out std_logic;
---      sleep          : in  std_logic;
---      reset          : in  std_logic;
---      clk            : in  std_logic);
---  end component;
+  component kcpsm6
+    generic(
+      hwbuild                 : std_logic_vector(7 downto 0)  := X"00";
+      interrupt_vector        : std_logic_vector(11 downto 0) := X"600";
+      scratch_pad_memory_size : integer                       := 256);
+    port (
+      address        : out std_logic_vector(11 downto 0);
+      instruction    : in  std_logic_vector(17 downto 0);
+      bram_enable    : out std_logic;
+      in_port        : in  std_logic_vector(7 downto 0);
+      out_port       : out std_logic_vector(7 downto 0);
+      port_id        : out std_logic_vector(7 downto 0);
+      write_strobe   : out std_logic;
+      k_write_strobe : out std_logic;
+      read_strobe    : out std_logic;
+      interrupt      : in  std_logic;
+      interrupt_ack  : out std_logic;
+      sleep          : in  std_logic;
+      reset          : in  std_logic;
+      clk            : in  std_logic);
+  end component;
+
 --
-----
----- KCPSM6 ROM
----- 
---  component cli
---    generic(
---      C_FAMILY             : string  := "US";
---      C_RAM_SIZE_KWORDS    : integer := 2;
---      C_JTAG_LOADER_ENABLE : integer := 0);
---    port (
---      address     : in  std_logic_vector(11 downto 0);
---      instruction : out std_logic_vector(17 downto 0);
---      enable      : in  std_logic;
---      rdl         : out std_logic;
---      clk         : in  std_logic);
---  end component;
+-- KCPSM6 ROM
+-- 
+  component cli
+    generic(
+      C_FAMILY             : string  := "US";
+      C_RAM_SIZE_KWORDS    : integer := 2;
+      C_JTAG_LOADER_ENABLE : integer := 0);
+    port (
+      address     : in  std_logic_vector(11 downto 0);
+      instruction : out std_logic_vector(17 downto 0);
+      enable      : in  std_logic;
+      rdl         : out std_logic;
+      clk         : in  std_logic);
+  end component;
 
 --
 -- UART Transmitter     
 --
---  component uart_tx6
---    port (
---      data_in             : in  std_logic_vector(7 downto 0);
---      en_16_x_baud        : in  std_logic;
---      serial_out          : out std_logic;
---      buffer_write        : in  std_logic;
---      buffer_data_present : out std_logic;
---      buffer_half_full    : out std_logic;
---      buffer_full         : out std_logic;
---      buffer_reset        : in  std_logic;
---      clk                 : in  std_logic);
---  end component;
+  component uart_tx6
+    port (
+      data_in             : in  std_logic_vector(7 downto 0);
+      en_16_x_baud        : in  std_logic;
+      serial_out          : out std_logic;
+      buffer_write        : in  std_logic;
+      buffer_data_present : out std_logic;
+      buffer_half_full    : out std_logic;
+      buffer_full         : out std_logic;
+      buffer_reset        : in  std_logic;
+      clk                 : in  std_logic);
+  end component;
+
 --
-----
----- UART Receiver
-----
---  component uart_rx6
---    port (
---      serial_in           : in  std_logic;
---      en_16_x_baud        : in  std_logic;
---      data_out            : out std_logic_vector(7 downto 0);
---      buffer_read         : in  std_logic;
---      buffer_data_present : out std_logic;
---      buffer_half_full    : out std_logic;
---      buffer_full         : out std_logic;
---      buffer_reset        : in  std_logic;
---      clk                 : in  std_logic);
---  end component;
+-- UART Receiver
+--
+  component uart_rx6
+    port (
+      serial_in           : in  std_logic;
+      en_16_x_baud        : in  std_logic;
+      data_out            : out std_logic_vector(7 downto 0);
+      buffer_read         : in  std_logic;
+      buffer_data_present : out std_logic;
+      buffer_half_full    : out std_logic;
+      buffer_full         : out std_logic;
+      buffer_reset        : in  std_logic;
+      clk                 : in  std_logic);
+  end component;
 
 -----------------------------------------------------------------------------
 -- Signals
@@ -238,7 +238,7 @@ begin  -- architecture arch
 --
   program_rom : cli
     generic map(
-      C_FAMILY             => "US",     --Family 'S6', 'V6' or '7S'
+      C_FAMILY             => "7s",     --Family 'S6', 'V6' or '7S'
       C_RAM_SIZE_KWORDS    => 2,        --Program size '1', '2' or '4'
       C_JTAG_LOADER_ENABLE => 0)        --Include JTAG Loader when set to '1' 
     port map(

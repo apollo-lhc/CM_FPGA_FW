@@ -1,0 +1,113 @@
+;;; ============================================================================
+;;; Background task
+;;; uses s0b,sFb,sEb,sDb
+;;;   sF: state machine state
+;;;   sE: Count of number of times we've checked for reset done and it has failed
+;;;   sD: Count of number of times we've checked for linkgood/link up
+;;;   sC: Number of times we've seen consecutive SB/MB errors above threshold
+;;; ============================================================================
+
+
+;;; ============================================================================
+;;; CONSTANTS
+;;; ============================================================================
+CONSTANT LINK_MON_PORT,             03 ;status and control port
+CONSTANT LINK_CTRL_PORT,            03 ;status and control port
+CONSTANT LINK_CTRL_PORT_RST,        01 ;bit for resetting transceiver
+CONSTANT LINK_CTRL_PORT_RST_DONE,   02 ;bit for reset done
+CONSTANT LINK_CTRL_PORT_INIT,       04 ;bit for initialize
+CONSTANT LINK_CTRL_PORT_LINK_GOOD,  08 ;bits for link good
+CONSTANT LINK_CTRL_PORT_LANE_UP,    10 ;bits for lane up
+CONSTANT LINK_CTRL_PORT_ERR_SB_CNT, 20 ;bits for Error counters over thresh
+CONSTANT LINK_CTRL_PORT_ERR_MB_CNT, 40 ;bits for Error counters over thresh
+	
+CONSTANT BG_STATE_INIT,       00
+CONSTANT BG_STATE_RESET_WAIT, 01
+CONSTANT BG_STATE_INIT_WAIT,  02
+CONSTANT BG_STATE_RUNNING,    04
+
+ADDRESS 600
+background_task:
+	REGBANK B
+	; read state and jump
+	COMPARE sF, BG_STATE_RUNNING 		
+	JUMP Z, background_task_error_count ; Just check for error count
+	COMPARE sF, BG_STATE_INIT_WAIT
+	JUMP Z, background_task_link_up_test ; Check that the link is working
+	COMPARE sF, BG_STATE_RESET_WAIT
+	JUMP Z, background_task_link_reset_wait
+	;; default to resetting the link
+
+	LOAD sE, 00 		;zero the count of link done checks
+	LOAD sD, 00		;zero the number of link good checks
+	;; set reset to '1', wait ~10 clock ticks and set it to '0'
+	INPUT s0, LINK_MON_PORT	
+	OR s0, LINK_CTRL_PORT_RST ;turn on rst bit
+	OUTPUT s0, LINK_CTRL_PORT
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	XOR s0, LINK_CTRL_PORT_RST ;turn off rst bit
+	OUTPUT s0, LINK_CTRL_PORT
+	LOAD sF, BG_STATE_RESET_WAIT ;update state for next call
+	JUMP background_task_end
+
+background_task_link_reset_wait:
+	ADD sE, 01		;keep track of how many times we've checked for link up
+	JUMP NC, background_task_link_reset_wait2
+	LOAD sF, BG_STATE_INIT	;things aren't working, let's go back to the beginning
+	JUMP background_task_end
+background_task_link_reset_wait2:
+	;; read c2c reset done
+	INPUT s0, LINK_MON_PORT
+	TEST s0,  LINK_CTRL_PORT_RST_DONE
+	JUMP NC, background_task_end ;not done, check again next time
+
+	INPUT s0, LINK_MON_PORT	
+	OR s0, LINK_CTRL_PORT_INIT ;turn on init bit
+	OUTPUT s0, LINK_CTRL_PORT
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	XOR s0, LINK_CTRL_PORT_INIT ;turn off init bit
+	OUTPUT s0, LINK_CTRL_PORT
+	LOAD sF, BG_STATE_INIT_WAIT ;update state for next call
+	JUMP background_task_end
+	
+background_task_link_up_test:
+	ADD sD, 01		;keep track of how many times we've checked for link good
+	JUMP NC, background_task_link_up_test2
+	LOAD sF, BG_STATE_RESET_WAIT ;things are working, let's go back to the beginning
+	JUMP background_task_end
+
+background_task_link_up_test2:	
+	INPUT s0, LINK_MON_PORT
+	TEST s0, LINK_CTRL_PORT_LINK_GOOD ;check if the link is good
+	JUMP NC, background_task_end	  ;wait for next time
+	TEST s0, LINK_CTRL_PORT_LANE_UP ;check if the lane is up
+	JUMP NC, background_task_end	;wait for next time
+	;; things look good
+	LOAD sF, BG_STATE_RUNNING
+	JUMP background_task_end
+	
+background_task_error_count:
+	INPUT s0, LINK_MON_PORT
+	TEST s0, LINK_CTRL_PORT_ERR_SB_CNT ;check if there are too many SB errors
+	JUMP C,  background_task_error_count2 ; handle errors
+	TEST s0, LINK_CTRL_PORT_ERR_MB_CNT ;check if there are too many MB errors
+	JUMP C,  background_task_error_count2 ; handle errors
+	LOAD sC, 00			      ;set the count of error periods to zero
+	JUMP background_task_end
+background_task_error_count2:
+	ADD sC, 01		     ;Add 1 to the count of periods with errors
+	JUMP NC, background_task_end ;no overflow, jump to the end and keep track
+	;; overflow, let's go back to INIT
+	LOAD sF, BG_STATE_RESET_WAIT
+	JUMP background_task_end
+background_task_end:
+	REGBANK A
+	RETURNI ENABLE
