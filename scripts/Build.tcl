@@ -5,22 +5,7 @@
 # STEP#2: run synthesis, report utilization and timing estimates, write checkpoint design
 #################################################################################
 
-#set ip_to_regenerate [get_ips]
-#for {set j 0} {$j < [llength $ip_to_regenerate ] } {incr j} {
-#    set ip_name [lindex $ip_to_regenerate $j]    
-#    set ip_xci ${apollo_root_path}/cores/$ip_name/$ip_name.xci
-#    puts "Checking $ip_name \n"
-#    if {[string first $ip_name $xci_files] >= 0} {
-#	puts "Building $ip_name \n"
-#	generate_target all [get_files $ip_xci]
-#	create_ip_run [get_ips $ip_name]
-##	synth_ip [lindex $ip_to_regenerate $j]
-#    }
-#}
-#
-#puts "Launching runs"
-#reset_runs [get_runs]
-#launch_runs [get_runs]
+set_param general.maxThreads 8
 
 set_property synth_checkpoint_mode None [get_files $bd_name.bd]
 generate_target all [get_files "[get_bd_designs].bd"]

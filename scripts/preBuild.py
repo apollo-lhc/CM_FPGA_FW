@@ -95,7 +95,8 @@ def LoadSlave(name,slave,dtsiYAML,aTableYAML,parentName,map_template_file,pkg_te
                   aTableYAML,
                   fullName,
                   map_template_file,
-                  pkg_template_file)
+                  pkg_template_file,
+                  useSimpleParser)
 
 
 

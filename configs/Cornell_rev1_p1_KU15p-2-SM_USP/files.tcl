@@ -29,7 +29,7 @@ set vhdl_files "\
      ${autogen_path}/C2C_INTF/K_C2C_INTF_PKG.vhd \
      ${autogen_path}/CM_FW_info/CM_K_INFO_PKG.vhd \
      ${autogen_path}/CM_FW_info/CM_K_INFO_map.vhd \
-     src/C2C_INTF/picoblaze/kcpsm6.vhd \
+     src/C2C_INTF/picoblaze/picoblaze/kcpsm6.vhd \
      src/C2C_INTF/picoblaze/uart_rx6.vhd \
      src/C2C_INTF/picoblaze/uart_tx6.vhd \
      src/C2C_INTF/picoblaze/uC.vhd \

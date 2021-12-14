@@ -87,7 +87,9 @@ hard_reset_wait_loop:
 	SUB s2,01
 	JUMP NC, hard_reset_wait_loop
 	
+	CALL background_task_init
 	CALL CMD_version
+	CALL CMD_print_build_date
 	
 	;; print prompt
 	CALL util_print_prompt

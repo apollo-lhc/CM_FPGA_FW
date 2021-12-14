@@ -53,7 +53,11 @@ for {set j 0} {$j < [llength $vhdl_files ] } {incr j} {
 
 }
 
-check_syntax
+set syntax_check_info [check_syntax -return_string]
+if {[string first "is not declared" ${syntax_check_info} ] > -1} {
+    puts ${syntax_check_info}
+    exit
+}
 
 #Add xdc files
 for {set j 0} {$j < [llength $xdc_files ] } {incr j} {

@@ -1,7 +1,9 @@
+#!/usr/bin/env python3
+
 from jinja2 import Template
 from datetime import datetime
 import argparse
-
+import math
 
 def generatePBROM(name,physicalMemSize,hexFile,templateFile,outPath):
     #read the hex file
@@ -36,7 +38,8 @@ def generatePBROM(name,physicalMemSize,hexFile,templateFile,outPath):
     substitute_mapping = {"notes": "-- Generated at "+str(datetime.now()),
                           "baseName": name,
                           "MEM_SIZE": dataSize,
-                          "MEM_DATA": data}
+                          "MEM_DATA": data,
+                          "ADDR_WIDTH": int(math.ceil(math.log2(physicalMemSize)))}
     #apply substitutions
     finalVHDL = rawTemplate.render(substitute_mapping)
 

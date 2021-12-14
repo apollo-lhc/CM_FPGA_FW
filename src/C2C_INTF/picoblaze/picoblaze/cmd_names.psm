@@ -5,12 +5,14 @@
 ;;; | cmds       |    | x  |    |    |    |    |    |    |    |    |    |    |
 
 
-	
+INCLUDE "cmds_B.psm"
+INCLUDE "cmds_D.psm"	
 INCLUDE "cmds_M.psm"
 INCLUDE "cmds_R.psm"
 INCLUDE "cmds_V.psm"
 INCLUDE "cmds_S.psm"
 INCLUDE "cmds_H.psm"
+INCLUDE "buildtime.psm"
 	
 ;INCLUDE "cmds_E.psm"		;
 	
@@ -22,8 +24,9 @@ STRING reset$, "reset"
 STRING version$, "version"
 STRING sys$, "sys"
 STRING help$, "help"
-
-	
+STRING dumpb$, "dumpb"
+STRING build$, "build"
+STRING backgnd$, "backgnd"	
 	
 cmds:
 	;; CMD_multiarg (multiarg)
@@ -62,6 +65,24 @@ cmds:
 	LOAD&RETURN s1, 00	; end of command
 	LOAD&RETURN s1, CMD_help'upper
 	LOAD&RETURN s1, CMD_help'lower
+
+	;; CMD_dumpb (dumpb)
+	LOAD&RETURN s1, dumpb$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_DumpB'upper
+	LOAD&RETURN s1, CMD_DumpB'lower
+
+	;; CMD_build (build)
+	LOAD&RETURN s1, build$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_print_build_date'upper
+	LOAD&RETURN s1, CMD_print_build_date'lower
+
+	;; CMD_backgnd (backgnd)
+	LOAD&RETURN s1, backgnd$
+	LOAD&RETURN s1, 00	; end of command
+	LOAD&RETURN s1, CMD_background'upper
+	LOAD&RETURN s1, CMD_background'lower
 
 	
 	LOAD&RETURN s1, FF	; end of commands string

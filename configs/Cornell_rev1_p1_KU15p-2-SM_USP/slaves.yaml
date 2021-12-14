@@ -55,8 +55,8 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0xB1004000"
-        range:  "8K"
+        offset: "0xB1010000"
+        range:  "64K"
       remote_slave: "1"
     XML:
       - "address_table/modules/C2C_INTFS.xml"
@@ -82,15 +82,17 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
-  CM1_PB_UART:
-    TCL_CALL:
-      command: "AXI_IP_UART"
-      addr:
-        offset: "0xB1008000"
-        range:  "4K"
-      irq_port: "K_C2CB/axi_c2c_s2m_intr_in"
-      baud_rate: "115200"  
-      axi_control: "${::AXI_MASTER_CTRL}"
-      remote_slave: "1"
-      dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <4>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;"
-
+  SUB_SLAVES:
+    CM1_PB_UART:
+      TCL_CALL:
+        command: "AXI_IP_UART"
+        addr:
+          offset: "0xB1008000"
+          range:  "4K"
+        irq_port: "K_C2CB/axi_c2c_s2m_intr_in"
+        baud_rate: "115200"  
+        axi_control: "${::AXI_MASTER_CTRL}"
+        manual_load_dtsi: "1"
+        remote_slave: "1"
+        dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;
+    "

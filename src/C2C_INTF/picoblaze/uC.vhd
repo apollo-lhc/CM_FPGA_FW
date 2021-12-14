@@ -1,3 +1,28 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+package uC_LINK is
+  type uC_Link_in_t is record
+    link_reset_done       : std_logic;    
+    link_good             : std_logic;
+    lane_up               : std_logic;
+    sb_err_rate           : std_logic_vector(31 downto 0);
+    sb_err_rate_threshold : std_logic_vector(31 downto 0);
+    mb_err_rate           : std_logic_vector(31 downto 0);
+    mb_err_rate_threshold : std_logic_vector(31 downto 0);
+  end record uc_Link_in_t;
+  type uC_link_in_t_ARRAY is array(integer range <>) of uC_Link_in_t;
+  type uC_Link_out_t is record
+    link_reset            : std_logic;
+    link_init             : std_logic;
+    state                 : std_logic_vector(7 downto 0);
+  end record uc_Link_out_t;
+  constant DEFAULT_uC_Link_out_t : uC_Link_out_t := (link_reset => '0',
+                                                     link_init  => '0',
+                                                     state      => X"00");
+  type uC_link_out_t_ARRAY is array(integer range <>) of uC_Link_out_t;
+end package uC_LINK;
+
+
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.all;
@@ -7,30 +32,31 @@ use IEEE.std_logic_misc.all;
 
 library UNISIM;
 use UNISIM.vcomponents.all;
+use work.uC_LINK.all;
 
 entity uC is
-
+  generic (
+    LINK_COUNT : integer range 0 to 15 := 1
+  );
   port (
     clk          : in std_logic;               -- 50MHz oscillator input
     reset        : in std_logic;               -- reset to picoblaze
 
+    reprogram_addr   : in  std_logic_vector(10 downto 0);
+    reprogram_wen    : in  std_logic;                    
+    reprogram_di     : in  std_logic_vector(17 downto 0);
+    reprogram_do     : out std_logic_vector(17 downto 0);
+    reprogram_reset  : in std_logic;               -- reset the picoblaze for reprogramming
+    
     -- UART_INT
     UART_Rx : in  std_logic;              -- serial in
     UART_Tx : out std_logic := '1';       -- serial out
 
     --monitoring
     irq_count             :  in std_logic_vector(31 downto 0);
-    link_reset            : out std_logic;
-    link_reset_done       :  in std_logic;
-    link_init             : out std_logic;
-    link_good             :  in std_logic;
-    lane_up               :  in std_logic;
-    
-    sb_err_rate           :  in std_logic_vector(31 downto 0);
-    sb_err_rate_threshold :  in std_logic_vector(31 downto 0);
-    mb_err_rate           :  in std_logic_vector(31 downto 0);
-    mb_err_rate_threshold :  in std_logic_vector(31 downto 0)
-    
+    link_INFO_in          :  in uC_link_in_t_ARRAY (0 to LINK_COUNT-1);
+    link_INFO_out         :  out uC_link_out_t_ARRAY(0 to LINK_COUNT-1)
+        
     );
 
 
@@ -66,18 +92,29 @@ architecture arch of uC is
 --
 -- KCPSM6 ROM
 -- 
-  component cli
-    generic(
-      C_FAMILY             : string  := "US";
-      C_RAM_SIZE_KWORDS    : integer := 2;
-      C_JTAG_LOADER_ENABLE : integer := 0);
+  component cli is
     port (
       address     : in  std_logic_vector(11 downto 0);
       instruction : out std_logic_vector(17 downto 0);
-      enable      : in  std_logic;
-      rdl         : out std_logic;
+      portB_addr  : in  std_logic_vector(11 downto 0);
+      portB_wen   : in  std_logic;
+      portB_di    : in  std_logic_vector(17 downto 0);
+      portB_do    : out std_logic_vector(17 downto 0);
+      msize       : out std_logic_vector(11 downto 0);
       clk         : in  std_logic);
-  end component;
+  end component cli;
+--  component cli
+--    generic(
+--      C_FAMILY             : string  := "US";
+--      C_RAM_SIZE_KWORDS    : integer := 2;
+--      C_JTAG_LOADER_ENABLE : integer := 0);
+--    port (
+--      address     : in  std_logic_vector(11 downto 0);
+--      instruction : out std_logic_vector(17 downto 0);
+--      enable      : in  std_logic;
+--      rdl         : out std_logic;
+--      clk         : in  std_logic);
+--  end component;
 
 --
 -- UART Transmitter     
@@ -130,8 +167,9 @@ architecture arch of uC is
   signal read_strobe    : std_logic                    := '0';
   signal interrupt      : std_logic;
   signal interrupt_ack  : std_logic;
+  signal interrupt_reset : std_logic;
   signal kcpsm6_sleep   : std_logic;
-  signal kcpsm6_reset   : std_logic;
+
 
 --
 -- KCPSM6 port names
@@ -141,8 +179,9 @@ architecture arch of uC is
   constant PB_PORT_UART_STATUS     : std_logic_vector(3 downto 0) := x"0";
   constant PB_PORT_UART_OUTPUT     : std_logic_vector(3 downto 0) := x"1";
   constant PB_PORT_UART_INPUT      : std_logic_vector(3 downto 0) := x"1";
-  constant PB_PORT_LINK_CTRL       : std_logic_vector(3 downto 0) := x"3";
-  constant PB_PORT_LINK_MON        : std_logic_vector(3 downto 0) := x"3";
+  constant PB_PORT_LINK_SELECT     : std_logic_vector(3 downto 0) := x"3";
+  constant PB_PORT_LINK_CTRL       : std_logic_vector(3 downto 0) := x"4";
+  constant PB_PORT_LINK_STATUS     : std_logic_vector(3 downto 0) := x"5";
   
 --
 -- UART UART_TX signals
@@ -175,10 +214,12 @@ architecture arch of uC is
 -- MOnitoring singals
 --
   signal irq_counter        : unsigned(31 downto 0);
-  signal link_reset_local   : std_logic;
-  signal link_init_local    : std_logic;
-  signal err_sb_over_thresh : std_logic;
-  signal err_mb_over_thresh : std_logic;
+
+  signal link_INFO_out_local: uC_link_out_t_ARRAY(0 to LINK_COUNT-1);
+
+  signal iLink              : integer range 0 to LINK_COUNT-1;
+  signal err_sb_over_thresh : std_logic_vector(0 to LINK_COUNT-1);
+  signal err_mb_over_thresh : std_logic_vector(0 to LINK_COUNT-1);
   
 begin  -- architecture arch
 
@@ -211,24 +252,30 @@ begin  -- architecture arch
 --Disable sleep and interrupts on kcpsm6
 --
   kcpsm6_sleep <= '0';
---  interrupt    <= interrupt_ack;
-  rst          <= kcpsm6_reset or reset;
+  rst          <= reprogram_reset or reset;
 
+  interrupt_reset <= reset or interrupt_ack;
+  interrupt_signal :   process (clk, interrupt_reset) is
+  begin
+    if interrupt_reset = '1' then
+      interrupt <= '0';
+    elsif clk'event and clk = '1' then      
+      if irq_counter = unsigned(irq_count) then
+        interrupt <= or_reduce(irq_count); --if irq_count is zero we don't use
+                                           --interrupts
+      end if;
+    end if;
+  end process interrupt_signal;
+  
   interrupt_generator: process (clk, reset) is
   begin  -- process interrupt_generator
     if reset = '1' then                 -- asynchronous reset (active high)
       irq_counter <= (others => '0');
-      interrupt <= '0';
     elsif clk'event and clk = '1' then  -- rising clock edge
-      if interrupt_ack = '1' then
-        interrupt <= '0';
+      if irq_counter = unsigned(irq_count) then
+        irq_counter <= to_unsigned(0,32);
       else
-        if irq_counter = unsigned(irq_count) then
-          interrupt <= '1';
-          irq_counter <= (others => '0');
-        else
-          irq_counter <= irq_counter + 1;
-        end if;
+        irq_counter <= irq_counter + 1;
       end if;
     end if;
   end process interrupt_generator;
@@ -236,16 +283,27 @@ begin  -- architecture arch
 --
 -- KCPSM6 ROM
 --
-  program_rom : cli
-    generic map(
-      C_FAMILY             => "7s",     --Family 'S6', 'V6' or '7S'
-      C_RAM_SIZE_KWORDS    => 2,        --Program size '1', '2' or '4'
-      C_JTAG_LOADER_ENABLE => 0)        --Include JTAG Loader when set to '1' 
-    port map(
-      address     => address,
+--  program_rom : cli
+--    generic map(
+--      C_FAMILY             => "7s",     --Family 'S6', 'V6' or '7S'
+--      C_RAM_SIZE_KWORDS    => 2,        --Program size '1', '2' or '4'
+--      C_JTAG_LOADER_ENABLE => 0)        --Include JTAG Loader when set to '1' 
+--    port map(
+--      address     => address,
+--      instruction => instruction,
+--      enable      => bram_enable,
+--      rdl         => kcpsm6_reset,
+--      clk         => clk);
+
+  cli_1: entity work.cli
+    port map (
+      address     => address(10 downto 0),
       instruction => instruction,
-      enable      => bram_enable,
-      rdl         => kcpsm6_reset,
+      portB_addr  => reprogram_addr,
+      portB_wen   => reprogram_wen,
+      portB_di    => reprogram_di,
+      portB_do    => reprogram_do,
+      msize       => open,
       clk         => clk);
 
 --
@@ -330,14 +388,16 @@ begin  -- architecture arch
         when PB_PORT_UART_INPUT =>
           -- (see 'buffer_read' pulse generation below) 
           in_port <= UART_Rx_data_out;
-        when PB_PORT_LINK_MON =>
-          in_port(0) <= link_reset_local;
-          in_port(1) <= link_reset_done;
-          in_port(2) <= link_init_local;
-          in_port(3) <= link_good;
-          in_port(4) <= lane_up;
-          in_port(5) <= err_sb_over_thresh;
-          in_port(6) <= err_mb_over_thresh;
+        when PB_PORT_LINK_CTRL =>
+          in_port(0) <= link_INFO_out_local(iLink).link_reset;
+          in_port(1) <= link_INFO_in(iLink).link_reset_done;
+          in_port(2) <= link_INFO_out_local(iLink).link_init;
+          in_port(3) <= link_INFO_in(iLink).link_good;
+          in_port(4) <= link_INFO_in(iLink).lane_up;
+          in_port(5) <= err_sb_over_thresh(iLink);
+          in_port(6) <= err_mb_over_thresh(iLink);
+        when PB_PORT_LINK_SELECT =>
+          in_port    <= std_logic_vector(to_unsigned(LINK_COUNT,8));
         -----------------------------------------------------------------------
         -- others do nothing
         when others => in_port <= x"00";
@@ -363,6 +423,8 @@ begin  -- architecture arch
     if reset = '1' then
       UART_Tx_reset <= '1';
       UART_Rx_reset <= '1';
+      link_INFO_out_local <= (others => DEFAULT_uC_Link_out_t);
+      
     elsif clk'event and clk = '1' then
       -- reset register strobe
       UART_Tx_reset <= '0';
@@ -378,14 +440,21 @@ begin  -- architecture arch
           when PB_PORT_UART_CONTROL =>
             UART_Tx_reset <= out_port(0);
             UART_Rx_reset <= out_port(1);
-          when PB_PORT_LINK_CTRL =>
-            link_reset_local <= out_port(0);
-            link_init_local  <= out_port(2);
           when others => null;
         end case;
       -------------------------------------------------------------------------
       -- write strobe
---      elsif write_strobe = '1' then
+      elsif write_strobe = '1' then
+        case port_id(3 downto 0) is
+          when PB_PORT_LINK_CTRL =>
+            link_INFO_out_local(iLink).link_reset <= out_port(0);
+            link_INFO_out_local(iLink).link_init  <= out_port(2);
+          when PB_PORT_LINK_SELECT =>
+            iLink                                 <= to_integer(unsigned(out_port(3 downto 0)));
+          when PB_PORT_LINK_STATUS =>
+            link_INFO_out_local(iLink).state            <= out_port;
+          when others => null;
+        end case;
       end if;
     end if;
   end process output_ports;
@@ -403,22 +472,26 @@ begin  -- architecture arch
 -----------------------------------------------------------------------------
 -- monitoring and control 
 -----------------------------------------------------------------------------
-link_mon: process (clk) is
-begin  -- process link_mon
-  if clk'event and clk = '1' then    -- rising clock edge
-    link_reset <= link_reset_local;
-    link_init  <= link_init_local;
-    if unsigned(sb_err_rate) > unsigned(sb_err_rate_threshold) then
-      err_sb_over_thresh <= '1';
-    else
-      err_sb_over_thresh <= '0';    
+  link_mon: process (clk) is
+  begin  -- process link_mon
+    if clk'event and clk = '1' then    -- rising clock edge
+      link_INFO_out <= link_INFO_out_local;
+
+      for i in 0 to LINK_COUNT-1 loop
+
+        if unsigned(link_INFO_in(i).sb_err_rate) > unsigned(link_INFO_in(i).sb_err_rate_threshold) then
+          err_sb_over_thresh(i) <= '1';
+        else
+          err_sb_over_thresh(i) <= '0';    
+        end if;
+        if unsigned(link_INFO_in(i).mb_err_rate) > unsigned(link_INFO_in(i).mb_err_rate_threshold) then
+          err_mb_over_thresh(i) <= '1';
+        else
+          err_mb_over_thresh(i) <= '0';    
+        end if;    
+        
+      end loop;  -- i
     end if;
-    if unsigned(mb_err_rate) > unsigned(mb_err_rate_threshold) then
-      err_mb_over_thresh <= '1';
-    else
-      err_mb_over_thresh <= '0';    
-    end if;    
-  end if;
-end process link_mon;
+  end process link_mon;
   
 end architecture arch;
