@@ -50,6 +50,19 @@ AXI_SLAVES:
     HDL: 
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
+  KINTEX_IPBUS:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT 
+      axi_control: "${::AXI_MASTER_CTRL}"
+      type: "AXI4"
+      addr:
+        offset: "0xB0000000"
+        range:  "16M"
+      data_width: "64"
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/IPBUS.xml"
+    UHAL_BASE: 0x85000000    
   K_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
@@ -69,30 +82,17 @@ AXI_SLAVES:
     HDL: 
       out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_USP/autogen/C2C_INTF"    
       map_template: "axi_generic/template_map_withbram.vhd"
-  KINTEX_IPBUS:
-    TCL_CALL:
-      command: AXI_PL_DEV_CONNECT 
-      axi_control: "${::AXI_MASTER_CTRL}"
-      type: "AXI4"
-      addr:
-        offset: "0xB0000000"
-        range:  "16M"
-      data_width: "64"
-      remote_slave: "1"
-    XML:
-      - "address_table/modules/IPBUS.xml"
-    UHAL_BASE: 0x85000000    
-  SUB_SLAVES:
-    CM1_PB_UART:
-      TCL_CALL:
-        command: "AXI_IP_UART"
-        addr:
-          offset: "0xB1008000"
-          range:  "4K"
-        irq_port: "K_C2CB/axi_c2c_s2m_intr_in"
-        baud_rate: "115200"  
-        axi_control: "${::AXI_MASTER_CTRL}"
-        manual_load_dtsi: "1"
-        remote_slave: "1"
-        dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;
+    SUB_SLAVES:
+      CM1_PB_UART:
+        TCL_CALL:
+          command: "AXI_IP_UART"
+          addr:
+            offset: "0xB1008000"
+            range:  "4K"
+          irq_port: "K_C2CB/axi_c2c_s2m_intr_in"
+          baud_rate: "115200"  
+          axi_control: "${::AXI_MASTER_CTRL}"
+          manual_load_dtsi: "1"
+          remote_slave: "1"
+          dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;
     "
