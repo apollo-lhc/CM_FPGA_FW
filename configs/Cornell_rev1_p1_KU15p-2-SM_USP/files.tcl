@@ -5,12 +5,12 @@ array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
 
 set vhdl_files "\
      configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top.vhd \
-     src/misc/pass_time_domain.vhd \
+     src/misc/DC_data_CDC.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
      src/misc/capture_CDC.vhd \
      src/misc/counter.vhd \
-     src/misc/counter_clock.vhd \
+     src/misc/counter_CDC.vhd \
      regmap_helper/axiReg/axiRegWidthPkg_32.vhd \
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
@@ -19,8 +19,8 @@ set vhdl_files "\
      regmap_helper/axiReg/axiRegBlocking.vhd \
      src/C2C_INTF/C2C_Intf.vhd \
      src/C2C_INTF/CM_phy_lane_control.vhd \
-     src/misc/RGB_PWM.vhd \
-     src/misc/LED_PWM.vhd \
+     src/RGB_PWM.vhd \
+     src/LED_PWM.vhd \
      src/misc/rate_counter.vhd \
      src/CM_FW_info/CM_K_info.vhd \
      ${autogen_path}/CM_IO/K_IO_PKG.vhd \
