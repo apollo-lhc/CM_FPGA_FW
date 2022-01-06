@@ -161,10 +161,10 @@ SVF	:
 	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
 
 
+#convert all push urls to ssh
 init:
 	git submodule update --init --recursive
-	#convert all push urls to ssh
-	git submodule foreach "git remote -v | grep http |  grep \(push\) | sed 's/http.*\/\//git\@/' | sed 's/\//:/' | awk '{print \"git remote set-url --push \" \$1 \" \" \$2 }' | bash"
+	@git submodule foreach "git remote -v | grep http |  grep \(push\) | sed 's/http.*\/\//git\@/' | sed 's/\//:/' | awk '{print "git remote set-url --push " $1 " " $2 }' | grep git | bash"
 
 
 
