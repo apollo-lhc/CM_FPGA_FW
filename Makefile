@@ -164,7 +164,9 @@ SVF	:
 #convert all push urls to ssh
 init:
 	git submodule update --init --recursive
-	@git submodule foreach "git remote -v | grep http |  grep \(push\) | sed 's/http.*\/\//git\@/' | sed 's/\//:/' | awk '{print "git remote set-url --push " $1 " " $2 }' | grep git | bash"
+	@git submodule foreach 'git remote -v | grep http |  grep \(push\) | sed -e "i\git remote set-url --push " -e "s/http.*\/\//git\@/" -e "s/\//:/" -e"s/(push)//" | xargs | bash'
+
+
 
 
 
