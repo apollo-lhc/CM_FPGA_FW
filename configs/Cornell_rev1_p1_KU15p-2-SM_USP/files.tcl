@@ -23,12 +23,12 @@ set vhdl_files "\
      src/LED_PWM.vhd \
      src/misc/rate_counter.vhd \
      src/CM_FW_info/CM_K_info.vhd \
-     ${autogen_path}/CM_IO/K_IO_PKG.vhd \
-     ${autogen_path}/CM_IO/K_IO_map.vhd \
-     ${autogen_path}/C2C_INTF/K_C2C_INTF_map.vhd \
-     ${autogen_path}/C2C_INTF/K_C2C_INTF_PKG.vhd \
-     ${autogen_path}/CM_FW_info/CM_K_INFO_PKG.vhd \
-     ${autogen_path}/CM_FW_info/CM_K_INFO_map.vhd \
+     ${autogen_path}/K_IO/K_IO_PKG.vhd \
+     ${autogen_path}/K_IO/K_IO_map.vhd \
+     ${autogen_path}/C2C_INTF/C2C_INTF_map.vhd \
+     ${autogen_path}/C2C_INTF/C2C_INTF_PKG.vhd \
+     ${autogen_path}/CM_K_INFO/CM_K_INFO_PKG.vhd \
+     ${autogen_path}/CM_K_INFO/CM_K_INFO_map.vhd \
      src/C2C_INTF/picoblaze/picoblaze/kcpsm6.vhd \
      src/C2C_INTF/picoblaze/uart_rx6.vhd \
      src/C2C_INTF/picoblaze/uart_tx6.vhd \

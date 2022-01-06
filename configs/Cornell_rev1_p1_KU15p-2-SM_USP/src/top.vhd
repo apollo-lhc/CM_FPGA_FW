@@ -1,12 +1,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use ieee.std_logic_misc.all;
 
 use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
-use work.K_C2C_INTF_CTRL.all;
+use work.C2C_INTF_CTRL.all;
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -107,8 +108,8 @@ architecture structure of top is
   signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
 
-  signal C2C_Mon  : K_C2C_INTF_MON_t;
-  signal C2C_Ctrl : K_C2C_INTF_Ctrl_t;
+  signal C2C_Mon  : C2C_INTF_MON_t;
+  signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
   signal clk_K_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
 

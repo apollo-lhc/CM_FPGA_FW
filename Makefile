@@ -28,8 +28,9 @@ ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 ################################################################################
 # Configs
 #################################################################################
+CONFIGS_BASE_PATH=configs/
 #get a list of the subdirs in configs.  These are our FPGA builds
-CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
+CONFIGS=$(patsubst ${CONFIGS_BASE_PATH}%/,%,$(dir $(wildcard ${CONFIGS_BASE_PATH}*/)))
 
 define CONFIGS_template =
  $(1): clean autogen_clean_$(1)
@@ -37,7 +38,7 @@ define CONFIGS_template =
 endef
 define CONFIGS_autoclean_template =
  autogen_clean_$(1): 
-	@rm -rf configs/$(1)/autogen/*
+	@rm -rf ${CONFIGS_BASE_PATH}$(1)/autogen/*
 endef
 
 ################################################################################
@@ -48,9 +49,11 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 #################################################################################
 # preBuild 
 #################################################################################
-SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
+SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
+ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
+MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
 
 ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
   include ${MAKE_PATH}/mk/preBuild.mk
@@ -98,6 +101,8 @@ clean_ip_%:
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
 	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+clean_autogen:
+	rm -rf ${CONFIGS_BASE_PATH}*/autogen/*
 
 clean_everything: clean clean_prebuild
 

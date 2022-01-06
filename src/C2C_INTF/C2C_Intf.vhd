@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
-use work.K_C2C_INTF_CTRL.all;
+use work.C2C_INTF_CTRL.all;
 use work.uC_LINK.all;
 
 
@@ -27,8 +27,8 @@ entity C2C_INTF is
     clk_C2C           : in  std_logic_vector(2 downto 1);
     UART_Rx           : in  std_logic;               -- serial in
     UART_Tx           : out std_logic := '1';       -- serial out
-    Mon               : in  K_C2C_INTF_MON_t;
-    Ctrl              : out K_C2C_INTF_CTRL_t
+    Mon               : in  C2C_INTF_MON_t;
+    Ctrl              : out C2C_INTF_CTRL_t
     );
 end entity C2C_INTF;
 
@@ -57,8 +57,8 @@ architecture behavioral of C2C_INTF is
   signal PRBS_CNT_RST    : std_logic_vector(HW_LINK_COUNT*COUNTER_COUNT downto 1);
   signal PRBS_FORCE_ERR  : std_logic_vector(HW_LINK_COUNT*COUNTER_COUNT downto 1);
   
-  signal Mon_local  : K_C2C_INTF_MON_t;
-  signal Ctrl_local : K_C2C_INTF_CTRL_t;
+  signal Mon_local  : C2C_INTF_MON_t;
+  signal Ctrl_local : C2C_INTF_CTRL_t;
 
 
   signal single_bit_error_rate : slv32_array_t(HW_LINK_COUNT downto 1);
@@ -73,7 +73,7 @@ begin
   
 
   --For AXI
-  C2C_INTF_1: entity work.K_C2C_INTF_map
+  C2C_INTF_1: entity work.C2C_INTF_map
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,

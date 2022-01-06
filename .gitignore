@@ -18,6 +18,11 @@ bd/*/*
 
 #picoblaze files
 *.fmt
+src/C2C_INTF/picoblaze/picoblaze/KCPSM6_session_log.txt
+src/C2C_INTF/picoblaze/picoblaze/Reprogram.script
+src/C2C_INTF/picoblaze/picoblaze/Update.script
+src/C2C_INTF/picoblaze/picoblaze/cli.log
+
 
 #################################################################################
 ## config dirs

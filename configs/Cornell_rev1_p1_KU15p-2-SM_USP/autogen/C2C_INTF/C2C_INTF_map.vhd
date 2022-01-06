@@ -8,9 +8,9 @@ use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
 use work.BRAMPortPkg.all;
-use work.K_C2C_INTF_Ctrl.all;
+use work.C2C_INTF_Ctrl.all;
 
-entity K_C2C_INTF_map is
+entity C2C_INTF_map is
   generic (
     READ_TIMEOUT     : integer := 2048
     );
@@ -22,12 +22,12 @@ entity K_C2C_INTF_map is
     slave_writeMOSI  : in  AXIWriteMOSI;
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
     
-    Mon              : in  K_C2C_INTF_Mon_t;
-    Ctrl             : out K_C2C_INTF_Ctrl_t
+    Mon              : in  C2C_INTF_Mon_t;
+    Ctrl             : out C2C_INTF_Ctrl_t
         
     );
-end entity K_C2C_INTF_map;
-architecture behavioral of K_C2C_INTF_map is
+end entity C2C_INTF_map;
+architecture behavioral of C2C_INTF_map is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;
@@ -360,66 +360,66 @@ elsif BRAM_MISO(2).rd_data_valid = '1' then
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data(1024)( 5)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).STATUS.INITIALIZE;
-      reg_data(1028)(22)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.EYESCAN_RESET;
-      reg_data(1028)(23)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.EYESCAN_TRIGGER;
-      reg_data(1029)(15 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.PCS_RSV_DIN;
-      reg_data(1030)(12)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.BUF_RESET;
-      reg_data(1030)(13)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.CDR_HOLD;
-      reg_data(1030)(17)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.DFE_LPM_RESET;
-      reg_data(1030)(18)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.LPM_EN;
-      reg_data(1030)(23)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PCS_RESET;
-      reg_data(1030)(24)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PMA_RESET;
-      reg_data(1030)(25)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PRBS_CNT_RST;
-      reg_data(1030)(29 downto 26)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PRBS_SEL;
-      reg_data(1031)( 2 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.RATE;
-      reg_data(1032)( 7)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.INHIBIT;
-      reg_data(1032)(15)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PCS_RESET;
-      reg_data(1032)(16)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PMA_RESET;
-      reg_data(1032)(17)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.POLARITY;
-      reg_data(1032)(22 downto 18)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.POST_CURSOR;
-      reg_data(1032)(23)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PRBS_FORCE_ERR;
-      reg_data(1032)(31 downto 27)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PRE_CURSOR;
-      reg_data(1033)( 3 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PRBS_SEL;
-      reg_data(1033)( 8 downto  4)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.DIFF_CTRL;
-      reg_data(1048)( 0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).COUNTERS.RESET_COUNTERS;
-      reg_data(1057)(23 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).PHY_READ_TIME;
-      reg_data(1057)(24)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).ENABLE_PHY_CTRL;
-      reg_data(1058)(19 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).PHY_LANE_STABLE;
-      reg_data(1059)( 7 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).PHY_LANE_ERRORS_TO_RESET;
-      reg_data(1060)(31 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).PHY_MAX_SINGLE_BIT_ERROR_RATE;
-      reg_data(1061)(31 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(1).PHY_MAX_MULTI_BIT_ERROR_RATE;
-      reg_data(5120)( 5)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).STATUS.INITIALIZE;
-      reg_data(5124)(22)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.EYESCAN_RESET;
-      reg_data(5124)(23)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.EYESCAN_TRIGGER;
-      reg_data(5125)(15 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.PCS_RSV_DIN;
-      reg_data(5126)(12)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.BUF_RESET;
-      reg_data(5126)(13)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.CDR_HOLD;
-      reg_data(5126)(17)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.DFE_LPM_RESET;
-      reg_data(5126)(18)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.LPM_EN;
-      reg_data(5126)(23)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PCS_RESET;
-      reg_data(5126)(24)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PMA_RESET;
-      reg_data(5126)(25)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PRBS_CNT_RST;
-      reg_data(5126)(29 downto 26)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PRBS_SEL;
-      reg_data(5127)( 2 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.RATE;
-      reg_data(5128)( 7)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.INHIBIT;
-      reg_data(5128)(15)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PCS_RESET;
-      reg_data(5128)(16)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PMA_RESET;
-      reg_data(5128)(17)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.POLARITY;
-      reg_data(5128)(22 downto 18)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.POST_CURSOR;
-      reg_data(5128)(23)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PRBS_FORCE_ERR;
-      reg_data(5128)(31 downto 27)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PRE_CURSOR;
-      reg_data(5129)( 3 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PRBS_SEL;
-      reg_data(5129)( 8 downto  4)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.DIFF_CTRL;
-      reg_data(5144)( 0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).COUNTERS.RESET_COUNTERS;
-      reg_data(5153)(23 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).PHY_READ_TIME;
-      reg_data(5153)(24)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).ENABLE_PHY_CTRL;
-      reg_data(5154)(19 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).PHY_LANE_STABLE;
-      reg_data(5155)( 7 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).PHY_LANE_ERRORS_TO_RESET;
-      reg_data(5156)(31 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).PHY_MAX_SINGLE_BIT_ERROR_RATE;
-      reg_data(5157)(31 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.C2C(2).PHY_MAX_MULTI_BIT_ERROR_RATE;
-      reg_data(10240)( 0)  <= DEFAULT_K_C2C_INTF_CTRL_t.PB.RESET;
-      reg_data(10241)(31 downto  0)  <= DEFAULT_K_C2C_INTF_CTRL_t.PB.IRQ_COUNT;
+      reg_data(1024)( 5)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).STATUS.INITIALIZE;
+      reg_data(1028)(22)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.EYESCAN_RESET;
+      reg_data(1028)(23)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.EYESCAN_TRIGGER;
+      reg_data(1029)(15 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.PCS_RSV_DIN;
+      reg_data(1030)(12)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.BUF_RESET;
+      reg_data(1030)(13)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.CDR_HOLD;
+      reg_data(1030)(17)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.DFE_LPM_RESET;
+      reg_data(1030)(18)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.LPM_EN;
+      reg_data(1030)(23)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PCS_RESET;
+      reg_data(1030)(24)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PMA_RESET;
+      reg_data(1030)(25)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PRBS_CNT_RST;
+      reg_data(1030)(29 downto 26)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.PRBS_SEL;
+      reg_data(1031)( 2 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.RX.RATE;
+      reg_data(1032)( 7)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.INHIBIT;
+      reg_data(1032)(15)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PCS_RESET;
+      reg_data(1032)(16)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PMA_RESET;
+      reg_data(1032)(17)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.POLARITY;
+      reg_data(1032)(22 downto 18)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.POST_CURSOR;
+      reg_data(1032)(23)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PRBS_FORCE_ERR;
+      reg_data(1032)(31 downto 27)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PRE_CURSOR;
+      reg_data(1033)( 3 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.PRBS_SEL;
+      reg_data(1033)( 8 downto  4)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).DEBUG.TX.DIFF_CTRL;
+      reg_data(1048)( 0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).COUNTERS.RESET_COUNTERS;
+      reg_data(1057)(23 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).PHY_READ_TIME;
+      reg_data(1057)(24)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).ENABLE_PHY_CTRL;
+      reg_data(1058)(19 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).PHY_LANE_STABLE;
+      reg_data(1059)( 7 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).PHY_LANE_ERRORS_TO_RESET;
+      reg_data(1060)(31 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).PHY_MAX_SINGLE_BIT_ERROR_RATE;
+      reg_data(1061)(31 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(1).PHY_MAX_MULTI_BIT_ERROR_RATE;
+      reg_data(5120)( 5)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).STATUS.INITIALIZE;
+      reg_data(5124)(22)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.EYESCAN_RESET;
+      reg_data(5124)(23)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.EYESCAN_TRIGGER;
+      reg_data(5125)(15 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.PCS_RSV_DIN;
+      reg_data(5126)(12)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.BUF_RESET;
+      reg_data(5126)(13)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.CDR_HOLD;
+      reg_data(5126)(17)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.DFE_LPM_RESET;
+      reg_data(5126)(18)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.LPM_EN;
+      reg_data(5126)(23)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PCS_RESET;
+      reg_data(5126)(24)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PMA_RESET;
+      reg_data(5126)(25)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PRBS_CNT_RST;
+      reg_data(5126)(29 downto 26)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.PRBS_SEL;
+      reg_data(5127)( 2 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.RX.RATE;
+      reg_data(5128)( 7)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.INHIBIT;
+      reg_data(5128)(15)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PCS_RESET;
+      reg_data(5128)(16)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PMA_RESET;
+      reg_data(5128)(17)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.POLARITY;
+      reg_data(5128)(22 downto 18)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.POST_CURSOR;
+      reg_data(5128)(23)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PRBS_FORCE_ERR;
+      reg_data(5128)(31 downto 27)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PRE_CURSOR;
+      reg_data(5129)( 3 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.PRBS_SEL;
+      reg_data(5129)( 8 downto  4)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).DEBUG.TX.DIFF_CTRL;
+      reg_data(5144)( 0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).COUNTERS.RESET_COUNTERS;
+      reg_data(5153)(23 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).PHY_READ_TIME;
+      reg_data(5153)(24)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).ENABLE_PHY_CTRL;
+      reg_data(5154)(19 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).PHY_LANE_STABLE;
+      reg_data(5155)( 7 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).PHY_LANE_ERRORS_TO_RESET;
+      reg_data(5156)(31 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).PHY_MAX_SINGLE_BIT_ERROR_RATE;
+      reg_data(5157)(31 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.C2C(2).PHY_MAX_MULTI_BIT_ERROR_RATE;
+      reg_data(10240)( 0)  <= DEFAULT_C2C_INTF_CTRL_t.PB.RESET;
+      reg_data(10241)(31 downto  0)  <= DEFAULT_C2C_INTF_CTRL_t.PB.IRQ_COUNT;
 
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       Ctrl.C2C(1).DEBUG.EYESCAN_RESET <= '0';

@@ -16,11 +16,8 @@ AXI_SLAVES:
       remote_slave: "1"
     XML:
       - "address_table/modules/CM_IO.xml"
-      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
-      - "address_table/modules/CM_C2C_Status.xml"
     UHAL_BASE: 0x81000000
     HDL: 
-      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/CM_IO"    
       map_template: "axi_generic/template_map.vhd"
   KINTEX_SYS_MGMT:
     TCL_CALL:
@@ -46,7 +43,6 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
-      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
   K_C2C_INTF:
     TCL_CALL: 
@@ -65,7 +61,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_C2C_CNT.xml"
     UHAL_BASE: 0x86000000
     HDL: 
-      out_dir: "configs/Cornell_rev1_p1_KU15p-2-SM_7s/autogen/C2C_INTF"    
+      out_name: "C2C_INTF"
       map_template: "axi_generic/template_map_withbram.vhd"
     SUB_SLAVES:
       CM1_PB_UART:

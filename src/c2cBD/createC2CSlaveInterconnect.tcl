@@ -61,17 +61,18 @@ AXI_C2C_MASTER [dict create device_name ${C2C} \
 		    c2c_master false \
 		    speed 5 \
 		   ]
-
-AXI_C2C_MASTER [dict create device_name ${C2CB} \
-		    axi_control [dict create axi_clk $AXI_MASTER_CLK \
-				     axi_rstn $AXI_MASTER_RSTN\
-				     axi_freq $AXI_MASTER_CLK_FREQ] \
-		    primary_serdes ${C2C}_PHY \
-		    init_clk $EXT_CLK \
-		    refclk_freq 200 \
-		    c2c_master false \
-		    speed 5 \
-		   ]
+if { [info exists C2CB] } {
+    AXI_C2C_MASTER [dict create device_name ${C2CB} \
+			axi_control [dict create axi_clk $AXI_MASTER_CLK \
+					 axi_rstn $AXI_MASTER_RSTN\
+					 axi_freq $AXI_MASTER_CLK_FREQ] \
+			primary_serdes ${C2C}_PHY \
+			init_clk $EXT_CLK \
+			refclk_freq 200 \
+			c2c_master false \
+			speed 5 \
+		       ]
+}
 
 
 #================================================================================
