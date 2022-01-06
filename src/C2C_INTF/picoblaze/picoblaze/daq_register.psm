@@ -1,0 +1,87 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name                | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | util_hex_to_byte    | x  | x  | x  | x  |    |    |    |    |    |    |    |    |
+;;; | reg_rd              | x  | x  |    |    | x  | x  | x  | x  |
+;;; | reg_wr              |    | x  |    |    |    |    |    |    |
+	
+;;; ============================================================================
+;;; CONSTANTS
+;;; ============================================================================
+CONSTANT REG_STATUS_PORT, 	03 ;status and control port
+CONSTANT REG_ADDR0_PORT,	04 ;reg address port 0
+CONSTANT REG_ADDR1_PORT,	05 ;reg address port 1
+CONSTANT REG_DATA0_PORT,	06 ;Data io port
+CONSTANT REG_DATA1_PORT,	07 ;Data io port
+CONSTANT REG_DATA2_PORT,	08 ;Data io port
+CONSTANT REG_DATA3_PORT,	09 ;Data io port
+CONSTANT REG_STATUS_WRITE,      04
+CONSTANT REG_STATUS_READ,       08
+CONSTANT REG_STATUS_ADDR1,      02
+CONSTANT REG_STATUS_ADDR0,      01
+CONSTANT REG_STATUS_DATA_VALID, 10	
+	;; STATUS port is 0bX X X X R W A1 A0  where R/W are cause read/writes
+	;; and A1,A0 address the 32 bit word in bytes
+
+;;; ============================================================================
+;;; Read 32bit word from address
+	;; register address is in s0,s1 (LSB - MSB)
+	;; save data in s4-s7 (LSB - MSB)
+;;; ============================================================================
+reg_rd:
+	;; write the address we want to read
+	OUTPUT s0, REG_ADDR0_PORT
+	OUTPUT s1, REG_ADDR1_PORT
+	;; latch value and set readout address to 00
+	LOAD s1, REG_STATUS_READ		; 0x8 -> 0bRWAA -> 0b1000
+	OUTPUT s1, REG_STATUS_PORT
+	AND s1,FF	 ;no op
+	AND s1,FF	 ;no op
+	AND s1,FF	 ;no op
+	AND s1,FF	 ;no op	
+	;; now wait for the data to be loaded locally
+reg_rd_poll:
+	INPUT s0, REG_STATUS_PORT
+	TEST s0, REG_STATUS_DATA_VALID
+	JUMP Z, reg_rd_poll
+	
+	;; now the value is latched locally,
+	;; we just need to read it out one byte at a time
+
+	;; select and read data[7..0]
+	INPUT s4, REG_DATA0_PORT	;LSB
+	;; select and read data[15..8]
+	INPUT s5, REG_DATA1_PORT
+	;; select and read data[23..16]
+	INPUT s6, REG_DATA2_PORT
+	;; select and read data[31..24]
+	INPUT s7, REG_DATA3_PORT ;MSB
+	
+	RETURN			
+
+
+;;; ============================================================================
+;;; Write 32bit word to address
+	;; register address is in s0,s1 (LSB - MSB)
+	;; send data in s4-s7 (LSB - MSB)
+;;; ============================================================================
+reg_wr:
+	;; write the address we want to read
+	OUTPUT s0, REG_ADDR0_PORT
+	OUTPUT s1, REG_ADDR1_PORT
+
+	;; write out the 32 bit word to the local buffer
+	OUTPUT s4, REG_DATA0_PORT	;LSB
+
+	OUTPUT s5, REG_DATA1_PORT
+
+	OUTPUT s6, REG_DATA2_PORT
+
+	OUTPUT s7, REG_DATA3_PORT ;MSB
+
+	;; force the write
+	LOAD s1, F4 		;write strobe bit
+	OUTPUT s1, REG_STATUS_PORT
+	
+	RETURN			

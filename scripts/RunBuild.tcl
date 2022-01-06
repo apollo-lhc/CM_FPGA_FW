@@ -3,6 +3,12 @@
 synth_design -top $top -part $FPGA_part -flatten rebuilt
 
 
+global post_synth_commands
+foreach cmd $post_synth_commands {
+    puts $cmd
+    $cmd
+}
+
 #################################################################################
 # STEP#3: run placement and logic optimization, report utilization and timing
 # estimates, write checkpoint design

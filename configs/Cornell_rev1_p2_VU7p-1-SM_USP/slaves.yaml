@@ -7,21 +7,22 @@ AXI_CONTROL_SETS:
 
 
 AXI_SLAVES:
-  V_C2C_PHY:
+  V_IO:
     TCL_CALL: 
-      command: AXI_DEV_CONNECT
-      axi_control:
-        axi_interconnect: ${::AXI_INTERCONNECT_NAME}
-        axi_clk: ${::EXT_CLK} 
-        axi_rstn: ${::EXT_RESET} 
-        axi_freq: 50000000 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: ${::AXI_MASTER_CTRL}
       addr:
-        offset: 0xB3004000
+        offset: 0xB3001000 
         range: 4K
       remote_slave: "1"
     XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
-    UHAL_BASE: 0xC6000000
+      - "address_table/modules/CM_IO.xml"
+      - "address_table/modules/CM_IO_C2C.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
+    UHAL_BASE: 0xC1000000
+    HDL: 
+      map_template: "axi_generic/template_map_withbram.vhd"
 
   VIRTEX_SYS_MGMT:
     TCL_CALL: 
@@ -35,24 +36,7 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/VIRTEX_SYS_MGMT.xml"
     UHAL_BASE: 0xC0000000
-  
-  V_IO:
-    TCL_CALL: 
-      command: AXI_PL_DEV_CONNECT
-      axi_control: ${::AXI_MASTER_CTRL}
-      addr:
-        offset: 0xB3001000 
-        range: 4K
-      remote_slave: "1"
-    XML:
-      - "address_table/modules/CM_IO.xml"
-      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
-      - "address_table/modules/CM_C2C_Status.xml"
-    UHAL_BASE: 0xC1000000
-    HDL: 
-      out_dir: "configs/Cornell_rev1_p2_VU7p-1-SM_USP/autogen/CM_IO"    
-      map_template: "axi_generic/template_map.vhd"
-  
+
   CM_V_INFO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
@@ -65,9 +49,8 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
     HDL: 
-      out_dir: "configs/Cornell_rev1_p2_VU7p-1-SM_USP/autogen/CM_FW_info"
       map_template: "axi_generic/template_map.vhd"
-                  
+
   VIRTEX_IPBUS:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
@@ -81,4 +64,38 @@ AXI_SLAVES:
     XML:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0xC5000000    
-  
+
+  V_C2C_INTF:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB3010000"
+        range:  "64K"
+      remote_slave: "1"
+    XML:
+      - "address_table/modules/C2C_INTFS.xml"
+      - "address_table/modules/C2C_INTF.xml"
+      - "address_table/modules/DRP_USP_GTY.xml"
+      - "address_table/modules/CM_C2C_Status.xml"
+      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_CNT.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_name: "C2C_INTF"
+      map_template: "axi_generic/template_map_withbram.vhd"
+    SUB_SLAVES:
+      CM1_PB_UART:
+        TCL_CALL:
+          command: "AXI_IP_UART"
+          addr:
+            offset: "0xB3008000"
+            range:  "4K"
+          irq_port: "V_C2CB/axi_c2c_s2m_intr_in"
+          baud_rate: "115200"  
+          axi_control: "${::AXI_MASTER_CTRL}"
+          manual_load_dtsi: "1"
+          remote_slave: "1"
+          dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <102>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;
+    "
+

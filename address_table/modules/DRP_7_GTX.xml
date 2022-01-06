@@ -1,0 +1,41 @@
+<node id="ES">
+  <node id="RX_DATA_WIDTH"      address="0x011" mask="0x3800" permission="rw" description=""/>
+  <node id="RX_INT_DATAWIDTH"   address="0x011" mask="0x4000" permission="rw" description=""/>
+
+  <node id="QUALIFIER_0"        address="0x02C" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUALIFIER_1"        address="0x02D" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUALIFIER_2"        address="0x02E" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUALIFIER_3"        address="0x02F" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUALIFIER_4"        address="0x030" mask="0xFFFF" permission="rw" description=""/>    
+
+  <node id="QUAL_MASK_0"        address="0x031" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUAL_MASK_1"        address="0x032" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUAL_MASK_2"        address="0x033" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUAL_MASK_3"        address="0x034" mask="0xFFFF" permission="rw" description=""/>
+  <node id="QUAL_MASK_4"        address="0x035" mask="0xFFFF" permission="rw" description=""/>
+
+  <node id="OFFSET_DATA_MASK_0" address="0x036" mask="0xFFFF" permission="rw" description=""/>
+  <node id="OFFSET_DATA_MASK_1" address="0x037" mask="0xFFFF" permission="rw" description=""/>
+  <node id="OFFSET_DATA_MASK_2" address="0x038" mask="0xFFFF" permission="rw" description=""/>
+  <node id="OFFSET_DATA_MASK_3" address="0x039" mask="0xFFFF" permission="rw" description=""/>
+  <node id="OFFSET_DATA_MASK_4" address="0x03A" mask="0xFFFF" permission="rw" description=""/>
+
+  <node id="VERT_OFFSET_MAG"    address="0x03B" mask="0x007F" permission="rw" description=""/>
+  <node id="VERT_OFFSET_SIGN"   address="0x03B" mask="0x0080" permission="rw" description=""/>
+  <node id="PRESCALE"           address="0x03B" mask="0xF800" permission="rw" description=""/>
+  <node id="HORZ_OFFSET_MAG"    address="0x03C" mask="0x07FF" permission="rw" description=""/>
+  <node id="PHASE_UNIFICATION"  address="0x03C" mask="0x0800" permission="rw" description=""/>
+
+  <node id="RUN"                address="0x03D" mask="0x0001" permission="rw" description=""/>
+  <node id="EYE_SCAN_EN"        address="0x03D" mask="0x0100" permission="rw" description=""/>
+  <node id="ERRDET_EN"          address="0x03D" mask="0x0200" permission="rw" description=""/>
+
+  <node id="PMA_RSV2"           address="0x082" mask="0x0020" permission="rw" description=""/>
+  <node id="RXOUT_DIV"          address="0x088" mask="0x0007" permission="rw" description=""/>
+  <node id="PMA_CFG"            address="0x0A6" mask="0x03FF" permission="rw" description=""/>    
+
+  <node id="ERROR_COUNT"        address="0x14F" mask="0xFFFF" permission="r"/>
+  <node id="SAMPLE_COUNT"       address="0x150" mask="0xFFFF" permission="r"/> 
+  <node id="CTRL_STATUS"        address="0x151" mask="0x000F" permission="r"/>
+
+</node>

@@ -43,8 +43,20 @@ read_vhdl ${timestamp_file}
 puts "Adding ${timestamp_file}"
 for {set j 0} {$j < [llength $vhdl_files ] } {incr j} {
     set filename "${apollo_root_path}/[lindex $vhdl_files $j]"
-    read_vhdl $filename
-    puts "Adding $filename"
+    if { [file extension ${filename} ] == ".v" } {
+	read_verilog $filename
+	puts "Adding verilog file: $filename"
+    } else {
+	read_vhdl $filename
+	puts "Adding VHDL file: $filename"
+    }
+
+}
+
+set syntax_check_info [check_syntax -return_string]
+if {[string first "is not declared" ${syntax_check_info} ] > -1} {
+    puts ${syntax_check_info}
+    exit
 }
 
 #Add xdc files
@@ -53,6 +65,7 @@ for {set j 0} {$j < [llength $xdc_files ] } {incr j} {
     read_xdc $filename
     puts "Adding $filename"
 }
+
 
 #Add xci files
 for {set j 0} {$j < [llength $xci_files ] } {incr j} {
@@ -78,7 +91,7 @@ for {set j 0} {$j < [llength $xci_files ] } {incr j} {
 }
 
 
-check_syntax -fileset sources_1
+#check_syntax -fileset sources_1
 
 #Add bd files
 foreach bd_name [array names bd_files] {

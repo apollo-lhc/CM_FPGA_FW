@@ -28,13 +28,19 @@ ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
 ################################################################################
 # Configs
 #################################################################################
+CONFIGS_BASE_PATH=configs/
 #get a list of the subdirs in configs.  These are our FPGA builds
-CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
+CONFIGS=$(patsubst ${CONFIGS_BASE_PATH}%/,%,$(dir $(wildcard ${CONFIGS_BASE_PATH}*/)))
 
 define CONFIGS_template =
- $(1): clean
+ $(1): clean autogen_clean_$(1)
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
+define CONFIGS_autoclean_template =
+ autogen_clean_$(1): 
+	@rm -rf ${CONFIGS_BASE_PATH}$(1)/autogen/*
+endef
+
 ################################################################################
 # Short build names
 #################################################################################
@@ -43,9 +49,11 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 #################################################################################
 # preBuild 
 #################################################################################
-SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
+SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
+ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
+MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
 
 ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
   include ${MAKE_PATH}/mk/preBuild.mk
@@ -93,9 +101,13 @@ clean_ip_%:
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
 	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+clean_autogen:
+	rm -rf ${CONFIGS_BASE_PATH}*/autogen/*
 
 clean_everything: clean clean_prebuild
 
+#generate autogen cleanup for this config
+$(foreach config,$(CONFIGS),$(eval $(call CONFIGS_autoclean_template,$(config))))
 
 #################################################################################
 # Open vivado
@@ -104,7 +116,7 @@ clean_everything: clean clean_prebuild
 open_project : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado top.xpr
+	vivado top.xpr -source ../scripts/OpenProject.tcl
 open_synth :
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
@@ -151,6 +163,9 @@ SVF	:
 
 init:
 	git submodule update --init --recursive
+	#convert all push urls to ssh
+	git submodule foreach "git remote -v | grep http |  grep \(push\) | sed 's/http.*\/\//git\@/' | sed 's/\//:/' | awk '{print \"git remote set-url --push \" \$1 \" \" \$2 }' | bash"
+
 
 
 make test :

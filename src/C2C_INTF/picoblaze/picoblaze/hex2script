@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+
+import argparse
+import math
+
+def generatePBWrites(baseName,physicalMemSize,hexFile,outFile):
+    #read the hex file
+    lastNonZeroLine = 0
+    rawData = []
+    with open(hexFile) as hexDataFile:
+        for line in hexDataFile:
+            if len(line) > 0:
+                rawData.append(line.strip())
+                #this if statement will raise and excpetion if the line isn't hex
+                if int(line,16) != 0:
+                    lastNonZeroLine = len(rawData)
+
+    #set the memory size
+    dataSize=lastNonZeroLine
+    #check that the rom will fit
+    if dataSize > physicalMemSize:
+        raise "dataSize: %d is larger than physicalMemorySize %d" % (dataSize,physicalMemSize)
+                
+    #build array of memory init values
+    with open(outFile,"w") as scriptFile:
+        scriptFile.write("write "+baseName+".RESET 1\n");
+        scriptFile.write("echo Holding "+baseName+" in reset for reprogramming\n")
+        scriptFile.write("echo Programming\n")
+        for i in range(0,lastNonZeroLine):
+            scriptFile.write("writeoffset "+baseName+".MEM "+str(i)+" 0x"+rawData[i]+"\n" )
+        scriptFile.write("echo Programming Finished\n")
+        scriptFile.write("write "+baseName+".RESET 0\n");        
+
+
+    return
+
+    
+    
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description="Generate picoBlaze ROM+BRAM updater VHDL file from picroBlaze hex file.")
+    parser.add_argument("--baseNode","-b",help="baseNode containing reset and mem",required=True)
+    parser.add_argument("--hexfile","-i",help="Picoblaze program ROM hex file",required=True)
+    parser.add_argument("--outfile","-o",help="Output script file",required=True)
+    parser.add_argument("--memsize","-s",type=int,help="BRAM size",required=True)
+
+    args = parser.parse_args()
+    
+    generatePBWrites(args.baseNode,
+                     args.memsize,
+                     args.hexfile,
+                     args.outfile)

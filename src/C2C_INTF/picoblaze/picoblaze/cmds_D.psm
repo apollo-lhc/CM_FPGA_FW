@@ -1,0 +1,213 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name         | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_DumpB    | x  | x  | x  |    |    |    |    |    |    |    |    |    |
+
+CMD_DumpB_print_common:
+	CALL util_print_hex_byte
+
+	;; print ": "
+	CALL uart_output_wait
+	LOAD s0, ":" 
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, " " 
+	OUTPUT s0, UART_OUTPUT
+	RETURN
+
+CMD_DumpB:
+	;; print reg address
+	LOAD s0, 00
+	CALL CMD_DumpB_print_common	
+
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s0
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 01
+	CALL CMD_DumpB_print_common	
+
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s1
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 02
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s2
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 03
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s3
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 04
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s4
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 05
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s5
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 06
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s6
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 07
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s7
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 08
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s8
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 09
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,s9
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 0A
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,sA
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 0B
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,sB
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 0C
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,sC
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 0D
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,sD
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 0E
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,sE
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+
+	
+	;; print reg address
+	LOAD s0, 0F
+	CALL CMD_DumpB_print_common
+	;; Load reg B to A s0 and print
+	REGBANK B	
+	STAR s0,sF
+	REGBANK A
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+	
+	RETURN

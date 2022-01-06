@@ -1,0 +1,87 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name         | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_Mem_dump | x  | x  | x  | x  |    |    |    |    |    |    | x  |  x |
+;;; | CMD_multiarg | x  | x  | x  | x  | x  | x  | x  |    |    |    | x  |  x |
+	
+;;; DUMP data to user
+	;; 1) write size of data in memory
+	;; 2) Write data
+	;; 3) Write CMD_DUMP
+;;; ============================================================================
+CMD_Mem_wr:
+	FETCH s0, CLI_COUNT		; 
+	COMPARE s0, 02			;
+	JUMP NZ, ERROR_BAD_ARG
+
+	FETCH s0, CLI_WORD_1
+	FETCH s1, CLI_WORD_2
+	STORE s1, (s0)
+	CALL util_print_EOL
+	RETURN
+
+CMD_Mem_dump:	
+	LOAD s3, 00			; initialize read pointer
+CMD_Mem_dump_loop:
+	;; print offset
+	LOAD s0, s3
+	CALL util_byte_to_hex
+
+	CALL util_print_hex_byte
+
+	CALL uart_output_wait
+	LOAD s0, ":"
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, " "
+	OUTPUT s0, UART_OUTPUT
+
+	;; print 4 bytes of data
+	ADD s3,04
+CMD_Mem_dump_line_loop:	
+	SUB s3,01			;move back one
+
+	FETCH s0, (s3)		 	; fetch data
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+
+	;; determine if we are at the 4 byte line boundary
+	LOAD s0, s3
+	AND s0, 03	
+	COMPARE s0, 00
+	JUMP NZ, CMD_Mem_dump_line_loop
+	;; print EOL after 4 bytes
+	CALL util_print_EOL
+	ADD s3,04
+
+	;; check for end of the buffer
+	COMPARE s3, 00		; see if we are past valid memory
+	JUMP Z, CMD_Mem_dump_end
+	
+	JUMP CMD_Mem_dump_loop
+	
+CMD_Mem_dump_end:
+	CALL util_print_EOL
+	RETURN
+
+CMD_multiarg:
+	CALL CMD_sys
+	FETCH s0, CLI_COUNT		; load the already parsed commands
+	COMPARE s0, 04			; jump to the end if we have fewer than 4 args
+	JUMP C, CMD_multiarg_end
+	;; reparse the reset of the args	
+	;; get CMD4's postions
+	FETCH s2, CLI_WORD_4_POS	
+	;; get CMD4's size
+	FETCH s1, CLI_WORD_4_SIZE
+	ADD s2,s1
+	;; computer new end pos
+	CALL cmd_tokenize
+	CALL cmd_parse_tokens
+	CALL CMD_sys
+CMD_multiarg_end:	
+	RETURN

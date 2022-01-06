@@ -1,0 +1,48 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name         | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_LED_rd   | x  | x  | x  | x  |    |    |    |    |    |    |    |    |
+;;; | CMD_LED_wr   | x  | x  | x  | x  |    |    |    |    |    |    |    |    |
+
+
+
+
+CONSTANT LED_LSB_INPUT,	02	;LSB of LED read
+CONSTANT LED_MSB_INPUT,	03	;LSB of LED read
+
+CONSTANT LED_LSB_OUTPUT,	02	;LSB of LED write
+CONSTANT LED_MSB_OUTPUT,	03	;LSB of LED write
+
+	
+;;; Read LEDs
+;;; ============================================================================
+CMD_LED_rd:
+	INPUT s0, LED_MSB_INPUT
+	CALL util_byte_to_hex
+	CALL util_print_hex_byte
+	INPUT s0, LED_LSB_INPUT
+	CALL util_byte_to_hex
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+	RETURN
+
+CMD_LED_wr:
+	FETCH s0, CLI_COUNT
+	COMPARE s0, 01
+	JUMP NZ, ERROR_BAD_ARG
+
+	;; load LSB byte and output to LEDs
+	LOAD s4, CLI_WORD_1
+	FETCH s0, (s4)
+	;; output byte to LSB
+	OUTPUT s0, LED_LSB_OUTPUT
+
+	;; load next two nibbles
+	ADD s4, 01
+	FETCH s0, (s4)
+	;; output byte to LSB
+	OUTPUT s0, LED_MSB_OUTPUT
+
+	CALL util_print_EOL
+	RETURN

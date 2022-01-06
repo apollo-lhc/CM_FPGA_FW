@@ -1,0 +1,221 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name       | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_reset  | x  | x  | x  |    |    |    |    |    |    |    | x  |  x |
+;;; | CMD_REG_RD | x  |    |    |    | x  | x  | x  | x  |    |    | y  | y  |
+	
+;;; ============================================================================
+;;; Reset UI
+;;; ============================================================================
+CMD_reset:	
+	CALL hard_reset
+	RETURN
+
+
+INCLUDE "daq_register.psm"
+;;; ============================================================================
+;;; DAQ reg read:
+;;;  First argument is the address
+;;;  if there is a second, it is the number of registers to read
+;;; ============================================================================	
+CMD_REG_RD:
+	;; make sure we have an argument
+	FETCH s0, CLI_COUNT
+	COMPARE s0, 02
+	JUMP Z, CMD_REG_RD_SIZE
+	COMPARE s0, 01
+	JUMP NZ, ERROR_BAD_ARG
+	LOAD sE, 01		;readout size
+	LOAD s1, CLI_WORD_1	;readout address
+	FETCH sC, (s1)
+	ADD s1,01		;move to MSB of address
+	FETCH sD, (s1)
+	JUMP CMD_REG_RD_LOOP
+CMD_REG_RD_SIZE:
+	LOAD s1, CLI_WORD_1	;readout address
+	FETCH sC, (s1)
+	ADD s1, 01		;move to MSB of address
+	FETCH sD, (s1)
+	LOAD sE, CLI_WORD_2	;readout size
+	FETCH sE, (sE)
+	COMPARE sE,00
+	JUMP NZ, CMD_REG_RD_LOOP
+	LOAD sE,01
+	
+CMD_REG_RD_LOOP:	
+	;; load address
+	LOAD s0, sC
+	LOAD s1, sD
+
+	;; do the read
+	CALL reg_rd
+
+	;; print address to screen
+	CALL uart_output_wait
+	LOAD s0, "0"
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, "x"
+	OUTPUT s0, UART_OUTPUT
+
+	LOAD s0, sD		;address MSB
+	CALL util_print_hex_byte
+	
+	LOAD s0, sC		;address LSB
+	CALL util_print_hex_byte
+
+	;; print space
+	CALL uart_output_wait
+	LOAD s0, " "
+	OUTPUT s0, UART_OUTPUT
+
+	;; print to screen
+	CALL uart_output_wait
+	LOAD s0, "0"
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, "x"
+	OUTPUT s0, UART_OUTPUT
+
+	;; print MSB byte
+	CALL uart_output_wait
+	LOAD s0, s7
+	CALL util_print_hex_byte
+	CALL uart_output_wait
+	LOAD s0, s6
+	CALL util_print_hex_byte
+	CALL uart_output_wait
+	LOAD s0, s5
+	CALL util_print_hex_byte
+	CALL uart_output_wait
+	LOAD s0, s4
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+	ADD sC, 01		;increment address LSB
+	ADDCY sD,00		;add carry to address MSB
+	SUB sE, 01
+	JUMP NZ, CMD_REG_RD_LOOP
+	
+	RETURN
+
+;;; ============================================================================
+;;; DAQ reg read & increment:
+;;;  First argument is the address
+;;;  Second argument is the number of register reads to do
+;;; ============================================================================	
+CMD_REG_RDI:
+	;; make sure we have an argument
+	FETCH s0, CLI_COUNT
+	COMPARE s0, 02
+	JUMP NZ, ERROR_BAD_ARG
+	COMPARE s0, 01
+	JUMP NZ, ERROR_BAD_ARG
+
+	LOAD s1, CLI_WORD_1	;readout address
+	FETCH sC, (s1)
+	ADD s1, 01		;move to MSB of address
+	FETCH sD, (s1)
+
+	;; print address to screen
+	CALL uart_output_wait
+	LOAD s0, "0"
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, "x"
+	OUTPUT s0, UART_OUTPUT
+
+	LOAD s0, sD		;address MSB
+	CALL util_print_hex_byte
+	
+	LOAD s0, sC		;address LSB
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+	
+	LOAD sF, CLI_WORD_2	;readout size LSB
+	FETCH sE, (sF)
+	ADD sF, 01
+	FETCH sF,(sF)		;readout size MSB
+	COMPARE sE,00
+	JUMP NZ, CMD_REG_RDI_LOOP
+	LOAD sE,01
+	
+CMD_REG_RDI_LOOP:	
+	;; load address
+	LOAD s0, sC
+	LOAD s1, sD
+
+	;; do the read
+	CALL reg_rd
+
+	;; print to screen
+	CALL uart_output_wait
+	LOAD s0, "0"
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, "x"
+	OUTPUT s0, UART_OUTPUT
+
+	;; print MSB byte
+	CALL uart_output_wait
+	LOAD s0, s7
+	CALL util_print_hex_byte
+	CALL uart_output_wait
+	LOAD s0, s6
+	CALL util_print_hex_byte
+	CALL uart_output_wait
+	LOAD s0, s5
+	CALL util_print_hex_byte
+	CALL uart_output_wait
+	LOAD s0, s4
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+
+	SUB sE, 01
+	SUBCY sF,00
+
+	COMPARE sE,00
+	JUMP NZ, CMD_REG_RDI_LOOP
+	COMPARE sF,00
+	JUMP NZ, CMD_REG_RDI_LOOP
+	
+	RETURN
+
+	
+;;; ============================================================================
+;;; DAQ reg write:
+;;;  First argument is the address
+;;;  Second arg is the 32bit word
+;;; ============================================================================	
+CMD_REG_WR:
+	;; make sure we have two arguments
+	FETCH s0, CLI_COUNT
+	COMPARE s0, 02
+	JUMP NZ, ERROR_BAD_ARG
+
+	;; load write data from second argument
+	LOAD s0, CLI_WORD_2
+	FETCH s1, (s0)
+	LOAD s4, s1		;MSB
+	ADD s0,01
+	FETCH s1, (s0)
+	LOAD s5, s1
+	ADD s0,01
+	FETCH s1, (s0)
+	LOAD s6, s1
+	ADD s0,01
+	FETCH s1, (s0)
+	LOAD s7, s1		;LSB
+
+	;; load reg address
+	LOAD s1, CLI_WORD_1
+	FETCH S0, (s1)
+	ADD s1, 01 		;MSB address
+	FETCH s1, (s1)
+
+	;; do the write
+	CALL reg_wr	
+	RETURN			;
+
+
