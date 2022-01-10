@@ -9,3 +9,7 @@
 [submodule "src/misc"]
 	path = src/misc
 	url = https://gitlab.com/BU-EDF/fw-bits/misc-vhdl.git
+[submodule "build-scripts"]
+	path = build-scripts
+	url = https://gitlab.com/BU-EDF/fw-bits/build-scripts.git
+	branch = develop

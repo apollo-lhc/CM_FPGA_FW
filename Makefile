@@ -154,7 +154,7 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_T
 	$(MAKE) NOTIFY_DAN_GOOD
 	$(MAKE) overlays
 	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
-	@echo 	$(MAKE) $*.tar.gz
+	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz
 
 SVF	:
@@ -174,5 +174,6 @@ init:
 make test :
 	@echo $(CONFIGS)
 
-%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/
+#%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
+%.tar.gz : bit/top_%.svf 
 	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
