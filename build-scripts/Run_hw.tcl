@@ -1,6 +1,17 @@
+puts $argc
+puts $argv
+set port 2544
+set ip -1
+if { $argc == 2 } {
+    set port [lindex $argv 1]
+    set ip  [lindex $argv 0]
+} elseif {$argc == 1} {
+    set ip  [lindex $argv 0]
+}
+
 open_hw
 connect_hw_server
-set ip 192.168.30.62
-open_hw_target -xvc_url ${ip}:2544
-#open_hw_target -xvc_url ${ip}:2545
-open_hw_target -xvc_url ${ip}:2546
+
+if { $ip != -1 } {
+    open_hw_target -xvc_url ${ip}:${port}
+}

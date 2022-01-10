@@ -1,3 +1,6 @@
+#this is an example to build from and only generate_svf.tcl files in the configs/build_name directories will be called
+
+
 #this has to be called from inside an open session
 source ../build-scripts/settings.tcl
 

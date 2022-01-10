@@ -12,10 +12,11 @@ BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh
 #################################################################################
 # TCL scripts
 #################################################################################
-SETUP_TCL=${MAKE_PATH}/build-scripts/Setup.tcl
-BUILD_TCL=${MAKE_PATH}/build-scripts/Build.tcl
-SETUP_BUILD_TCL=${MAKE_PATH}/build-scripts/SetupAndBuild.tcl
-HW_TCL=${MAKE_PATH}/build-scripts/Run_hw.tcl
+BUILD_SCRIPTS_PATH=${MAKE_PATH}/build-scripts
+SETUP_TCL=${BUILD_SCRIPTS_PATH}/Setup.tcl
+BUILD_TCL=${BUILD_SCRIPTS_PATH}/Build.tcl
+SETUP_BUILD_TCL=${BUILD_SCRIPTS_PATH}/SetupAndBuild.tcl
+HW_TCL=${BUILD_SCRIPTS_PATH}/Run_hw.tcl
 
 #################################################################################
 # Source files
@@ -55,8 +56,8 @@ ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
 
-ifneq ("$(wildcard ${MAKE_PATH}/build-scripts/mk/preBuild.mk)","")
-  include ${MAKE_PATH}/build-scripts/mk/preBuild.mk
+ifneq ("$(wildcard ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk)","")
+  include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
 endif
 
 
@@ -100,7 +101,7 @@ clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild
 clean_ip_%:
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/build-scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+	vivado $(VIVADO_FLAGS) -source ${BUILD_SCRIPTS_PATH}/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
 clean_autogen:
 	rm -rf ${CONFIGS_BASE_PATH}*/autogen/*
 
@@ -149,7 +150,7 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_T
 	mkdir -p ${MAKE_PATH}/proj &&\
 	mkdir -p ${MAKE_PATH}/bit &&\
 	cd proj &&\
-	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
+	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD
 	$(MAKE) overlays
 	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
@@ -158,7 +159,7 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_T
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
-	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/build-scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+	vivado $(VIVADO_FLAGS) -source ${BUILD_SCRIPTS_PATH}/Generate_svf.tcl $(OUTPUT_MARKUP)
 
 
 #convert all push urls to ssh
