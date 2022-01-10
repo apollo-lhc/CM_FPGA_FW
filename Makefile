@@ -1,4 +1,4 @@
-include build-scripts/mk/helpers.mk
+-include build-scripts/mk/helpers.mk
 
 #################################################################################
 # VIVADO stuff
@@ -56,22 +56,20 @@ ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
 MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
 
-ifneq ("$(wildcard ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk)","")
-  include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
-endif
+-include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
 
 
 
 #################################################################################
 # CM Address tables
 #################################################################################
-include build-scripts/mk/addrTable.mk
+-include build-scripts/mk/addrTable.mk
 
 #################################################################################
 # Device tree overlays
 #################################################################################
 DTSI_PATH=${SLAVE_DTSI_PATH}/hw/
-include build-scripts/mk/deviceTreeOverlays.mk
+-include build-scripts/mk/deviceTreeOverlays.mk
 
 
 .SECONDARY:
