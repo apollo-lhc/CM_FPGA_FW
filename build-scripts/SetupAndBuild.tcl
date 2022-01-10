@@ -23,5 +23,5 @@ puts "Autogen path: ${autogen_path}"
 puts "BD_PATH: ${BD_PATH}"
 
 
-source ${apollo_root_path}/scripts/Setup.tcl
-source ${apollo_root_path}/scripts/Build.tcl
+source ${apollo_root_path}/build-scripts/Setup.tcl
+source ${apollo_root_path}/build-scripts/Build.tcl

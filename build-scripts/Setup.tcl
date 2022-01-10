@@ -2,9 +2,8 @@
 # collect files
 # run synthesis
 
-#source ${apollo_root_path}/scripts/settings.tcl
 source ${apollo_root_path}/configs/${build_name}/settings.tcl
-source ${apollo_root_path}/scripts/FW_info.tcl
+source ${apollo_root_path}/build-scripts/helpers/FW_info.tcl
 
 #################################################################################
 # STEP#0: define output directory area.

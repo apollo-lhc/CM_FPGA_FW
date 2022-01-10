@@ -1,5 +1,5 @@
 #this has to be called from inside an open session
-source ../scripts/settings.tcl
+source ../build-scripts/settings.tcl
 
 #add the device info for the uC
 #set device-info-file ../scripts/CM_uC_dev_info.csv

@@ -35,7 +35,7 @@ $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml : 
 	@mkdir -p $(ADDRESS_TABLE_CREATION_PATH)
 	@mkdir -p $(SLAVE_DTSI_PATH)
 	@mkdir -p $(SLAVE_DEF_FILE_BASE)/$*/autogen
-	LD_LIBRARY_PATH=$(CACTUS_LD_PATH) ./scripts/preBuild.py \
+	LD_LIBRARY_PATH=$(CACTUS_LD_PATH) ./build-scripts/preBuild.py \
 			                     -s $^ \
 				             -t $(ADDSLAVE_TCL_PATH) \
 				             -a $(ADDRESS_TABLE_CREATION_PATH) \
