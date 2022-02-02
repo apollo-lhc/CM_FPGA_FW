@@ -24,8 +24,8 @@ HW_TCL=${BUILD_SCRIPTS_PATH}/Run_hw.tcl
 PL_PATH=${MAKE_PATH}/src
 BD_PATH=${MAKE_PATH}/bd
 CORES_PATH=${MAKE_PATH}/cores
-ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
-
+#ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xm
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table/address_%.xml
 ################################################################################
 # Configs
 #################################################################################
@@ -141,6 +141,8 @@ interactive :
 	mkdir -p ${MAKE_PATH}/proj &&\
 	cd proj &&\
 	vivado -mode tcl
+
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table/address_%.xml
 
 $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\

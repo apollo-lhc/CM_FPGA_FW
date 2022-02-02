@@ -80,7 +80,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_C2C_Status.xml"
       - "address_table/modules/CM_C2C_DEBUG_USP.xml"
       - "address_table/modules/CM_C2C_CNT.xml"
-    UHAL_BASE: 0x86000000
+    UHAL_BASE: 0xC6000000
     HDL: 
       out_name: "C2C_INTF"
       map_template: "axi_generic/template_map_withbram.vhd"

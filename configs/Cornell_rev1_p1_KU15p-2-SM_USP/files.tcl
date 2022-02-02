@@ -4,7 +4,7 @@ array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
-     configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top.vhd \
+     configs/${build_name}/src/top.vhd \
      src/misc/DC_data_CDC.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
@@ -29,11 +29,14 @@ set vhdl_files "\
      ${autogen_path}/C2C_INTF/C2C_INTF_PKG.vhd \
      ${autogen_path}/CM_K_INFO/CM_K_INFO_PKG.vhd \
      ${autogen_path}/CM_K_INFO/CM_K_INFO_map.vhd \
+     ${autogen_path}/K_TCDS/K_TCDS_PKG.vhd \
+     ${autogen_path}/K_TCDS/K_TCDS_map.vhd \
      src/C2C_INTF/picoblaze/picoblaze/kcpsm6.vhd \
      src/C2C_INTF/picoblaze/uart_rx6.vhd \
      src/C2C_INTF/picoblaze/uart_tx6.vhd \
      src/C2C_INTF/picoblaze/uC.vhd \
      src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
+     src/TCDS/TCDS.vhd \
      "
 
 
@@ -55,16 +58,16 @@ set vhdl_files "\
 
 
 set xdc_files "\
-    configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_pins.xdc \
-    configs/Cornell_rev1_p1_KU15p-2-SM_USP/src/top_timing.xdc	\
+    configs/${build_name}/src/top_pins.xdc \
+    configs/${build_name}/src/top_timing.xdc	\
     "	    
 
 set xci_files "\
-    	      cores/Local_Clocking/Local_Clocking.xci \
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
     	      "
-
+#    	      cores/Local_Clocking/Local_Clocking.xci \
+#              configs/${build_name}/cores/localTCDS.tcl \
 #              ${autogen_path}/../cores/my_ila.tcl \
 #              ${autogen_path}/../cores/map_withbram_ila.tcl \
 
