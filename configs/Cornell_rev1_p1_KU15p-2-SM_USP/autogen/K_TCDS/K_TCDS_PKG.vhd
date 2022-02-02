@@ -35,30 +35,12 @@ package K_TCDS_CTRL is
                                                                  DRP => '0'
                                                                 );
   type K_TCDS_STATUS_MON_t is record
-    CONFIG_ERROR               :std_logic;     -- C2C config error
-    LINK_ERROR                 :std_logic;     -- C2C link error
-    LINK_GOOD                  :std_logic;     -- C2C link FSM in SYNC
-    MB_ERROR                   :std_logic;     -- C2C multi-bit error
-    DO_CC                      :std_logic;     -- Aurora do CC
     PHY_RESET                  :std_logic;     -- Aurora phy in reset
     PHY_GT_PLL_LOCK            :std_logic;     -- Aurora phy GT PLL locked
     PHY_MMCM_LOL               :std_logic;     -- Aurora phy mmcm LOL
-    PHY_LANE_UP                :std_logic_vector( 1 downto 0);  -- Aurora phy lanes up
-    PHY_HARD_ERR               :std_logic;                      -- Aurora phy hard error
-    PHY_SOFT_ERR               :std_logic;                      -- Aurora phy soft error
-    CHANNEL_UP                 :std_logic;                      -- Channel up
-    LINK_IN_FW                 :std_logic;                      -- FW includes this link
   end record K_TCDS_STATUS_MON_t;
 
 
-  type K_TCDS_STATUS_CTRL_t is record
-    INITIALIZE                 :std_logic;     -- C2C initialize
-  end record K_TCDS_STATUS_CTRL_t;
-
-
-  constant DEFAULT_K_TCDS_STATUS_CTRL_t : K_TCDS_STATUS_CTRL_t := (
-                                                                   INITIALIZE => '0'
-                                                                  );
   type K_TCDS_DEBUG_RX_MON_t is record
     BUF_STATUS                 :std_logic_vector( 2 downto 0);  -- DEBUG rx buf status
     PMA_RESET_DONE             :std_logic;                      -- DEBUG rx reset done
@@ -234,10 +216,9 @@ package K_TCDS_CTRL is
 
   type K_TCDS_CTRL_t is record
     RESET                      :K_TCDS_RESET_CTRL_t;
-    STATUS                     :K_TCDS_STATUS_CTRL_t;
-    DEBUG                      :K_TCDS_DEBUG_CTRL_t; 
-    TX                         :K_TCDS_TX_CTRL_t;    
-    RX                         :K_TCDS_RX_CTRL_t;    
+    DEBUG                      :K_TCDS_DEBUG_CTRL_t;
+    TX                         :K_TCDS_TX_CTRL_t;   
+    RX                         :K_TCDS_RX_CTRL_t;   
     DATA_CTRL                  :K_TCDS_DATA_CTRL_CTRL_t;
     TXRX_CLK_SEL               :std_logic;              
     LOOPBACK                   :std_logic_vector( 2 downto 0);
@@ -247,7 +228,6 @@ package K_TCDS_CTRL is
 
   constant DEFAULT_K_TCDS_CTRL_t : K_TCDS_CTRL_t := (
                                                      RESET => DEFAULT_K_TCDS_RESET_CTRL_t,
-                                                     STATUS => DEFAULT_K_TCDS_STATUS_CTRL_t,
                                                      DEBUG => DEFAULT_K_TCDS_DEBUG_CTRL_t,
                                                      TX => DEFAULT_K_TCDS_TX_CTRL_t,
                                                      RX => DEFAULT_K_TCDS_RX_CTRL_t,

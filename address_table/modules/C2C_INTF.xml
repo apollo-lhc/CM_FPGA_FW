@@ -4,7 +4,7 @@
   <!-- STATUS 0x0 to 0x0 -> 0x400 to 0x400 -->
   <node id="STATUS"            address="0x400" module="file://CM_C2C_Status.xml"/>
   <!-- DEBUG 0x0 to 0x5 -> 0x404 to 0x409 -->
-  <node id="DEBUG"             address="0x404" module="file://CM_C2C_DEBUG_USP.xml"/>
+  <node id="DEBUG"             address="0x404" module="file://MGT_DEBUG_USP.xml"/>
   <!-- COUNTERS 0x0 to 0xA  -> 0x410 to 0x41A -->
   <node id="COUNTERS"          address="0x410" module="file://CM_C2C_CNT.xml"/>
 

@@ -56,6 +56,10 @@ AXI_SLAVES:
       remote_slave: "1"
     XML:
       - "address_table/modules/K_TCDS.xml"
+      - "address_table/modules/DRP_USP_GTH.xml"
+      - "address_table/modules/MGT_Status.xml"
+      - "address_table/modules/MGT_DEBUG_USP.xml"
+      - "address_table/modules/CM_C2C_CNT.xml"
     UHAL_BASE: 0x88000000
     HDL:
       map_template: "axi_generic/template_map.vhd"
@@ -87,7 +91,7 @@ AXI_SLAVES:
       - "address_table/modules/C2C_INTF.xml"
       - "address_table/modules/DRP_USP_GTH.xml"
       - "address_table/modules/CM_C2C_Status.xml"
-      - "address_table/modules/CM_C2C_DEBUG_USP.xml"
+      - "address_table/modules/MGT_DEBUG_USP.xml"
       - "address_table/modules/CM_C2C_CNT.xml"
     UHAL_BASE: 0x86000000
     HDL: 

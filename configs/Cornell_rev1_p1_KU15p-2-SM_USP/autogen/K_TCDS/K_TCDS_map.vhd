@@ -75,20 +75,9 @@ begin  -- architecture behavioral
         when 1 => --0x1
           localRdData(31 downto  0)  <=  Mon.CLOCKING.COUNTS_TXOUTCLK;      --
         when 16 => --0x10
-          localRdData( 0)            <=  Mon.STATUS.CONFIG_ERROR;           --C2C config error
-          localRdData( 1)            <=  Mon.STATUS.LINK_ERROR;             --C2C link error
-          localRdData( 2)            <=  Mon.STATUS.LINK_GOOD;              --C2C link FSM in SYNC
-          localRdData( 3)            <=  Mon.STATUS.MB_ERROR;               --C2C multi-bit error
-          localRdData( 4)            <=  Mon.STATUS.DO_CC;                  --Aurora do CC
-          localRdData( 5)            <=  reg_data(16)( 5);                  --C2C initialize
           localRdData( 8)            <=  Mon.STATUS.PHY_RESET;              --Aurora phy in reset
           localRdData( 9)            <=  Mon.STATUS.PHY_GT_PLL_LOCK;        --Aurora phy GT PLL locked
           localRdData(10)            <=  Mon.STATUS.PHY_MMCM_LOL;           --Aurora phy mmcm LOL
-          localRdData(13 downto 12)  <=  Mon.STATUS.PHY_LANE_UP;            --Aurora phy lanes up
-          localRdData(16)            <=  Mon.STATUS.PHY_HARD_ERR;           --Aurora phy hard error
-          localRdData(17)            <=  Mon.STATUS.PHY_SOFT_ERR;           --Aurora phy soft error
-          localRdData(18)            <=  Mon.STATUS.CHANNEL_UP;             --Channel up
-          localRdData(31)            <=  Mon.STATUS.LINK_IN_FW;             --FW includes this link
         when 32 => --0x20
           localRdData(15 downto  0)  <=  Mon.DEBUG.DMONITOR;                --DEBUG d monitor
           localRdData(16)            <=  Mon.DEBUG.QPLL_LOCK;               --DEBUG cplllock
@@ -157,7 +146,6 @@ begin  -- architecture behavioral
 
 
   -- Register mapping to ctrl structures
-  Ctrl.STATUS.INITIALIZE        <=  reg_data(16)( 5);               
   Ctrl.DEBUG.EYESCAN_TRIGGER    <=  reg_data(32)(23);               
   Ctrl.DEBUG.PCS_RSV_DIN        <=  reg_data(33)(15 downto  0);     
   Ctrl.DEBUG.RX.CDR_HOLD        <=  reg_data(34)(13);               
@@ -193,7 +181,6 @@ begin  -- architecture behavioral
       reg_data( 1)( 8)  <= DEFAULT_K_TCDS_CTRL_t.RESET.USERCLK_TX;
       reg_data( 1)( 9)  <= DEFAULT_K_TCDS_CTRL_t.RESET.USERCLK_RX;
       reg_data( 1)(10)  <= DEFAULT_K_TCDS_CTRL_t.RESET.DRP;
-      reg_data(16)( 5)  <= DEFAULT_K_TCDS_CTRL_t.STATUS.INITIALIZE;
       reg_data(32)(22)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.EYESCAN_RESET;
       reg_data(32)(23)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.EYESCAN_TRIGGER;
       reg_data(33)(15 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.PCS_RSV_DIN;
@@ -260,8 +247,6 @@ begin  -- architecture behavioral
           Ctrl.RESET.USERCLK_TX           <=  localWrData( 8);               
           Ctrl.RESET.USERCLK_RX           <=  localWrData( 9);               
           Ctrl.RESET.DRP                  <=  localWrData(10);               
-        when 16 => --0x10
-          reg_data(16)( 5)                <=  localWrData( 5);                --C2C initialize
         when 32 => --0x20
           Ctrl.DEBUG.EYESCAN_RESET        <=  localWrData(22);               
           reg_data(32)(23)                <=  localWrData(23);                --DEBUG eyescan trigger
