@@ -8,6 +8,7 @@ use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.K_IO_Ctrl.all;
+use work.C2C_INTF_CTRL.all;
 
 
 Library UNISIM;
@@ -17,15 +18,15 @@ entity top is
   port (
     -- clocks
     p_clk_100 : in std_logic;
-    n_clk_100 : in std_logic;           -- 200 MHz system clock
+    n_clk_100 : in std_logic;           -- 100 MHz system clock
 
     -- Zynq AXI Chip2Chip
     n_util_clk_chan0 : in std_logic;
     p_util_clk_chan0 : in std_logic;
-    n_mgt_z2k        : in  std_logic_vector(1 downto 1);
-    p_mgt_z2k        : in  std_logic_vector(1 downto 1);
-    n_mgt_k2z        : out std_logic_vector(1 downto 1);
-    p_mgt_k2z        : out std_logic_vector(1 downto 1)
+    n_mgt_z2k        : in  std_logic_vector(2 downto 1);
+    p_mgt_z2k        : in  std_logic_vector(2 downto 1);
+    n_mgt_k2z        : out std_logic_vector(2 downto 1);
+    p_mgt_k2z        : out std_logic_vector(2 downto 1)
 
 --    k_fpga_i2c_scl   : inout std_logic;
 --    k_fpga_i2c_sda   : inout std_logic
@@ -62,7 +63,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 2;
+  constant localAXISlaves    : integer := 3;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
@@ -71,15 +72,15 @@ architecture structure of top is
   signal AXI_RST_N           : std_logic;
   signal AXI_RESET           : std_logic;
 
-  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
-  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
-  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
-  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
+--  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+--  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+--  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+--  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
-  signal C2C_Mon  : K_IO_C2C_MON_t;
-  signal C2C_Ctrl : K_IO_C2C_Ctrl_t;
+  signal C2C_Mon  : C2C_INTF_MON_t;
+  signal C2C_Ctrl : C2C_INTF_Ctrl_t;
   
-  signal clk_K_C2C_PHY_user                  : STD_logic;
+  signal clk_K_C2C_PHY_user                  : STD_logic_vector(2 downto 1);
 
 
   signal BRAM_write : std_logic;
@@ -106,21 +107,25 @@ architecture structure of top is
   constant family : string := "kintexuplus";
   constant axi_protocol : string := "AXI4";
 
+
+  signal pB_UART_tx : std_logic;
+  signal pB_UART_rx : std_logic;
   
   
 begin  -- architecture structure
 
   --Clocking
-  Local_Clocking_1: entity work.Local_Clocking
+  --Clocking
+  Local_Clocking: entity work.onboardclk
     port map (
-      clk_200   => clk_200,
-      clk_50    => clk_50,
-      clk_axi   => AXI_CLK,
+      clk_200MHz   => clk_200,
+      clk_50Mhz    => clk_50,
       reset     => '0',
       locked    => locked_clk200,
       clk_in1_p => p_clk_100,
       clk_in1_n => n_clk_100);
-
+  
+  AXI_CLK <= clk_50;
 
   
 
@@ -128,135 +133,188 @@ begin  -- architecture structure
     port map (
       AXI_CLK                             => AXI_CLK,
       AXI_RST_N(0)                        => AXI_RST_N,
-      K_C2C_phy_Rx_rxn                  => n_mgt_z2k,
-      K_C2C_phy_Rx_rxp                  => p_mgt_z2k,
-      K_C2C_phy_Tx_txn                  => n_mgt_k2z,
-      K_C2C_phy_Tx_txp                  => p_mgt_k2z,
+      CM1_PB_UART_rxd                     => pB_UART_tx,
+      CM1_PB_UART_txd                     => pB_UART_rx,
+
+      K_C2C_phy_Rx_rxn                  => n_mgt_z2k(1 downto 1),
+      K_C2C_phy_Rx_rxp                  => p_mgt_z2k(1 downto 1),
+      K_C2C_phy_Tx_txn                  => n_mgt_k2z(1 downto 1),
+      K_C2C_phy_Tx_txp                  => p_mgt_k2z(1 downto 1),
+      K_C2CB_phy_Rx_rxn                  => n_mgt_z2k(2 downto 2),
+      K_C2CB_phy_Rx_rxp                  => p_mgt_z2k(2 downto 2),
+      K_C2CB_phy_Tx_txn                  => n_mgt_k2z(2 downto 2),
+      K_C2CB_phy_Tx_txp                  => p_mgt_k2z(2 downto 2),
       K_C2C_phy_refclk_clk_n            => n_util_clk_chan0,
       K_C2C_phy_refclk_clk_p            => p_util_clk_chan0,
       clk50Mhz                            => clk_50,
       K_IO_araddr                         => local_AXI_ReadMOSI(0).address,              
       K_IO_arprot                         => local_AXI_ReadMOSI(0).protection_type,      
-      K_IO_arready                        => local_AXI_ReadMISO(0).ready_for_address,    
-      K_IO_arvalid                        => local_AXI_ReadMOSI(0).address_valid,        
+      K_IO_arready(0)                        => local_AXI_ReadMISO(0).ready_for_address,    
+      K_IO_arvalid(0)                        => local_AXI_ReadMOSI(0).address_valid,        
       K_IO_awaddr                         => local_AXI_WriteMOSI(0).address,             
       K_IO_awprot                         => local_AXI_WriteMOSI(0).protection_type,     
-      K_IO_awready                        => local_AXI_WriteMISO(0).ready_for_address,   
-      K_IO_awvalid                        => local_AXI_WriteMOSI(0).address_valid,       
-      K_IO_bready                      => local_AXI_WriteMOSI(0).ready_for_response,  
+      K_IO_awready(0)                        => local_AXI_WriteMISO(0).ready_for_address,   
+      K_IO_awvalid(0)                        => local_AXI_WriteMOSI(0).address_valid,       
+      K_IO_bready(0)                      => local_AXI_WriteMOSI(0).ready_for_response,  
       K_IO_bresp                          => local_AXI_WriteMISO(0).response,            
-      K_IO_bvalid                      => local_AXI_WriteMISO(0).response_valid,      
+      K_IO_bvalid(0)                      => local_AXI_WriteMISO(0).response_valid,      
       K_IO_rdata                          => local_AXI_ReadMISO(0).data,                 
-      K_IO_rready                      => local_AXI_ReadMOSI(0).ready_for_data,       
+      K_IO_rready(0)                      => local_AXI_ReadMOSI(0).ready_for_data,       
       K_IO_rresp                          => local_AXI_ReadMISO(0).response,             
-      K_IO_rvalid                      => local_AXI_ReadMISO(0).data_valid,           
+      K_IO_rvalid(0)                      => local_AXI_ReadMISO(0).data_valid,           
       K_IO_wdata                          => local_AXI_WriteMOSI(0).data,                
-      K_IO_wready                      => local_AXI_WriteMISO(0).ready_for_data,       
+      K_IO_wready(0)                      => local_AXI_WriteMISO(0).ready_for_data,       
       K_IO_wstrb                          => local_AXI_WriteMOSI(0).data_write_strobe,   
-      K_IO_wvalid                      => local_AXI_WriteMOSI(0).data_valid,          
+      K_IO_wvalid(0)                      => local_AXI_WriteMOSI(0).data_valid,          
       CM_K_INFO_araddr                    => local_AXI_ReadMOSI(1).address,              
       CM_K_INFO_arprot                    => local_AXI_ReadMOSI(1).protection_type,      
-      CM_K_INFO_arready                => local_AXI_ReadMISO(1).ready_for_address,    
-      CM_K_INFO_arvalid                => local_AXI_ReadMOSI(1).address_valid,        
+      CM_K_INFO_arready(0)                => local_AXI_ReadMISO(1).ready_for_address,    
+      CM_K_INFO_arvalid(0)                => local_AXI_ReadMOSI(1).address_valid,        
       CM_K_INFO_awaddr                    => local_AXI_WriteMOSI(1).address,             
       CM_K_INFO_awprot                    => local_AXI_WriteMOSI(1).protection_type,     
-      CM_K_INFO_awready                => local_AXI_WriteMISO(1).ready_for_address,   
-      CM_K_INFO_awvalid                => local_AXI_WriteMOSI(1).address_valid,       
-      CM_K_INFO_bready                 => local_AXI_WriteMOSI(1).ready_for_response,  
+      CM_K_INFO_awready(0)                => local_AXI_WriteMISO(1).ready_for_address,   
+      CM_K_INFO_awvalid(0)                => local_AXI_WriteMOSI(1).address_valid,       
+      CM_K_INFO_bready(0)                 => local_AXI_WriteMOSI(1).ready_for_response,  
       CM_K_INFO_bresp                     => local_AXI_WriteMISO(1).response,            
-      CM_K_INFO_bvalid                 => local_AXI_WriteMISO(1).response_valid,      
+      CM_K_INFO_bvalid(0)                 => local_AXI_WriteMISO(1).response_valid,      
       CM_K_INFO_rdata                     => local_AXI_ReadMISO(1).data,                 
-      CM_K_INFO_rready                 => local_AXI_ReadMOSI(1).ready_for_data,       
+      CM_K_INFO_rready(0)                 => local_AXI_ReadMOSI(1).ready_for_data,       
       CM_K_INFO_rresp                     => local_AXI_ReadMISO(1).response,             
-      CM_K_INFO_rvalid                 => local_AXI_ReadMISO(1).data_valid,           
+      CM_K_INFO_rvalid(0)                 => local_AXI_ReadMISO(1).data_valid,           
       CM_K_INFO_wdata                     => local_AXI_WriteMOSI(1).data,                
-      CM_K_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
+      CM_K_INFO_wready(0)                 => local_AXI_WriteMISO(1).ready_for_data,       
       CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
-      CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
+      CM_K_INFO_wvalid(0)                 => local_AXI_WriteMOSI(1).data_valid,          
 
-
-      KINTEX_IPBUS_araddr                 => ext_AXI_ReadMOSI.address,              
-      KINTEX_IPBUS_arburst                => ext_AXI_ReadMOSI.burst_type,
-      KINTEX_IPBUS_arcache                => ext_AXI_ReadMOSI.cache_type,
-      KINTEX_IPBUS_arlen                  => ext_AXI_ReadMOSI.burst_length,
-      KINTEX_IPBUS_arlock(0)              => ext_AXI_ReadMOSI.lock_type,
-      KINTEX_IPBUS_arprot                 => ext_AXI_ReadMOSI.protection_type,      
-      KINTEX_IPBUS_arqos                  => ext_AXI_ReadMOSI.qos,
-      KINTEX_IPBUS_arready(0)             => ext_AXI_ReadMISO.ready_for_address,
-      KINTEX_IPBUS_arregion               => ext_AXI_ReadMOSI.region,
-      KINTEX_IPBUS_arsize                 => ext_AXI_ReadMOSI.burst_size,
-      KINTEX_IPBUS_arvalid(0)             => ext_AXI_ReadMOSI.address_valid,        
-      KINTEX_IPBUS_awaddr                 => ext_AXI_WriteMOSI.address,             
-      KINTEX_IPBUS_awburst                => ext_AXI_WriteMOSI.burst_type,
-      KINTEX_IPBUS_awcache                => ext_AXI_WriteMOSI.cache_type,
-      KINTEX_IPBUS_awlen                  => ext_AXI_WriteMOSI.burst_length,
-      KINTEX_IPBUS_awlock(0)              => ext_AXI_WriteMOSI.lock_type,
-      KINTEX_IPBUS_awprot                 => ext_AXI_WriteMOSI.protection_type,
-      KINTEX_IPBUS_awqos                  => ext_AXI_WriteMOSI.qos,
-      KINTEX_IPBUS_awready(0)             => ext_AXI_WriteMISO.ready_for_address,   
-      KINTEX_IPBUS_awregion               => ext_AXI_WriteMOSI.region,
-      KINTEX_IPBUS_awsize                 => ext_AXI_WriteMOSI.burst_size,
-      KINTEX_IPBUS_awvalid(0)             => ext_AXI_WriteMOSI.address_valid,       
-      KINTEX_IPBUS_bready(0)              => ext_AXI_WriteMOSI.ready_for_response,  
-      KINTEX_IPBUS_bresp                  => ext_AXI_WriteMISO.response,            
-      KINTEX_IPBUS_bvalid(0)              => ext_AXI_WriteMISO.response_valid,      
-      KINTEX_IPBUS_rdata                  => ext_AXI_ReadMISO.data,
-      KINTEX_IPBUS_rlast(0)               => ext_AXI_ReadMISO.last,
-      KINTEX_IPBUS_rready(0)              => ext_AXI_ReadMOSI.ready_for_data,       
-      KINTEX_IPBUS_rresp                  => ext_AXI_ReadMISO.response,             
-      KINTEX_IPBUS_rvalid(0)              => ext_AXI_ReadMISO.data_valid,           
-      KINTEX_IPBUS_wdata                  => ext_AXI_WriteMOSI.data,
-      KINTEX_IPBUS_wlast(0)               => ext_AXI_WriteMOSI.last,
-      KINTEX_IPBUS_wready(0)              => ext_AXI_WriteMISO.ready_for_data,       
-      KINTEX_IPBUS_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
-      KINTEX_IPBUS_wvalid(0)              => ext_AXI_WriteMOSI.data_valid,          
       reset_n                             => locked_clk200,--reset,
-      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.DEBUG.CPLL_LOCK,
-      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.DEBUG.DMONITOR,
-      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.DEBUG.EYESCAN_DATA_ERROR,
+      K_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+      K_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+      K_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
       
-      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.DEBUG.EYESCAN_RESET,
-      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.DEBUG.EYESCAN_TRIGGER,
-      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.DEBUG.PCS_RSV_DIN,
-      K_C2C_PHY_DEBUG_qplllock(0)         => C2C_Mon.DEBUG.QPLL_LOCK,
-      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.DEBUG.RX.BUF_RESET,
-      K_C2C_PHY_DEBUG_rxbufstatus         => C2C_Mon.DEBUG.RX.BUF_STATUS,
-      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.DEBUG.RX.CDR_HOLD,
-      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.DEBUG.RX.DFE_LPM_RESET,
-      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.DEBUG.RX.LPM_EN,
-      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.DEBUG.RX.PCS_RESET,
-      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.DEBUG.RX.PMA_RESET,
-      K_C2C_PHY_DEBUG_rxpmaresetdone      => open,--C2C_Mon.DEBUG.RX.RESET_DONE,
-      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.DEBUG.RX.PRBS_CNT_RST,
-      K_C2C_PHY_DEBUG_rxprbserr(0)        => C2C_Mon.DEBUG.RX.PRBS_ERR,
-      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.DEBUG.RX.PRBS_SEL,
-      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.DEBUG.RX.RATE,
-      K_C2C_PHY_DEBUG_rxresetdone(0)      => C2C_Mon.DEBUG.RX.RESET_DONE,
-      K_C2C_PHY_DEBUG_txbufstatus         => C2C_Mon.DEBUG.TX.BUF_STATUS,
-      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.DEBUG.TX.DIFF_CTRL,
-      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.DEBUG.TX.INHIBIT,
-      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.DEBUG.TX.PCS_RESET,
-      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.DEBUG.TX.PMA_RESET,
-      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.DEBUG.TX.POLARITY,
-      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.DEBUG.TX.POST_CURSOR,
-      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.DEBUG.TX.PRBS_FORCE_ERR,
-      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.DEBUG.TX.PRBS_SEL,
-      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.DEBUG.TX.PRE_CURSOR,
-      K_C2C_PHY_DEBUG_txresetdone(0)      => C2C_MON.DEBUG.TX.RESET_DONE,
+      K_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_RESET,
+      K_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_TRIGGER,
+      K_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(1).DEBUG.PCS_RSV_DIN,
+      K_C2C_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(1).DEBUG.QPLL_LOCK,
+      K_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.BUF_RESET,
+      K_C2C_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(1).DEBUG.RX.BUF_STATUS,
+      K_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(1).DEBUG.RX.CDR_HOLD,
+      K_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(1).DEBUG.RX.DFE_LPM_RESET,
+      K_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(1).DEBUG.RX.LPM_EN,
+      K_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PCS_RESET,
+      K_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PMA_RESET,
+      K_C2C_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(1).DEBUG.RX.PMA_RESET_DONE,
+      K_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_CNT_RST,
+      K_C2C_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(1).DEBUG.RX.PRBS_ERR,
+      K_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_SEL,
+      K_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(1).DEBUG.RX.RATE,
+      K_C2C_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(1).DEBUG.RX.RESET_DONE,
+      K_C2C_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(1).DEBUG.TX.BUF_STATUS,
+      K_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(1).DEBUG.TX.DIFF_CTRL,
+      K_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(1).DEBUG.TX.INHIBIT,
+      K_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PCS_RESET,
+      K_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PMA_RESET,
+      K_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.POLARITY,
+      K_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(1).DEBUG.TX.POST_CURSOR,
+      K_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_FORCE_ERR,
+      K_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_SEL,
+      K_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(1).DEBUG.TX.PRE_CURSOR,
+      K_C2C_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(1).DEBUG.TX.RESET_DONE,
 
-      K_C2C_PHY_STATUS_channel_up         => C2C_Mon.STATUS.CHANNEL_UP,      
-      K_C2C_PHY_STATUS_gt_pll_lock        => C2C_MON.STATUS.PHY_GT_PLL_LOCK,
-      K_C2C_PHY_STATUS_hard_err           => C2C_Mon.STATUS.PHY_HARD_ERR,
-      K_C2C_PHY_STATUS_lane_up            => C2C_Mon.STATUS.PHY_LANE_UP(0 downto 0),
-      K_C2C_PHY_STATUS_mmcm_not_locked    => C2C_Mon.STATUS.PHY_MMCM_LOL,
-      K_C2C_PHY_STATUS_soft_err           => C2C_Mon.STATUS.PHY_SOFT_ERR,
+      K_C2C_PHY_channel_up         => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+      K_C2C_PHY_gt_pll_lock        => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+      K_C2C_PHY_hard_err           => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+      K_C2C_PHY_lane_up            => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0),
+      K_C2C_PHY_mmcm_not_locked_out    => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+      K_C2C_PHY_soft_err           => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
 
-      K_C2C_aurora_do_cc                => C2C_Mon.STATUS.DO_CC,
-      K_C2C_axi_c2c_config_error_out    => C2C_Mon.STATUS.CONFIG_ERROR,
-      K_C2C_axi_c2c_link_status_out     => C2C_MON.STATUS.LINK_GOOD,
-      K_C2C_axi_c2c_multi_bit_error_out => C2C_MON.STATUS.MB_ERROR,
+      K_C2C_aurora_do_cc                =>  C2C_Mon.C2C(1).STATUS.DO_CC,
+      K_C2C_aurora_pma_init_in          => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+      K_C2C_axi_c2c_config_error_out    =>  C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+      K_C2C_axi_c2c_link_status_out     =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
+      K_C2C_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
       K_C2C_phy_power_down              => '0',
-      K_C2C_PHY_user_clk_out            => clk_K_C2C_PHY_user
+      K_C2C_PHY_clk                     => clk_K_C2C_PHY_user(1),
+      K_C2C_PHY_DRP_daddr               => C2C_Ctrl.C2C(1).DRP.address,
+      K_C2C_PHY_DRP_den                 => C2C_Ctrl.C2C(1).DRP.enable,
+      K_C2C_PHY_DRP_di                  => C2C_Ctrl.C2C(1).DRP.wr_data,
+      K_C2C_PHY_DRP_do                  => C2C_MON.C2C(1).DRP.rd_data,
+      K_C2C_PHY_DRP_drdy                => C2C_MON.C2C(1).DRP.rd_data_valid,
+      K_C2C_PHY_DRP_dwe                 => C2C_Ctrl.C2C(1).DRP.wr_enable,
+            K_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+      K_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(2).DEBUG.DMONITOR,
+      K_C2CB_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(2).DEBUG.EYESCAN_DATA_ERROR,
+      
+      K_C2CB_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_RESET,
+      K_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_TRIGGER,
+      K_C2CB_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(2).DEBUG.PCS_RSV_DIN,
+      K_C2CB_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(2).DEBUG.QPLL_LOCK,
+      K_C2CB_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.BUF_RESET,
+      K_C2CB_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(2).DEBUG.RX.BUF_STATUS,
+      K_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.CDR_HOLD,
+      K_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(2).DEBUG.RX.DFE_LPM_RESET,
+      K_C2CB_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(2).DEBUG.RX.LPM_EN,
+      K_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PCS_RESET,
+      K_C2CB_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PMA_RESET,
+      K_C2CB_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(2).DEBUG.RX.PMA_RESET_DONE,
+      K_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_CNT_RST,
+      K_C2CB_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(2).DEBUG.RX.PRBS_ERR,
+      K_C2CB_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_SEL,
+      K_C2CB_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(2).DEBUG.RX.RATE,
+      K_C2CB_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(2).DEBUG.RX.RESET_DONE,
+      K_C2CB_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(2).DEBUG.TX.BUF_STATUS,
+      K_C2CB_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(2).DEBUG.TX.DIFF_CTRL,
+      K_C2CB_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.INHIBIT,
+      K_C2CB_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PCS_RESET,
+      K_C2CB_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PMA_RESET,
+      K_C2CB_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.POLARITY,
+      K_C2CB_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(2).DEBUG.TX.POST_CURSOR,
+      K_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_FORCE_ERR,
+      K_C2CB_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_SEL,
+      K_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(2).DEBUG.TX.PRE_CURSOR,
+      K_C2CB_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(2).DEBUG.TX.RESET_DONE,
+
+      K_C2CB_PHY_channel_up         => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+      K_C2CB_PHY_gt_pll_lock        => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+      K_C2CB_PHY_hard_err           => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+      K_C2CB_PHY_lane_up            => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
+--      K_C2CB_PHY_mmcm_not_locked    => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      K_C2CB_PHY_soft_err           => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
+
+      K_C2CB_aurora_do_cc                =>  C2C_Mon.C2C(2).STATUS.DO_CC,
+      K_C2CB_aurora_pma_init_in          => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+      K_C2CB_axi_c2c_config_error_out    =>  C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+      K_C2CB_axi_c2c_link_status_out     =>  C2C_MON.C2C(2).STATUS.LINK_GOOD,
+      K_C2CB_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(2).STATUS.MB_ERROR,
+      K_C2CB_phy_power_down              => '0',
+--      K_C2CB_PHY_user_clk_out            => clk_K_C2CB_PHY_user,
+      K_C2CB_PHY_DRP_daddr               => C2C_Ctrl.C2C(2).DRP.address,
+      K_C2CB_PHY_DRP_den                 => C2C_Ctrl.C2C(2).DRP.enable,
+      K_C2CB_PHY_DRP_di                  => C2C_Ctrl.C2C(2).DRP.wr_data,
+      K_C2CB_PHY_DRP_do                  => C2C_MON.C2C(2).DRP.rd_data,
+      K_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
+      K_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
+
+      K_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
+      K_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
+      K_C2C_INTF_arready(0)                  => local_AXI_ReadMISO(2).ready_for_address,    
+      K_C2C_INTF_arvalid(0)                  => local_AXI_ReadMOSI(2).address_valid,        
+      K_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
+      K_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
+      K_C2C_INTF_awready(0)                  => local_AXI_WriteMISO(2).ready_for_address,   
+      K_C2C_INTF_awvalid(0)                  => local_AXI_WriteMOSI(2).address_valid,       
+      K_C2C_INTF_bready(0)                   => local_AXI_WriteMOSI(2).ready_for_response,  
+      K_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
+      K_C2C_INTF_bvalid(0)                   => local_AXI_WriteMISO(2).response_valid,      
+      K_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
+      K_C2C_INTF_rready(0)                   => local_AXI_ReadMOSI(2).ready_for_data,       
+      K_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
+      K_C2C_INTF_rvalid(0)                   => local_AXI_ReadMISO(2).data_valid,           
+      K_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
+      K_C2C_INTF_wready(0)                   => local_AXI_WriteMISO(2).ready_for_data,       
+      K_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
+      K_C2C_INTF_wvalid(0)                   => local_AXI_WriteMOSI(2).data_valid
+
+      
 );
 
   RGB_pwm_1: entity work.RGB_pwm
@@ -280,10 +338,8 @@ begin  -- architecture structure
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
-      Mon.C2C                 => C2C_Mon,
       Mon.CLK_200_LOCKED      => locked_clk200,      
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
-      Ctrl.C2C                => C2C_Ctrl,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
@@ -303,59 +359,24 @@ begin  -- architecture structure
       writeMISO   => local_AXI_WriteMISO(1));
 
 
-  AXI_RESET <= not AXI_RST_N;
-  axi_bram_controller_1: entity work.axi_bram_controller
-    generic map (
-      USE_D64_PKG                   => 1,
-      C_ADR_WIDTH                   => 32,
-      C_DATA_WIDTH                  => 64,
---      C_FAMILY                      => "kintexuplus",
-      C_FAMILY                      => family,
-      C_MEMORY_DEPTH                => 4096,
-      C_BRAM_ADDR_WIDTH             => 12,
-      C_SINGLE_PORT_BRAM            => 1,
-      C_S_AXI_ID_WIDTH              => 0,
---      C_S_AXI_PROTOCOL              => "AXI4",
-      C_S_AXI_PROTOCOL              => axi_protocol,
-      C_S_AXI_DATA_WIDTH            => 64)
-    port map (
-      s_axi_aclk    => AXI_CLK,
-      s_axi_aresetn => AXI_RST_N,
-      r_mosi_d64        => ext_AXI_ReadMOSI,
-      r_miso_d64        => ext_AXI_ReadMISO,
-      w_mosi_d64        => ext_AXI_WriteMOSI,
-      w_miso_d64        => ext_AXI_WriteMISO,
-      bram_rst_a    => bram_rst_a,
-      bram_clk_a    => bram_clk_a,
-      bram_en_a     => bram_en_a,
-      bram_we_a     => bram_we_a,
-      bram_addr_a(31 downto 11) => open,
-      bram_addr_a(10 downto  2) => bram_addr_a,
-      bram_addr_a( 1 downto  0) => open,
-      bram_wrdata_a => bram_wrdata_a,
-      bram_rddata_a => bram_rddata_a);
+--  AXI_RESET <= not AXI_RST_N;
 
-
-  asym_ram_tdp_1: entity work.asym_ram_tdp
+  C2C_INTF_1: entity work.C2C_INTF
     generic map (
-      WIDTHA     => 32,
-      SIZEA      => 1024,
-      ADDRWIDTHA => 10,
-      WIDTHB     => 64,
-      SIZEB      => 512,
-      ADDRWIDTHB => 9)
+      ERROR_WAIT_TIME => 90000000)
     port map (
-      clkA  => AXI_CLK,
-      clkB  => AXI_CLK,
-      enA   => '1',
-      enB   => bram_en_a,
-      weA   => BRAM_WRITE,
-      weB   => or_reduce(bram_we_a),
-      addrA => BRAM_ADDR,
-      addrB => bram_addr_a,
-      diA   => BRAM_WR_DATA,
-      diB   => bram_wrdata_a,
-      doA   => open,
-      doB   => bram_rddata_a);
+      clk_axi          => AXI_CLK,
+      reset_axi_n      => AXI_RST_N,
+      readMOSI         => local_AXI_readMOSI(2),
+      readMISO         => local_AXI_readMISO(2),
+      writeMOSI        => local_AXI_writeMOSI(2),
+      writeMISO        => local_AXI_writeMISO(2),
+      clk_C2C(1)       => clk_K_C2C_PHY_user(1),
+      clk_C2C(2)       => clk_K_C2C_PHY_user(1),
+      UART_Rx          => pb_UART_Rx,
+      UART_Tx          => pb_UART_Tx,
+      Mon              => C2C_Mon,
+      Ctrl             => C2C_Ctrl);
+
   
 end architecture structure;

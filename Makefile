@@ -24,8 +24,8 @@ HW_TCL=${BUILD_SCRIPTS_PATH}/Run_hw.tcl
 PL_PATH=${MAKE_PATH}/src
 BD_PATH=${MAKE_PATH}/bd
 CORES_PATH=${MAKE_PATH}/cores
-#ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xm
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table/address_%.xml
+#ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table_%/address_%.xml
 ################################################################################
 # Configs
 #################################################################################
@@ -144,18 +144,23 @@ interactive :
 
 #$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table/address_%.xml
 
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
+
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/address_table_%/address_%.xml
+
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE)
+#	@ln -s $(ADDRESS_TABLE_CREATION_PATH)/slaves_$*.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves.yaml                                                                                      
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
 	mkdir -p ${MAKE_PATH}/bit &&\
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
-	$(MAKE) NOTIFY_DAN_GOOD
-	$(MAKE) overlays
-	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
+	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
+	$(MAKE) overlays  $(OUTPUT_MARKUP)
+#	$(MAKE) ${MAKE_PATH}/os/address_table_$*/address_$*.xml  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
-	$(MAKE) $*.tar.gz
+	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
 
 SVF	:
 	@$(VIVADO_SETUP) &&\

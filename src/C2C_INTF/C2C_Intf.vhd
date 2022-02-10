@@ -66,6 +66,9 @@ architecture behavioral of C2C_INTF is
   signal link_INFO_out : uC_Link_out_t_array(0 to HW_LINK_COUNT-1);
   signal link_INFO_in  : uC_Link_in_t_array (0 to HW_LINK_COUNT-1);
 
+  constant one :std_logic := '1';
+  constant zero :std_logic := '1';
+  
 begin
   --reset
   reset <= not reset_axi_n;
@@ -128,7 +131,7 @@ begin
         clk_A         => clk_axi,
         clk_B         => clk_C2C(iLane),
         reset_A_async => reset or Mon.C2C(iLane).status.phy_mmcm_lol,
-        event_b       => '1',
+        event_b       => one,--'1',
         rate          => Mon_local.C2C(iLane).COUNTERS.USER_CLK_FREQ);            
     
     -------------------------------------------------------------------------------
@@ -218,7 +221,7 @@ begin
       port map (
         clk_A             => clk_axi,
         clk_B             => clk_axi,
-        reset_A_async     => '0',
+        reset_A_async     => zero,--'0',
         event_b           => Mon_local.C2C(iLane).STATUS.LINK_ERROR,
         rate              => single_bit_error_rate(iLane));
     Mon_local.C2C(iLane).COUNTERS.SB_ERROR_RATE <= single_bit_error_rate(iLane);
@@ -228,7 +231,7 @@ begin
       port map (
         clk_A             => clk_axi,
         clk_B             => clk_axi,
-        reset_A_async     => '0',
+        reset_A_async     => zero,--'0',
         event_b           => Mon_local.C2C(iLane).STATUS.MB_ERROR,
         rate              => multi_bit_error_rate(iLane));
     Mon_local.C2C(iLane).COUNTERS.MB_ERROR_RATE <= multi_bit_error_rate(iLane);
