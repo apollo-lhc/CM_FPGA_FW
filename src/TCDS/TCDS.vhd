@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.axiRegPkg.all;
-use work.K_TCDS_Ctrl.all;
+use work.TCDS_Ctrl.all;
 use work.types.all;
 
 Library UNISIM;
@@ -41,8 +41,8 @@ architecture behavioral of TCDS is
   signal clk_rx_int     : std_logic;
   signal clk_rx_int_raw : std_logic;
   
-  signal Mon              :  K_TCDS_Mon_t;
-  signal Ctrl             :  K_TCDS_Ctrl_t;
+  signal Mon              :  TCDS_Mon_t;
+  signal Ctrl             :  TCDS_Ctrl_t;
 
   signal tx_data : slv_32_t;
   signal rx_data : slv_32_t;
@@ -67,7 +67,7 @@ architecture behavioral of TCDS is
   
 begin  -- architecture TCDS
   reset <= not reset_axi_n;
-  TCDS_interface_1: entity work.K_TCDS_map
+  TCDS_interface_1: entity work.TCDS_map
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,

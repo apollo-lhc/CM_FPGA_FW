@@ -18,6 +18,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: 
+      out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
   KINTEX_SYS_MGMT:
     TCL_CALL:
@@ -32,7 +33,7 @@ AXI_SLAVES:
       - "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
-  CM_K_INFO:
+  K_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -44,6 +45,7 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
+      out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
   K_TCDS:
@@ -62,6 +64,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_C2C_CNT.xml"
     UHAL_BASE: 0x88000000
     HDL:
+      out_name: "TCDS"
       map_template: "axi_generic/template_map.vhd"
 
   KINTEX_IPBUS:
@@ -157,7 +160,3 @@ CORES:
           RX: clk0+2
           TX: clk0+2
       optional: "drpaddr_in drpclk_in drpdi_in drpen_in drpwe_in eyescanreset_in eyescantrigger_in pcsrsvdin_in rxbufreset_in rxcdrhold_in rxdfelpmreset_in rxlpmen_in rxpcsreset_in rxpmareset_in rxprbscntreset_in rxprbssel_in rxrate_in txdiffctrl_in txinhibit_in txpcsreset_in txpmareset_in txpolarity_in txpostcursor_in txprbsforceerr_in txprbssel_in txprecursor_in cplllock_out dmonitorout_out drpdo_out drprdy_out eyescandataerror_out rxprbserr_out rxresetdone_out txbufstatus_out txresetdone_out"
-
-
-
-

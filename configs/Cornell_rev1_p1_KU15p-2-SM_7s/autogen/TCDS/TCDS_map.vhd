@@ -6,9 +6,9 @@ use ieee.numeric_std.all;
 use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
-use work.K_TCDS_Ctrl.all;
+use work.TCDS_Ctrl.all;
 
-entity K_TCDS_map is
+entity TCDS_map is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -16,11 +16,11 @@ entity K_TCDS_map is
     slave_readMISO   : out AXIReadMISO  := DefaultAXIReadMISO;
     slave_writeMOSI  : in  AXIWriteMOSI;
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
-    Mon              : in  K_TCDS_Mon_t;
-    Ctrl             : out K_TCDS_Ctrl_t
+    Mon              : in  TCDS_Mon_t;
+    Ctrl             : out TCDS_Ctrl_t
     );
-end entity K_TCDS_map;
-architecture behavioral of K_TCDS_map is
+end entity TCDS_map;
+architecture behavioral of TCDS_map is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;
@@ -173,46 +173,46 @@ begin  -- architecture behavioral
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data( 1)( 0)  <= DEFAULT_K_TCDS_CTRL_t.RESET.RESET_ALL;
-      reg_data( 1)( 4)  <= DEFAULT_K_TCDS_CTRL_t.RESET.TX_PLL_AND_DATAPATH;
-      reg_data( 1)( 5)  <= DEFAULT_K_TCDS_CTRL_t.RESET.TX_DATAPATH;
-      reg_data( 1)( 6)  <= DEFAULT_K_TCDS_CTRL_t.RESET.RX_PLL_AND_DATAPATH;
-      reg_data( 1)( 7)  <= DEFAULT_K_TCDS_CTRL_t.RESET.RX_DATAPATH;
-      reg_data( 1)( 8)  <= DEFAULT_K_TCDS_CTRL_t.RESET.USERCLK_TX;
-      reg_data( 1)( 9)  <= DEFAULT_K_TCDS_CTRL_t.RESET.USERCLK_RX;
-      reg_data( 1)(10)  <= DEFAULT_K_TCDS_CTRL_t.RESET.DRP;
-      reg_data(32)(22)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.EYESCAN_RESET;
-      reg_data(32)(23)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.EYESCAN_TRIGGER;
-      reg_data(33)(15 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.PCS_RSV_DIN;
-      reg_data(34)(12)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.BUF_RESET;
-      reg_data(34)(13)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.CDR_HOLD;
-      reg_data(34)(17)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.DFE_LPM_RESET;
-      reg_data(34)(18)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.LPM_EN;
-      reg_data(34)(23)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.PCS_RESET;
-      reg_data(34)(24)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.PMA_RESET;
-      reg_data(34)(25)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.PRBS_CNT_RST;
-      reg_data(34)(29 downto 26)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.PRBS_SEL;
-      reg_data(35)( 2 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.RX.RATE;
-      reg_data(36)( 7)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.INHIBIT;
-      reg_data(36)(15)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.PCS_RESET;
-      reg_data(36)(16)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.PMA_RESET;
-      reg_data(36)(17)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.POLARITY;
-      reg_data(36)(22 downto 18)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.POST_CURSOR;
-      reg_data(36)(23)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.PRBS_FORCE_ERR;
-      reg_data(36)(31 downto 27)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.PRE_CURSOR;
-      reg_data(37)( 3 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.PRBS_SEL;
-      reg_data(37)( 8 downto  4)  <= DEFAULT_K_TCDS_CTRL_t.DEBUG.TX.DIFF_CTRL;
-      reg_data(48)(15 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.TX.CTRL0;
-      reg_data(48)(31 downto 16)  <= DEFAULT_K_TCDS_CTRL_t.TX.CTRL1;
-      reg_data(49)( 7 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.TX.CTRL2;
-      reg_data(50)( 0)  <= DEFAULT_K_TCDS_CTRL_t.TX.RESET;
-      reg_data(66)( 0)  <= DEFAULT_K_TCDS_CTRL_t.RX.RESET;
-      reg_data(80)( 0)  <= DEFAULT_K_TCDS_CTRL_t.DATA_CTRL.CAPTURE;
-      reg_data(82)( 3 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DATA_CTRL.MODE;
-      reg_data(86)(31 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DATA_CTRL.FIXED_SEND_D;
-      reg_data(87)( 3 downto  0)  <= DEFAULT_K_TCDS_CTRL_t.DATA_CTRL.FIXED_SEND_K;
-      reg_data(96)( 0)  <= DEFAULT_K_TCDS_CTRL_t.TXRX_CLK_SEL;
-      reg_data(96)( 3 downto  1)  <= DEFAULT_K_TCDS_CTRL_t.LOOPBACK;
+      reg_data( 1)( 0)  <= DEFAULT_TCDS_CTRL_t.RESET.RESET_ALL;
+      reg_data( 1)( 4)  <= DEFAULT_TCDS_CTRL_t.RESET.TX_PLL_AND_DATAPATH;
+      reg_data( 1)( 5)  <= DEFAULT_TCDS_CTRL_t.RESET.TX_DATAPATH;
+      reg_data( 1)( 6)  <= DEFAULT_TCDS_CTRL_t.RESET.RX_PLL_AND_DATAPATH;
+      reg_data( 1)( 7)  <= DEFAULT_TCDS_CTRL_t.RESET.RX_DATAPATH;
+      reg_data( 1)( 8)  <= DEFAULT_TCDS_CTRL_t.RESET.USERCLK_TX;
+      reg_data( 1)( 9)  <= DEFAULT_TCDS_CTRL_t.RESET.USERCLK_RX;
+      reg_data( 1)(10)  <= DEFAULT_TCDS_CTRL_t.RESET.DRP;
+      reg_data(32)(22)  <= DEFAULT_TCDS_CTRL_t.DEBUG.EYESCAN_RESET;
+      reg_data(32)(23)  <= DEFAULT_TCDS_CTRL_t.DEBUG.EYESCAN_TRIGGER;
+      reg_data(33)(15 downto  0)  <= DEFAULT_TCDS_CTRL_t.DEBUG.PCS_RSV_DIN;
+      reg_data(34)(12)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.BUF_RESET;
+      reg_data(34)(13)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.CDR_HOLD;
+      reg_data(34)(17)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.DFE_LPM_RESET;
+      reg_data(34)(18)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.LPM_EN;
+      reg_data(34)(23)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.PCS_RESET;
+      reg_data(34)(24)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.PMA_RESET;
+      reg_data(34)(25)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.PRBS_CNT_RST;
+      reg_data(34)(29 downto 26)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.PRBS_SEL;
+      reg_data(35)( 2 downto  0)  <= DEFAULT_TCDS_CTRL_t.DEBUG.RX.RATE;
+      reg_data(36)( 7)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.INHIBIT;
+      reg_data(36)(15)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.PCS_RESET;
+      reg_data(36)(16)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.PMA_RESET;
+      reg_data(36)(17)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.POLARITY;
+      reg_data(36)(22 downto 18)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.POST_CURSOR;
+      reg_data(36)(23)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.PRBS_FORCE_ERR;
+      reg_data(36)(31 downto 27)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.PRE_CURSOR;
+      reg_data(37)( 3 downto  0)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.PRBS_SEL;
+      reg_data(37)( 8 downto  4)  <= DEFAULT_TCDS_CTRL_t.DEBUG.TX.DIFF_CTRL;
+      reg_data(48)(15 downto  0)  <= DEFAULT_TCDS_CTRL_t.TX.CTRL0;
+      reg_data(48)(31 downto 16)  <= DEFAULT_TCDS_CTRL_t.TX.CTRL1;
+      reg_data(49)( 7 downto  0)  <= DEFAULT_TCDS_CTRL_t.TX.CTRL2;
+      reg_data(50)( 0)  <= DEFAULT_TCDS_CTRL_t.TX.RESET;
+      reg_data(66)( 0)  <= DEFAULT_TCDS_CTRL_t.RX.RESET;
+      reg_data(80)( 0)  <= DEFAULT_TCDS_CTRL_t.DATA_CTRL.CAPTURE;
+      reg_data(82)( 3 downto  0)  <= DEFAULT_TCDS_CTRL_t.DATA_CTRL.MODE;
+      reg_data(86)(31 downto  0)  <= DEFAULT_TCDS_CTRL_t.DATA_CTRL.FIXED_SEND_D;
+      reg_data(87)( 3 downto  0)  <= DEFAULT_TCDS_CTRL_t.DATA_CTRL.FIXED_SEND_K;
+      reg_data(96)( 0)  <= DEFAULT_TCDS_CTRL_t.TXRX_CLK_SEL;
+      reg_data(96)( 3 downto  1)  <= DEFAULT_TCDS_CTRL_t.LOOPBACK;
 
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       Ctrl.RESET.RESET_ALL <= '0';

@@ -6,7 +6,7 @@ use ieee.std_logic_misc.all;
 use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
 use work.types.all;
-use work.K_IO_Ctrl.all;
+use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
 
 Library UNISIM;
@@ -180,25 +180,25 @@ begin  -- architecture structure
       K_IO_wready                      => local_AXI_WriteMISO(0).ready_for_data,       
       K_IO_wstrb                          => local_AXI_WriteMOSI(0).data_write_strobe,   
       K_IO_wvalid                      => local_AXI_WriteMOSI(0).data_valid,          
-      CM_K_INFO_araddr                    => local_AXI_ReadMOSI(1).address,              
-      CM_K_INFO_arprot                    => local_AXI_ReadMOSI(1).protection_type,      
-      CM_K_INFO_arready                => local_AXI_ReadMISO(1).ready_for_address,    
-      CM_K_INFO_arvalid                => local_AXI_ReadMOSI(1).address_valid,        
-      CM_K_INFO_awaddr                    => local_AXI_WriteMOSI(1).address,             
-      CM_K_INFO_awprot                    => local_AXI_WriteMOSI(1).protection_type,     
-      CM_K_INFO_awready                => local_AXI_WriteMISO(1).ready_for_address,   
-      CM_K_INFO_awvalid                => local_AXI_WriteMOSI(1).address_valid,       
-      CM_K_INFO_bready                 => local_AXI_WriteMOSI(1).ready_for_response,  
-      CM_K_INFO_bresp                     => local_AXI_WriteMISO(1).response,            
-      CM_K_INFO_bvalid                 => local_AXI_WriteMISO(1).response_valid,      
-      CM_K_INFO_rdata                     => local_AXI_ReadMISO(1).data,                 
-      CM_K_INFO_rready                 => local_AXI_ReadMOSI(1).ready_for_data,       
-      CM_K_INFO_rresp                     => local_AXI_ReadMISO(1).response,             
-      CM_K_INFO_rvalid                 => local_AXI_ReadMISO(1).data_valid,           
-      CM_K_INFO_wdata                     => local_AXI_WriteMOSI(1).data,                
-      CM_K_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
-      CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
-      CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
+      K_CM_FW_INFO_araddr                    => local_AXI_ReadMOSI(1).address,              
+      K_CM_FW_INFO_arprot                    => local_AXI_ReadMOSI(1).protection_type,      
+      K_CM_FW_INFO_arready                => local_AXI_ReadMISO(1).ready_for_address,    
+      K_CM_FW_INFO_arvalid                => local_AXI_ReadMOSI(1).address_valid,        
+      K_CM_FW_INFO_awaddr                    => local_AXI_WriteMOSI(1).address,             
+      K_CM_FW_INFO_awprot                    => local_AXI_WriteMOSI(1).protection_type,     
+      K_CM_FW_INFO_awready                => local_AXI_WriteMISO(1).ready_for_address,   
+      K_CM_FW_INFO_awvalid                => local_AXI_WriteMOSI(1).address_valid,       
+      K_CM_FW_INFO_bready                 => local_AXI_WriteMOSI(1).ready_for_response,  
+      K_CM_FW_INFO_bresp                     => local_AXI_WriteMISO(1).response,            
+      K_CM_FW_INFO_bvalid                 => local_AXI_WriteMISO(1).response_valid,      
+      K_CM_FW_INFO_rdata                     => local_AXI_ReadMISO(1).data,                 
+      K_CM_FW_INFO_rready                 => local_AXI_ReadMOSI(1).ready_for_data,       
+      K_CM_FW_INFO_rresp                     => local_AXI_ReadMISO(1).response,             
+      K_CM_FW_INFO_rvalid                 => local_AXI_ReadMISO(1).data_valid,           
+      K_CM_FW_INFO_wdata                     => local_AXI_WriteMOSI(1).data,                
+      K_CM_FW_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
+      K_CM_FW_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
+      K_CM_FW_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
       
 --      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
 --      QUAD_TEST_arprot                    => local_AXI_ReadMOSI(2).protection_type,      
@@ -436,7 +436,7 @@ begin  -- architecture structure
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
   
-  K_IO_interface_1: entity work.K_IO_map
+  K_IO_interface_1: entity work.IO_map
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
@@ -455,7 +455,7 @@ begin  -- architecture structure
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
-  CM_K_info_1: entity work.CM_K_info
+  CM_K_info_1: entity work.CM_FW_INFO
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,

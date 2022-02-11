@@ -107,15 +107,15 @@ architecture structure of top is
 begin  -- architecture structure
 
   --Clocking
-  Local_Clocking_1: entity work.Local_Clocking
+  Local_Clocking_1: entity work.onboardclk
     port map (
       clk_200   => clk_200,
       clk_50    => clk_50,
-      clk_axi   => AXI_CLK,
       reset     => '0',
       locked    => locked_clk200,
       clk_in1_p => p_clk_200a,
       clk_in1_n => n_clk_200a);
+  AXI_CLK <= clk_50;
 
   
 
@@ -483,4 +483,21 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
+  TCDS_1: entity work.TCDS
+    port map (
+      clk_axi      => AXI_CLK,
+      clk_200      => clk_200,
+      reset_axi_n  => AXI_RST_n,
+      readMOSI     => local_AXI_readMOSI(3),
+      readMISO     => local_AXI_readMISO(3),
+      writeMOSI    => local_AXI_writeMOSI(3),
+      writeMISO    => local_AXI_writeMISO(3),
+      refclk1_p    => p_clk1_chan0,--refclk_i_p(3),
+      refclk1_n    => n_clk1_chan0,--refclk_i_n(3),
+      tx_p         => p_atca_tts_out,
+      tx_n         => n_atca_tts_out,
+      rx_p         => p_atca_ttc_in,
+      rx_n         => n_atca_ttc_in);
+
+  
 end architecture structure;

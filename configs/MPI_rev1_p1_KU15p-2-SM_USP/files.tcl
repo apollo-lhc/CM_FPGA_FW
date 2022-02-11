@@ -20,13 +20,13 @@ set vhdl_files "\
      regmap_helper/axiReg/bramPortPkg.vhd \
      regmap_helper/axiReg/axiRegBlocking.vhd \
      src/C2C_INTF/C2C_Intf.vhd \
-     ${autogen_path}/K_IO/K_IO_PKG.vhd \
-     ${autogen_path}/K_IO/K_IO_map.vhd \
+     ${autogen_path}/IO/IO_PKG.vhd \
+     ${autogen_path}/IO/IO_map.vhd \
      src/RGB_PWM.vhd \
      src/LED_PWM.vhd \
-     src/CM_FW_info/CM_K_info.vhd \
-     ${autogen_path}/CM_K_INFO/CM_K_INFO_PKG.vhd \
-     ${autogen_path}/CM_K_INFO/CM_K_INFO_map.vhd \
+     src/CM_FW_info/CM_FW_info.vhd \
+     ${autogen_path}/CM_FW_INFO/CM_FW_INFO_PKG.vhd \
+     ${autogen_path}/CM_FW_INFO/CM_FW_INFO_map.vhd \
      ${autogen_path}/C2C_INTF/C2C_INTF_map.vhd \
      ${autogen_path}/C2C_INTF/C2C_INTF_PKG.vhd \
      src/C2C_INTF/picoblaze/picoblaze/kcpsm6.vhd \

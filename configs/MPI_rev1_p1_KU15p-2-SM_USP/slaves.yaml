@@ -18,6 +18,7 @@ AXI_SLAVES:
       - "address_table/modules/CM_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: 
+      out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
   KINTEX_SYS_MGMT:
     TCL_CALL:
@@ -32,7 +33,7 @@ AXI_SLAVES:
       - "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
-  CM_K_INFO:
+  K_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -44,6 +45,7 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
+      out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
 
