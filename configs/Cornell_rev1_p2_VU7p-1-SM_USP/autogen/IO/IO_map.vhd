@@ -8,9 +8,9 @@ use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
 
-use work.V_IO_Ctrl.all;
+use work.IO_Ctrl.all;
 
-entity V_IO_map is
+entity IO_map is
   generic (
     READ_TIMEOUT     : integer := 2048
     );
@@ -22,12 +22,12 @@ entity V_IO_map is
     slave_writeMOSI  : in  AXIWriteMOSI;
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
     
-    Mon              : in  V_IO_Mon_t;
-    Ctrl             : out V_IO_Ctrl_t
+    Mon              : in  IO_Mon_t;
+    Ctrl             : out IO_Ctrl_t
         
     );
-end entity V_IO_map;
-architecture behavioral of V_IO_map is
+end entity IO_map;
+architecture behavioral of IO_map is
   signal localAddress       : std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;
@@ -136,12 +136,12 @@ begin  -- architecture behavioral
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data(512)( 7 downto  0)  <= DEFAULT_V_IO_CTRL_t.RGB.R;
-      reg_data(512)(15 downto  8)  <= DEFAULT_V_IO_CTRL_t.RGB.G;
-      reg_data(512)(23 downto 16)  <= DEFAULT_V_IO_CTRL_t.RGB.B;
-      reg_data(768)( 0)  <= DEFAULT_V_IO_CTRL_t.BRAM.WRITE;
-      reg_data(769)(14 downto  0)  <= DEFAULT_V_IO_CTRL_t.BRAM.ADDR;
-      reg_data(770)(31 downto  0)  <= DEFAULT_V_IO_CTRL_t.BRAM.WR_DATA;
+      reg_data(512)( 7 downto  0)  <= DEFAULT_IO_CTRL_t.RGB.R;
+      reg_data(512)(15 downto  8)  <= DEFAULT_IO_CTRL_t.RGB.G;
+      reg_data(512)(23 downto 16)  <= DEFAULT_IO_CTRL_t.RGB.B;
+      reg_data(768)( 0)  <= DEFAULT_IO_CTRL_t.BRAM.WRITE;
+      reg_data(769)(14 downto  0)  <= DEFAULT_IO_CTRL_t.BRAM.ADDR;
+      reg_data(770)(31 downto  0)  <= DEFAULT_IO_CTRL_t.BRAM.WR_DATA;
 
     elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
       Ctrl.BRAM.WRITE <= '0';

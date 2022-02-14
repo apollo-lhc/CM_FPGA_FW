@@ -36,7 +36,7 @@ set vhdl_files "\
      src/C2C_INTF/picoblaze/uart_tx6.vhd \
      src/C2C_INTF/picoblaze/uC.vhd \
      src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
-     src/TCDS/TCDS.vhd \
+     src/TCDS/TCDS_GTH.vhd \
      "
 
 

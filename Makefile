@@ -181,4 +181,4 @@ make test :
 
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
-	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
+	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table

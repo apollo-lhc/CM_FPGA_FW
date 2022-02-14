@@ -22,25 +22,25 @@ set vhdl_files "\
      src/RGB_PWM.vhd \
      src/LED_PWM.vhd \
      src/misc/rate_counter.vhd \
-     src/CM_FW_info/CM_V_info.vhd \
-     ${autogen_path}/V_IO/V_IO_PKG.vhd \
-     ${autogen_path}/V_IO/V_IO_map.vhd \
+     src/CM_FW_info/CM_FW_info.vhd \
+     ${autogen_path}/IO/IO_PKG.vhd \
+     ${autogen_path}/IO/IO_map.vhd \
      ${autogen_path}/C2C_INTF/C2C_INTF_map.vhd \
      ${autogen_path}/C2C_INTF/C2C_INTF_PKG.vhd \
-     ${autogen_path}/CM_V_INFO/CM_V_INFO_PKG.vhd \
-     ${autogen_path}/CM_V_INFO/CM_V_INFO_map.vhd \
-     ${autogen_path}/V_TCDS/V_TCDS_PKG.vhd \
-     ${autogen_path}/V_TCDS/V_TCDS_map.vhd \
+     ${autogen_path}/CM_FW_INFO/CM_FW_INFO_PKG.vhd \
+     ${autogen_path}/CM_FW_INFO/CM_FW_INFO_map.vhd \
+     ${autogen_path}/TCDS/TCDS_PKG.vhd \
+     ${autogen_path}/TCDS/TCDS_map.vhd \
      src/C2C_INTF/picoblaze/picoblaze/kcpsm6.vhd \
      src/C2C_INTF/picoblaze/uart_rx6.vhd \
      src/C2C_INTF/picoblaze/uart_tx6.vhd \
      src/C2C_INTF/picoblaze/uC.vhd \
      src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
-     src/TCDS/TCDS.vhd \
+     src/TCDS/TCDS_GTY.vhd \
      "
 set xdc_files "\
-    configs/Cornell_rev1_p2_VU7p-1-SM_USP/src/top_pins.xdc \
-    configs/Cornell_rev1_p2_VU7p-1-SM_USP/src/top_timing.xdc	\
+    configs/${build_name}/src/top_pins.xdc \
+    configs/${build_name}/src/top_timing.xdc	\
     "	    
 
 set xci_files "\

@@ -34,7 +34,7 @@ AXI_SLAVES:
       - "address_table/modules/VIRTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
-  V_CM_INFO:
+  V_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -46,7 +46,7 @@ AXI_SLAVES:
       - "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
-      out_name: "CM_INFO"
+      out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
   V_TCDS:
