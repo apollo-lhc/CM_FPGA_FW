@@ -54,7 +54,7 @@ AXI_SLAVES:
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
         offset: "0x81004000"
-        range:  "4K"
+        range:  "8K"
       remote_slave: "1"
     XML:
       - "address_table/modules/K_TCDS.xml"

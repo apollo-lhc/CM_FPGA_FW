@@ -16,7 +16,8 @@ entity C2C_INTF is
   generic (
     SM_LANES         : std_logic_vector(2 downto 1) := "01"; -- active links on
     CLKFREQ          : integer := 50000000;       --clk frequency in Hz
-    ERROR_WAIT_TIME  : integer := 50000000);      --Wait time for error checking states
+    ERROR_WAIT_TIME  : integer := 50000000;       --Wait time for error checking states
+    ALLOCATED_MEMORY_RANGE : integer);            --AXI memory range for this endpoint
   port (
     clk_axi           : in  std_logic;
     reset_axi_n       : in  std_logic;
@@ -77,6 +78,9 @@ begin
 
   --For AXI
   C2C_INTF_1: entity work.C2C_INTF_map
+    generic map (
+      ALLOCATED_MEMORY_RANGE => ALLOCATED_MEMORY_RANGE
+      )
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,

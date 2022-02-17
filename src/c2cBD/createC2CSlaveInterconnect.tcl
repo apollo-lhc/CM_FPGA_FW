@@ -97,7 +97,9 @@ set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}]
 source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
 yaml_to_bd "${apollo_root_path}/configs/${build_name}/slaves.yaml"
 
-
+GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_addrs.h"                                                                                                 
+GENERATE_AXI_ADDR_MAP_VHDL "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"                                                                                              
+read_vhdl "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"      
 
 #========================================
 #  Finish up

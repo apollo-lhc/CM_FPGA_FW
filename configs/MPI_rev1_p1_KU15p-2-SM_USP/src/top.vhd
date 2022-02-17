@@ -9,7 +9,7 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
-
+use work.AXISlaveAddrPkg.all;                                                                                       
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -331,6 +331,9 @@ begin  -- architecture structure
       LEDblue    => open);
 
   K_IO_interface_1: entity work.IO_map
+    generic map(
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_IO)
+      )
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
@@ -350,6 +353,9 @@ begin  -- architecture structure
       );
 
   CM_K_info_1: entity work.CM_FW_info
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_CM_FW_INFO)
+      )
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
@@ -363,7 +369,8 @@ begin  -- architecture structure
 
   C2C_INTF_1: entity work.C2C_INTF
     generic map (
-      ERROR_WAIT_TIME => 90000000)
+      ERROR_WAIT_TIME => 90000000,
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_C2C_INTF))
     port map (
       clk_axi          => AXI_CLK,
       reset_axi_n      => AXI_RST_N,

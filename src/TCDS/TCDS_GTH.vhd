@@ -10,6 +10,9 @@ use UNISIM.vcomponents.all;
 
 
 entity TCDS is
+  generic (
+    ALLOCATED_MEMORY_RANGE : integer
+    );
   port (
     clk_axi              : in  std_logic; --50 MHz
     clk_200              : in  std_logic;
@@ -68,6 +71,9 @@ architecture behavioral of TCDS is
 begin  -- architecture TCDS
   reset <= not reset_axi_n;
   TCDS_interface_1: entity work.TCDS_map
+    generic map (
+      ALLOCATED_MEMORY_RANGE => ALLOCATED_MEMORY_RANGE
+      )
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,

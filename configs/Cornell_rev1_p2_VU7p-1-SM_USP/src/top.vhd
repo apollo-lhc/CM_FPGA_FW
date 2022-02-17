@@ -8,6 +8,8 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
+use work.AXISlaveAddrPkg.all;                                                                                       
+
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -394,6 +396,9 @@ begin  -- architecture structure
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
   
   V_IO_interface_1: entity work.IO_map
+    generic map(
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_IO)
+      )
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
@@ -413,6 +418,9 @@ begin  -- architecture structure
       );
 
   CM_V_info_1: entity work.CM_FW_info
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_CM_FW_INFO)
+      )
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
@@ -489,7 +497,9 @@ begin  -- architecture structure
 
   C2C_INTF_1: entity work.C2C_INTF
     generic map (
-      ERROR_WAIT_TIME => 90000000)
+      ERROR_WAIT_TIME => 90000000,
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_C2C_INTF)
+      )
     port map (
       clk_axi          => AXI_CLK,
       reset_axi_n      => AXI_RST_N,
@@ -505,6 +515,9 @@ begin  -- architecture structure
       Ctrl             => C2C_Ctrl);
 
   TCDS_1: entity work.TCDS
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_TCDS)
+      )
     port map (
       clk_axi      => AXI_CLK,
       clk_200      => clk_200,

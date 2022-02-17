@@ -8,7 +8,7 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
-
+use work.AXISlaveAddrPkg.all;                                                                                              
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -186,14 +186,10 @@ entity top is
   -- C2C primary (#1) and secondary (#2) links to the Zynq on the SM
      p_rt_r0_l : in std_logic;
      n_rt_r0_l : in std_logic;
-     p_mgt_sm_to_f_1 : in std_logic_vector(1 downto 1);
-     n_mgt_sm_to_f_1 : in std_logic_vector(1 downto 1);
-     p_mgt_f_to_sm_1 : out std_logic_vector(1 downto 1);
-     n_mgt_f_to_sm_1 : out std_logic_vector(1 downto 1);
-     --p_mgt_sm_to_f_2 : in std_logic;
-     --n_mgt_sm_to_f_2 : in std_logic;
-     --p_mgt_f_to_sm_2 : out std_logic;
-     --n_mgt_f_to_sm_2 : out std_logic;
+     p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+     n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+     p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+     n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
 
      --n_mgt_z2v        : in  std_logic_vector(1 downto 1);
      --p_mgt_z2v        : in  std_logic_vector(1 downto 1);
@@ -264,9 +260,9 @@ entity top is
       signal C2C_Mon  : C2C_INTF_MON_t;
       signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
-      signal clk_V_C2C_PHY_user                  : STD_logic;
+      signal clk_V_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
       signal BRAM_write : std_logic;
-      signal BRAM_addr  : std_logic_vector(9 downto 0);
+      signal BRAM_addr  : std_logic_vector(10 downto 0);
       signal BRAM_WR_data : std_logic_vector(31 downto 0);
       signal BRAM_RD_data : std_logic_vector(31 downto 0);
 
@@ -278,6 +274,17 @@ entity top is
       signal bram_wrdata_a : std_logic_vector(63 downto 0);
       signal bram_rddata_a : std_logic_vector(63 downto 0);
 
+
+      signal AXI_BRAM_EN : std_logic;
+      signal AXI_BRAM_we : std_logic_vector(7 downto 0);
+      signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
+      signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
+      signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
+
+        signal pB_UART_tx : std_logic;
+  signal pB_UART_rx : std_logic;
+
+      
 begin        
     -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
     Local_Clocking_1: entity work.onboardclk
@@ -456,10 +463,16 @@ begin
     port map (
       AXI_CLK                               => AXI_CLK,
       AXI_RST_N(0)                          => AXI_RST_N,
-      V_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f_1,
-      V_C2C_phy_Rx_rxp                  => p_mgt_sm_to_f_1,
-      V_C2C_phy_Tx_txn                  => n_mgt_f_to_sm_1,
-      V_C2C_phy_Tx_txp                  => p_mgt_f_to_sm_1,
+      CM1_PB_UART_rxd                     => pB_UART_tx,
+      CM1_PB_UART_txd                     => pB_UART_rx,
+      V_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
+      V_C2C_phy_Rx_rxp                  => p_mgt_sm_to_f(1 downto 1),
+      V_C2C_phy_Tx_txn                  => n_mgt_f_to_sm(1 downto 1),
+      V_C2C_phy_Tx_txp                  => p_mgt_f_to_sm(1 downto 1),
+      V_C2CB_phy_Rx_rxn                  => n_mgt_sm_to_f(2 downto 2),
+      V_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
+      V_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
+      V_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
       V_C2C_phy_refclk_clk_n            => n_rt_r0_l,
       V_C2C_phy_refclk_clk_p            => p_rt_r0_l,
       clk50Mhz                              => clk_50,
@@ -483,7 +496,29 @@ begin
       V_IO_wready                           => local_AXI_WriteMISO(0).ready_for_data,       
       V_IO_wstrb                            => local_AXI_WriteMOSI(0).data_write_strobe,   
       V_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
-                                            
+
+
+      V_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
+      V_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
+      V_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
+      V_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
+      V_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
+      V_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
+      V_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
+      V_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
+      V_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
+      V_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
+      V_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
+      V_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
+      V_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
+      V_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
+      V_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
+      V_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
+      V_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
+      V_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
+      V_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
+
+      
       V_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
       V_CM_FW_INFO_arprot                      => local_AXI_ReadMOSI(1).protection_type,      
       V_CM_FW_INFO_arready                     => local_AXI_ReadMISO(1).ready_for_address,    
@@ -588,7 +623,7 @@ begin
       V_C2C_axi_c2c_link_status_out     =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
       V_C2C_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
       V_C2C_phy_power_down              => '0',
-      V_C2C_PHY_clk(0)                  => clk_V_C2C_PHY_user(1),
+      V_C2C_PHY_clk                     => clk_V_C2C_PHY_user(1),
       V_C2C_PHY_DRP_daddr               => C2C_Ctrl.C2C(1).DRP.address,
       V_C2C_PHY_DRP_den                 => C2C_Ctrl.C2C(1).DRP.enable,
       V_C2C_PHY_DRP_di                  => C2C_Ctrl.C2C(1).DRP.wr_data,
@@ -674,7 +709,7 @@ begin
       CLK_A_1_SECOND => 2000000)
     port map (
       clk_A         => clk_200,
-      clk_B         => clk_V_C2C_PHY_user,
+      clk_B         => clk_V_C2C_PHY_user(1),
       reset_A_async => AXI_RESET,
       event_b       => '1',
       rate          => C2C_Mon.C2C(1).USER_FREQ);
@@ -682,6 +717,9 @@ begin
 
     
   V_IO_interface_1: entity work.IO_map
+    generic map(
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_IO)
+      )
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
@@ -695,12 +733,15 @@ begin
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
       Ctrl.BRAM.WRITE         => BRAM_WRITE,
-      Ctrl.BRAM.ADDR(9 downto 0) => BRAM_ADDR,
-      Ctrl.BRAM.ADDR(14 downto 10) => open,
+      Ctrl.BRAM.ADDR(10 downto 0) => BRAM_ADDR,
+      Ctrl.BRAM.ADDR(14 downto 11) => open,
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
   CM_V_info_1: entity work.CM_FW_info
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_CM_FW_INFO)
+      )
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
@@ -708,6 +749,25 @@ begin
       readMISO    => local_AXI_ReadMISO(1),
       writeMOSI   => local_AXI_WriteMOSI(1),
       writeMISO   => local_AXI_WriteMISO(1));
+
+  C2C_INTF_1: entity work.C2C_INTF
+    generic map (
+      ERROR_WAIT_TIME => 90000000,
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_C2C_INTF)
+      )
+    port map (
+      clk_axi          => AXI_CLK,
+      reset_axi_n      => AXI_RST_N,
+      readMOSI         => local_AXI_readMOSI(2),
+      readMISO         => local_AXI_readMISO(2),
+      writeMOSI        => local_AXI_writeMOSI(2),
+      writeMISO        => local_AXI_writeMISO(2),
+      clk_C2C(1)       => clk_V_C2C_PHY_user(1),
+      clk_C2C(2)       => clk_V_C2C_PHY_user(1),
+      UART_Rx          => pb_UART_Rx,
+      UART_Tx          => pb_UART_Tx,
+      Mon              => C2C_Mon,
+      Ctrl             => C2C_Ctrl);
 
 
   AXI_RESET <= not AXI_RST_N;

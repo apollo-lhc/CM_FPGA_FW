@@ -8,7 +8,12 @@ use work.AXIRegPkg.all;
 use work.types.all;
 use work.CM_FW_INFO_Ctrl.all;
 
+
+
 entity CM_FW_INFO_map is
+  generic (
+    ALLOCATED_MEMORY_RANGE : integer
+    );
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -37,6 +42,13 @@ begin  -- architecture behavioral
   -- AXI 
   -------------------------------------------------------------------------------
   -------------------------------------------------------------------------------
+  assert ((4*17) <= ALLOCATED_MEMORY_RANGE)
+    report "CM_FW_INFO: Regmap addressing range " & integer'image(4*17) & " is outside of AXI mapped range " & integer'image(ALLOCATED_MEMORY_RANGE)
+  severity ERROR;
+  assert ((4*17) > ALLOCATED_MEMORY_RANGE)
+    report "CM_FW_INFO: Regmap addressing range " & integer'image(4*17) & " is inside of AXI mapped range " & integer'image(ALLOCATED_MEMORY_RANGE)
+  severity NOTE;
+
   AXIRegBridge : entity work.axiLiteReg
     port map (
       clk_axi     => clk_axi,
