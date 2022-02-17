@@ -6,8 +6,10 @@ use ieee.std_logic_misc.all;
 use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
 use work.types.all;
-use work.K_IO_Ctrl.all;
+use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
+use work.AXISlaveAddrPkg.all;                                                                                       
+
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -31,18 +33,16 @@ entity top is
     k_fpga_i2c_sda   : inout std_logic;
 
     --TCDS
-    p_clk0_chan0     : in std_logic; -- 200 MHz system clock
-    n_clk0_chan0     : in std_logic; 
-    p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
+    p_atca_tts_out   : out std_logic;
+    n_atca_tts_out   : out std_logic;
+    p_atca_ttc_in    : in  std_logic;
+    n_atca_ttc_in    : in  std_logic;
+
+    refclk_i_p       : in  std_logic_vector(3 downto 1);
+    refclk_i_n       : in  std_logic_vector(3 downto 1);
+
     n_clk1_chan0     : in std_logic;
---    p_atca_tts_out   : out std_logic;
---    n_atca_tts_out   : out std_logic;
---    p_atca_ttc_in    : in  std_logic;
---    n_atca_ttc_in    : in  std_logic;
-
-    refclk_i_p       : in  std_logic_vector(2 downto 1);
-    refclk_i_n       : in  std_logic_vector(2 downto 1);
-
+    p_clk1_chan0     : in std_logic;
 --    n_ff1_recv       : in  std_logic_vector(11 downto 0);
 --    p_ff1_recv       : in  std_logic_vector(11 downto 0);
 --    n_ff1_xmit       : out std_logic_vector(11 downto 0);
@@ -133,17 +133,16 @@ architecture structure of top is
 begin  -- architecture structure
 
   --Clocking
-  Local_Clocking_1: entity work.Local_Clocking
+  Local_Clocking: entity work.onboardclk
     port map (
-      clk_200   => clk_200,
-      clk_50    => clk_50,
-      clk_axi   => AXI_CLK,
+      clk_200MHz   => clk_200,
+      clk_50Mhz    => clk_50,
       reset     => '0',
       locked    => locked_clk200,
       clk_in1_p => p_clk_200,
       clk_in1_n => n_clk_200);
   
-  
+  AXI_CLK <= clk_50;
 
   
 
@@ -183,25 +182,25 @@ begin  -- architecture structure
       K_IO_wready                      => local_AXI_WriteMISO(0).ready_for_data,       
       K_IO_wstrb                          => local_AXI_WriteMOSI(0).data_write_strobe,   
       K_IO_wvalid                      => local_AXI_WriteMOSI(0).data_valid,          
-      CM_K_INFO_araddr                    => local_AXI_ReadMOSI(1).address,              
-      CM_K_INFO_arprot                    => local_AXI_ReadMOSI(1).protection_type,      
-      CM_K_INFO_arready                => local_AXI_ReadMISO(1).ready_for_address,    
-      CM_K_INFO_arvalid                => local_AXI_ReadMOSI(1).address_valid,        
-      CM_K_INFO_awaddr                    => local_AXI_WriteMOSI(1).address,             
-      CM_K_INFO_awprot                    => local_AXI_WriteMOSI(1).protection_type,     
-      CM_K_INFO_awready                => local_AXI_WriteMISO(1).ready_for_address,   
-      CM_K_INFO_awvalid                => local_AXI_WriteMOSI(1).address_valid,       
-      CM_K_INFO_bready                 => local_AXI_WriteMOSI(1).ready_for_response,  
-      CM_K_INFO_bresp                     => local_AXI_WriteMISO(1).response,            
-      CM_K_INFO_bvalid                 => local_AXI_WriteMISO(1).response_valid,      
-      CM_K_INFO_rdata                     => local_AXI_ReadMISO(1).data,                 
-      CM_K_INFO_rready                 => local_AXI_ReadMOSI(1).ready_for_data,       
-      CM_K_INFO_rresp                     => local_AXI_ReadMISO(1).response,             
-      CM_K_INFO_rvalid                 => local_AXI_ReadMISO(1).data_valid,           
-      CM_K_INFO_wdata                     => local_AXI_WriteMOSI(1).data,                
-      CM_K_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
-      CM_K_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
-      CM_K_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
+      K_CM_FW_INFO_araddr                    => local_AXI_ReadMOSI(1).address,              
+      K_CM_FW_INFO_arprot                    => local_AXI_ReadMOSI(1).protection_type,      
+      K_CM_FW_INFO_arready                => local_AXI_ReadMISO(1).ready_for_address,    
+      K_CM_FW_INFO_arvalid                => local_AXI_ReadMOSI(1).address_valid,        
+      K_CM_FW_INFO_awaddr                    => local_AXI_WriteMOSI(1).address,             
+      K_CM_FW_INFO_awprot                    => local_AXI_WriteMOSI(1).protection_type,     
+      K_CM_FW_INFO_awready                => local_AXI_WriteMISO(1).ready_for_address,   
+      K_CM_FW_INFO_awvalid                => local_AXI_WriteMOSI(1).address_valid,       
+      K_CM_FW_INFO_bready                 => local_AXI_WriteMOSI(1).ready_for_response,  
+      K_CM_FW_INFO_bresp                     => local_AXI_WriteMISO(1).response,            
+      K_CM_FW_INFO_bvalid                 => local_AXI_WriteMISO(1).response_valid,      
+      K_CM_FW_INFO_rdata                     => local_AXI_ReadMISO(1).data,                 
+      K_CM_FW_INFO_rready                 => local_AXI_ReadMOSI(1).ready_for_data,       
+      K_CM_FW_INFO_rresp                     => local_AXI_ReadMISO(1).response,             
+      K_CM_FW_INFO_rvalid                 => local_AXI_ReadMISO(1).data_valid,           
+      K_CM_FW_INFO_wdata                     => local_AXI_WriteMOSI(1).data,                
+      K_CM_FW_INFO_wready                 => local_AXI_WriteMISO(1).ready_for_data,       
+      K_CM_FW_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
+      K_CM_FW_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
       
 --      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
 --      QUAD_TEST_arprot                    => local_AXI_ReadMOSI(2).protection_type,      
@@ -222,6 +221,26 @@ begin  -- architecture structure
 --      QUAD_TEST_wready                 => local_AXI_WriteMISO(2).ready_for_data,       
 --      QUAD_TEST_wstrb                     => local_AXI_WriteMOSI(2).data_write_strobe,   
 --      QUAD_TEST_wvalid                 => local_AXI_WriteMOSI(2).data_valid,          
+
+      --      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
+      K_TCDS_arprot                    => local_AXI_ReadMOSI(3).protection_type,      
+      K_TCDS_arready                => local_AXI_ReadMISO(3).ready_for_address,    
+      K_TCDS_arvalid                => local_AXI_ReadMOSI(3).address_valid,        
+      K_TCDS_awaddr                    => local_AXI_WriteMOSI(3).address,             
+      K_TCDS_awprot                    => local_AXI_WriteMOSI(3).protection_type,     
+      K_TCDS_awready                => local_AXI_WriteMISO(3).ready_for_address,   
+      K_TCDS_awvalid                => local_AXI_WriteMOSI(3).address_valid,       
+      K_TCDS_bready                 => local_AXI_WriteMOSI(3).ready_for_response,  
+      K_TCDS_bresp                     => local_AXI_WriteMISO(3).response,            
+      K_TCDS_bvalid                 => local_AXI_WriteMISO(3).response_valid,      
+      K_TCDS_rdata                     => local_AXI_ReadMISO(3).data,                 
+      K_TCDS_rready                 => local_AXI_ReadMOSI(3).ready_for_data,       
+      K_TCDS_rresp                     => local_AXI_ReadMISO(3).response,             
+      K_TCDS_rvalid                 => local_AXI_ReadMISO(3).data_valid,           
+      K_TCDS_wdata                     => local_AXI_WriteMOSI(3).data,                
+      K_TCDS_wready                 => local_AXI_WriteMISO(3).ready_for_data,       
+      K_TCDS_wstrb                     => local_AXI_WriteMOSI(3).data_write_strobe,   
+      K_TCDS_wvalid                 => local_AXI_WriteMOSI(3).data_valid,          
 
       K_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
       K_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
@@ -419,7 +438,10 @@ begin  -- architecture structure
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
   
-  K_IO_interface_1: entity work.K_IO_map
+  K_IO_interface_1: entity work.IO_map
+    generic map(
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_IO)
+      )
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
@@ -433,12 +455,15 @@ begin  -- architecture structure
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
       Ctrl.BRAM.WRITE         => BRAM_WRITE,
-      Ctrl.BRAM.ADDR(10 downto 0) => BRAM_ADDR,
+      Ctrl.BRAM.ADDR(10 downto  0) => BRAM_ADDR,
       Ctrl.BRAM.ADDR(14 downto 11) => open,
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
-  CM_K_info_1: entity work.CM_K_info
+  CM_K_info_1: entity work.CM_FW_INFO
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_CM_FW_INFO)
+      )
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
@@ -556,7 +581,9 @@ begin  -- architecture structure
 
   C2C_INTF_1: entity work.C2C_INTF
     generic map (
-      ERROR_WAIT_TIME => 90000000)
+      ERROR_WAIT_TIME => 90000000,
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_C2C_INTF)
+      )
     port map (
       clk_axi          => AXI_CLK,
       reset_axi_n      => AXI_RST_N,
@@ -571,5 +598,23 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
+  TCDS_1: entity work.TCDS
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_TCDS)
+      )
+    port map (
+      clk_axi      => AXI_CLK,
+      clk_200      => clk_200,
+      reset_axi_n  => AXI_RST_n,
+      readMOSI     => local_AXI_readMOSI(3),
+      readMISO     => local_AXI_readMISO(3),
+      writeMOSI    => local_AXI_writeMOSI(3),
+      writeMISO    => local_AXI_writeMISO(3),
+      refclk1_p    => p_clk1_chan0,--refclk_i_p(3),
+      refclk1_n    => n_clk1_chan0,--refclk_i_n(3),
+      tx_p         => p_atca_tts_out,
+      tx_n         => n_atca_tts_out,
+      rx_p         => p_atca_ttc_in,
+      rx_n         => n_atca_ttc_in);
   
 end architecture structure;

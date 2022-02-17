@@ -100,10 +100,10 @@ set_property PACKAGE_PIN AL11 [get_ports n_util_clk_chan0]
 set_property PACKAGE_PIN AL12 [get_ports p_util_clk_chan0]
 
 # Quad C (226)
-#set_property PACKAGE_PIN  AG11 [get_ports  refclk_i_n[3] ]
-#set_property PACKAGE_PIN  AG12 [get_ports  refclk_i_p[3] ]
-#set_property PACKAGE_PIN  AF9  [get_ports  n_clk1_chan0 ]
-#set_property PACKAGE_PIN  AF10 [get_ports  p_clk1_chan0 ]
+set_property PACKAGE_PIN  AG11 [get_ports  refclk_i_n[3] ]
+set_property PACKAGE_PIN  AG12 [get_ports  refclk_i_p[3] ]
+set_property PACKAGE_PIN  AF9  [get_ports  n_clk1_chan0 ]
+set_property PACKAGE_PIN  AF10 [get_ports  p_clk1_chan0 ]
 
 # Quad F (229)
 #set_property PACKAGE_PIN  AA11 [get_ports  refclk_i_n[2] ]

@@ -6,8 +6,10 @@ use ieee.std_logic_misc.all;
 use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
 use work.types.all;
-use work.V_IO_Ctrl.all;
+use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
+use work.AXISlaveAddrPkg.all;                                                                                       
+
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -34,10 +36,10 @@ entity top is
     n_clk0_chan0     : in std_logic; 
     p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
     n_clk1_chan0     : in std_logic;
---    p_atca_tts_out   : out std_logic;
---    n_atca_tts_out   : out std_logic;
---    p_atca_ttc_in    : in  std_logic;
---    n_atca_ttc_in    : in  std_logic;
+    p_atca_tts_out   : out std_logic;
+    n_atca_tts_out   : out std_logic;
+    p_atca_ttc_in    : in  std_logic;
+    n_atca_ttc_in    : in  std_logic;
 
     -- tri-color LED
     led_red : out std_logic;
@@ -107,15 +109,15 @@ architecture structure of top is
 begin  -- architecture structure
 
   --Clocking
-  Local_Clocking_1: entity work.Local_Clocking
+  Local_Clocking_1: entity work.onboardclk
     port map (
-      clk_200   => clk_200,
-      clk_50    => clk_50,
-      clk_axi   => AXI_CLK,
-      reset     => '0',
-      locked    => locked_clk200,
-      clk_in1_p => p_clk_200a,
-      clk_in1_n => n_clk_200a);
+      clk_200Mhz => clk_200,
+      clk_50Mhz  => clk_50,
+      reset      => '0',
+      locked     => locked_clk200,
+      clk_in1_p  => p_clk_200a,
+      clk_in1_n  => n_clk_200a);
+  AXI_CLK <= clk_50;
 
   
 
@@ -158,26 +160,47 @@ begin  -- architecture structure
       V_IO_wstrb                            => local_AXI_WriteMOSI(0).data_write_strobe,   
       V_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
                                             
-      CM_V_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
-      CM_V_INFO_arprot                      => local_AXI_ReadMOSI(1).protection_type,      
-      CM_V_INFO_arready                     => local_AXI_ReadMISO(1).ready_for_address,    
-      CM_V_INFO_arvalid                     => local_AXI_ReadMOSI(1).address_valid,        
-      CM_V_INFO_awaddr                      => local_AXI_WriteMOSI(1).address,             
-      CM_V_INFO_awprot                      => local_AXI_WriteMOSI(1).protection_type,     
-      CM_V_INFO_awready                     => local_AXI_WriteMISO(1).ready_for_address,   
-      CM_V_INFO_awvalid                     => local_AXI_WriteMOSI(1).address_valid,       
-      CM_V_INFO_bready                      => local_AXI_WriteMOSI(1).ready_for_response,  
-      CM_V_INFO_bresp                       => local_AXI_WriteMISO(1).response,            
-      CM_V_INFO_bvalid                      => local_AXI_WriteMISO(1).response_valid,      
-      CM_V_INFO_rdata                       => local_AXI_ReadMISO(1).data,                 
-      CM_V_INFO_rready                      => local_AXI_ReadMOSI(1).ready_for_data,       
-      CM_V_INFO_rresp                       => local_AXI_ReadMISO(1).response,             
-      CM_V_INFO_rvalid                      => local_AXI_ReadMISO(1).data_valid,           
-      CM_V_INFO_wdata                       => local_AXI_WriteMOSI(1).data,                
-      CM_V_INFO_wready                      => local_AXI_WriteMISO(1).ready_for_data,       
-      CM_V_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
-      CM_V_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
+      V_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
+      V_CM_FW_INFO_arprot                      => local_AXI_ReadMOSI(1).protection_type,      
+      V_CM_FW_INFO_arready                     => local_AXI_ReadMISO(1).ready_for_address,    
+      V_CM_FW_INFO_arvalid                     => local_AXI_ReadMOSI(1).address_valid,        
+      V_CM_FW_INFO_awaddr                      => local_AXI_WriteMOSI(1).address,             
+      V_CM_FW_INFO_awprot                      => local_AXI_WriteMOSI(1).protection_type,     
+      V_CM_FW_INFO_awready                     => local_AXI_WriteMISO(1).ready_for_address,   
+      V_CM_FW_INFO_awvalid                     => local_AXI_WriteMOSI(1).address_valid,       
+      V_CM_FW_INFO_bready                      => local_AXI_WriteMOSI(1).ready_for_response,  
+      V_CM_FW_INFO_bresp                       => local_AXI_WriteMISO(1).response,            
+      V_CM_FW_INFO_bvalid                      => local_AXI_WriteMISO(1).response_valid,      
+      V_CM_FW_INFO_rdata                       => local_AXI_ReadMISO(1).data,                 
+      V_CM_FW_INFO_rready                      => local_AXI_ReadMOSI(1).ready_for_data,       
+      V_CM_FW_INFO_rresp                       => local_AXI_ReadMISO(1).response,             
+      V_CM_FW_INFO_rvalid                      => local_AXI_ReadMISO(1).data_valid,           
+      V_CM_FW_INFO_wdata                       => local_AXI_WriteMOSI(1).data,                
+      V_CM_FW_INFO_wready                      => local_AXI_WriteMISO(1).ready_for_data,       
+      V_CM_FW_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
+      V_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
 
+
+      V_TCDS_arprot                    => local_AXI_ReadMOSI(3).protection_type,      
+      V_TCDS_arready                => local_AXI_ReadMISO(3).ready_for_address,    
+      V_TCDS_arvalid                => local_AXI_ReadMOSI(3).address_valid,        
+      V_TCDS_awaddr                    => local_AXI_WriteMOSI(3).address,             
+      V_TCDS_awprot                    => local_AXI_WriteMOSI(3).protection_type,     
+      V_TCDS_awready                => local_AXI_WriteMISO(3).ready_for_address,   
+      V_TCDS_awvalid                => local_AXI_WriteMOSI(3).address_valid,       
+      V_TCDS_bready                 => local_AXI_WriteMOSI(3).ready_for_response,  
+      V_TCDS_bresp                     => local_AXI_WriteMISO(3).response,            
+      V_TCDS_bvalid                 => local_AXI_WriteMISO(3).response_valid,      
+      V_TCDS_rdata                     => local_AXI_ReadMISO(3).data,                 
+      V_TCDS_rready                 => local_AXI_ReadMOSI(3).ready_for_data,       
+      V_TCDS_rresp                     => local_AXI_ReadMISO(3).response,             
+      V_TCDS_rvalid                 => local_AXI_ReadMISO(3).data_valid,           
+      V_TCDS_wdata                     => local_AXI_WriteMOSI(3).data,                
+      V_TCDS_wready                 => local_AXI_WriteMISO(3).ready_for_data,       
+      V_TCDS_wstrb                     => local_AXI_WriteMOSI(3).data_write_strobe,   
+      V_TCDS_wvalid                 => local_AXI_WriteMOSI(3).data_valid,          
+
+      
       V_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
       V_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
       V_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
@@ -372,7 +395,10 @@ begin  -- architecture structure
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
   
-  V_IO_interface_1: entity work.V_IO_map
+  V_IO_interface_1: entity work.IO_map
+    generic map(
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_IO)
+      )
     port map (
       clk_axi         => AXI_CLK,
       reset_axi_n     => AXI_RST_N,
@@ -391,7 +417,10 @@ begin  -- architecture structure
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
-  CM_V_info_1: entity work.CM_V_info
+  CM_V_info_1: entity work.CM_FW_info
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_CM_FW_INFO)
+      )
     port map (
       clk_axi     => AXI_CLK,
       reset_axi_n => AXI_RST_N,
@@ -468,7 +497,9 @@ begin  -- architecture structure
 
   C2C_INTF_1: entity work.C2C_INTF
     generic map (
-      ERROR_WAIT_TIME => 90000000)
+      ERROR_WAIT_TIME => 90000000,
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_C2C_INTF)
+      )
     port map (
       clk_axi          => AXI_CLK,
       reset_axi_n      => AXI_RST_N,
@@ -483,4 +514,24 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
+  TCDS_1: entity work.TCDS
+    generic map (
+      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_TCDS)
+      )
+    port map (
+      clk_axi      => AXI_CLK,
+      clk_200      => clk_200,
+      reset_axi_n  => AXI_RST_n,
+      readMOSI     => local_AXI_readMOSI(3),
+      readMISO     => local_AXI_readMISO(3),
+      writeMOSI    => local_AXI_writeMOSI(3),
+      writeMISO    => local_AXI_writeMISO(3),
+      refclk1_p    => p_clk1_chan0,--refclk_i_p(3),
+      refclk1_n    => n_clk1_chan0,--refclk_i_n(3),
+      tx_p         => p_atca_tts_out,
+      tx_n         => n_atca_tts_out,
+      rx_p         => p_atca_ttc_in,
+      rx_n         => n_atca_ttc_in);
+
+  
 end architecture structure;

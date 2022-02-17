@@ -16,7 +16,8 @@ entity C2C_INTF is
   generic (
     SM_LANES         : std_logic_vector(2 downto 1) := "01"; -- active links on
     CLKFREQ          : integer := 50000000;       --clk frequency in Hz
-    ERROR_WAIT_TIME  : integer := 50000000);      --Wait time for error checking states
+    ERROR_WAIT_TIME  : integer := 50000000;       --Wait time for error checking states
+    ALLOCATED_MEMORY_RANGE : integer);            --AXI memory range for this endpoint
   port (
     clk_axi           : in  std_logic;
     reset_axi_n       : in  std_logic;
@@ -66,6 +67,9 @@ architecture behavioral of C2C_INTF is
   signal link_INFO_out : uC_Link_out_t_array(0 to HW_LINK_COUNT-1);
   signal link_INFO_in  : uC_Link_in_t_array (0 to HW_LINK_COUNT-1);
 
+  constant one :std_logic := '1';
+  constant zero :std_logic := '1';
+  
 begin
   --reset
   reset <= not reset_axi_n;
@@ -74,6 +78,9 @@ begin
 
   --For AXI
   C2C_INTF_1: entity work.C2C_INTF_map
+    generic map (
+      ALLOCATED_MEMORY_RANGE => ALLOCATED_MEMORY_RANGE
+      )
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
@@ -128,7 +135,7 @@ begin
         clk_A         => clk_axi,
         clk_B         => clk_C2C(iLane),
         reset_A_async => reset or Mon.C2C(iLane).status.phy_mmcm_lol,
-        event_b       => '1',
+        event_b       => one,--'1',
         rate          => Mon_local.C2C(iLane).COUNTERS.USER_CLK_FREQ);            
     
     -------------------------------------------------------------------------------
@@ -218,7 +225,7 @@ begin
       port map (
         clk_A             => clk_axi,
         clk_B             => clk_axi,
-        reset_A_async     => '0',
+        reset_A_async     => zero,--'0',
         event_b           => Mon_local.C2C(iLane).STATUS.LINK_ERROR,
         rate              => single_bit_error_rate(iLane));
     Mon_local.C2C(iLane).COUNTERS.SB_ERROR_RATE <= single_bit_error_rate(iLane);
@@ -228,7 +235,7 @@ begin
       port map (
         clk_A             => clk_axi,
         clk_B             => clk_axi,
-        reset_A_async     => '0',
+        reset_A_async     => zero,--'0',
         event_b           => Mon_local.C2C(iLane).STATUS.MB_ERROR,
         rate              => multi_bit_error_rate(iLane));
     Mon_local.C2C(iLane).COUNTERS.MB_ERROR_RATE <= multi_bit_error_rate(iLane);
