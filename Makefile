@@ -142,14 +142,8 @@ interactive :
 	cd proj &&\
 	vivado -mode tcl
 
-#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table/address_%.xml
 
-#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
-
-#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/address_table_%/address_%.xml
-
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE)
-#	@ln -s $(ADDRESS_TABLE_CREATION_PATH)/slaves_$*.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves.yaml                                                                                      
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -158,7 +152,6 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_T
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
 	$(MAKE) overlays  $(OUTPUT_MARKUP)
-#	$(MAKE) ${MAKE_PATH}/os/address_table_$*/address_$*.xml  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
 
