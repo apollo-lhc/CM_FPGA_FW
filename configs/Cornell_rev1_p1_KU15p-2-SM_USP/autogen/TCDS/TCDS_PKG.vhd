@@ -173,7 +173,7 @@ package TCDS_CTRL is
 
   type TCDS_DATA_CTRL_CTRL_t is record
     CAPTURE                    :std_logic;   
-    MODE                       :std_logic_vector( 3 downto 0);
+    MODE                       :std_logic_vector( 3 downto 0);  -- 0:deadbeef 1:rx_data 2: BCBCBC 3:tx_data_fixed 4: counter
     FIXED_SEND_D               :std_logic_vector(31 downto 0);
     FIXED_SEND_K               :std_logic_vector( 3 downto 0);
   end record TCDS_DATA_CTRL_CTRL_t;

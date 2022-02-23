@@ -13,3 +13,6 @@
 	path = build-scripts
 	url = https://gitlab.com/BU-EDF/fw-bits/build-scripts.git
 	branch = develop
+[submodule "configs/MPI_rev1_p1_KU15p-2-SM_USP"]
+	path = configs/MPI_rev1_p1_KU15p-2-SM_USP
+	url = https://gitlab.com/apollo-lhc/l0mdt/mpi_rev1_p1_ku15p-2.git

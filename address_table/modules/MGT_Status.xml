@@ -1,6 +1,6 @@
 <node id="STATUS">
-  <node id="PHY_RESET"          address="0x0" mask="0x00000100" permission="r"  description="Aurora phy in reset"      parameters="Table=C2C;Column=_1_2;Row=_4;Status=2"/>
-  <node id="PHY_GT_PLL_LOCK"    address="0x0" mask="0x00000200" permission="r"  description="Aurora phy GT PLL locked" parameters="Table=C2C;Column=_1_2;Row=_4;Status=2"/>
-  <node id="PHY_MMCM_LOL"       address="0x0" mask="0x00000400" permission="r"  description="Aurora phy mmcm LOL"      parameters="Table=C2C;Column=_1_2;Row=_4;Status=2;Show=nz"/>
+  <node id="PHY_RESET"          address="0x0" mask="0x00000100" permission="r"  description="Aurora phy in reset"      parameters="Table=C2C;Column=_1_2;Row=PHY_RESET;Status=2"/>
+  <node id="PHY_GT_PLL_LOCK"    address="0x0" mask="0x00000200" permission="r"  description="Aurora phy GT PLL locked" parameters="Table=C2C;Column=_1_2;Row=PHY_GT_PLL_LOCK;Status=2"/>
+  <node id="PHY_MMCM_LOL"       address="0x0" mask="0x00000400" permission="r"  description="Aurora phy mmcm LOL"      parameters="Table=C2C;Column=_1_2;Row=PHY_MMCM_LOL;Status=2;Show=nz"/>
 </node>
   

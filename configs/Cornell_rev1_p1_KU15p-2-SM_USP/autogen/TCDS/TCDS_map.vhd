@@ -2,16 +2,19 @@
 --Modifications might be lost.
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.std_logic_misc.all;
 use ieee.numeric_std.all;
 use work.AXIRegWidthPkg.all;
 use work.AXIRegPkg.all;
 use work.types.all;
+use work.BRAMPortPkg.all;
 use work.TCDS_Ctrl.all;
 
 
 
 entity TCDS_map is
   generic (
+    READ_TIMEOUT     : integer := 2048;
     ALLOCATED_MEMORY_RANGE : integer
     );
   port (
@@ -21,8 +24,10 @@ entity TCDS_map is
     slave_readMISO   : out AXIReadMISO  := DefaultAXIReadMISO;
     slave_writeMOSI  : in  AXIWriteMOSI;
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
+    
     Mon              : in  TCDS_Mon_t;
     Ctrl             : out TCDS_Ctrl_t
+        
     );
 end entity TCDS_map;
 architecture behavioral of TCDS_map is
@@ -33,8 +38,18 @@ architecture behavioral of TCDS_map is
   signal localWrEn          : std_logic;
   signal localRdReq         : std_logic;
   signal localRdAck         : std_logic;
+  signal regRdAck           : std_logic;
 
-
+  
+  constant BRAM_COUNT       : integer := 1;
+--  signal latchBRAM          : std_logic_vector(BRAM_COUNT-1 downto 0);
+--  signal delayLatchBRAM          : std_logic_vector(BRAM_COUNT-1 downto 0);
+  constant BRAM_range       : int_array_t(0 to BRAM_COUNT-1) := (0 => 10);
+  constant BRAM_addr        : slv32_array_t(0 to BRAM_COUNT-1) := (0 => x"00000400");
+  signal BRAM_MOSI          : BRAMPortMOSI_array_t(0 to BRAM_COUNT-1);
+  signal BRAM_MISO          : BRAMPortMISO_array_t(0 to BRAM_COUNT-1);
+  
+  
   signal reg_data :  slv32_array_t(integer range 0 to 2048);
   constant Default_reg_data : slv32_array_t(integer range 0 to 2048) := (others => x"00000000");
 begin  -- architecture behavioral
@@ -50,7 +65,10 @@ begin  -- architecture behavioral
     report "TCDS: Regmap addressing range " & integer'image(4*2048) & " is inside of AXI mapped range " & integer'image(ALLOCATED_MEMORY_RANGE)
   severity NOTE;
 
-  AXIRegBridge : entity work.axiLiteReg
+  AXIRegBridge : entity work.axiLiteRegBlocking
+    generic map (
+      READ_TIMEOUT => READ_TIMEOUT
+      )
     port map (
       clk_axi     => clk_axi,
       reset_axi_n => reset_axi_n,
@@ -65,22 +83,41 @@ begin  -- architecture behavioral
       read_req    => localRdReq,
       read_ack    => localRdAck);
 
-  latch_reads: process (clk_axi) is
+  -------------------------------------------------------------------------------
+  -- Record read decoding
+  -------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------
+
+  latch_reads: process (clk_axi,reset_axi_n) is
   begin  -- process latch_reads
-    if clk_axi'event and clk_axi = '1' then  -- rising clock edge
-      if localRdReq = '1' then
-        localRdData_latch <= localRdData;        
+    if reset_axi_n = '0' then
+      localRdAck <= '0';
+    elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+      localRdAck <= '0';
+      
+      if regRdAck = '1' then
+        localRdData_latch <= localRdData;
+        localRdAck <= '1';
+      elsif BRAM_MISO(0).rd_data_valid = '1' then
+        localRdAck <= '1';
+        localRdData_latch <= BRAM_MISO(0).rd_data;
+
       end if;
     end if;
   end process latch_reads;
-  reads: process (localRdReq,localAddress,reg_data) is
-  begin  -- process reads
-    localRdAck  <= '0';
-    localRdData <= x"00000000";
-    if localRdReq = '1' then
-      localRdAck  <= '1';
-      case to_integer(unsigned(localAddress(11 downto 0))) is
 
+  
+  reads: process (clk_axi,reset_axi_n) is
+  begin  -- process latch_reads
+    if reset_axi_n = '0' then
+      regRdAck <= '0';
+    elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+      regRdAck  <= '0';
+      localRdData <= x"00000000";
+      if localRdReq = '1' then
+        regRdAck  <= '1';
+        case to_integer(unsigned(localAddress(11 downto 0))) is
+          
         when 0 => --0x0
           localRdData( 1)            <=  Mon.CLOCKING.POWER_GOOD;           --
           localRdData( 9)            <=  Mon.CLOCKING.RX_CDR_STABLE;        --
@@ -134,7 +171,7 @@ begin  -- architecture behavioral
           localRdData( 8)            <=  Mon.RX.ACTIVE;                     --
           localRdData(15 downto  8)  <=  Mon.RX.CTRL3;                      --
         when 82 => --0x52
-          localRdData( 3 downto  0)  <=  reg_data(82)( 3 downto  0);        --
+          localRdData( 3 downto  0)  <=  reg_data(82)( 3 downto  0);        --0:deadbeef 1:rx_data 2: BCBCBC 3:tx_data_fixed 4: counter
         when 84 => --0x54
           localRdData(31 downto  0)  <=  Mon.DATA_CTRL.CAPTURE_D;           --
         when 85 => --0x55
@@ -148,14 +185,19 @@ begin  -- architecture behavioral
           localRdData( 3 downto  1)  <=  reg_data(96)( 3 downto  1);        --
 
 
-        when others =>
-          localRdData <= x"00000000";
-      end case;
+          when others =>
+            regRdAck <= '0';
+            localRdData <= x"00000000";
+        end case;
+      end if;
     end if;
   end process reads;
 
 
-
+  -------------------------------------------------------------------------------
+  -- Record write decoding
+  -------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------
 
   -- Register mapping to ctrl structures
   Ctrl.DEBUG.EYESCAN_TRIGGER    <=  reg_data(32)(23);               
@@ -298,7 +340,7 @@ begin  -- architecture behavioral
         when 80 => --0x50
           Ctrl.DATA_CTRL.CAPTURE          <=  localWrData( 0);               
         when 82 => --0x52
-          reg_data(82)( 3 downto  0)      <=  localWrData( 3 downto  0);      --
+          reg_data(82)( 3 downto  0)      <=  localWrData( 3 downto  0);      --0:deadbeef 1:rx_data 2: BCBCBC 3:tx_data_fixed 4: counter
         when 86 => --0x56
           reg_data(86)(31 downto  0)      <=  localWrData(31 downto  0);      --
         when 87 => --0x57
@@ -314,4 +356,66 @@ begin  -- architecture behavioral
   end process reg_writes;
 
 
+
+  
+  -------------------------------------------------------------------------------
+  -- BRAM decoding
+  -------------------------------------------------------------------------------
+  -------------------------------------------------------------------------------
+
+  BRAM_reads: for iBRAM in 0 to BRAM_COUNT-1 generate
+    BRAM_read: process (clk_axi,reset_axi_n) is
+    begin  -- process BRAM_reads
+      if reset_axi_n = '0' then
+--        latchBRAM(iBRAM) <= '0';
+        BRAM_MOSI(iBRAM).enable  <= '0';
+      elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+        BRAM_MOSI(iBRAM).address <= localAddress;
+--        latchBRAM(iBRAM) <= '0';
+        BRAM_MOSI(iBRAM).enable  <= '0';
+        if localAddress(11 downto BRAM_range(iBRAM)) = BRAM_addr(iBRAM)(11 downto BRAM_range(iBRAM)) then
+--          latchBRAM(iBRAM) <= localRdReq;
+--          BRAM_MOSI(iBRAM).enable  <= '1';
+          BRAM_MOSI(iBRAM).enable  <= localRdReq;
+        end if;
+      end if;
+    end process BRAM_read;
+  end generate BRAM_reads;
+
+
+
+  BRAM_asyncs: for iBRAM in 0 to BRAM_COUNT-1 generate
+    BRAM_MOSI(iBRAM).clk     <= clk_axi;
+    BRAM_MOSI(iBRAM).wr_data <= localWrData;
+  end generate BRAM_asyncs;
+  
+  Ctrl.DRP.clk       <=  BRAM_MOSI(0).clk;
+  Ctrl.DRP.enable    <=  BRAM_MOSI(0).enable;
+  Ctrl.DRP.wr_enable <=  BRAM_MOSI(0).wr_enable;
+  Ctrl.DRP.address   <=  BRAM_MOSI(0).address(10-1 downto 0);
+  Ctrl.DRP.wr_data   <=  BRAM_MOSI(0).wr_data(16-1 downto 0);
+
+
+  BRAM_MISO(0).rd_data(16-1 downto 0) <= Mon.DRP.rd_data;
+  BRAM_MISO(0).rd_data(31 downto 16) <= (others => '0');
+  BRAM_MISO(0).rd_data_valid <= Mon.DRP.rd_data_valid;
+
+    
+
+  BRAM_writes: for iBRAM in 0 to BRAM_COUNT-1 generate
+    BRAM_write: process (clk_axi,reset_axi_n) is    
+    begin  -- process BRAM_reads
+      if reset_axi_n = '0' then
+        BRAM_MOSI(iBRAM).wr_enable   <= '0';
+      elsif clk_axi'event and clk_axi = '1' then  -- rising clock edge
+        BRAM_MOSI(iBRAM).wr_enable   <= '0';
+        if localAddress(11 downto BRAM_range(iBRAM)) = BRAM_addr(iBRAM)(11 downto BRAM_range(iBRAM)) then
+          BRAM_MOSI(iBRAM).wr_enable   <= localWrEn;
+        end if;
+      end if;
+    end process BRAM_write;
+  end generate BRAM_writes;
+
+
+  
 end architecture behavioral;

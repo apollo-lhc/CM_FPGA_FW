@@ -34,7 +34,7 @@
   </node>
   <node id="DATA_CTRL"          address="0x050">
     <node id="CAPTURE"          address="0x000" mask="0x00000001" permission="w"/>
-    <node id="MODE"             address="0x002" mask="0x0000000F" permission="rw"/>
+    <node id="MODE"             address="0x002" mask="0x0000000F" permission="rw" description="0:deadbeef 1:rx_data 2: BCBCBC 3:tx_data_fixed 4: counter"/>
     <node id="CAPTURE_D"        address="0x004" mask="0xFFFFFFFF" permission="r"/>
     <node id="CAPTURE_K"        address="0x005" mask="0x0000000F" permission="r"/>
     <node id="FIXED_SEND_D"     address="0x006" mask="0xFFFFFFFF" permission="rw"/>

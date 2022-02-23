@@ -65,7 +65,7 @@ AXI_SLAVES:
     UHAL_BASE: 0x88000000
     HDL:
       out_name: "TCDS"
-      map_template: "axi_generic/template_map.vhd"
+      map_template: "axi_generic/template_map_withbram.vhd"
 
   KINTEX_IPBUS:
     TCL_CALL:
