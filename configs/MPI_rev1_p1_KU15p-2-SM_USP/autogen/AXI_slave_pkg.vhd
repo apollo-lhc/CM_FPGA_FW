@@ -3,11 +3,11 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 package AXISlaveAddrPkg is
-constant AXI_ADDR_K_IO : unsigned(31 downto 0) := x"81002000";
-constant AXI_ADDR_KINTEX_SYS_MGMT : unsigned(31 downto 0) := x"81001000";
-constant AXI_ADDR_K_CM_FW_INFO : unsigned(31 downto 0) := x"81003000";
-constant AXI_ADDR_K_C2C_INTF : unsigned(31 downto 0) := x"81010000";
-constant AXI_ADDR_CM1_PB_UART : unsigned(31 downto 0) := x"81008000";
+constant AXI_ADDR_K_IO : unsigned(31 downto 0) := x"B1002000";
+constant AXI_ADDR_KINTEX_SYS_MGMT : unsigned(31 downto 0) := x"B1001000";
+constant AXI_ADDR_K_CM_FW_INFO : unsigned(31 downto 0) := x"B1003000";
+constant AXI_ADDR_K_C2C_INTF : unsigned(31 downto 0) := x"B1010000";
+constant AXI_ADDR_CM1_PB_UART : unsigned(31 downto 0) := x"B1008000";
 -- ranges
 constant AXI_RANGE_K_IO : unsigned(31 downto 0) :=  x"00001000";
 constant AXI_RANGE_KINTEX_SYS_MGMT : unsigned(31 downto 0) :=  x"00001000";
