@@ -1,0 +1,87 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name                  | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | uart_output_wait      | x  |
+;;; | uart_output_wait      | x  |
+;;; | uart_input_data       | x  |
+;;; | uart_output_data      | x  |
+;;; | uart_input_full       | x  |
+;;; | uart_output_full      | x  |
+;;; | uart_input_half_full  | x  |
+;;; | uart_output_half_full | x  |
+
+;;; ============================================================================
+;;; CONSTANTS
+;;; ============================================================================
+
+;;; UART ports
+CONSTANT UART_STATUS, 00	; Port with the RX/TX status bits
+CONSTANT UART_INPUT, 	01	; 8bit reading port on microC
+CONSTANT UART_OUTPUT, 	01	; 8bit writing port on microC
+
+;;; uart status constants
+CONSTANT UART_STATUS_Tx_data_present, 	00000001'b 	; bit 0:  tx data present                     
+CONSTANT UART_STATUS_Tx_half_full, 	00000010'b	; bit 1:  tx half full (8 elements in FIFO)   
+CONSTANT UART_STATUS_Tx_full, 		00000100'b 	; bit 2:  tx full (16 elements in FIFO)       
+CONSTANT UART_STATUS_Rx_data_present, 	00001000'b 	; bit 3:  rx data present                     
+CONSTANT UART_STATUS_Rx_half_full, 	00010000'b	; bit 4:  rx half full (8 elements in FIFO)   
+CONSTANT UART_STATUS_Rx_full, 		00100000'b 	; bit 5:  tx full (16 elements in FIFO)       
+		
+;;; ============================================================================
+;;; UART Tools
+;;; ============================================================================
+
+;;; wait for an available output space
+uart_output_wait:
+	INPUT s0, UART_STATUS 
+	TEST s0, UART_STATUS_Tx_full 			; check if the tx FIFO is full
+	RETURN Z
+	JUMP uart_output_wait
+;;; wait for UART input
+uart_input_wait:	
+	INPUT s0, UART_STATUS
+	TEST s0, UART_STATUS_Rx_data_present 		; check if the rx FIFO is full
+	RETURN C
+	JUMP uart_input_wait
+
+	
+;;; Non-blocking tests
+
+;;; check if there is data to read, C=1 if true
+uart_input_data:
+	INPUT s0, UART_STATUS
+	TEST s0, UART_STATUS_Rx_data_present 		; test for input data
+	RETURN
+	
+	
+;;; check if there is data in the FIFO to send, C=1 if true
+uart_output_data:
+	INPUT s0, UART_STATUS
+	TEST s0, UART_STATUS_Tx_data_present 		; test for output data
+	RETURN
+
+;;; check if the input buffer is full, C=1 if true
+uart_input_full:
+	INPUT s0, UART_STATUS 
+	TEST s0, UART_STATUS_Rx_full ; check if the rx FIFO is full
+	RETURN
+	
+;;; check if the output buffer is full, C=1 if true
+uart_output_full:
+	INPUT s0, UART_STATUS 
+	TEST s0, UART_STATUS_Tx_full ; check if the tx FIFO is full
+	RETURN
+
+	
+;;; check if the input buffer is half full, C=1 if true
+uart_input_half_full:
+	INPUT s0, UART_STATUS 
+	TEST s0, UART_STATUS_Rx_half_full ; check if the rx FIFO is full
+	RETURN
+	
+;;; check if the output buffer is half full, C=1 if true
+uart_output_half_full:
+	INPUT s0, UART_STATUS 
+	TEST s0, UART_STATUS_Tx_half_full ; check if the tx FIFO is full
+	RETURN

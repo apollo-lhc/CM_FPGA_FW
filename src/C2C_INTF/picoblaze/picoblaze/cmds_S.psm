@@ -1,0 +1,171 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name       | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | CMD_sys    | x  | x  | x  | x  | x  | x  | x  |    |    |    | x  |  x |
+
+
+STRING BUFFER$, "Buffer: "
+STRING WORD_COUNT$, "Word count: "
+STRING WORD_SIZE$,  "Word sizes:    "
+STRING WORD$, "Word "
+str_BUFFER:
+	LOAD&RETURN s1,BUFFER$
+	LOAD&RETURN s1,00
+str_WORD_COUNT:
+	LOAD&RETURN s1,WORD_COUNT$
+	LOAD&RETURN s1,00
+str_WORD_SIZE:
+	LOAD&RETURN s1,WORD_SIZE$
+	LOAD&RETURN s1,00
+str_WORD:
+	LOAD&RETURN s1,WORD$
+	LOAD&RETURN s1,00
+;;; ============================================================================
+;;; Prints system area of scratchpad to the screen for debugging
+	;; uses sA,sB,s0,s1,s2,s3,s4,s5,s6
+;;; ============================================================================
+CMD_sys:
+	;; print CLI buffer
+	LOAD sB,str_BUFFER'upper
+	LOAD sA,str_BUFFER'lower
+	CALL util_print_string
+
+	;; load values from buffer to print
+	LOAD s1, CLI_BUFFER_START
+	FETCH s2, CLI_BUFFER
+CMD_sys_buffer:
+	COMPARE s1,s2
+	JUMP NC, CMD_sys_buffer_size 		;when we are done with the buffer, jump to word count
+	CALL uart_output_wait
+	FETCH s0, (s1)
+	OUTPUT s0, UART_OUTPUT
+	ADD s1,01
+	JUMP CMD_sys_buffer
+CMD_sys_buffer_size:
+	CALL uart_output_wait
+	LOAD s0, " "
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, "("
+	OUTPUT s0, UART_OUTPUT
+	LOAD s0, s2
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, ")"
+	OUTPUT s0, UART_OUTPUT
+	CALL util_print_EOL
+
+CMD_sys_word_count:	
+	;; print word count
+	LOAD sB,str_WORD_COUNT'upper
+	LOAD sA,str_WORD_COUNT'lower
+	CALL util_print_string
+
+	CALL uart_output_wait
+	FETCH s0, CLI_COUNT
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+
+	FETCH s4, CLI_COUNT
+	LOAD s3,00
+CMD_sys_word_pos:
+	COMPARE s3,s4
+	JUMP NC, CMD_sys_word_size
+	CALL uart_output_wait
+	LOAD s0, " "
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, "@"
+	OUTPUT s0, UART_OUTPUT
+	LOAD s1, CLI_WORD_1_POS
+	ADD s1,s3
+	FETCH s0, (s1)
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+	ADD s3, 01
+	JUMP CMD_sys_word_pos
+
+CMD_sys_word_size:
+	CALL util_print_EOL
+	;; print word size
+	LOAD sB,str_WORD_SIZE'upper
+	LOAD sA,str_WORD_SIZE'lower
+	CALL util_print_string
+
+	FETCH s4, CLI_COUNT
+	LOAD s3,00
+CMD_sys_word_size_loop:
+	COMPARE s3,s4
+	JUMP NC, CMD_sys_word
+	CALL uart_output_wait
+	LOAD s0, " "
+	OUTPUT s0, UART_OUTPUT
+	LOAD s1, CLI_WORD_1_SIZE
+	ADD s1,s3
+	FETCH s0, (s1)
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+	ADD s3, 01
+	JUMP CMD_sys_word_size_loop
+
+	
+CMD_sys_word:
+	CALL util_print_EOL
+	FETCH s4, CLI_COUNT
+	LOAD s3,00
+CMD_sys_word_loop:
+	COMPARE s3,s4
+	JUMP NC, CMD_sys_word_end
+	;; print word size
+	CALL util_print_EOL
+	LOAD sB,str_WORD'upper
+	LOAD sA,str_WORD'lower
+	CALL util_print_string
+	LOAD s0,s3
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, " "
+	OUTPUT s0, UART_OUTPUT
+	;; go to the offset for this word
+	LOAD s5, s3
+	ADD s3, 01
+	SL0 s5
+	SL0 s5
+	ADD s5, CLI_WORD_1
+	LOAD s6, s5
+	ADD s6, 03
+CMD_sys_word_loop_print_loop:
+	COMPARE s6, s5
+	JUMP C, CMD_sys_word_loop
+	FETCH s0, (s6)
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+	SUB s6, 01
+	JUMP CMD_sys_word_loop_print_loop 
+CMD_sys_word_end:
+	CALL util_print_EOL
+	RETURN
+
+	
+

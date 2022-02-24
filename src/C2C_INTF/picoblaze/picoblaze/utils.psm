@@ -1,0 +1,183 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name                | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | util_hex_to_byte    | x  | x  | x  | x  |    |    |    |    |    |    |    |    |
+;;; | util_char_to_nibble | x  |    |    |    |    |    |    |    |    |    |    |    |
+;;; | util_byte_to_hex    | x  | x  | x  |    |    |    |    |    |    |    |    |    |
+;;; | util_print_hex_byte | x  | x  | x  |    |    |    |    |    |    |    |    |    |
+;;; | util_print_EOL      | x  |    |    |    |    |    |    |    |    |    |    |    |
+;;; | util_print_prompt   | x  | x  |    |    |    |    |    |    |    |    |    |    |
+;;; | util_print_string   | x  | x  |    |    |    |    |    |    |    |    | x  | x  |
+;;; 
+
+;;; ============================================================================
+;;; Convert two bytes of ascii to hex
+	;; return byte in s0, C=1 for sucess, C=0 for failure
+	;; load two ASCII characters in s2(MSB),s1(LSB)
+	;; this uses s0-s3
+;;; ============================================================================
+util_hex_to_byte:
+	;; check and convert MSB
+	LOAD s0, s2			; Call util_char_to_nibble to convert and check this is hex	
+	CALL util_char_to_nibble
+	JUMP NC, util_hex_to_byte_error ; jump to error if we failed
+	;; store result in the MSBs of s3
+	LOAD s3,s0
+	SL0 s3
+	SL0 s3
+	SL0 s3
+	SL0 s3
+	;; check and convert LSB
+	LOAD s0,s1
+	CALL util_char_to_nibble
+	JUMP NC, util_hex_to_byte_error ; jump to error if we failed
+	;; combine into s3,
+	ADD s3, s0
+	;; we converted sucessfully, so set C=1 and return s3 in s0
+	LOAD s0, 01
+	SR0 s0
+	LOAD s0,s3
+	RETURN
+util_hex_to_byte_error:	
+	LOAD s0, 00			; set s0 to zero and C=0
+	SR0 s0
+	RETURN
+
+;;; ============================================================================
+;;; Check if char is a valid hex digit and convert it to a LSB nibble if it is
+	;; C=1 for valid, C=0 for invalid
+	;; load char from s0 (will be lost)
+	;; returns nibble in s0
+	;; uses s0
+;;; ============================================================================
+util_char_to_nibble:
+	SUB s0,30		; Drop s0 to 0-9 if the number was ascii 0-9
+	;; if some lower character, throw an error
+	JUMP C, util_char_to_nibble_error
+
+	COMPARE s0,0A		; check for 0-9
+	;; jump to finish if nibble in range 0-9
+	JUMP C, util_char_to_nibble_finish
+	
+	SUB s0, 11	     	; Move ASCII A to zero and see if we roll over
+	;; if some lower character, throw an error
+	JUMP C, util_char_to_nibble_error
+	
+	ADD s0, 0A		; add 10 to bring ascii A-F to dec 10-15
+	COMPARE s0,10		; compare to dec 16
+	;; Jump to finish if nibble in range A-F
+	JUMP C, util_char_to_nibble_finish
+	
+	SUB s0,2A		; bring ASCII a-f to dec 0-5
+	;; if some lower character, throw an error
+	JUMP C, util_char_to_nibble_error
+	
+	ADD s0, 0A		; bring a-f to 10-15
+	COMPARE s0,10		; compare to dec 16
+	;; Jump to finish if nibble in range a-f
+	JUMP C, util_char_to_nibble_finish	
+	;; other values are errors
+util_char_to_nibble_error:
+	;; conversion failed, return s0=0 and C = 0
+	LOAD s0, 00
+	SR0 s0
+	RETURN
+util_char_to_nibble_finish:
+	;; by my 1337 skillz (AKA: pure luck as I get to the part in the code),
+	;; C already is 1 and s0 is set... so return!
+	RETURN
+
+;;; ============================================================================
+;;; Convert one byte into two bytes of ASCII hex
+	;; loads s0
+	;; outputs s2,s1
+;;; ============================================================================
+util_byte_to_hex:
+	;; convert MSNibble
+	LOAD s2,s0
+	SR0 s2
+	SR0 s2
+	SR0 s2
+	SR0 s2
+	ADD s2,37			; convert to A-F
+	COMPARE s2,41			
+	;; If this wasn't a-F (ie 0-9) it will greater than 40
+	JUMP NC, util_byte_to_hex_next
+	JUMP Z, util_byte_to_hex_next	
+	SUB s2,07	   		; convert to 0-9
+util_byte_to_hex_next:	
+	LOAD s1, s0
+	AND s1,0F			; convert to LSNibble
+	ADD s1,37			; convert to A-F
+	COMPARE s1,41			; check if this is really A-F
+	JUMP NC, util_byte_to_hex_end
+	JUMP Z, util_byte_to_hex_end
+	SUB s1,07	   		; convert to 0-9
+util_byte_to_hex_end:	
+	RETURN
+
+;;; ============================================================================
+;;; Prints one byte into as bytes of ASCII hex
+	;; loads s0
+	;; outputs s2,s1
+;;; ============================================================================
+util_print_hex_byte:	
+	CALL	util_byte_to_hex
+	CALL	uart_output_wait
+	OUTPUT	s2, UART_OUTPUT
+	CALL	uart_output_wait
+	OUTPUT	s1, UART_OUTPUT
+	RETURN
+
+;;; ============================================================================
+;;; Write a new line on the UART screen
+;;; ============================================================================
+util_print_EOL:
+	CALL uart_output_wait
+	LOAD s0, 0D		; CR
+	OUTPUT s0, UART_OUTPUT
+	CALL uart_output_wait
+	LOAD s0, 0A		; LF
+	OUTPUT s0, UART_OUTPUT
+	RETURN
+
+;;; ============================================================================
+;;; Output the CLI prompt
+;;; ============================================================================
+util_print_prompt:	
+	CALL uart_output_wait 	; prompt
+	LOAD s1, ">"
+	OUTPUT s1, UART_OUTPUT	; echo
+	RETURN
+
+;;; ============================================================================
+;;; Prints a NULL terminated string @ sB,sA
+	;;  uses s1,sA,sB
+;;; ============================================================================
+util_print_string:	
+	CALL@ (sB,sA)
+	COMPARE s1,00
+	JUMP Z, util_print_string_end		; jump to finish if we get 00
+	CALL uart_output_wait			; print currenc char to screen
+	OUTPUT s1, UART_OUTPUT
+	ADD sA, 01				; move forward in our string 
+	ADDCY sB, 00
+	JUMP util_print_string
+util_print_string_end:
+	RETURN
+
+;;; ============================================================================
+;;; Generic bad arguments error with return
+;;; ============================================================================
+STRING ERROR_BAD_ARG$, "Bad arguments."
+str_error_BAD_ARG:
+	LOAD&RETURN s1, ERROR_BAD_ARG$
+	LOAD&RETURN s1, 00
+ERROR_BAD_ARG:
+	LOAD sB, str_error_BAD_ARG'upper
+	LOAD sA, str_error_BAD_ARG'lower
+	CALL util_print_string
+	CALL util_print_EOL
+	RETURN
+

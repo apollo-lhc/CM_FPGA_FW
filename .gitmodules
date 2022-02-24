@@ -6,3 +6,10 @@
 [submodule "regmap_helper"]
 	path = regmap_helper
 	url = https://github.com/BU-Tools/uHAL_AXI_regmap.git
+[submodule "src/misc"]
+	path = src/misc
+	url = https://gitlab.com/BU-EDF/fw-bits/misc-vhdl.git
+[submodule "build-scripts"]
+	path = build-scripts
+	url = https://gitlab.com/BU-EDF/fw-bits/build-scripts.git
+	branch = develop

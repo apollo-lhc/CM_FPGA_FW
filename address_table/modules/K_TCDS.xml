@@ -1,0 +1,50 @@
+<node id="K_TCDS">  
+  <node id="CLOCKING"           address="0x000">
+    <node id="RX_CDR_STABLE"    address="0x000" mask="0x00000200" permission="r"/>
+    <node id="POWER_GOOD"       address="0x000" mask="0x00000002" permission="r"/>
+    <node id="COUNTS_TXOUTCLK"    address="0x001" permission="r"/>
+  </node>
+  <node id="RESET" address="0x1">
+    <node id="RESET_ALL"           permission="w" mask="0X00000001"/>
+    <node id="TX_PLL_AND_DATAPATH" permission="w" mask="0X00000010"/>
+    <node id="TX_DATAPATH"         permission="w" mask="0X00000020"/>
+    <node id="RX_PLL_AND_DATAPATH" permission="w" mask="0X00000040"/>
+    <node id="RX_DATAPATH"         permission="w" mask="0X00000080"/>
+    <node id="USERCLK_TX"          permission="w" mask="0X00000100"/>
+    <node id="USERCLK_RX"          permission="w" mask="0x00000200"/>
+    <node id="DRP"                 permission="w" mask="0x00000400"/>
+  </node>
+  <node id="STATUS"                        address="0x010" module="file://MGT_Status.xml"/>
+  <!-- DEBUG 0x0 to 0x5 -> 0x404 to 0x409 -->
+  <node id="DEBUG"                         address="0x020" module="file://MGT_DEBUG_USP.xml"/>
+  <node id="TX" address="0x30">
+    <node id="CTRL0" address="0x0" permission="rw" mask="0x0000FFFF" />
+    <node id="CTRL1" address="0x0" permission="rw" mask="0xFFFF0000" />
+    <node id="CTRL2" address="0x1" permission="rw" mask="0x000000FF" />
+    <node id="ACTIVE" address="0x1" permission="r" mask="0x00000100" />
+    <node id="RESET" address="0x2" permission="w"  mask="0x00000001" />
+  </node>
+  <node id="RX" address="0x40">
+    <node id="CTRL0" address="0x0" permission="r" mask="0x0000FFFF" />
+    <node id="CTRL1" address="0x0" permission="r" mask="0xFFFF0000" />
+    <node id="CTRL2" address="0x1" permission="r" mask="0x000000FF" />
+    <node id="CTRL3" address="0x1" permission="r" mask="0x0000FF00" />
+    <node id="ACTIVE" address="0x1" permission="r" mask="0x00000100" />
+    <node id="RESET" address="0x2" permission="w"  mask="0x00000001" />
+  </node>
+  <node id="DATA_CTRL"          address="0x050">
+    <node id="CAPTURE"          address="0x000" mask="0x00000001" permission="w"/>
+    <node id="MODE"             address="0x002" mask="0x0000000F" permission="rw"/>
+    <node id="CAPTURE_D"        address="0x004" mask="0xFFFFFFFF" permission="r"/>
+    <node id="CAPTURE_K"        address="0x005" mask="0x0000000F" permission="r"/>
+    <node id="FIXED_SEND_D"     address="0x006" mask="0xFFFFFFFF" permission="rw"/>
+    <node id="FIXED_SEND_K"     address="0x007" mask="0x0000000F" permission="rw"/>   
+  </node>
+
+  <node id="TXRX_CLK_SEL"       address="0x060" mask="0x00000001" permission="rw"/>
+  <node id="LOOPBACK"           address="0x060" mask="0x0000000E" permission="rw"/>
+
+  <node id="DRP"                address="0x400" fwinfo="type=mem16_0x400" module="file://DRP_USP_GTH.xml"/>
+
+
+</node>

@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+from datetime import datetime
+import argparse
+
+def generateBuildDate(outFile):
+    buildDate = str(datetime.now())    
+    with open(outFile, 'w') as buildDateFile:
+        buildDateFile.write(";;; ============================================================================\n")	
+        buildDateFile.write(";;; Register map\n")
+        buildDateFile.write(";;; ============================================================================\n")
+        buildDateFile.write(";;; | name                 | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |\n")
+        buildDateFile.write(";;; | CMD_print_build_date | x  | x  | x  |    | x  | x  | x  | x  |    |    | x  |  x |\n")
+        buildDateFile.write("\n")
+        buildDateFile.write("\n")
+        buildDateFile.write(";;; ============================================================================\n")
+        buildDateFile.write("	;; molests s0-s2\n")
+        buildDateFile.write(";;; ============================================================================\n")
+        buildDateFile.write("STRING build_date$, \""+buildDate+"\"\n")
+        buildDateFile.write("str_build_date:\n")
+        buildDateFile.write("	LOAD&RETURN s1, build_date$\n")
+        buildDateFile.write("	LOAD&RETURN s1, 00\n")
+        buildDateFile.write("CMD_print_build_date:\n")
+        buildDateFile.write("	\n")
+        buildDateFile.write("	;; print banner\n")
+        buildDateFile.write("	LOAD sB,str_build_date'upper\n")
+        buildDateFile.write("	LOAD sA,str_build_date'lower\n")
+        buildDateFile.write("	CALL util_print_string\n")
+        buildDateFile.write("\n")
+        buildDateFile.write("	;; print end of line\n")
+        buildDateFile.write("	CALL util_print_EOL\n")
+        buildDateFile.write("\n")
+        buildDateFile.write("	RETURN\n")
+        
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description="Generate picoBlaze build date psm file")
+    parser.add_argument("--outfile","-o",help="output filename",required=True)
+
+    args = parser.parse_args()
+    
+    generateBuildDate(args.outfile)
