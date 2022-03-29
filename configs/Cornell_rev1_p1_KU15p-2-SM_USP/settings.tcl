@@ -15,7 +15,7 @@ global REMOTE_C2C_64
 set REMOTE_C2C 1
 set REMOTE_C2C_64 1
 
-set top top
+set top example_Cornell_rev1_p1_KU15p_ibert
 
 set outputDir ./
 
