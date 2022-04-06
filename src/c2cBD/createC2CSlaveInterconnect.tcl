@@ -51,6 +51,28 @@ set SYS_RESETER_AXI_RSTN $SYS_RESETER/interconnect_aresetn
 #create the reset to sys reseter and slave interconnect
 connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $SYS_RESETER_AXI_RSTN]
 
+AXI_C2C_MASTER [dict create device_name ${C2C} \
+		    axi_control [dict create axi_clk $AXI_MASTER_CLK \
+				     axi_rstn $AXI_MASTER_RSTN\
+				     axi_freq $AXI_MASTER_CLK_FREQ] \
+		    primary_serdes 1 \
+		    init_clk $EXT_CLK \
+		    refclk_freq 200 \
+		    c2c_master false \
+		    speed 5 \
+		   ]
+if { [info exists C2CB] } {
+    AXI_C2C_MASTER [dict create device_name ${C2CB} \
+			axi_control [dict create axi_clk $AXI_MASTER_CLK \
+					 axi_rstn $AXI_MASTER_RSTN\
+					 axi_freq $AXI_MASTER_CLK_FREQ] \
+			primary_serdes ${C2C}_PHY \
+			init_clk $EXT_CLK \
+			refclk_freq 200 \
+			c2c_master false \
+			speed 5 \
+		       ]
+}
 
 
 #================================================================================
@@ -62,9 +84,9 @@ BUILD_JTAG_AXI_MASTER [dict create device_name ${JTAG_AXI_MASTER} axi_clk ${AXI_
 #================================================================================
 #  Connect C2C master port to interconnect slave port
 #================================================================================
-set mAXI {${JTAG_AXI_MASTER}/M_AXI}
-set mCLK {${AXI_MASTER_CLK} }
-set mRST {${AXI_MASTER_RSTN}} 
+set mAXI [list ${C2C}/m_axi ${C2CB}/m_axi_lite ${JTAG_AXI_MASTER}/M_AXI]
+set mCLK [list ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK} ]
+set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}] 
 [BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
 
 
@@ -73,11 +95,11 @@ set mRST {${AXI_MASTER_RSTN}}
 #  Configure and add AXI slaves
 #================================================================================
 source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
-#yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
+yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
 
-#GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_addrs.h"                                                                                                 
-#GENERATE_AXI_ADDR_MAP_VHDL "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"                                                                                              
-#read_vhdl "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"      
+GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_addrs.h"                                                                                                 
+GENERATE_AXI_ADDR_MAP_VHDL "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"                                                                                              
+read_vhdl "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"      
 
 #========================================
 #  Finish up
