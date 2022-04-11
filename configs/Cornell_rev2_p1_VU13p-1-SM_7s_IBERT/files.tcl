@@ -40,6 +40,6 @@ set xdc_files "\
 
 set xci_files "\
     	      cores/Local_Clocking/Local_Clocking.tcl \
-              configs/Cornell_rev2_p1_VU13p-1-SM_7s_IBERT/src/ibert_ultrascale_gty_l/ibert_ultrascale_gty_l.xci \
-              configs/Cornell_rev2_p1_VU13p-1-SM_7s_IBERT/src/ibert_ultrascale_gty_r/ibert_ultrascale_gty_r.xci \
+              configs/Cornell_rev2_p1_VU13p-1-SM_7s_IBERT/src/ibert_ultrascale_gty_core_l/ibert_ultrascale_gty_core_l.xci \
+              configs/Cornell_rev2_p1_VU13p-1-SM_7s_IBERT/src/ibert_ultrascale_gty_core_r/ibert_ultrascale_gty_core_r.xci \
     	      "

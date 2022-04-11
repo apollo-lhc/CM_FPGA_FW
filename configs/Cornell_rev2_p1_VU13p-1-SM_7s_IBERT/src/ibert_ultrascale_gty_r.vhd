@@ -468,7 +468,7 @@ begin
   --
   -- IBERT core instantiation
   --
-  u_ibert_gty_core_1 : entity work.ibert_ultrascale_gty_r
+  u_ibert_gty_core_1 : entity work.ibert_ultrascale_gty_core_r
     port map (
       txn_o => gty_txn_o,
       txp_o => gty_txp_o,
