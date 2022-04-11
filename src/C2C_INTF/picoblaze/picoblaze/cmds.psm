@@ -1,0 +1,254 @@
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name                | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | cmd_find            | x  | x  | x  | x  |    |    |    |    |    |    | x  | x  |
+;;; | cmd_tokenize        | x  | x  | x  | x  |    |    |    |    |    |    |    |    |
+;;; | cmd_invalid	  | x  | x  |    |    |    |    |    |    |    |    | x  | x  |
+;;; | cmd_Error		  | x  | x  | x  |    |    |    |    |    |    |    | x  | x  |
+;;; | cmd_parse_tokens    | x  | x  | x  | x  | x  | x  | x  | x  |    |    |    |    |
+INCLUDE "cmd_names.psm"
+	
+;;; ============================================================================
+;;; Find function to call, parse arguemtns and then call it
+;;; ============================================================================	
+cmd_find:
+	LOAD sB, cmds'upper
+	LOAD sA, cmds'lower
+	LOAD s2, CLI_BUFFER_START
+cmd_find_loop:
+	;; process next cmds char
+	CALL@ (sB,sA)		; load next cmds char into s1
+	COMPARE s1, 00		; check for end of command
+	JUMP Z, cmd_find_call
+	COMPARE s1, FF	     	; check for no more commands
+	JUMP Z, cmd_find_failed
+	;; process next CLI_BUFFER char
+	FETCH s0, CLI_BUFFER	; get the end of buffer ptr
+	COMPARE s2, s0		; check for overflow
+	JUMP NC, cmd_find_next	
+	;; compare cmd/buffer chars
+	FETCH s0, (s2)		; fetch the buffer's char
+	COMPARE s0,s1		; compare it to the current cmd
+	JUMP NZ, cmd_find_next	; move on to next command if not equal
+
+	ADD s2, 01		; move on to next char if equal
+	ADD sA, 01		 
+	ADDCY sB, 00
+	JUMP cmd_find_loop
+cmd_find_next:
+	;; find the next command
+	CALL@ (sB,sA)		; load next cmds char into s1
+	COMPARE s1, FF	     	; check for no more commands
+	JUMP Z, cmd_find_failed
+	COMPARE s1, 00		; check for end of command
+	JUMP Z, cmd_find_next_reset
+	ADD sA, 01
+	ADDCY sB, 00
+	JUMP cmd_find_next
+cmd_find_next_reset:
+	;; move to the start of the next command
+	ADD sA, 03		
+	ADDCY sB, 00
+	;; reset CLI_BUFFER pointer
+	LOAD s2, CLI_BUFFER_START
+	JUMP cmd_find_loop
+cmd_find_call:
+	;; call tokenizer 
+	CALL cmd_tokenize
+	CALL cmd_parse_tokens
+	;; get command we are suppose to call
+	ADD sA, 01
+	ADDCY sB, 00
+	CALL@ (sB,sA)
+	LOAD s2, s1
+	ADD sA, 01
+	ADDCY sB, 00	
+	CALL@ (sB,sA)
+	;; call the actual command
+	CALL@ (s2,s1)
+
+	;; get ready for new user commands
+	CALL soft_reset
+	CALL util_print_prompt
+	RETURN
+	
+cmd_find_failed:
+	CALL soft_reset
+	CALL cmd_invalid
+	CALL util_print_prompt
+	RETURN			
+
+	
+;;; ============================================================================
+;;; Search through string for 4 sequences of hex data
+	;; seaches through CLI_BUFFER using s2 to start
+	;; this will reset CLI_COUNT,CLI_WORD_*_POS,CLI_WORD_*_SIZE,CLI_WORD_*
+	;; uses s0,s1,s2,s3
+;;; ============================================================================
+cmd_tokenize:
+	;; initialize CLI_COUNT to zero
+	LOAD s0, 00
+	STORE s0, CLI_COUNT
+cmd_tokenize_loop:
+	;; search through the buffer for hex data
+	FETCH s1, CLI_BUFFER	 	; get end of valid buffer data
+	COMPARE s2,s1
+	JUMP NC, cmd_tokenize_end 	; jump to the end if we run out of buffer	
+	FETCH s0, (s2) 			; get next char
+	ADD s2, 01			; move forward in the buffer (for next time)
+	CALL util_char_to_nibble	; check if currenc char is valid hex
+	JUMP NC, cmd_tokenize_loop	; non-ascii char, keep looking
+	SUB s2, 01 			; move back in s2 since we want to be at the beginning of the hex string
+	
+	;; found hex data. Update CLI_COUNT	
+	FETCH s0, CLI_COUNT		; Get the number of words
+	ADD s0, 01			; Update the number of valid words
+	COMPARE s0, 05			; check if we've reached our max
+	JUMP Z, cmd_tokenize_end	; end if we have
+	STORE s0, CLI_COUNT		; update CLI_COUNT
+
+	;; Start a new word by recording the position in CLI_WORD_*_POS
+	LOAD s1, CLI_COUNT		; Load the CLI_COUNT address into s1
+	ADD s1,s0			; move forward in address by the current number of valid words (in s0)
+	STORE s2, (s1)			; Write to this address the position of this word
+
+	LOAD s3, s2			; store the max position we an search to for valid hex
+	ADD s3, 08			; first assume that the hex string is 8 chars 
+	FETCH s1, CLI_BUFFER		; now get the end of the buffer
+	COMPARE s3,s1			; we have to make sure we don't walk off the buffer,
+	JUMP C, cmd_tokenize_size	; so compare the 8 char assumption to the buffer size
+	LOAD s3,s1			; and truncate if needed
+		
+cmd_tokenize_size:	
+	;; count number of hex digits (nibbles) in this word
+	COMPARE s3,s2			; check if we've gone too far
+	JUMP Z, cmd_tokenize_size_end
+	FETCH s0, (s2)
+	CALL util_char_to_nibble	; check if currenc char is valid hex
+	JUMP NC, cmd_tokenize_size_end	; non-ascii char, go search for the next word
+ 	ADD s2, 01			; move forward in the string
+	JUMP cmd_tokenize_size	
+cmd_tokenize_size_end:
+	;; store the size of this word's data
+	LOAD s3,s2			; store our current position in s3
+	
+	FETCH s1, CLI_COUNT		; Load the count number to let us fetch this word's start position
+	ADD s1, CLI_WORD_1_POS		; Add the count to CLI_WORD_1_POS
+	SUB s1, 01			; move back one because count = 1 puts us in work 2 pos
+	FETCH s0, (s1)			; fetch the start pointer for this word
+	SUB s3,s0			; computer the number of nibbles for this word
+	FETCH s0, CLI_COUNT		; computer the position of the current word's
+	ADD s0,CLI_WORD_1_SIZE		; add the size 1 address
+	SUB s0, 01			; remove 1 because count starts at 1
+	STORE s3, (s0)			; store the current word's size
+	JUMP cmd_tokenize_loop	
+cmd_tokenize_end:	
+	RETURN
+	
+;;; ============================================================================
+;;; Prints "Bad command" to UART
+	;; uses s0-s1,sA-sB
+;;; ============================================================================
+STRING BadCommand$, "Bad command" 		; string data
+str_BadCommand:					; string function
+	LOAD&RETURN s1, BadCommand$
+	LOAD&RETURN s1, 00
+cmd_invalid:		
+	LOAD sB, str_BadCommand'upper 		; Load sB,sA to str function address
+	LOAD sA, str_BadCommand'lower
+	call util_print_string
+	CALL util_print_EOL
+	RETURN
+	
+	
+;;; ============================================================================
+;;; Prints "Error s2" to UART
+	;; molests s0-s2,sA-sB
+;;; EXTRA FUNCTIONALITY
+	;; if you want to quickly end a cmd_"subroutine" which has been
+	;; called using CALL, JUMP to this code instead.
+;;; ============================================================================
+STRING Error$, "Error: "
+str_Error:
+	LOAD&RETURN s1, Error$
+	LOAD&RETURN s1, 00
+cmd_error:
+	LOAD sB, str_Error'upper 		; Load sB,sA to str function address
+	LOAD sA, str_Error'lower
+	CALL util_print_string
+
+	;; convert s2 into hex and print it as an error number
+	LOAD s0, s2
+	CALL util_byte_to_hex
+	CALL uart_output_wait
+	OUTPUT s2, UART_OUTPUT
+	CALL uart_output_wait
+	OUTPUT s1, UART_OUTPUT
+
+	CALL util_print_EOL
+	RETURN
+
+;;; ============================================================================
+;;; Parses the data at the tokens and puts them in CLI_WORD_*
+
+;;; ============================================================================
+cmd_parse_tokens:
+	LOAD s2, CLI_WORD_4			
+	ADD s2, 04				;load end of parsed words pointer
+	LOAD s1, CLI_WORD_1			;load start of parsed words pointer
+cmd_parse_tokens_zero:
+	LOAD s0, 00
+	STORE s0, (s1)				;zero word data
+	ADD s1, 01
+	COMPARE s1,s2				;check that we are still below the end ptr
+	JUMP C, cmd_parse_tokens_zero
+	;; begin parsing
+	LOAD s4, 00				; store the offset to the current word
+cmd_parse_tokens_next_token:
+	FETCH s0, CLI_COUNT			; store the number of words to parse
+	COMPARE s4, s0
+	JUMP NC, cmd_parse_tokens_done 		; jump to done when we are through the counts
+	;; find the start of the buffer
+	LOAD s0, CLI_WORD_1_POS			; Get the position of the first pos
+	ADD s0, s4				; Move to the current pos
+	FETCH s5, (s0)				; get the start of the word buffer
+	;; find the end of the buffer
+	LOAD s1, CLI_WORD_1_SIZE		
+	ADD s1, s4				; find size of this word in nibbles
+	FETCH s6, (s1)				
+	ADD s6,s5				; move size past the start
+	;; find the place we are storing the binary data
+	LOAD s7, s4				; load the word number (-1)
+	SL0 s7
+	SL0 s7					; multiply by 4 since thats how many bytes we allocate
+	ADD s7, CLI_WORD_1			; move to the byte after this word
+	;; update word index for next time
+	ADD s4, 01
+cmd_parse_tokens_parse:	
+	SUB s6, 02				; move back a byte of data in the buffer
+	JUMP C, cmd_parse_tokens_next_token     ; catch bug for 1 char command
+						; the SUB 02 instruction would do a buffer underflow on this 
+	COMPARE s6,s5				; check that we have a full byte to parse
+	JUMP C, cmd_parse_nibble
+	;; parse a byte
+	FETCH s2,(s6)
+	ADD s6, 01
+	FETCH s1, (s6)
+	SUB s6, 01
+	CALL util_hex_to_byte			; convert two hex digits to hex
+	STORE s0, (s7)				; store this byte
+	ADD s7, 01				; move forward in data	
+	JUMP cmd_parse_tokens_parse
+cmd_parse_nibble:
+	ADD s6, 01
+	COMPARE s6,s5
+	JUMP NZ, cmd_parse_tokens_next_token 	; there isn't even a nibble to parse
+	;; parse the nibble
+	FETCH s0,(s6)
+	CALL util_char_to_nibble
+	STORE s0,(s7)
+	JUMP cmd_parse_tokens_next_token
+
+cmd_parse_tokens_done:	
+	RETURN

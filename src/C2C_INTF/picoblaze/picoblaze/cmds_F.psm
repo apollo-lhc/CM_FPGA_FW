@@ -1,0 +1,352 @@
+;;; ============================================================================
+;;; Register map (x means use explicity, y implicitly)
+;;; ============================================================================
+;;; | name (A)             | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB | sC | sD | sE | sF |
+;;; |----------------------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+;;; | CMD_FLASH_READ_INFO  | x  | y  | y  | y  | y  | y  |    |    |    |    |    |    |    |    |    |    |
+;;; | CMD_FLASH_READ_ADDR  | x  | y  | y  | y  | y  | y  | y  |    |    |    |    |    |    |    |    |    |
+;;; | CMD_FLASH_READ       | x  | y  | y  | y  | y  | y  | y  |    |    |    |    |    |    |    |    |    |
+;;; |----------------------|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|----|
+INCLUDE "flash.psm"
+
+CMD_FLASH_FW:
+	;; make sure the write size is 128
+	LOAD s0, MEM_USER_1
+	ADD s0,03
+	LOAD s1, 80
+	STORE s1, (s0)
+	CALL flash_write
+	RETURN
+
+CMD_FLASH_FR:
+	;; make sure the write size is 128
+	LOAD s0, MEM_USER_1
+	ADD s0,03
+	LOAD s1, 80
+	STORE s1, (s0)
+	CALL flash_read
+	RETURN
+	
+;CMD_FLASH_FWR:
+;	LOAD s4, MEM_USER_2
+;CMD_FLASH_FWR_LOOP:
+;	FETCH s0, (s4)
+;	CALL util_print_hex_byte
+;	ADD s4,01
+;	JUMP NC, CMD_FLASH_FWR_LOOP
+;
+;	CALL util_print_EOL	;
+;	RETURN
+
+	
+CMD_FLASH_FWW:
+	;; make sure the number of arguments is correct
+	FETCH s0, CLI_COUNT
+	COMPARE s0,03
+	JUMP NZ, ERROR_BAD_ARG
+
+	;; make sure there are the exact number of nibbles we require
+	FETCH s0, CLI_WORD_1_SIZE
+	COMPARE s0, 01 		; one nibble
+	JUMP NZ, ERROR_BAD_ARG
+		
+	;; make sure there are the exact number of nibbles we require
+	FETCH s0, CLI_WORD_2_SIZE
+	COMPARE s0, 08 		; one 32bit word
+	JUMP NZ, ERROR_BAD_ARG
+
+	;; make sure there are the exact number of nibbles we require
+	FETCH s0, CLI_WORD_3_SIZE
+	COMPARE s0, 08 		; one 32bit word
+	JUMP NZ, ERROR_BAD_ARG
+
+	
+		
+	;; find the spot in memory we want to start writing to
+	FETCH s2,CLI_WORD_1	;offset
+	SL0 s2
+	SL0 s2
+	SL0 s2 			;multiply by 8
+	ADD s2, MEM_USER_2 	;memory pointer
+	
+	;; copy data from CLI_WORD_3
+	LOAD s1, CLI_WORD_3
+CMD_FLASH_FWW_LOAD_WORD_1:
+	FETCH s0, (s1)
+	STORE s0, (s2)
+	ADD s1, 01
+	ADD s2, 01
+	COMPARE s1, CLI_WORD_4
+	JUMP C, CMD_FLASH_FWW_LOAD_WORD_1
+
+	;; load data from CLI_WORD_2
+	LOAD s1,CLI_WORD_2
+CMD_FLASH_FWW_LOAD_WORD_2:
+	FETCH s0, (s1)
+	STORE s0, (s2)
+	ADD s1, 01
+	ADD s2, 01
+	COMPARE s1, CLI_WORD_3
+	JUMP C, CMD_FLASH_FWW_LOAD_WORD_2
+	
+	RETURN	
+	
+	
+
+CMD_FLASH_ERASE:
+	call flash_erase
+	RETURN
+	
+;CMD_FM_START:
+;	CALL spi_start
+;	CALL util_print_EOL
+;	RETURN
+;CMD_FM_END:
+;	CALL spi_end
+;	CALL util_print_EOL
+;	RETURN
+;CMD_FM_RD:
+;	CALL spi_byte_rd
+;	LOAD s0,s1
+;	CALL util_print_hex_byte
+;	CALL util_print_EOL
+;	RETURN
+;CMD_FM_WR:
+;	FETCH s1,CLI_WORD_1
+;	CALL spi_byte_wr
+;	CALL util_print_EOL
+;	RETURN
+
+	
+CMD_FLASH_READ_INFO:
+	CALL flash_read_info	;get flash info
+	LOAD s3, MEM_USER_2
+	ADD s3,02		;set memory pointer to flash info data
+
+	FETCH s0,(s3)		;print MSB
+	CALL util_print_hex_byte
+	SUB s3,01
+	FETCH s0,(s3)
+	CALL util_print_hex_byte
+	SUB s3,01
+	FETCH s0,(s3)
+	CALL util_print_hex_byte ;print LSB
+
+	CALL util_print_EOL	
+	RETURN
+	
+;;; 
+CMD_FLASH_READ_STATUS:
+	CALL flash_read_status
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+	RETURN
+
+
+
+;;;	
+CMD_FLASH_WRITE_STATUS:
+	;; make sure we have an argument
+	FETCH s0, CLI_COUNT
+	COMPARE s0, 01
+	JUMP NZ, ERROR_BAD_ARG
+
+	FETCH s0, CLI_WORD_1	;get data to write to status
+	CALL flash_write_status
+	
+	RETURN
+
+
+CMD_FLASH_FAW:
+	;; make sure we have an argument
+	FETCH s0, CLI_COUNT
+	COMPARE s0, 01
+	JUMP NZ, ERROR_BAD_ARG
+
+	;; move address into MEM_USER_1 
+	LOAD s1, CLI_WORD_1	;address CL argument
+	LOAD s2, MEM_USER_1	;address location for function call
+	LOAD s3, 03		;count of byte to copy
+CMD_FLASH_FAW_LOOP:	
+	FETCH s0, (s1)
+	STORE s0, (s2)
+	ADD s1, 01
+	ADD s2, 01
+	SUB s3,01
+	JUMP NZ, CMD_FLASH_FAW_LOOP	
+	
+;	;; move size of read to byte 4 of MEM_USER_1
+;	FETCH s0, CLI_WORD_2
+;	STORE s0, (s2)		;correct from the end of the last loop
+;	COMPARE s0, 81		;max size of read is 128 bytes
+;	JUMP NC, ERROR_BAD_ARG	;fail if size is too big
+;	COMPARE s0, 00
+;	JUMP Z, ERROR_BAD_ARG	;catch zero size read
+
+	CALL util_print_EOL
+	RETURN
+	
+
+CMD_FLASH_FAR:
+	LOAD s4, MEM_USER_1
+	ADD s4, 02
+	FETCH s0, (s4)
+	CALL util_print_hex_byte
+	SUB s4, 01
+	FETCH s0, (s4)
+	CALL util_print_hex_byte
+	SUB s4, 01
+	FETCH s0, (s4)
+	CALL util_print_hex_byte
+
+	CALL util_print_EOL
+	RETURN
+	
+
+CMD_FLASH_FWR:
+	;;
+	LOAD s4, MEM_USER_2
+CMD_FLASH_FWR_WORD:
+	ADD s4,07		;move to the end of this 64b word
+CMD_FLASH_FWR_WORD_BYTE:
+	FETCH s0, (s4) 		;get the current byte
+	CALL util_print_hex_byte ;print it
+	SUB s4, 01		 ;move to a lesser byte
+	LOAD s0, s4		 ;copy current byte location
+	AND s0,07		 ;check if we rolled past a multiple of 8
+	COMPARE s0,07
+	JUMP NZ, CMD_FLASH_FWR_WORD_BYTE ;keep printing bytes
+	CALL util_print_EOL		 ;end of 64bit word EOLD	
+	ADD s4, 09			 ;check that we are not at the end of the memory
+	JUMP NC, CMD_FLASH_FWR_WORD
+	CALL util_print_EOL
+	RETURN
+;;; 
+;CMD_FLASH_READ_ADDR:
+;	;; make sure we have an argument
+;	FETCH s0, CLI_COUNT
+;	COMPARE s0, 02
+;	JUMP NZ, ERROR_BAD_ARG
+;
+;	;; move address into MEM_USER_1 
+;	LOAD s1, CLI_WORD_1	;address CL argument
+;	LOAD s2, MEM_USER_1	;address location for function call
+;	LOAD s3, 03		;count of byte to copy
+;CMD_FLASH_READ_ADDR_LOOP:	
+;	FETCH s0, (s1)
+;	STORE s0, (s2)
+;	ADD s1, 01
+;	ADD s2, 01
+;	SUB s3,01
+;	JUMP NZ, CMD_FLASH_READ_ADDR_LOOP	
+;	
+;	;; move size of read to byte 4 of MEM_USER_1
+;	FETCH s0, CLI_WORD_2
+;	STORE s0, (s2)		;correct from the end of the last loop
+;	COMPARE s0, 81		;max size of read is 128 bytes
+;	JUMP NC, ERROR_BAD_ARG	;fail if size is too big
+;	COMPARE s0, 00
+;	JUMP Z, ERROR_BAD_ARG	;catch zero size read
+;	
+;	;; do the read
+;	CALL CMD_FLASH_READ
+;	RETURN
+
+
+
+;;; 
+CMD_FLASH_READ:
+	;; do the read (address in memory)
+	CALL flash_read
+
+	;; print to the screen
+	LOAD  s4, MEM_USER_1	;load count of words
+	ADD s4,03
+	FETCH s4, (s4)
+	LOAD  s5, MEM_USER_2  	;start of the read data in memory
+CMD_FLASH_READ_PRINT_LOOP:	
+	FETCH s0, (s5)
+	CALL util_print_hex_byte
+	ADD s5,01
+	SUB s4,01
+	JUMP NZ, CMD_FLASH_READ_PRINT_LOOP
+
+	CALL util_print_EOL
+	RETURN
+
+	
+	
+;;;
+;CMD_FLASH_WRITE:
+;	;; make sure we have an argument
+;	FETCH s0, CLI_COUNT
+;	COMPARE s0, 00
+;	JUMP Z, ERROR_BAD_ARG
+;
+;	
+;	LOAD s4,00	       ;zero size
+;	;; move data from CLI buffers to memory
+;	;; start at CLI_WORD_4
+;
+;	
+;	FETCH s2, CLI_WORD_4_SIZE ;current size
+;	TEST s2,01
+;	JUMP NZ, ERROR_BAD_ARG	 ;no odd nibble counts!
+;	LOAD s1, CLI_WORD_4	 ;clid data
+;	LOAD s3, MEM_USER_1	 ;data to write
+;
+;CMD_FLASH_WRITE_LOAD_WORD_4_LOOP:
+;	COMPARE s2,00
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_3
+;	FETCH s0, (s1)
+;	STORE s0, (s3)
+;	ADD s4,01
+;	SUB s2,01
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_4_LOOP
+;
+;CMD_FLASH_WRITE_LOAD_WORD_3:
+;	LOAD s1, CLI_WORD_3
+;	FETCH s2, CLI_WORD_3_SIZE
+;CMD_FLASH_WRITE_LOAD_WORD_3_LOOP:
+;	COMPARE s2,00
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_2
+;	FETCH s0, (s1)
+;	STORE s0, (s3)
+;	ADD s4,01
+;	SUB s2,01
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_3_LOOP
+;
+;CMD_FLASH_WRITE_LOAD_WORD_2:
+;	LOAD s1, CLI_WORD_2
+;	FETCH s2, CLI_WORD_2_SIZE
+;CMD_FLASH_WRITE_LOAD_WORD_2_LOOP:
+;	COMPARE s2,00
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_1
+;	FETCH s0, (s1)
+;	STORE s0, (s3)
+;	ADD s4,01
+;	SUB s2,01
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_2_LOOP
+;
+;CMD_FLASH_WRITE_LOAD_WORD_1:
+;	LOAD s1, CLI_WORD_1
+;	FETCH s2, CLI_WORD_1_SIZE
+;CMD_FLASH_WRITE_LOAD_WORD_1_LOOP:
+;	COMPARE s2,00
+;	JUMP CMD_FLASH_WRITE_DATA
+;	FETCH s0, (s1)
+;	STORE s0, (s3)
+;	ADD s4,01
+;	SUB s2,01
+;	JUMP CMD_FLASH_WRITE_LOAD_WORD_1_LOOP
+;
+;CMD_FLASH_WRITE_DATA:	
+;	;; update the size write word
+;	LOAD s3,MEM_USER_1
+;	ADD s3,03
+;	STORE s4,(s3)
+;
+;	;; Do the write
+;	CALL flash_write
+;	CALL util_print_EOL
+;	RETURN

@@ -1,0 +1,251 @@
+;;; ============================================================================
+;;; EPP RAM test via UART UI
+	;; Dan Gastler
+	;; Boston University Electronics Design Facility
+	;; 2013-10-18 v1.0
+;;; ============================================================================
+
+;;; ============================================================================
+;;; Register map
+;;; ============================================================================
+;;; | name       | s0 | s1 | s2 | s3 | s4 | s5 | s6 | s7 | s8 | s9 | sA | sB |
+;;; | soft_reset | x  |    |
+;;; | hard_reset | x  | x  | x  |    |    |    |    |    |    |    | x  |  x |
+;;; | start	 | x  | x  |
+;;; | cli_loop   | x  | x  |
+;;; | print_EOL  | 
+;;; ============================================================================
+;;; Scratchpad memory map
+;;; ============================================================================
+CONSTANT CLI_BUFFER_START, 	00 	; Start of the UART buffer
+CONSTANT CLI_BUFFER, 		20	; Current write pointer in the CLI buffer
+
+CONSTANT CLI_COUNT,		23	; Number of valid parsed 16bit words on
+					; the command line
+CONSTANT CLI_WORD_1_POS,	24      ; position in CLI_BUFFER where WORD1 starts
+CONSTANT CLI_WORD_2_POS,	25      ; position in CLI_BUFFER where WORD2 starts
+CONSTANT CLI_WORD_3_POS,	26      ; position in CLI_BUFFER where WORD3 starts
+CONSTANT CLI_WORD_4_POS,	27      ; position in CLI_BUFFER where WORD4 starts
+
+CONSTANT CLI_WORD_1_SIZE,	28 	; number of nibbles in this word
+CONSTANT CLI_WORD_2_SIZE,	29 	; number of nibbles in this word
+CONSTANT CLI_WORD_3_SIZE,	2a 	; number of nibbles in this word
+CONSTANT CLI_WORD_4_SIZE,	2b 	; number of nibbles in this word
+	
+CONSTANT CLI_WORD_1,		2c	; LSB of parsed word 1 (+ for MSB)
+CONSTANT CLI_WORD_2,		30	; LSB of parsed word 1
+CONSTANT CLI_WORD_3,		34	; LSB of parsed word 1
+CONSTANT CLI_WORD_4,		38	; LSB of parsed word 1
+
+CONSTANT MEM_USER_1,		40 	; Start of User mem block 1
+CONSTANT MEM_USER_2,		80 	; Start of User mem block 2
+CONSTANT MEM_USER_3,		C0 	; Start of User mem block 3 
+
+CONSTANT MEM_SIZE, 		FF	; Size of our scratchpad memory
+
+;;; ============================================================================
+;;; Constants
+;;; ============================================================================
+CONSTANT UI_VERSION,	01
+
+;;; ============================================================================
+;;; START
+;;; ============================================================================
+start:		
+	DISABLE INTERRUPT
+	CALL hard_reset
+	JUMP cli_loop
+
+INCLUDE "uart.psm"
+INCLUDE "utils.psm"
+	
+;;; ============================================================================
+;;; Reset the hardware and software to initial conditions
+	;; uses s0 - s1
+;;; ============================================================================
+hard_reset:
+	CALL soft_reset
+	;; clear the ram on reset
+;	LOAD s0, 00
+;	LOAD s1, 00
+;hard_reset_clear_ram:	
+;	STORE s0,(s1)
+;	ADD s1,01
+;	JUMP NC, hard_reset_clear_ram
+
+
+	;; reset UART
+	OUTPUTK 03, UART_OUTPUT
+	OUTPUTK 00, UART_OUTPUT
+
+	;	CALL cdr_sleep	;sleep for a while to let other clocks wake up
+	LOAD s3, FF
+	LOAD s2, FF
+hard_reset_wait_loop:	
+	SUB s3,01
+	JUMP NC, hard_reset_wait_loop
+	SUB s2,01
+	JUMP NC, hard_reset_wait_loop
+	
+	CALL background_task_init
+	CALL CMD_version
+	CALL CMD_print_build_date
+	
+	;; print prompt
+	CALL util_print_prompt
+	RETURN
+;;; ============================================================================
+;;; Reset the software to initial conditions
+	;; NOTE: this is called after every user command.
+	;; So don't re-initialize anything that you want to have state.
+	;; uses s0
+;;; ============================================================================
+soft_reset:
+	;; reset UART Buffer
+	LOAD s0, 00
+	STORE s0, CLI_BUFFER
+	STORE s0, CLI_COUNT
+
+		
+	RETURN
+
+
+INCLUDE "cmds.psm"
+
+	
+;;; ============================================================================
+;;; Main UART UI LOOP
+	;; uses s0-s1
+;;; ============================================================================
+cli_loop:
+	ENABLE INTERRUPT
+	CALL uart_input_wait 		; Check if there is UART input
+	DISABLE INTERRUPT
+
+	INPUT s0, UART_INPUT		; read new char from UART
+
+	FETCH s1, CLI_BUFFER		; get current write pointer
+	ADD s1, CLI_BUFFER_START	; add CLI_BUFFER_START	
+	STORE s0, (s1) 			; store input in CLI_BUFFER
+
+	FETCH s1, CLI_BUFFER 		; update CLI_BUFFER	 
+	ADD s1, 01
+	STORE s1, CLI_BUFFER		; 
+
+	COMPARE s1, CLI_BUFFER		; check for CLI BUFFER overflow
+	JUMP NC, cli_overflow 
+	
+	CALL cli_process		; process the new char
+					; return C=1 if a command 
+
+	CALL C, cmd_find		; process a new command
+	JUMP cli_loop
+
+
+
+;;; ============================================================================	
+;;; Error for UI overflow
+	;; uses s0-s1
+;;; ============================================================================
+STRING overflow$, "Overflow!"
+str_overflow:
+	LOAD&RETURN s1, overflow$
+	LOAD&RETURN s1, 00
+cli_overflow:
+	CALL util_print_EOL		
+	LOAD sB, str_overflow'upper
+	LOAD sA, str_overflow'lower
+	CALL util_print_string
+	
+	CALL util_print_EOL		
+	
+	CALL soft_reset
+	CALL util_print_prompt
+	JUMP cli_loop
+
+	
+;;; ============================================================================
+;;; parse the current text inputted by the user
+	;; check for special characters
+	;; echo back to use if needed
+	;; set C = 1 if the user pressed enter
+	;; uses s0-s1
+;;; ============================================================================
+cli_process:
+	;; check last char for something special
+	FETCH s0, CLI_BUFFER
+	SUB s0, 01
+	FETCH s1, (s0)		; load the last ASCII into s0
+	
+	COMPARE s1, 0D		; check for CR
+	JUMP Z, cli_process_cmd
+
+	COMPARE s1, 0A		; check for LF
+	JUMP Z, cli_process_cmd
+	
+	COMPARE s1, 08		; check for backspace
+	JUMP Z, cli_process_bs
+
+	COMPARE s1, 20		; check for other special char 
+	JUMP NC, cli_process_text ; jump for user text
+	;; remove special char
+	FETCH s0, CLI_BUFFER
+	SUB s0, 01
+	STORE s0, CLI_BUFFER
+	LOAD s0, 00
+	RR s0			; set C to zero (no command)
+	RETURN
+cli_process_text:	
+	CALL uart_output_wait 	; nothing special
+	OUTPUT s1, UART_OUTPUT	; echo char back to user
+	LOAD s0, 00
+	RR s0			; set C to zero (no command)
+	RETURN
+
+	
+cli_process_cmd:
+	;; respond with EOL
+	CALL util_print_EOL
+	;; remove the CR/LF character from memory
+	FETCH s0, CLI_BUFFER
+	SUB s0, 01 ; remove CR/LF from memory
+	STORE s0, CLI_BUFFER
+	
+	;; return with C = 1
+	LOAD s0, 01
+	RR s0			; set C to one
+	RETURN
+	
+cli_process_bs:
+	FETCH s0, CLI_BUFFER 	; check if there is anything to bs into
+	SUB s0,02		; because we've already moved 1 ahead in CLI_BUFFER
+	JUMP C, cli_process_bs_done
+
+	;; update display
+	CALL uart_output_wait
+	LOAD s1, 08		; backspace	
+	OUTPUT s1, UART_OUTPUT	
+	CALL uart_output_wait
+	LOAD s1, " "		; blank (clears bad char)
+	OUTPUT s1, UART_OUTPUT	
+	
+	CALL uart_output_wait
+	LOAD s1, 08
+	OUTPUT s1, UART_OUTPUT	; correctly sets next input char pos on screen
+
+	;; we need to remove a total of two chars from buffer (bad + bs)
+	;; remove one of them and leave one
+	FETCH s0, CLI_BUFFER	
+	SUB s0, 01	
+	STORE s0, CLI_BUFFER
+cli_process_bs_done:
+	;; We need to remove one character from buffer
+	FETCH s0, CLI_BUFFER	
+	SUB s0, 01	
+	STORE s0, CLI_BUFFER
+	;; set C to zero since there was no command
+	LOAD s0, 00
+	RR s0			; set C to zero because there is no new command
+	RETURN
+
+INCLUDE "background_task.psm"
