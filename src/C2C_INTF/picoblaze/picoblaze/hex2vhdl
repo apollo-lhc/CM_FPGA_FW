@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+
+from jinja2 import Template
+from datetime import datetime
+import argparse
+import math
+
+def generatePBROM(name,physicalMemSize,hexFile,templateFile,outPath):
+    #read the hex file
+    lastNonZeroLine = 0
+    rawData = []
+    with open(hexFile) as hexDataFile:
+        for line in hexDataFile:
+            if len(line) > 0:
+                rawData.append(line.strip())
+                #this if statement will raise and excpetion if the line isn't hex
+                if int(line,16) != 0:
+                    lastNonZeroLine = len(rawData)
+                
+    #build array of memory init values
+    data=""
+    for i in range(0,lastNonZeroLine-1):
+        data+="    X\"%s\",\n" % rawData[i]
+    data+="    X\"%s\"\n" % rawData[lastNonZeroLine-1]
+    #set the memory size
+    dataSize=lastNonZeroLine
+
+    #check that the rom will fit
+    if dataSize > physicalMemSize:
+        raise "dataSize: %d is larger than physicalMemorySize %d" % (dataSize,physicalMemSize)
+
+    #read in the template file (will throw an exception if file fails)
+    with open(templateFile) as template_input_file:
+        rawTemplate = template_input_file.read()
+        rawTemplate = Template(rawTemplate)
+    
+    #list of substitutions for jinja
+    substitute_mapping = {"notes": "-- Generated at "+str(datetime.now()),
+                          "baseName": name,
+                          "MEM_SIZE": dataSize,
+                          "MEM_DATA": data,
+                          "ADDR_WIDTH": int(math.ceil(math.log2(physicalMemSize)))}
+    #apply substitutions
+    finalVHDL = rawTemplate.render(substitute_mapping)
+
+    # output to file
+    with open(outPath+name+".vhd", 'w') as outFile:
+        outFile.write(finalVHDL)
+        outFile.close()
+    return
+
+    
+    
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description="Generate picoBlaze ROM+BRAM updater VHDL file from picroBlaze hex file.")
+    parser.add_argument("--hexfile","-i",help="Picoblaze program ROM hex file",required=True)
+    parser.add_argument("--template","-t",help="Template file)",required=True)
+    parser.add_argument("--outpath","-o",help="Output path (name set via name.vhd)",required=True)
+    parser.add_argument("--memsize","-s",type=int,help="BRAM size",required=True)
+    parser.add_argument("--name","-n",help="component name and output filename base",required=True)
+
+    args = parser.parse_args()
+    
+    generatePBROM(args.name,
+                  args.memsize,
+                  args.hexfile,
+                  args.template,
+                  args.outpath)

@@ -1,4 +1,4 @@
-include mk/helpers.mk
+-include build-scripts/mk/helpers.mk
 
 #################################################################################
 # VIVADO stuff
@@ -12,10 +12,11 @@ BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh
 #################################################################################
 # TCL scripts
 #################################################################################
-SETUP_TCL=${MAKE_PATH}/scripts/Setup.tcl
-BUILD_TCL=${MAKE_PATH}/scripts/Build.tcl
-SETUP_BUILD_TCL=${MAKE_PATH}/scripts/SetupAndBuild.tcl
-HW_TCL=${MAKE_PATH}/scripts/Run_hw.tcl
+BUILD_SCRIPTS_PATH=${MAKE_PATH}/build-scripts
+SETUP_TCL=${BUILD_SCRIPTS_PATH}/Setup.tcl
+BUILD_TCL=${BUILD_SCRIPTS_PATH}/Build.tcl
+SETUP_BUILD_TCL=${BUILD_SCRIPTS_PATH}/SetupAndBuild.tcl
+HW_TCL=${BUILD_SCRIPTS_PATH}/Run_hw.tcl
 
 #################################################################################
 # Source files
@@ -23,13 +24,14 @@ HW_TCL=${MAKE_PATH}/scripts/Run_hw.tcl
 PL_PATH=${MAKE_PATH}/src
 BD_PATH=${MAKE_PATH}/bd
 CORES_PATH=${MAKE_PATH}/cores
-ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_CM.xml
-
+#ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table_%/address_%.xml
 ################################################################################
 # Configs
 #################################################################################
+CONFIGS_BASE_PATH=configs/
 #get a list of the subdirs in configs.  These are our FPGA builds
-CONFIGS=$(patsubst configs/%/,%,$(dir $(wildcard configs/*/)))
+CONFIGS=$(patsubst ${CONFIGS_BASE_PATH}%/,%,$(dir $(wildcard ${CONFIGS_BASE_PATH}*/)))
 
 define CONFIGS_template =
  $(1): clean autogen_clean_$(1)
@@ -37,7 +39,7 @@ define CONFIGS_template =
 endef
 define CONFIGS_autoclean_template =
  autogen_clean_$(1): 
-	@rm -rf configs/$(1)/autogen/*
+	@rm -rf ${CONFIGS_BASE_PATH}$(1)/autogen/*
 endef
 
 ################################################################################
@@ -48,26 +50,26 @@ BIT_BASE=${MAKE_PATH}/bit/top_
 #################################################################################
 # preBuild 
 #################################################################################
-SLAVE_DEF_FILE_BASE=${MAKE_PATH}/configs/
+SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
+ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
 ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
 SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
+MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
 
-ifneq ("$(wildcard ${MAKE_PATH}/mk/preBuild.mk)","")
-  include ${MAKE_PATH}/mk/preBuild.mk
-endif
+-include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
 
 
 
 #################################################################################
 # CM Address tables
 #################################################################################
-include mk/addrTable.mk
+-include build-scripts/mk/addrTable.mk
 
 #################################################################################
 # Device tree overlays
 #################################################################################
 DTSI_PATH=${SLAVE_DTSI_PATH}/hw/
-include mk/deviceTreeOverlays.mk
+-include build-scripts/mk/deviceTreeOverlays.mk
 
 
 .SECONDARY:
@@ -97,7 +99,9 @@ clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild
 clean_ip_%:
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+	vivado $(VIVADO_FLAGS) -source ${BUILD_SCRIPTS_PATH}/CleanIPs.tcl -tclargs ${MAKE_PATH} $(subst .bit,,$(subst clean_ip_,,$@))
+clean_autogen:
+	rm -rf ${CONFIGS_BASE_PATH}*/autogen/*
 
 clean_everything: clean clean_prebuild
 
@@ -111,7 +115,7 @@ $(foreach config,$(CONFIGS),$(eval $(call CONFIGS_autoclean_template,$(config)))
 open_project : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado top.xpr -source ../scripts/OpenProject.tcl
+	vivado top.xpr -source ../build-scripts/OpenProject.tcl
 open_synth :
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
@@ -138,30 +142,36 @@ interactive :
 	cd proj &&\
 	vivado -mode tcl
 
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/slaves_%.yaml $(ADDRESS_TABLE_CREATION_PATH)/slaves_%.yaml
+
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
 	mkdir -p ${MAKE_PATH}/bit &&\
 	cd proj &&\
-	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
-	$(MAKE) NOTIFY_DAN_GOOD
-	$(MAKE) overlays
-	$(MAKE) ${MAKE_PATH}/os/address_table/address_$*.xml
-	@echo 	$(MAKE) $*.tar.gz
-	$(MAKE) $*.tar.gz
+	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
+	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
+	$(MAKE) overlays  $(OUTPUT_MARKUP)
+	@rm -f $*.tar.gz
+	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
-	vivado $(VIVADO_FLAGS) -source ${MAKE_PATH}/scripts/Generate_svf.tcl $(OUTPUT_MARKUP)
+	vivado $(VIVADO_FLAGS) -source ${BUILD_SCRIPTS_PATH}/Generate_svf.tcl $(OUTPUT_MARKUP)
 
 
+#convert all push urls to ssh
 init:
 	git submodule update --init --recursive
+	@git submodule foreach 'git remote -v | grep http |  grep \(push\) | sed -e "i\git remote set-url --push " -e "s/http.*\/\//git\@/" -e "s/\//:/" -e"s/(push)//" | xargs | bash'
+
+
+
 
 
 make test :
 	@echo $(CONFIGS)
 
-%.tar.gz : bit/top_%.svf kernel/hw/dtbo/*.dtbo os/address_table/
-	@tar -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
+#%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
+%.tar.gz : bit/top_%.svf 
+	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table

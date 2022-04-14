@@ -1,9 +1,9 @@
 <node id="QUADTEST">
-  <node id="FF_K1" address="0x00000000" module="file://QuadTest_FF_12_GTH.xml"/>
+  <!-- <node id="FF_K1" address="0x00000000" module="file://QuadTest_FF_12_GTH.xml"/> -->
   <!-- <node id="FF_K2" address="0x00008000" module="file://QuadTest_FF_12_GTH.xml"/> -->
   <!-- <node id="FF_K3" address="0x00010000" module="file://QuadTest_FF_12_GTH.xml"/> -->
-  <!-- <node id="FF_K4" address="0x00018000" module="file://QuadTest_FF_4_GTH.xml"/> -->
-  <!-- <node id="FF_K5" address="0x00020000" module="file://QuadTest_FF_4_GTH.xml"/> -->
-  <!-- <node id="FF_K6" address="0x00028000" module="file://QuadTest_FF_4_GTH.xml"/> -->
+  <node id="FF_K4" address="0x00018000" module="file://QuadTest_FF_4_GTY.xml"/>
+  <node id="FF_K5" address="0x00020000" module="file://QuadTest_FF_4_GTY.xml"/>
+  <node id="FF_K6" address="0x00028000" module="file://QuadTest_FF_4_GTY.xml"/>
   <!-- <node id="FF_K7" address="0x00030000" module="file://QuadTest_FF_12_GTH.xml"/> -->
 </node> 

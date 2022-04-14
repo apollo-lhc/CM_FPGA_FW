@@ -1,0 +1,293 @@
+;;; ============================================================================
+;;; Background task
+;;; uses s0b,sFb,sEb,sDb
+;;;   sF: state machine state
+;;;   sE: Count of number of times we've checked for reset done and it has failed
+;;;   sD: Count of number of times we've checked for linkgood/link up
+;;;   sC: Number of times we've seen consecutive SB/MB errors above threshold
+;;; ============================================================================
+
+
+;;; ============================================================================
+;;; CONSTANTS
+;;; ============================================================================
+
+CONSTANT LINK_SELECT_PORT,          03 ; interface selection port
+	
+CONSTANT LINK_CTRL_PORT,            04 ;status and control port
+
+CONSTANT LINK_CTRL_PORT_RST,        01 ;bit for resetting transceiver
+CONSTANT LINK_CTRL_PORT_RST_DONE,   02 ;bit for reset done
+CONSTANT LINK_CTRL_PORT_INIT,       04 ;bit for initialize
+CONSTANT LINK_CTRL_PORT_LINK_GOOD,  08 ;bits for link good
+CONSTANT LINK_CTRL_PORT_LANE_UP,    10 ;bits for lane up
+CONSTANT LINK_CTRL_PORT_ERR_SB_CNT, 20 ;bits for Error counters over thresh
+CONSTANT LINK_CTRL_PORT_ERR_MB_CNT, 40 ;bits for Error counters over thresh
+
+CONSTANT LINK_STATUS_PORT,          05 ; output of current state
+
+	
+CONSTANT BG_STATE_INIT,       00
+CONSTANT BG_STATE_RESET_WAIT, 01
+CONSTANT BG_STATE_LINK_WAIT,  02
+CONSTANT BG_STATE_RUNNING,    04
+
+;;; LINKS structure & size
+CONSTANT LINKS_STRUCT_OFFSET_LINK       ,00
+CONSTANT LINKS_STRUCT_OFFSET_LINK_COUNT ,01
+CONSTANT LINKS_STRUCT_OFFSET_RSV1       ,02
+CONSTANT LINKS_STRUCT_OFFSET_RSV2       ,03
+CONSTANT LINKS_STRUCT_OFFSET_RSV3       ,04
+CONSTANT LINKS_STRUCT_SIZE              ,05
+
+;;; LINK structure & size
+CONSTANT LINK_STRUCT_OFFSET_STATE,       00
+CONSTANT LINK_STRUCT_OFFSET_DONE_CHECKS, 01
+CONSTANT LINK_STRUCT_OFFSET_GOOD_CHECKS, 02
+CONSTANT LINK_STRUCT_OFFSET_ERRORS,      03
+CONSTANT LINK_STRUCT_OFFSET_RSV1,        04
+CONSTANT LINK_STRUCT_SIZE,               05
+
+;;; =============================================================================
+;;; initialize the memeory for the backround task
+;;; =============================================================================
+background_task_init:
+	;; zero the memory we are using
+;;	CALL zero_MEM_USER_1
+	;; Set the number of LINKS to use in memory
+	load s0, MEM_USER_1
+	ADD  s0, LINKS_STRUCT_OFFSET_LINK_COUNT
+	INPUT s1, LINK_SELECT_PORT
+	;; only allow 8 for now
+	COMPARE s1,09
+	JUMP C, background_task_init_STORE
+	LOAD s1,08
+background_task_init_STORE:
+	;; store the size
+	STORE s1, (s0)	
+	load s0,s1
+	CALL util_print_hex_byte
+	CALL util_print_EOL
+	RETURN
+
+;;; =============================================================================
+;;; Zero MEM_USER_1
+;;; =============================================================================
+zero_MEM_USER_1:
+	LOAD s0, 00
+	LOAD s1, MEM_USER_1
+zero_MEM_USER_1_LOOP:	
+	compare s1, MEM_USER_2
+	JUMP Z, zero_MEM_USER_1_END
+	STORE s0,(s1)
+	ADD s1, 01
+	JUMP zero_MEM_USER_1_LOOP
+zero_MEM_USER_1_END:
+	RETURN
+	
+;;; =============================================================================
+;;; Get the current link and store it in s0
+;;; =============================================================================
+get_current_link_address:
+	load s0, MEM_USER_1
+	ADD  s0, LINKS_STRUCT_OFFSET_LINK
+	RETURN
+
+;;; =============================================================================
+;;; Get the address of the beginning of the current link's struct and store it in s0
+;;; =============================================================================
+get_current_link_struct_address:
+	;; Compute the starting address of this link
+	;; starting at MEM_USER_1
+	LOAD s1, MEM_USER_1
+	;; Move forward the LINKS STRUCT size
+	ADD s1, LINKS_STRUCT_SIZE
+	
+	;; start adding LINK_STRUCT sizes until we get to the one we want
+	CALL get_current_link_address
+	;; load current link into s0
+	FETCH s0, (s0)
+get_current_link_struct_address_ADD_LOOP:	
+	COMPARE s0,00
+	JUMP Z, get_current_link_struct_address_STRUCT_OFFSET
+	ADD s1,LINK_STRUCT_SIZE
+	SUB s0,01
+	JUMP get_current_link_struct_address_ADD_LOOP
+		
+get_current_link_struct_address_STRUCT_OFFSET:
+	;; address to the beginnin of this links struct is now in s0
+	LOAD s0,s1
+	RETURN
+
+	     
+;;; =============================================================================
+;;; Background task
+;;; =============================================================================
+background_task:
+	REGBANK B
+background_task_start:	
+	;; Get the count of links
+	load s0, MEM_USER_1
+	ADD  s0, LINKS_STRUCT_OFFSET_LINK_COUNT
+	FETCH s1, (s0)
+	;; Get the current link
+	CALL get_current_link_address
+	FETCH s2, (s0)
+	
+	COMPARE s2,s1
+	JUMP Z, background_task_end
+
+	;; set which link we are talking to
+	OUTPUT s2, LINK_SELECT_PORT
+	;; update this link
+	CALL link_update
+	;; update the current link in memory
+	CALL get_current_link_address
+	FETCH s2, (s0)
+	ADD s2,01
+	STORE s2, (s0)
+	JUMP background_task_start
+
+background_task_end:	
+	;; Set the next link back to zero
+	CALL get_current_link_address
+	LOAD  s1, 00
+	STORE s1, (s0)
+	;; return
+	REGBANK A
+	RETURN
+	
+	
+;;; =============================================================================
+;;; perform an update on this link
+;;; !!!link number read from ram is assumed to be valid!!!
+;;; uses:
+;;;   s0,s1,
+;;;   sF,sE,sD,sC
+;;; =============================================================================
+link_update:
+		
+	;; fetch values from memory
+	CALL get_current_link_struct_address
+	;; Get state -> sF
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_STATE
+	FETCH sF, (s1)
+	;; get done checks -> sE
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_DONE_CHECKS
+	FETCH sE, (s1)
+	;; get good checks -> sD
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_GOOD_CHECKS
+	FETCH sD, (s1)
+	;; get link errors  -> sC
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_ERRORS
+	FETCH sC, (s1)
+
+;;; State machine
+	COMPARE sF, BG_STATE_RUNNING 		
+	JUMP Z, link_update_RUNNING ; Just check for error count
+		
+	COMPARE sF, BG_STATE_LINK_WAIT
+	JUMP Z, link_update_LINK_WAIT ; Check that the link is "good"
+	
+	COMPARE sF, BG_STATE_RESET_WAIT ; check that the reset is done
+	JUMP Z, link_update_RESET_WAIT
+	;; We are at the begggin state GB_STATE_INIT
+	;; fallthrough
+;;; BG_STATE: INIT
+	;; zero the transition counters
+	LOAD sE, 00 		;zero the count of reset done checks
+	LOAD sD, 00		;zero the number of link good checks
+
+	INPUT s0, LINK_CTRL_PORT	
+	OR s0, LINK_CTRL_PORT_INIT ;turn on init bit
+	OUTPUT s0, LINK_CTRL_PORT
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	LOAD s0, s0		;nop
+	XOR s0, LINK_CTRL_PORT_INIT ;turn off init bit
+	OUTPUT s0, LINK_CTRL_PORT
+
+	LOAD sF, BG_STATE_RESET_WAIT
+	JUMP link_update_end
+	
+;;; BG_STATE: RESET WAIT
+link_update_RESET_WAIT:	
+	ADD sE, 01		;keep track of how many times we've checked for reset done
+	JUMP NC, link_update_RESET_WAIT_check
+	LOAD sF, BG_STATE_INIT	;things aren't working, let's go back to the beginning
+	JUMP link_update_end
+link_update_RESET_WAIT_check:
+	;; read c2c reset done
+	INPUT s0, LINK_CTRL_PORT	
+	TEST s0,  LINK_CTRL_PORT_RST_DONE
+	JUMP NC, link_update_end ;not done, check again next time
+	;; link reset done
+	LOAD sF, BG_STATE_LINK_WAIT ;update state for next call
+	JUMP link_update_end
+
+;;; BG_STATE: LINK WAIT
+link_update_LINK_WAIT:
+	ADD sD, 01		;keep track of how many times we've checked for link good
+	JUMP NC, link_update_LINK_WAIT_check
+	LOAD sF, BG_STATE_INIT ;things aren't working, let's go back to the beginning
+	JUMP link_update_end
+link_update_LINK_WAIT_check:	
+	INPUT s0, LINK_CTRL_PORT
+	TEST s0, LINK_CTRL_PORT_LINK_GOOD ;check if the link is good
+	JUMP NC, link_update_end	  ;wait for next time
+	TEST s0, LINK_CTRL_PORT_LANE_UP   ;check if the lane is up
+	JUMP NC, link_update_end	  ;wait for next time
+	;; things look good
+	LOAD sF, BG_STATE_RUNNING
+	JUMP link_update_end
+;;; BG_STATE: RUNNING
+link_update_RUNNING:	
+	INPUT s0, LINK_CTRL_PORT
+	TEST s0, LINK_CTRL_PORT_ERR_SB_CNT ;check if there are too many SB errors
+	JUMP C,  link_update_RUNNING_errors ; handle errors
+	TEST s0, LINK_CTRL_PORT_ERR_MB_CNT ;check if there are too many MB errors
+	JUMP C,  link_update_RUNNING_errors ; handle errors
+	LOAD sC, 00			      ;set the count of error periods to zero
+	JUMP link_update_end
+link_update_RUNNING_errors:
+	ADD sC, 01		     ;Add 1 to the count of periods with errors
+	JUMP NC, link_update_end ;no overflow, jump to the end and keep track
+	;; overflow, let's go back to INIT
+	LOAD sF, BG_STATE_INIT
+	JUMP link_update_end
+link_update_end:
+	;; store values to memory
+	CALL get_current_link_struct_address
+	;; Get state -> sF
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_STATE
+	STORE sF, (s1)
+	;; get done checks -> sE
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_DONE_CHECKS
+	STORE sE, (s1)
+	;; get good checks -> sD
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_GOOD_CHECKS
+	STORE sD, (s1)
+	;; get link errors  -> sC
+	LOAD s1, s0
+	ADD s1, LINK_STRUCT_OFFSET_ERRORS
+	STORE sC, (s1)
+
+	;; output the current state
+	OUTPUT sF, LINK_STATUS_PORT
+	
+	RETURN
+
+
+ADDRESS 600
+ISR: 
+     CALL background_task
+     RETURNI ENABLE

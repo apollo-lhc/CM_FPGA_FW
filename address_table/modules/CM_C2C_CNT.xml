@@ -1,0 +1,20 @@
+<node id="CNT">
+  <node id="ERRORS_ALL_TIME"          address="0x0" permission="r"  description="Counter for all errors while locked"      parameters="Table=C2C;Row=PHY_ERRORS;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="ERRORS_SINCE_LOCKED"      address="0x1" permission="r"  description="Counter for errors since locked"          parameters="Table=C2C;Row=PHY_ERRORS_CURRENT;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="CONFIG_ERROR_COUNT"       address="0x2" permission="r"  description="Counter for CONFIG_ERROR"                 parameters="Table=C2C;Row=CONFIG_ERROR_COUNT;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="LINK_ERROR_COUNT"         address="0x3" permission="r"  description="Counter for LINK_ERROR"                   parameters="Table=C2C;Row=LINK_ERROR_COUNT;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="MB_ERROR_COUNT"           address="0x4" permission="r"  description="Counter for MB_ERROR"                     parameters="Table=C2C;Row=MB_ERROR_COUNT;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="PHY_HARD_ERROR_COUNT"     address="0x5" permission="r"  description="Counter for PHY_HARD_ERROR"               parameters="Table=C2C;Row=PHY_HARD_ERR_COUNT;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="PHY_SOFT_ERROR_COUNT"     address="0x6" permission="r"  description="Counter for PHY_SOFT_ERROR"               parameters="Table=C2C;Row=PHY_SOFT_ERR_COUNT;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="PHYLANE_STATE"            address="0x7" permission="r"  description="Current state of phy_lane_control module" parameters="Table=C2C;Row=PHYLANE_STATE;Column=_1_2;Status=1;Format=t_0_INIT_1_resetWAIT_2_initWAIT_4_RUNNING" mask="0x7"/>
+  <node id="RESET_COUNTERS"           address="0x8" permission="w" description="Reset counters in Monitor" mask="0x1"/>
+  <node id="ERROR_WAITS_SINCE_LOCKED" address="0x9" permission="r"  description="Count for phylane in error state"         parameters="Table=C2C;Row=PHY_ERROR_WINDOWS;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="USER_CLK_FREQ"            address="0xA" permission="r"  description="Frequency of the user C2C clk"            parameters="Table=C2C;Row=C2C_FREQ;Column=_1_2;Status=2;Show=nz;Format=m_1_1_1000000_1_0_1"/>
+  <node id="XCVR_RESETS"              address="0xB" permission="r"  description="Count for phylane in error state"         parameters="Table=C2C;Row=PHY_RESETS;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="WAITING_TIMEOUTS"         address="0xC" permission="r"  description="Count of initialize cycles"         parameters="Table=C2C;Row=PHY_RESETS;Column=_1_2;Status=1;Show=nz;Format=u"/>
+  <node id="SB_ERROR_RATE"            address="0xD" permission="r"  description="single bit error rate"         parameters="Table=C2C;Column=_1_2;Row=SB_ERROR_RATE;Statu\
+s=1;Show=nz;Format=u"/>                                                                                                                                                   
+  <node id="MB_ERROR_RATE"            address="0xE" permission="r"  description="multi bit error rate"         parameters="Table=C2C;Column=_1_2;Row=MB_ERROR_RATE;Status\
+=1;Show=nz;Format=u"/>     
+</node>
+  

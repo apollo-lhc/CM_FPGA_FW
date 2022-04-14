@@ -1,0 +1,11 @@
+<node id="C2C_INTFS">  
+  <node id="C2C_1"    address="0x0000" fwinfo="type=array" module="file://C2C_INTF.xml"/>
+  <node id="C2C_2"    address="0x1000" fwinfo="type=array" module="file://C2C_INTF.xml"/>
+  <node id="PB" address="0x2000">
+    <node id="MEM" mode="incremental" size="0x800" address="0x000" fwinfo="type=mem18_0x800" />
+    <node id="RESET" address="0x800" mask="0x00000001" permission="rw"/>  
+    <node id="IRQ_COUNT" address="0x801" mask="0xFFFFFFFF" permission="rw" parameters="default=10000000"/>                                                                 
+
+  </node>
+
+</node>

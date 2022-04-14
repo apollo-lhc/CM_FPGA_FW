@@ -1,0 +1,67 @@
+<node id="ES">
+  <node id="TYPE_USP_GTH"       address="0x0000" mask="0xFFFF" permission="r"/>
+
+  <node id="RX_DATA_WIDTH"         address="0x0003" mask="0x01E0" permission="rw"/>
+
+  <node id="ES_EYE_SCAN_EN"        address="0x003C" mask="0x0100" permission="rw"/>
+  <node id="ES_ERRDET_EN"          address="0x003C" mask="0x0200" permission="rw"/>
+  <node id="ES_PRESCALE"           address="0x003C" mask="0x001F" permission="rw"/>  
+  <node id="ES_CONTROL"            address="0x003C">
+    <node id="RUN"                 address="0x0000" mask="0x0400" permission="rw"/>
+    <node id="ARM"                 address="0x0000" mask="0x0800" permission="rw"/>
+  </node>
+  
+
+  <node id="ES_QUALIFIER0"        address="0x003F" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER1"        address="0x0040" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER2"        address="0x0041" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER3"        address="0x0042" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER4"        address="0x0043" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER5"        address="0x00E7" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER6"        address="0x00E8" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER7"        address="0x00E9" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER8"        address="0x00EA" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUALIFIER9"        address="0x00EB" mask="0xFFFF" permission="rw"/>
+
+  <node id="ES_QUAL_MASK0"        address="0x0044" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK1"        address="0x0045" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK2"        address="0x0046" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK3"        address="0x0047" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK4"        address="0x0048" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK5"        address="0x00EC" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK6"        address="0x00ED" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK7"        address="0x00EE" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK8"        address="0x00EF" mask="0xFFFF" permission="rw"/>
+  <node id="ES_QUAL_MASK9"        address="0x00F0" mask="0xFFFF" permission="rw"/>
+
+  <node id="ES_SDATA_MASK0"        address="0x0049" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK1"        address="0x004A" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK2"        address="0x004B" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK3"        address="0x004C" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK4"        address="0x004D" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK5"        address="0x00F1" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK6"        address="0x00F2" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK7"        address="0x00F3" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK8"        address="0x00F4" mask="0xFFFF" permission="rw"/>
+  <node id="ES_SDATA_MASK9"        address="0x00F5" mask="0xFFFF" permission="rw"/>
+
+  <node id="ES_HORZ_OFFSET"        address="0x004F">
+    <node id="REG"                 address="0x0000" mask="0xFFF0" permission="rw"/>    
+    <node id="OFFSET"              address="0x0000" mask="0x7FF0" permission="rw"/>    
+    <node id="PHASE_UNIFICATION"   address="0x0000" mask="0x8000" permission="rw"/>
+  </node>
+  <node id="RXOUT_DIV"             address="0x0063" mask="0x0007" permission="rw"/>
+  <node id="RX_INT_DATAWIDTH"      address="0x0066" mask="0x0003" permission="rw"/>
+  <node id="RX_EYESCAN_VS"         address="0x0097">
+    <node id="REG"                 address="0x0000" mask="0x07FC" permission="rw"/>    
+    <node id="CODE"                address="0x0000" mask="0x01FC" permission="rw"/>
+    <node id="UT"                  address="0x0000" mask="0x0200" permission="rw"/>
+    <node id="SIGN"                address="0x0000" mask="0x0400" permission="rw"/>
+    <node id="RANGE"               address="0x0000" mask="0x0003" permission="rw"/>
+  </node>
+
+  <node id="ES_ERROR_COUNT"        address="0x0251" mask="0xFFFF" permission="r"/>
+  <node id="ES_SAMPLE_COUNT"       address="0x0252" mask="0xFFFF" permission="r"/>
+  <node id="ES_CONTROL_STATUS"     address="0x0253" mask="0x000F" permission="r"/>
+  
+</node>
