@@ -4,12 +4,11 @@
   <node id="INFO" address="0x400">
     <node id="TXRX_TYPE" address="0x00000000" mask="0xF" permission="r" description="Type of MGT: GTH(1),GTX(2),GTY(3)" parameters="Format=t_0_UNKNOWN_1_GTHUSP_2_GTXUSP_3_GTYUSP"/>
     <!-- <node id="STATUS" address="0x01"  module="file://Channel_Status.xml"/> -->
-    <!-- <node id="DEBUG"  address="0x08"  module="file://Channel_DEBUG_USP.xml"/> -->
-    <!-- <node id="LOOPBACK" address="0x20" permission="rw" mask="0x00000007" parameters="default=0x0" /> -->
-
-    <!-- <node id="GT_PWR_GOOD" address="0x60" permission="r" mask="0x00000001" /> -->
-    <!-- <node id="RX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00000800" /> -->
-    <!-- <node id="TX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00010000" /> -->
+    <node id="DEBUG"  address="0x08"  module="file://Channel_DEBUG_USP.xml"/>
+    <node id="LOOPBACK" address="0x20" permission="rw" mask="0x00000007" parameters="default=0x0" />
+    <node id="GT_PWR_GOOD" address="0x60" permission="r" mask="0x00000001" />
+    <node id="RX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00000800" />
+    <node id="TX_PMA_RESET_DONE" address="0x60" permission="r" mask="0x00010000" />
     <!-- <node id="CPLL" address="0x61"> -->
     <!--   <node id="LOCK" address="0x0" permission="r" mask="0x00000001" /> -->
     <!--   <node id="REFCLK_LOST" address="0x0" permission="r" mask="0x00000002" /> -->
@@ -81,17 +80,20 @@
     <node id="ERROR_COUNT" address="0x60" permission="r" mask="0xFFFFFFFF" />
     <node id="ERROR_RATE" address="0x61" permission="r" mask="0xFFFFFFFF" />
 
-    <node id="TX_FIXED" address="0x65" permission="rw" mask="0xFFFFFFFF" />
-    <node id="TX_FIXED_HEADER"   address="0x67" permission="rw" mask="0x0000000F" />
+    <node id="TX_FIXED_LSB" address="0x65" permission="rw" mask="0xFFFFFFFF" />
+    <node id="TX_FIXED_MSB" address="0x66" permission="rw" mask="0xFFFFFFFF" />
+    <node id="TX_FIXED_HEADER"   address="0x67" permission="rw" mask="0x00000003" />
     <node id="TX_FIXED_EN"   address="0x67" permission="rw" mask="0x00010000" />
 
     <node id="RX_DATA" address="0x70">
-      <node id="DATA"  address="0x0" permission="r" mask="0xFFFFFFFF" />
-      <node id="K"     address="0x2" permission="r" mask="0xF" />
+      <node id="DATA_LSB"  address="0x0" permission="r" mask="0xFFFFFFFF" />
+      <node id="DATA_MSB"  address="0x1" permission="r" mask="0xFFFFFFFF" />
+      <node id="H"     address="0x2" permission="r" mask="0x3" />
     </node>
     <node id="TX_DATA" address="0x73">
-      <node id="DATA"  address="0x0" permission="r" mask="0xFFFFFFFF" />
-      <node id="K"     address="0x2" permission="r" mask="0xF" />
+      <node id="DATA_LSB"  address="0x0" permission="r" mask="0xFFFFFFFF" />
+      <node id="DATA_MSB"  address="0x1" permission="r" mask="0xFFFFFFFF" />
+      <node id="H"     address="0x2" permission="r" mask="0x3" />
     </node>
     
   </node>

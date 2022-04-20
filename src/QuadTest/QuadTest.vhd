@@ -12,6 +12,9 @@ use UNISIM.vcomponents.all;
 use work.FF_K1_PKG.all;
 
 entity QuadTest is
+  generic (
+    ALLOCATED_MEMORY_RANGE : integer
+    );
   port (
     clk_axi              : in  std_logic; --50 MHz
     reset_axi_n          : in  std_logic;
@@ -67,6 +70,9 @@ begin  -- architecture QuadTest
   reset <= not reset_axi_n;
 
   QuadTest_map_1: entity work.Quad_Test_map
+    generic map (
+      ALLOCATED_MEMORY_RANGE => ALLOCATED_MEMORY_RANGE
+      )
     port map (
       clk_axi         => clk_axi,
       reset_axi_n     => reset_axi_n,
@@ -131,43 +137,7 @@ begin  -- architecture QuadTest
   
   --FF_K1
 
-  your_instance_name : entity work.FF_K1_ILA
-    PORT MAP (
-      clk => clk_axi,
-      probe0(0) => Ctrl.FF_K1.COMMON.RESETS.FULL,
-      probe0(1) => FF_K1_common_out.gtwiz_reset_tx_done_out,        
-      probe0(2) => FF_K1_common_out.gtwiz_reset_rx_done_out,        
-      probe0(3) => FF_K1_common_out.gtwiz_reset_rx_cdr_stable_out,  
-      probe0(4) => hb_gtwiz_reset_all_init_int(1),                  
-      probe0(5) => hb_gtwiz_reset_rx_datapath_init_int(1),          
-      probe0(6) => init_done_int(1),
-      probe0(7) => '0',
-      probe1(0) => FF_K1_Common_in.gtwiz_userclk_tx_reset_in,      
-      probe1(1) => FF_K1_Common_in.gtwiz_userclk_rx_reset_in,     
-      probe1(2) => FF_K1_Common_in.gtwiz_reset_clk_freerun_in,    
-      probe1(3) => FF_K1_Common_in.gtwiz_reset_all_in,            
-      probe1(4) => FF_K1_Common_in.gtwiz_reset_tx_pll_and_datapath_in,
-      probe1(5) => FF_K1_Common_in.gtwiz_reset_tx_datapath_in,    
-      probe1(6) => FF_K1_Common_in.gtwiz_reset_rx_pll_and_datapath_in,
-      probe1(7) => FF_K1_Common_in.gtwiz_reset_rx_datapath_in,    
-      probe2(0) => FF_K1_Common_out.gtwiz_userclk_tx_active_out,    
-      probe2(1) => FF_K1_Common_out.gtwiz_userclk_rx_active_out,    
-      probe2(2) => FF_K1_Common_out.gtwiz_reset_rx_cdr_stable_out,  
-      probe2(3) => FF_K1_Common_out.gtwiz_reset_tx_done_out,        
-      probe2(4) => FF_K1_Common_out.gtwiz_reset_rx_done_out,        
-      probe2(5) => FF_K1_Channel_out(1).cplllock_out,
-      probe2(6) => FF_K1_Channel_out(1).rxpmaresetdone_out,
-      probe2(7) => FF_K1_Channel_out(1).rxresetdone_out,
-      probe2(8) => FF_K1_Channel_out(1).txpmaresetdone_out,
-      probe2(9) => FF_K1_Channel_out(1).txresetdone_out, 
-      probe2(10)=> FF_K1_Channel_in(1).rxbufreset_in,                 
-      probe2(11)=> FF_K1_Channel_in(1).rxcdrhold_in,                 
-      probe2(12) => FF_K1_Channel_in(1).rxdfelpmreset_in,             
-      probe2(13) => FF_K1_Channel_in(1).rxlpmen_in,                   
-      probe2(14) => FF_K1_Channel_in(1).rxpcsreset_in,                
-      probe2(15) => FF_K1_Channel_in(1).rxpmareset_in);
-
-  
+ 
   example_init_inst_FF_K1: entity work.FF_K1_example_init
     port map(
     clk_freerun_in   => clk_axi,
@@ -263,8 +233,8 @@ begin  -- architecture QuadTest
 --      rate          => Mon.FF_K1.COMMON.COUNTERS.TX_SRC_FREQ);
 
 
-  Mon.FF_K1.COMMON.RESETS.RX_DONE                    <= FF_K1_common_out.gtwiz_reset_rx_done_out;
-  Mon.FF_K1.COMMON.RESETS.TX_DONE                    <= FF_K1_common_out.gtwiz_reset_tx_done_out;
+  Mon.FF_K1.COMMON.STATUS.RX_DONE                    <= FF_K1_common_out.gtwiz_reset_rx_done_out;
+  Mon.FF_K1.COMMON.STATUS.TX_DONE                    <= FF_K1_common_out.gtwiz_reset_tx_done_out;
   Mon.FF_K1.COMMON.STATUS.RX_ACTIVE                  <= FF_K1_common_out.gtwiz_userclk_rx_active_out;
   Mon.FF_K1.COMMON.STATUS.RX_CDR_STABLE              <= FF_K1_common_out.gtwiz_reset_rx_cdr_stable_out;
   Mon.FF_K1.COMMON.STATUS.TX_ACTIVE                  <= FF_K1_common_out.gtwiz_userclk_tx_active_out;   
@@ -362,6 +332,11 @@ begin  -- architecture QuadTest
         clk         => FF_K1_Common_Out.gtwiz_userclk_rx_usrclk_out,
         clk_axi     => clk_axi,
         reset       => reset,
+        tx_fixed(65 downto 64)    => Ctrl.FF_K1.channel(iChan).info.tx_fixed_header,
+        tx_fixed(63 downto 32)    => Ctrl.FF_K1.channel(iChan).info.tx_fixed_msb,
+        tx_fixed(31 downto  0)    => Ctrl.FF_K1.channel(iChan).info.tx_fixed_lsb,
+        tx_fixed_en               => Ctrl.FF_K1.channel(iChan).info.tx_fixed_en,
+        rx_data_valid => '1',
         rx_data     => FF_K1_channel_out(iChan).gtwiz_userdata_rx_out,
         rx_h_data   => FF_K1_channel_out(iChan).rxheader_out(1 downto 0),
         tx_data     => FF_K1_channel_in(iChan).gtwiz_userdata_tx_in,
