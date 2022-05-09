@@ -13,3 +13,6 @@
 	path = build-scripts
 	url = https://gitlab.com/BU-EDF/fw-bits/build-scripts.git
 	branch = develop
+[submodule "configs/Cornell_rev1_p1_KU15p-2-ITDTC-SM_USP"]
+	path = configs/Cornell_rev1_p1_KU15p-2-ITDTC-SM_USP
+	url = git@gitlab.com:apollo-lhc/it-dtc/it-dtc-fw.git
