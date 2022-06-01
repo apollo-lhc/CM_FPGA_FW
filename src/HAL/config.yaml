@@ -1,0 +1,85 @@
+#COMMON_SETS:
+#  TEST_1:
+#    GT_TYPE: GTH
+#    freerun_frequency: 125
+#    core:
+#      LOCATE_TX_USER_CLOCKING: CORE
+#      LOCATE_RX_USER_CLOCKING: CORE
+#      LOCATE_COMMON: EXAMPLE_DESIGN
+#    enable_options: ""
+
+CHANNEL_SETS:
+  DEBUG_64B66B:
+    GT_TYPE: GTH
+    freerun_frequency: 125
+    protocol:
+      TX:
+        DATA_ENCODING: 64B66B
+      RX:
+        DATA_DECODING: 64B66B
+    clocking:
+      TX:
+        LINE_RATE: 10.260224
+        PLL_TYPE: QPLL0
+        REFCLK_FREQUENCY: 320.632
+        OUTCLK_SOURCE: TXOUTCLKPMA
+      RX:
+        LINE_RATE: 10.260224
+        PLL_TYPE: QPLL1
+        REFCLK_FREQUENCY: 320.632
+        OUTCLK_SOURCE: RXOUTCLKPMA
+    enable_options: "drpaddr_in drpclk_in drpdi_in drpen_in drpwe_in eyescanreset_in eyescantrigger_in pcsrsvdin_in rxbufreset_in rxcdrhold_in rxdfelpmreset_in rxlpmen_in rxpcsreset_in rxpmareset_in rxprbscntreset_in rxprbssel_in rxrate_in txdiffctrl_in txinhibit_in txpcsreset_in txpmareset_in txpolarity_in txpostcursor_in txprbsforceerr_in txprbssel_in txprecursor_in cplllock_out dmonitorout_out drpdo_out drprdy_out eyescandataerror_out rxprbserr_out rxresetdone_out txbufstatus_out txresetdone_out txoutclksel_in rxoutclksel_in cpllreset_in"
+
+  DEBUG_8B10B:
+    GT_TYPE: GTH
+    freerun_frequency: 125
+    protocol:
+      TX:
+        DATA_ENCODING: 8B10B
+        INT_DATA_WIDTH: 40
+      RX:
+        DATA_DECODING: 8B10B
+        COMMA_PRESET: K28.5
+        COMMA_P_ENABLE: true
+        COMMA_M_ENABLE: true
+        COMMA_MASK: 1111111111
+    clocking:
+      TX:
+        LINE_RATE: 10.260224
+        PLL_TYPE: CPLL
+        REFCLK_FREQUENCY: 320.632
+        OUTCLK_SOURCE: TXOUTCLKPMA
+      RX:
+        LINE_RATE: 10.260224
+        PLL_TYPE: CPLL
+        REFCLK_FREQUENCY: 320.632
+        OUTCLK_SOURCE: RXOUTCLKPMA
+    enable_options: "drpaddr_in drpclk_in drpdi_in drpen_in drpwe_in eyescanreset_in eyescantrigger_in pcsrsvdin_in rxbufreset_in rxcdrhold_in rxdfelpmreset_in rxlpmen_in rxpcsreset_in rxpmareset_in rxprbscntreset_in rxprbssel_in rxrate_in txdiffctrl_in txinhibit_in txpcsreset_in txpmareset_in txpolarity_in txpostcursor_in txprbsforceerr_in txprbssel_in txprecursor_in cplllock_out dmonitorout_out drpdo_out drprdy_out eyescandataerror_out rxprbserr_out rxresetdone_out txbufstatus_out txresetdone_out txoutclksel_in rxoutclksel_in cpllreset_in"
+
+
+
+QUADS:
+  QUAD:
+    GT_TYPE: GTH
+    ID: 131
+    COMMON:
+      TEMPLATE: "TEST_1"
+    CHANNELS:
+      X0Y11:
+        TEMPLATE: "DEBUG_8B10B"
+        CLK_RX: clk0
+        CLK_TX: clk0
+      X0Y10:
+        TEMPLATE: "DEBUG_8B10B"
+        CLK_RX: clk0
+        CLK_TX: clk0
+      X0Y9:
+        TEMPLATE: "DEBUG_8B10B"
+        CLK_RX: clk0
+        CLK_TX: clk0
+      X0Y8:
+        TEMPLATE: "DEBUG_64B66B"
+        CLK_RX: clk0+1
+        CLK_TX: clk1
+
+
