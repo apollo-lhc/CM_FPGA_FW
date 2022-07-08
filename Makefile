@@ -115,7 +115,7 @@ $(foreach config,$(CONFIGS),$(eval $(call CONFIGS_autoclean_template,$(config)))
 open_project : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado top.xpr -source ../build-scripts/OpenProject.tcl
+	vivado top.xpr -source ../build-scripts/OpenProject.tcl -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH}
 open_synth :
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
@@ -163,7 +163,7 @@ SVF	:
 #convert all push urls to ssh
 init:
 	git submodule update --init --recursive
-	@git submodule foreach 'git remote -v | grep http |  grep \(push\) | sed -e "i\git remote set-url --push " -e "s/http.*\/\//git\@/" -e "s/\//:/" -e"s/(push)//" | xargs | bash'
+#	@git submodule foreach 'git remote -v | grep http |  grep \(push\) | sed -e "i\git remote set-url --push " -e "s/http.*\/\//git\@/" -e "s/\//:/" -e"s/(push)//" | xargs | bash'
 
 
 
