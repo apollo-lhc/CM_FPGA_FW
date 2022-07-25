@@ -7,7 +7,7 @@ AXI_CONTROL_SETS:
 
 
 AXI_SLAVES:
-  V_IO:
+  F1_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -34,7 +34,7 @@ AXI_SLAVES:
       - "address_table/modules/VIRTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
-  V_CM_FW_INFO:
+  F1_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -64,7 +64,7 @@ AXI_SLAVES:
       - "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
 
-  V_C2C_INTF:
+  F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -90,7 +90,7 @@ AXI_SLAVES:
           addr:
             offset: "0xB1008000"
             range:  "4K"
-          irq_port: "V_C2CB/axi_c2c_s2m_intr_in"
+          irq_port: "F1_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXI_MASTER_CTRL}"
           manual_load_dtsi: "1"
