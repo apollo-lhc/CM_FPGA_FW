@@ -1,9 +1,6 @@
 #this has to be called from inside an open session
 source ${apollo_root_path}/configs/${build_name}/settings.tcl
 
-#add the device info for the uC
-#set device-info-file ../scripts/CM_uC_dev_info.csv
-
 set SVF_TARGET [format "svf_top%06u" [expr {round(1000000 *rand())}]]
 
 
@@ -17,8 +14,6 @@ create_hw_target ${SVF_TARGET}
 close_hw_target
 open_hw_target [get_hw_targets -regexp .*/${SVF_TARGET}]
 
-#add the uC to the chain
-#create_hw_device -idcode 4BA00477
 
 #1st in chain, no need to add another FPGA to the chain
 #create_hw_device -part xcku15p-ffva1760-2-e

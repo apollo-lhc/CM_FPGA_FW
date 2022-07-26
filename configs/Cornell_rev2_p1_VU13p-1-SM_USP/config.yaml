@@ -21,7 +21,7 @@ AXI_SLAVES:
     HDL: 
       out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
-  VIRTEX_SYS_MGMT:
+  F1_SYS_MGMT:
     TCL_CALL:
       command: AXI_IP_SYS_MGMT
       enable_i2c_pins: 1
@@ -50,7 +50,7 @@ AXI_SLAVES:
       map_template: "axi_generic/template_map.vhd"
 
 
-  VIRTEX_IPBUS:
+  F1_IPBUS:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"

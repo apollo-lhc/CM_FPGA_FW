@@ -691,7 +691,7 @@ begin
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
 
     
-  V_IO_interface_1: entity work.IO_map
+  F1_IO_interface_1: entity work.IO_map
     generic map(
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F2_IO)
       )
@@ -713,7 +713,7 @@ begin
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
 
-  CM_V_info_1: entity work.CM_FW_info
+  CM_F1_info_1: entity work.CM_FW_info
     generic map (
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F2_CM_FW_INFO)
       )
