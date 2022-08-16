@@ -1,9 +1,9 @@
 AXI_CONTROL_SETS:
   AXI_MASTER_CTRL:
-      axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
-      axi_clk: "${::AXI_MASTER_CLK}"
-      axi_rstn: "${::AXI_MASTER_RSTN}"
-      axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "${::AXI_MASTER_RSTN}"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 AXI_SLAVES:
   K_IO:
@@ -14,8 +14,7 @@ AXI_SLAVES:
         offset: "0xB1002000"
         range:  "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/CM_IO.xml"
+    XML: "address_table/modules/CM_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: 
       out_name: "IO"
@@ -29,8 +28,7 @@ AXI_SLAVES:
         offset: "0xB1001000"
         range: "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/KINTEX_SYS_MGMT.xml"
+    XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
   K_CM_FW_INFO:
@@ -41,8 +39,7 @@ AXI_SLAVES:
         offset: "0xB1003000"
         range:  "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/FW_INFO.xml"
+    XML: "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
       out_name: "CM_FW_INFO"
@@ -56,12 +53,7 @@ AXI_SLAVES:
         offset: "0xB1004000"
         range:  "8K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/K_TCDS.xml"
-      - "address_table/modules/DRP_USP_GTH.xml"
-      - "address_table/modules/MGT_Status.xml"
-      - "address_table/modules/MGT_DEBUG_USP.xml"
-      - "address_table/modules/CM_C2C_CNT.xml"
+    XML: "address_table/modules/K_TCDS.xml"
     UHAL_BASE: 0x88000000
     HDL:
       out_name: "TCDS"
@@ -77,8 +69,7 @@ AXI_SLAVES:
         range:  "16M"
       data_width: "64"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/IPBUS.xml"
+    XML: "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
 
   K_C2C_INTF:
@@ -89,13 +80,7 @@ AXI_SLAVES:
         offset: "0xB1010000"
         range:  "64K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/C2C_INTFS.xml"
-      - "address_table/modules/C2C_INTF.xml"
-      - "address_table/modules/DRP_USP_GTH.xml"
-      - "address_table/modules/CM_C2C_Status.xml"
-      - "address_table/modules/MGT_DEBUG_USP.xml"
-      - "address_table/modules/CM_C2C_CNT.xml"
+    XML: "address_table/modules/C2C_INTFS.xml"
     UHAL_BASE: 0x86000000
     HDL: 
       out_name: "C2C_INTF"

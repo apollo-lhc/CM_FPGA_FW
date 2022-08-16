@@ -128,7 +128,8 @@ architecture structure of top is
   signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
-  
+  constant one  : std_logic := '1';
+  constant zero : std_logic := '0';
   
 begin  -- architecture structure
 
@@ -530,7 +531,7 @@ begin  -- architecture structure
       dina  => AXI_BRAM_DATA_IN,
       douta => AXI_BRAM_DATA_OUT,
       clkb  => AXI_CLK,
-      enb   => '1',
+      enb   => one,
       web   => (others => BRAM_WRITE),
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
