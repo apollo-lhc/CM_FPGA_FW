@@ -48,15 +48,28 @@ endef
 BIT_BASE=${MAKE_PATH}/bit/top_
 
 #################################################################################
-# preBuild 
+# Paths
 #################################################################################
 SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
-ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
-ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
-SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
-MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
+OS_BUILD_PATH=${MAKE_PATH}/os/
+KERNEL_BUILD_PATH=${MAKE_PATH}/kernel/
+ADDRESS_TABLE_CREATION_PATH=${KERNEL_BUILD_PATH}
 
--include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
+#################################################################################
+# preBuild 
+#################################################################################
+#SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
+#ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
+#ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
+SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
+#MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
+
+MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
+ifneq ("$(wildcard ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk)","")
+  include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
+endif
+
+#-include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
 
 
 
@@ -143,7 +156,9 @@ interactive :
 	vivado -mode tcl
 
 
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
+#$(BIT_BASE)%.bit 	: $(SLAVE_DTSI_PATH)/config_%.yaml
+$(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -174,4 +189,4 @@ make test :
 
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
-	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
+	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../address_tables address_table
