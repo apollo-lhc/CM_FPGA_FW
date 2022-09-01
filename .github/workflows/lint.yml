@@ -2,11 +2,15 @@ name: Format and Commit
 
 on:
   push:
-    branches: [ master develop ]
+    branches:
+      - master
+      - develop
   pull_request:
-    branches: [ master develop ]
+    branches: 
+      - master
+      - develop
   workflow_dispatch:
-    branches: [ master ]
+    branches:
 
 
 jobs:
