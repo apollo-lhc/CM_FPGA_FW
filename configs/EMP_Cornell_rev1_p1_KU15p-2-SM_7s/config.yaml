@@ -1,9 +1,9 @@
 AXI_CONTROL_SETS:
   AXI_MASTER_CTRL:
-      axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
-      axi_clk: "${::AXI_MASTER_CLK}"
-      axi_rstn: "${::AXI_MASTER_RSTN}"
-      axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "${::AXI_MASTER_RSTN}"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 AXI_SLAVES:
   K_C2C_PHY:
@@ -19,8 +19,7 @@ AXI_SLAVES:
         offset: "0x83c44000"
         range:  "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/DRP_USP_GTY.xml"
+    XML: "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0x86000000
 
   KINTEX_SYS_MGMT:
@@ -32,8 +31,7 @@ AXI_SLAVES:
         offset: "0x83c42000"
         range: "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/KINTEX_SYS_MGMT.xml"
+    XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
   K_IO:
@@ -44,8 +42,7 @@ AXI_SLAVES:
         offset: "0x83c40000"
         range:  "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/K_IO.xml"
+    XML: "address_table/modules/K_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: 
       out_dir: "src/CM_IO"    
@@ -59,8 +56,7 @@ AXI_SLAVES:
         offset: "0x83c43000"
         range:  "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/FW_INFO.xml"
+    XML: "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
       out_dir: "src/CM_FW_info"
@@ -76,8 +72,7 @@ AXI_SLAVES:
         range:  "32M"
       remote_slave: "1"
       data_width: "64"
-    XML:
-      - "address_table/modules/IPBUS.xml"
+    XML: "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
 
 
