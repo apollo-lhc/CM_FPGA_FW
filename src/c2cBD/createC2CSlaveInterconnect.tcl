@@ -1,7 +1,8 @@
 source ${apollo_root_path}/bd/axi_helpers.tcl
-source ${apollo_root_path}/bd/Xilinx_AXI_slaves.tcl
-source ${apollo_root_path}/bd/Xilinx_Cores.tcl
-source ${apollo_root_path}/bd/HAL.tcl
+source ${apollo_root_path}/bd/AXI_Cores/Xilinx_AXI_Endpoints.tcl 
+source ${apollo_root_path}/bd/Cores/Xilinx_Cores.tcl
+source ${apollo_root_path}/bd/HAL/HAL.tcl
+source ${apollo_root_path}/bd/utils/add_slaves_from_yaml.tcl
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
@@ -52,27 +53,27 @@ set SYS_RESETER_AXI_RSTN $SYS_RESETER/interconnect_aresetn
 #create the reset to sys reseter and slave interconnect
 connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $SYS_RESETER_AXI_RSTN]
 
-AXI_C2C_MASTER [dict create device_name ${C2C} \
+AXI_IP_C2C [dict create device_name ${C2C} \
+		axi_control [dict create axi_clk $AXI_MASTER_CLK \
+				 axi_rstn $AXI_MASTER_RSTN\
+				 axi_freq $AXI_MASTER_CLK_FREQ] \
+		primary_serdes 1 \
+		init_clk $EXT_CLK \
+		refclk_freq 200 \
+		c2c_master false \
+		speed 5 \
+	       ]
+if { [info exists C2CB] } {
+    AXI_IP_C2C [dict create device_name ${C2CB} \
 		    axi_control [dict create axi_clk $AXI_MASTER_CLK \
 				     axi_rstn $AXI_MASTER_RSTN\
 				     axi_freq $AXI_MASTER_CLK_FREQ] \
-		    primary_serdes 1 \
+		    primary_serdes ${C2C}_PHY \
 		    init_clk $EXT_CLK \
 		    refclk_freq 200 \
 		    c2c_master false \
 		    speed 5 \
 		   ]
-if { [info exists C2CB] } {
-    AXI_C2C_MASTER [dict create device_name ${C2CB} \
-			axi_control [dict create axi_clk $AXI_MASTER_CLK \
-					 axi_rstn $AXI_MASTER_RSTN\
-					 axi_freq $AXI_MASTER_CLK_FREQ] \
-			primary_serdes ${C2C}_PHY \
-			init_clk $EXT_CLK \
-			refclk_freq 200 \
-			c2c_master false \
-			speed 5 \
-		       ]
 }
 
 
