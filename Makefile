@@ -25,7 +25,8 @@ PL_PATH=${MAKE_PATH}/src
 BD_PATH=${MAKE_PATH}/bd
 CORES_PATH=${MAKE_PATH}/cores
 #ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table_%/address_%.xml
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table_%/address_%.xml
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/kernel/address_table_%/address_%.xml
 ################################################################################
 # Configs
 #################################################################################
@@ -48,15 +49,28 @@ endef
 BIT_BASE=${MAKE_PATH}/bit/top_
 
 #################################################################################
-# preBuild 
+# Paths
 #################################################################################
 SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
-ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
-ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
-SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
-MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
+OS_BUILD_PATH=${MAKE_PATH}/os/
+KERNEL_BUILD_PATH=${MAKE_PATH}/kernel/
+ADDRESS_TABLE_CREATION_PATH=${KERNEL_BUILD_PATH}
 
--include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
+#################################################################################
+# preBuild 
+#################################################################################
+#SLAVE_DEF_FILE_BASE=${MAKE_PATH}/${CONFIGS_BASE_PATH}
+#ADDSLAVE_TCL_PATH=${MAKE_PATH}/src/ZynqPS/
+#ADDRESS_TABLE_CREATION_PATH=${MAKE_PATH}/os/
+SLAVE_DTSI_PATH=${MAKE_PATH}/kernel/
+#MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
+
+MAP_TEMPLATE_FILE=${MAKE_PATH}/regmap_helper/templates/axi_generic/template_map.vhd
+ifneq ("$(wildcard ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk)","")
+  include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
+endif
+
+#-include ${BUILD_SCRIPTS_PATH}/mk/preBuild.mk
 
 
 
@@ -115,7 +129,7 @@ $(foreach config,$(CONFIGS),$(eval $(call CONFIGS_autoclean_template,$(config)))
 open_project : 
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
-	vivado top.xpr -source ../build-scripts/OpenProject.tcl -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH}
+	vivado top.xpr -source ../build-scripts/OpenProject.tcl
 open_synth :
 	source $(BUILD_VIVADO_SHELL) &&\
 	cd ${MAKE_PATH}/proj &&\
@@ -143,7 +157,9 @@ interactive :
 	vivado -mode tcl
 
 
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
+#$(BIT_BASE)%.bit 	: $(SLAVE_DTSI_PATH)/config_%.yaml
+$(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
@@ -151,6 +167,8 @@ $(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_T
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
+	@echo 	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
+	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
 	$(MAKE) overlays  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
@@ -160,10 +178,11 @@ SVF	:
 	vivado $(VIVADO_FLAGS) -source ${BUILD_SCRIPTS_PATH}/Generate_svf.tcl $(OUTPUT_MARKUP)
 
 
+
 #convert all push urls to ssh
 init:
 	git submodule update --init --recursive
-#	@git submodule foreach 'git remote -v | grep http |  grep \(push\) | sed -e "i\git remote set-url --push " -e "s/http.*\/\//git\@/" -e "s/\//:/" -e"s/(push)//" | xargs | bash'
+	@git submodule foreach 'git remote -v | grep http |  grep \(push\) | sed -e "i\git remote set-url --push " -e "s/http.*\/\//git\@/" -e "s/\//:/" -e"s/(push)//" | xargs | bash'
 
 
 
@@ -174,4 +193,4 @@ make test :
 
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
-	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../../os/ address_table
+	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../address_tables address_table
