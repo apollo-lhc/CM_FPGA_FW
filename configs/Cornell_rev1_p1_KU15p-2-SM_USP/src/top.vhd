@@ -33,44 +33,16 @@ entity top is
     k_fpga_i2c_sda   : inout std_logic;
 
     --TCDS
-    p_atca_tts_out   : out std_logic;
-    n_atca_tts_out   : out std_logic;
-    p_atca_ttc_in    : in  std_logic;
-    n_atca_ttc_in    : in  std_logic;
+--    p_atca_tts_out   : out std_logic;
+--    n_atca_tts_out   : out std_logic;
+--    p_atca_ttc_in    : in  std_logic;
+--    n_atca_ttc_in    : in  std_logic;
 
     refclk_i_p       : in  std_logic_vector(3 downto 1);
     refclk_i_n       : in  std_logic_vector(3 downto 1);
 
     n_clk1_chan0     : in std_logic;
     p_clk1_chan0     : in std_logic;
---    n_ff1_recv       : in  std_logic_vector(11 downto 0);
---    p_ff1_recv       : in  std_logic_vector(11 downto 0);
---    n_ff1_xmit       : out std_logic_vector(11 downto 0);
---    p_ff1_xmit       : out std_logic_vector(11 downto 0);
---    n_ff2_recv       : in  std_logic_vector(11 downto 0);
---    p_ff2_recv       : in  std_logic_vector(11 downto 0);
---    n_ff2_xmit       : out std_logic_vector(11 downto 0);
---    p_ff2_xmit       : out std_logic_vector(11 downto 0);
---    n_ff3_recv       : in  std_logic_vector(11 downto 0);
---    p_ff3_recv       : in  std_logic_vector(11 downto 0);
---    n_ff3_xmit       : out std_logic_vector(11 downto 0);
---    p_ff3_xmit       : out std_logic_vector(11 downto 0);
---    n_ff7_recv       : in  std_logic_vector(11 downto 0);
---    p_ff7_recv       : in  std_logic_vector(11 downto 0);
---    n_ff7_xmit       : out std_logic_vector(11 downto 0);
---    p_ff7_xmit       : out std_logic_vector(11 downto 0);
---    n_ff4_recv       : in  std_logic_vector(3 downto 0);
---    p_ff4_recv       : in  std_logic_vector(3 downto 0);
---    n_ff4_xmit       : out std_logic_vector(3 downto 0);
---    p_ff4_xmit       : out std_logic_vector(3 downto 0);
---    n_ff5_recv       : in  std_logic_vector(3 downto 0);
---    p_ff5_recv       : in  std_logic_vector(3 downto 0);
---    n_ff5_xmit       : out std_logic_vector(3 downto 0);
---    p_ff5_xmit       : out std_logic_vector(3 downto 0);
---    n_ff6_recv       : in  std_logic_vector(3 downto 0);
---    p_ff6_recv       : in  std_logic_vector(3 downto 0);
---    n_ff6_xmit       : out std_logic_vector(3 downto 0);
---    p_ff6_xmit       : out std_logic_vector(3 downto 0);
 
     
     -- tri-color LED
@@ -128,7 +100,8 @@ architecture structure of top is
   signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
-  
+  constant one  : std_logic := '1';
+  constant zero : std_logic := '0';
   
 begin  -- architecture structure
 
@@ -202,46 +175,6 @@ begin  -- architecture structure
       K_CM_FW_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
       K_CM_FW_INFO_wvalid                 => local_AXI_WriteMOSI(1).data_valid,          
       
---      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
---      QUAD_TEST_arprot                    => local_AXI_ReadMOSI(2).protection_type,      
---      QUAD_TEST_arready                => local_AXI_ReadMISO(2).ready_for_address,    
---      QUAD_TEST_arvalid                => local_AXI_ReadMOSI(2).address_valid,        
---      QUAD_TEST_awaddr                    => local_AXI_WriteMOSI(2).address,             
---      QUAD_TEST_awprot                    => local_AXI_WriteMOSI(2).protection_type,     
---      QUAD_TEST_awready                => local_AXI_WriteMISO(2).ready_for_address,   
---      QUAD_TEST_awvalid                => local_AXI_WriteMOSI(2).address_valid,       
---      QUAD_TEST_bready                 => local_AXI_WriteMOSI(2).ready_for_response,  
---      QUAD_TEST_bresp                     => local_AXI_WriteMISO(2).response,            
---      QUAD_TEST_bvalid                 => local_AXI_WriteMISO(2).response_valid,      
---      QUAD_TEST_rdata                     => local_AXI_ReadMISO(2).data,                 
---      QUAD_TEST_rready                 => local_AXI_ReadMOSI(2).ready_for_data,       
---      QUAD_TEST_rresp                     => local_AXI_ReadMISO(2).response,             
---      QUAD_TEST_rvalid                 => local_AXI_ReadMISO(2).data_valid,           
---      QUAD_TEST_wdata                     => local_AXI_WriteMOSI(2).data,                
---      QUAD_TEST_wready                 => local_AXI_WriteMISO(2).ready_for_data,       
---      QUAD_TEST_wstrb                     => local_AXI_WriteMOSI(2).data_write_strobe,   
---      QUAD_TEST_wvalid                 => local_AXI_WriteMOSI(2).data_valid,          
-
-      --      QUAD_TEST_araddr                    => local_AXI_ReadMOSI(2).address,              
-      K_TCDS_arprot                    => local_AXI_ReadMOSI(3).protection_type,      
-      K_TCDS_arready                => local_AXI_ReadMISO(3).ready_for_address,    
-      K_TCDS_arvalid                => local_AXI_ReadMOSI(3).address_valid,        
-      K_TCDS_awaddr                    => local_AXI_WriteMOSI(3).address,             
-      K_TCDS_awprot                    => local_AXI_WriteMOSI(3).protection_type,     
-      K_TCDS_awready                => local_AXI_WriteMISO(3).ready_for_address,   
-      K_TCDS_awvalid                => local_AXI_WriteMOSI(3).address_valid,       
-      K_TCDS_bready                 => local_AXI_WriteMOSI(3).ready_for_response,  
-      K_TCDS_bresp                     => local_AXI_WriteMISO(3).response,            
-      K_TCDS_bvalid                 => local_AXI_WriteMISO(3).response_valid,      
-      K_TCDS_rdata                     => local_AXI_ReadMISO(3).data,                 
-      K_TCDS_rready                 => local_AXI_ReadMOSI(3).ready_for_data,       
-      K_TCDS_rresp                     => local_AXI_ReadMISO(3).response,             
-      K_TCDS_rvalid                 => local_AXI_ReadMISO(3).data_valid,           
-      K_TCDS_wdata                     => local_AXI_WriteMOSI(3).data,                
-      K_TCDS_wready                 => local_AXI_WriteMISO(3).ready_for_data,       
-      K_TCDS_wstrb                     => local_AXI_WriteMOSI(3).data_write_strobe,   
-      K_TCDS_wvalid                 => local_AXI_WriteMOSI(3).data_valid,          
-
       K_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
       K_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
       K_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
@@ -530,7 +463,7 @@ begin  -- architecture structure
       dina  => AXI_BRAM_DATA_IN,
       douta => AXI_BRAM_DATA_OUT,
       clkb  => AXI_CLK,
-      enb   => '1',
+      enb   => one,
       web   => (others => BRAM_WRITE),
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
@@ -598,23 +531,5 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
-  TCDS_1: entity work.TCDS
-    generic map (
-      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_K_TCDS)
-      )
-    port map (
-      clk_axi      => AXI_CLK,
-      clk_200      => clk_200,
-      reset_axi_n  => AXI_RST_n,
-      readMOSI     => local_AXI_readMOSI(3),
-      readMISO     => local_AXI_readMISO(3),
-      writeMOSI    => local_AXI_writeMOSI(3),
-      writeMISO    => local_AXI_writeMISO(3),
-      refclk1_p    => p_clk1_chan0,--refclk_i_p(3),
-      refclk1_n    => n_clk1_chan0,--refclk_i_n(3),
-      tx_p         => p_atca_tts_out,
-      tx_n         => n_atca_tts_out,
-      rx_p         => p_atca_ttc_in,
-      rx_n         => n_atca_ttc_in);
   
 end architecture structure;

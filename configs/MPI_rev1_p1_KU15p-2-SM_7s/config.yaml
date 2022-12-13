@@ -1,9 +1,9 @@
 AXI_CONTROL_SETS:
   AXI_MASTER_CTRL:
-      axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
-      axi_clk: "${::AXI_MASTER_CLK}"
-      axi_rstn: "${::AXI_MASTER_RSTN}"
-      axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "${::AXI_MASTER_RSTN}"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 
 
@@ -14,10 +14,9 @@ AXI_SLAVES:
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
         offset: "0x81002000"
-        range:  "4K"
+        range: "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/CM_IO.xml"
+    XML: "address_table/modules/CM_IO.xml"
     UHAL_BASE: 0x81000000
     HDL: 
       out_name: "IO"
@@ -31,8 +30,7 @@ AXI_SLAVES:
         offset: "0x81001000"
         range: "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/KINTEX_SYS_MGMT.xml"
+    XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
     UHAL_BASE: 0x80000000
   
   K_CM_FW_INFO:
@@ -41,15 +39,26 @@ AXI_SLAVES:
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
         offset: "0x81003000"
-        range:  "4K"
+        range: "4K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/FW_INFO.xml"
+    XML: "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0x82000000
     HDL: 
       out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
+  KINTEX_BRAM:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT 
+      axi_control: "${::AXI_MASTER_CTRL}"
+      type: "AXI4"
+      addr:
+        offset: "0x80000000"
+        range: "16M"
+      data_width: "64"
+      remote_slave: "1"
+    XML: "address_table/modules/BRAM.xml"
+    UHAL_BASE: 0x85000000    
 
 
   K_C2C_INTF:
@@ -58,15 +67,9 @@ AXI_SLAVES:
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
         offset: "0x81010000"
-        range:  "64K"
+        range: "64K"
       remote_slave: "1"
-    XML:
-      - "address_table/modules/C2C_INTFS.xml"
-      - "address_table/modules/C2C_INTF.xml"
-      - "address_table/modules/DRP_USP_GTH.xml"
-      - "address_table/modules/CM_C2C_Status.xml"
-      - "address_table/modules/MGT_DEBUG_USP.xml"
-      - "address_table/modules/CM_C2C_CNT.xml"
+    XML: "address_table/modules/C2C_INTFS.xml"
     UHAL_BASE: 0x86000000
     HDL: 
       out_name: "C2C_INTF"
@@ -77,7 +80,7 @@ AXI_SLAVES:
           command: "AXI_IP_UART"
           addr:
             offset: "0x81008000"
-            range:  "4K"
+            range: "4K"
           irq_port: "K_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXI_MASTER_CTRL}"
@@ -89,7 +92,7 @@ AXI_SLAVES:
 CORES:
   onboardclk:
     TCL_CALL:
-      command: BuildClockWizard
+      command: IP_CORE_ClockWizard
       in_clk_type: Differential_clock_capable_pin
       in_clk_freq_MHZ: 100
       out_clks:

@@ -1,0 +1,33 @@
+name: Format and Commit
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+  pull_request:
+    branches: 
+      - master
+      - develop
+  workflow_dispatch:
+    branches:
+
+
+jobs:
+  yaml-format:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Code checkout
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: YAML Lint
+      id: yaml-lint
+      uses: ibiqlik/action-yamllint@v3.1.0
+      with:
+        file_or_dir: configs
+    - uses: actions/upload-artifact@v2
+      if: always()
+      with:
+        name: yamllint-logfile
+        path: ${{ steps.yaml-lint.outputs.logfile }}

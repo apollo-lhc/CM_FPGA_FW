@@ -5,69 +5,71 @@ AXI_CONTROL_SETS:
     axi_rstn: "${::AXI_MASTER_RSTN}"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
+
 AXI_SLAVES:
-  K_IO:
+  F2_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81002000"
-        range: "4K"
+        offset: "0xB3002000"
+        range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/CM_IO.xml"
-    UHAL_BASE: 0x81000000
+    UHAL_BASE: 0xc1000000
     HDL: 
       out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
-  KINTEX_SYS_MGMT:
+  F2_SYS_MGMT:
     TCL_CALL:
       command: AXI_IP_SYS_MGMT
       enable_i2c_pins: 1
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81001000"
+        offset: "0xB3001000"
         range: "4K"
       remote_slave: "1"
-    XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
-    UHAL_BASE: 0x80000000
+    XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
+    UHAL_BASE: 0xc0000000
   
-  K_CM_FW_INFO:
+  F2_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81003000"
-        range: "4K"
+        offset: "0xB3003000"
+        range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/FW_INFO.xml"
-    UHAL_BASE: 0x82000000
+    UHAL_BASE: 0xc2000000
     HDL: 
       out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
-  KINTEX_IPBUS:
+
+  F2_IPBUS:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       type: "AXI4"
       addr:
-        offset: "0x80000000"
-        range: "16M"
+        offset: "0xB2000000"
+        range:  "16M"
       data_width: "64"
       remote_slave: "1"
     XML: "address_table/modules/IPBUS.xml"
-    UHAL_BASE: 0x85000000    
+    UHAL_BASE: 0xc5000000    
 
-  K_C2C_INTF:
+  F2_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81010000"
-        range: "64K"
+        offset: "0xB3010000"
+        range:  "64K"
       remote_slave: "1"
     XML: "address_table/modules/C2C_INTFS.xml"
-    UHAL_BASE: 0x86000000
+    UHAL_BASE: 0xc6000000
     HDL: 
       out_name: "C2C_INTF"
       map_template: "axi_generic/template_map_withbram.vhd"
@@ -76,9 +78,9 @@ AXI_SLAVES:
         TCL_CALL:
           command: "AXI_IP_UART"
           addr:
-            offset: "0x81008000"
-            range: "4K"
-          irq_port: "K_C2CB/axi_c2c_s2m_intr_in"
+            offset: "0xB3008000"
+            range:  "4K"
+          irq_port: "F2_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXI_MASTER_CTRL}"
           manual_load_dtsi: "1"
@@ -95,3 +97,5 @@ CORES:
       out_clks:
         1: 200
         2: 50
+
+

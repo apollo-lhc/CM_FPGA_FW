@@ -583,18 +583,21 @@ elsif BRAM_MISO(2).rd_data_valid = '1' then
   end generate BRAM_asyncs;
   
   Ctrl.C2C(1).DRP.clk       <=  BRAM_MOSI(0).clk;
+  Ctrl.C2C(1).DRP.reset       <=  BRAM_MOSI(0).reset;
   Ctrl.C2C(1).DRP.enable    <=  BRAM_MOSI(0).enable;
   Ctrl.C2C(1).DRP.wr_enable <=  BRAM_MOSI(0).wr_enable;
   Ctrl.C2C(1).DRP.address   <=  BRAM_MOSI(0).address(10-1 downto 0);
   Ctrl.C2C(1).DRP.wr_data   <=  BRAM_MOSI(0).wr_data(16-1 downto 0);
 
   Ctrl.C2C(2).DRP.clk       <=  BRAM_MOSI(1).clk;
+  Ctrl.C2C(2).DRP.reset       <=  BRAM_MOSI(1).reset;
   Ctrl.C2C(2).DRP.enable    <=  BRAM_MOSI(1).enable;
   Ctrl.C2C(2).DRP.wr_enable <=  BRAM_MOSI(1).wr_enable;
   Ctrl.C2C(2).DRP.address   <=  BRAM_MOSI(1).address(10-1 downto 0);
   Ctrl.C2C(2).DRP.wr_data   <=  BRAM_MOSI(1).wr_data(16-1 downto 0);
 
   Ctrl.PB.MEM.clk       <=  BRAM_MOSI(2).clk;
+  Ctrl.PB.MEM.reset       <=  BRAM_MOSI(2).reset;
   Ctrl.PB.MEM.enable    <=  BRAM_MOSI(2).enable;
   Ctrl.PB.MEM.wr_enable <=  BRAM_MOSI(2).wr_enable;
   Ctrl.PB.MEM.address   <=  BRAM_MOSI(2).address(11-1 downto 0);

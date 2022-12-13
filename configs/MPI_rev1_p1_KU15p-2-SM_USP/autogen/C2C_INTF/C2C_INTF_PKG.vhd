@@ -7,6 +7,7 @@ use IEEE.std_logic_1164.all;
 package C2C_INTF_CTRL is
   type C2C_INTF_C2C_DRP_MOSI_t is record
     clk       : std_logic;
+    reset     : std_logic;
     enable    : std_logic;
     wr_enable : std_logic;
     address   : std_logic_vector(10-1 downto 0);
@@ -18,6 +19,7 @@ package C2C_INTF_CTRL is
   end record C2C_INTF_C2C_DRP_MISO_t;
   constant Default_C2C_INTF_C2C_DRP_MOSI_t : C2C_INTF_C2C_DRP_MOSI_t := ( 
                                                      clk       => '0',
+                                                     reset     => '0',
                                                      enable    => '0',
                                                      wr_enable => '0',
                                                      address   => (others => '0'),
@@ -199,6 +201,7 @@ package C2C_INTF_CTRL is
                                                                 );
   type C2C_INTF_PB_MEM_MOSI_t is record
     clk       : std_logic;
+    reset     : std_logic;
     enable    : std_logic;
     wr_enable : std_logic;
     address   : std_logic_vector(11-1 downto 0);
@@ -210,6 +213,7 @@ package C2C_INTF_CTRL is
   end record C2C_INTF_PB_MEM_MISO_t;
   constant Default_C2C_INTF_PB_MEM_MOSI_t : C2C_INTF_PB_MEM_MOSI_t := ( 
                                                      clk       => '0',
+                                                     reset     => '0',
                                                      enable    => '0',
                                                      wr_enable => '0',
                                                      address   => (others => '0'),
