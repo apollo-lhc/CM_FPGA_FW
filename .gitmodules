@@ -16,3 +16,6 @@
 [submodule "configs/Cornell_rev1_p1_KU15p-2-ITDTC-SM_USP"]
 	path = configs/Cornell_rev1_p1_KU15p-2-ITDTC-SM_USP
 	url = git@gitlab.com:apollo-lhc/it-dtc/it-dtc-fw.git
+[submodule "configs/IT-DTC_p1_VU13p-1/it-dtc-fw"]
+	path = configs/IT-DTC_p1_VU13p-1/it-dtc-fw
+	url = https://gitlab.com/apollo-lhc/it-dtc/it-dtc-fw.git

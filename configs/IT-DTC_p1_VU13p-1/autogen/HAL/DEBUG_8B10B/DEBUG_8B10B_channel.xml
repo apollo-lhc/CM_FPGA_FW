@@ -1,0 +1,84 @@
+<node id="DEBUG_8B10B_channel">
+  <node id="EYESCANRESET" address="0x00000000" mask="0x00000001" permission="rw" />
+
+  <node id="EYESCANTRIGGER" address="0x00000001" mask="0x00000001" permission="rw" />
+
+  <node id="LOOPBACK" address="0x00000002" mask="0x00000007" permission="rw" />
+
+  <node id="PCSRSVDIN" address="0x00000003" mask="0x0000FFFF" permission="rw" />
+
+  <node id="RXBUFRESET" address="0x00000004" mask="0x00000001" permission="rw" />
+
+  <node id="RXCDRHOLD" address="0x00000005" mask="0x00000001" permission="rw" />
+
+  <node id="RXDFELPMRESET" address="0x00000006" mask="0x00000001" permission="rw" />
+
+  <node id="RXLPMEN" address="0x00000007" mask="0x00000001" permission="rw" />
+
+  <node id="RXMCOMMAALIGNEN" address="0x00000008" mask="0x00000001" permission="rw" />
+
+  <node id="RXPCOMMAALIGNEN" address="0x00000009" mask="0x00000001" permission="rw" />
+
+  <node id="RXPCSRESET" address="0x0000000A" mask="0x00000001" permission="rw" />
+
+  <node id="RXPMARESET" address="0x0000000B" mask="0x00000001" permission="rw" />
+
+  <node id="RXPRBSCNTRESET" address="0x0000000C" mask="0x00000001" permission="rw" />
+
+  <node id="RXPRBSSEL" address="0x0000000D" mask="0x0000000F" permission="rw" />
+
+  <node id="RXRATE" address="0x0000000E" mask="0x00000007" permission="rw" />
+
+  <node id="TXCTRL0" address="0x0000000F" mask="0x0000FFFF" permission="rw" />
+
+  <node id="TXCTRL1" address="0x00000010" mask="0x0000FFFF" permission="rw" />
+
+  <node id="TXDIFFCTRL" address="0x00000011" mask="0x0000001F" permission="rw" />
+
+  <node id="TXINHIBIT" address="0x00000012" mask="0x00000001" permission="rw" />
+
+  <node id="TXPCSRESET" address="0x00000013" mask="0x00000001" permission="rw" />
+
+  <node id="TXPMARESET" address="0x00000014" mask="0x00000001" permission="rw" />
+
+  <node id="TXPOLARITY" address="0x00000015" mask="0x00000001" permission="rw" />
+
+  <node id="TXPOSTCURSOR" address="0x00000016" mask="0x0000001F" permission="rw" />
+
+  <node id="TXPRBSFORCEERR" address="0x00000017" mask="0x00000001" permission="rw" />
+
+  <node id="TXPRBSSEL" address="0x00000018" mask="0x0000000F" permission="rw" />
+
+  <node id="TXPRECURSOR" address="0x00000019" mask="0x0000001F" permission="rw" />
+
+  <node id="TXRX_TYPE" address="0x0000001A" mask="0x0000000F" permission="r" />
+
+  <node id="CPLLLOCK" address="0x0000001B" mask="0x00000001" permission="r" />
+
+  <node id="DMONITOROUT" address="0x0000001C" mask="0x0000FFFF" permission="r" />
+
+  <node id="EYESCANDATAERROR" address="0x0000001D" mask="0x00000001" permission="r" />
+
+  <node id="GTPOWERGOOD" address="0x0000001E" mask="0x00000001" permission="r" />
+
+  <node id="RXBUFSTATUS" address="0x0000001F" mask="0x00000007" permission="r" />
+
+  <node id="RXBYTEISALIGNED" address="0x00000020" mask="0x00000001" permission="r" />
+
+  <node id="RXBYTEREALIGN" address="0x00000021" mask="0x00000001" permission="r" />
+
+  <node id="RXCTRL2" address="0x00000022" mask="0x000000FF" permission="r" />
+
+  <node id="RXPMARESETDONE" address="0x00000023" mask="0x00000001" permission="r" />
+
+  <node id="RXPRBSERR" address="0x00000024" mask="0x00000001" permission="r" />
+
+  <node id="RXRESETDONE" address="0x00000025" mask="0x00000001" permission="r" />
+
+  <node id="TXBUFSTATUS" address="0x00000026" mask="0x00000003" permission="r" />
+
+  <node id="TXPMARESETDONE" address="0x00000027" mask="0x00000001" permission="r" />
+
+  <node id="TXRESETDONE" address="0x00000028" mask="0x00000001" permission="r" />
+
+</node>
