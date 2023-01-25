@@ -1,0 +1,7 @@
+<node id="TOP">
+  <node id="F1_SYS_MGMT"    address="0x80000000"  fwinfo="uio_endpoint"  module="file://modules_Cornell_rev2_p1_VU13p-1-SM_USP/VIRTEX_SYS_MGMT.xml"                         />
+  <node id="F1_IO"          address="0x81000000"  fwinfo="uio_endpoint"  module="file://modules_Cornell_rev2_p1_VU13p-1-SM_USP/CM_IO.xml"                                   />
+  <node id="F1_CM_FW_INFO"  address="0x82000000"  fwinfo="uio_endpoint"  module="file://modules_Cornell_rev2_p1_VU13p-1-SM_USP/FW_INFO.xml"                                 />
+  <node id="F1_IPBUS"       address="0x85000000"  fwinfo="uio_endpoint"  module="file://modules_Cornell_rev2_p1_VU13p-1-SM_USP/IPBUS.xml"                                   />
+  <node id="F1_C2C_INTF"    address="0x86000000"  fwinfo="uio_endpoint"  module="file://modules_Cornell_rev2_p1_VU13p-1-SM_USP/C2C_INTFS.xml"                               />
+</node>

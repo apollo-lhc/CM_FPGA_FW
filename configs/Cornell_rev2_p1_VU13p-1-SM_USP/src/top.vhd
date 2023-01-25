@@ -21,8 +21,8 @@ entity top is
 
     -- A copy of the RefClk#0 used by the 12-channel FireFlys on the left side of the FPGA.
     --This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x12_r0_clk : in std_logic;
-  --  n_lf_x12_r0_clk : in std_logic;
+    p_lf_x12_r0_clk : in std_logic;  --Alec uncommented
+    n_lf_x12_r0_clk : in std_logic;  --Alec uncommented
     
   --  -- A copy of the RefClk#0 used by the 4-channel FireFlys on the left side of the FPGA.
   --  -- This can be the output of either refclk synthesizer R0A or R0B. 
@@ -703,6 +703,16 @@ begin
       LEDred     => led_f1_red,
       LEDgreen   => led_f1_green,
       LEDblue    => led_f1_blue);
+  
+  diff_clk_pair_to_count_1: entity work.diff_clk_pair_to_count
+    port map (
+      --p_clk   => clk_200,
+      --n_clk   => not_clk_200,
+      clk => clk_200,
+      clk_50 => clk_50,
+      reset   => AXI_RESET,
+      clk_cnt => C2C_Mon.C2C(1).CLK_CNT,
+      test_constant_out => C2C_Mon.C2C(1).TEST_CONST);
 
   rate_counter_1: entity work.rate_counter
     generic map (
