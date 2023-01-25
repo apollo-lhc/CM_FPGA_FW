@@ -21,17 +21,17 @@ AXI_SLAVES:
       remote_slave: "1"
     XML: "address_table/modules/DRP_USP_GTY.xml"
     UHAL_BASE: 0xC6000000
-  VIRTEX_SYS_MGMT:
-    TCL_CALL:
-      command: AXI_IP_SYS_MGMT
-      enable_i2c_pins: 1
-      axi_control: "${::AXI_MASTER_CTRL}"
-      addr:
-        offset: "0x83D42000"
-        range: "4K"
-      remote_slave: "1"
-    XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
-    UHAL_BASE: 0xC0000000
+#  VIRTEX_SYS_MGMT:
+#    TCL_CALL:
+#      command: AXI_IP_SYS_MGMT
+#      enable_i2c_pins: 1
+#      axi_control: "${::AXI_MASTER_CTRL}"
+#      addr:
+#        offset: "0x83D42000"
+#        range: "4K"
+#      remote_slave: "1"
+#    XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
+#    UHAL_BASE: 0xC0000000
   V_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
@@ -40,10 +40,10 @@ AXI_SLAVES:
         offset: "0x83D40000"
         range:  "4K"
       remote_slave: "1"
-    XML: "address_table/modules/V_IO.xml"
+    XML: "address_table/modules/CM_IO.xml"
     UHAL_BASE: 0xC1000000
     HDL: 
-      out_dir: "src/CM_IO"    
+      out_name: "IO"    
       map_template: "axi_generic/template_map_withbram.vhd"
 
   CM_V_INFO:
@@ -57,7 +57,7 @@ AXI_SLAVES:
     XML: "address_table/modules/FW_INFO.xml"
     UHAL_BASE: 0xC2000000
     HDL: 
-      out_dir: "src/CM_FW_info"
+      out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map_withbram.vhd"
 
   VIRTEX_IPBUS:
