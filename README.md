@@ -78,9 +78,10 @@ To Build FPGA FW:
 
 
 ### Dependencies:
-  - Vivado 2018.2 installed in ${BUILD_VIVADO_BASE}
-  - python2
+  - Vivado 2020.2 installed in ${BUILD_VIVADO_BASE}
+  - python3
   - python-yaml
+  - python-lxml
   - python-jinja2
   - uHAL (set CACTUS_ROOT and LD_LIBARARY_PATH accordingly)
   - device tree compiler (rpm name "dtc")

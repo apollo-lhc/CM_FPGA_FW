@@ -1,0 +1,9 @@
+init:
+  - make init
+  - make list 
+  - make prebuild_EMP_Cornell_rev1_p2_VU7p-1-SM_7s
+  - make prebuild_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
+
+
+reset:
+  - git submodule deinit -f .

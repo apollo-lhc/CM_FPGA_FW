@@ -23,8 +23,6 @@ src/C2C_INTF/picoblaze/picoblaze/Reprogram.script
 src/C2C_INTF/picoblaze/picoblaze/Update.script
 src/C2C_INTF/picoblaze/picoblaze/cli.log
 
-#ignore autogen cores
-configs/*/autogen/cores/
 
 #################################################################################
 ## config dirs
@@ -48,3 +46,8 @@ src/fw_version.vhd
 #################################################################################
 doc/*/
 doc/*.pdf
+
+#################################################################################
+## autogen files
+#################################################################################
+configs/*/autogen/*

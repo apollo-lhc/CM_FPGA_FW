@@ -1,0 +1,11 @@
+---
+extends: default
+
+rules: 
+  document-start: false
+  trailing-spaces: false
+  line-length: false
+  empty-lines: false
+  colons:  
+    max-spaces-before: -1
+    max-spaces-after: -1

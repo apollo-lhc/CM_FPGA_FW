@@ -7,12 +7,12 @@ AXI_CONTROL_SETS:
 
 
 AXI_SLAVES:
-  V_IO:
+  F1_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81002000"
+        offset: "0xB1002000"
         range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/CM_IO.xml"
@@ -20,24 +20,26 @@ AXI_SLAVES:
     HDL: 
       out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
-  VIRTEX_SYS_MGMT:
-    TCL_CALL:
-      command: AXI_IP_SYS_MGMT
-      enable_i2c_pins: 1
-      axi_control: "${::AXI_MASTER_CTRL}"
-      addr:
-        offset: "0x81001000"
-        range: "4K"
-      remote_slave: "1"
-    XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
-    UHAL_BASE: 0x80000000
+
+  # KH sep18'22 EMP uses sysmon
+  # F1_SYS_MGMT:
+  #   TCL_CALL:
+  #     command: AXI_IP_SYS_MGMT
+  #     enable_i2c_pins: 1
+  #     axi_control: "${::AXI_MASTER_CTRL}"
+  #     addr:
+  #       offset: "0xB1001000"
+  #       range: "4K"
+  #     remote_slave: "1"
+  #   XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
+  #   UHAL_BASE: 0x80000000
   
-  V_CM_FW_INFO:
+  F1_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81003000"
+        offset: "0xB1003000"
         range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/FW_INFO.xml"
@@ -46,26 +48,25 @@ AXI_SLAVES:
       out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
-
-  VIRTEX_IPBUS:
+  F1_IPBUS:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
       type: "AXI4"
       addr:
-        offset: "0x80000000"
+        offset: "0xB0000000"
         range:  "16M"
       data_width: "64"
       remote_slave: "1"
     XML: "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
 
-  V_C2C_INTF:
+  F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
       addr:
-        offset: "0x81010000"
+        offset: "0xB1010000"
         range:  "64K"
       remote_slave: "1"
     XML: "address_table/modules/C2C_INTFS.xml"
@@ -78,9 +79,9 @@ AXI_SLAVES:
         TCL_CALL:
           command: "AXI_IP_UART"
           addr:
-            offset: "0x81008000"
+            offset: "0xB1008000"
             range:  "4K"
-          irq_port: "V_C2CB/axi_c2c_s2m_intr_in"
+          irq_port: "F1_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXI_MASTER_CTRL}"
           manual_load_dtsi: "1"
