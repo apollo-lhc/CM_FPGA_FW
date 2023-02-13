@@ -285,10 +285,10 @@ set_property PACKAGE_PIN	BH12 [get_ports {n_mgt_f_to_sm[1]} ]
 #set_property PACKAGE_PIN	AY40 [get_ports	n_lf_r0_ad]
 #set_property PACKAGE_PIN	AW41 [get_ports	p_lf_r1_ad]
 #set_property PACKAGE_PIN	AW42 [get_ports	n_lf_r1_ad]
-set_property PACKAGE_PIN	AY39 [get_ports	{HAL_refclks[refclk_122_clk0_P]} ]
-set_property PACKAGE_PIN	AY40 [get_ports	{HAL_refclks[refclk_122_clk0_N]} ]
-set_property PACKAGE_PIN	AW41 [get_ports	{HAL_refclks[refclk_122_clk1_P]} ]
-set_property PACKAGE_PIN	AW42 [get_ports	{HAL_refclks[refclk_122_clk0_N]} ]
+#set_property PACKAGE_PIN	AY39 [get_ports	{HAL_refclks[refclk_122_clk0_P]} ]
+#set_property PACKAGE_PIN	AY40 [get_ports	{HAL_refclks[refclk_122_clk0_N]} ]
+#set_property PACKAGE_PIN	AW41 [get_ports	{HAL_refclks[refclk_122_clk1_P]} ]
+#set_property PACKAGE_PIN	AW42 [get_ports	{HAL_refclks[refclk_122_clk0_N]} ]
 
 #-----------------------------------------------
 
@@ -300,6 +300,10 @@ set_property PACKAGE_PIN	AW42 [get_ports	{HAL_refclks[refclk_122_clk0_N]} ]
 #set_property PACKAGE_PIN	AM40 [get_ports	n_lf_r0_r]
 #set_property PACKAGE_PIN	AL41 [get_ports	p_lf_r1_r]
 #set_property PACKAGE_PIN	AL42 [get_ports	n_lf_r1_r]
+set_property PACKAGE_PIN	AM39 [get_ports	{HAL_refclks[refclk_126_clk0_P]} ]
+set_property PACKAGE_PIN	AM40 [get_ports	{HAL_refclks[refclk_126_clk0_N]} ]
+set_property PACKAGE_PIN	AL41 [get_ports	{HAL_refclks[refclk_126_clk1_P]} ]
+set_property PACKAGE_PIN	AL42 [get_ports	{HAL_refclks[refclk_126_clk1_N]} ]
 #-----------------------------------------------
 
 #-----------------------------------------------

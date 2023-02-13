@@ -1,6 +1,12 @@
 <node id="DEBUG_8B10B">
 
-  <node id="COMMON_0"   address="0x00000000" fwinfo="type=array" module="file://DEBUG_8B10B/DEBUG_8B10B_common.xml"/>
+  <node id="REFCLK" address="0x00000000">
+
+    <node id="freq_126_clk0"   address="0x00000000" permission="r" mask="0xFFFFFFFF" parameters="Table=CLOCKING;Column=FREQ;Row=126_clk0;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1" />
+
+  </node>
+
+  <node id="COMMON_0"   address="0x00000020" fwinfo="type=array" module="file://DEBUG_8B10B/DEBUG_8B10B_common.xml"/>
 
   <node id="CHANNEL_0"   address="0x00000800" fwinfo="type=array">
     <node id="CONFIG"   address="0x0000" module="file://DEBUG_8B10B/DEBUG_8B10B_channel.xml"/>

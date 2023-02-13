@@ -82,30 +82,32 @@ begin  -- architecture behavioral
       case to_integer(unsigned(localAddress(13 downto 0))) is
 
         when 0 => --0x0
-          localRdData( 0)            <=  reg_data( 0)( 0);                             --
-        when 1 => --0x1
-          localRdData( 0)            <=  reg_data( 1)( 0);                             --
-        when 2 => --0x2
-          localRdData( 0)            <=  reg_data( 2)( 0);                             --
-        when 3 => --0x3
-          localRdData( 0)            <=  reg_data( 3)( 0);                             --
-        when 4 => --0x4
-          localRdData( 0)            <=  reg_data( 4)( 0);                             --
-        when 5 => --0x5
-          localRdData( 0)            <=  reg_data( 5)( 0);                             --
-        when 6 => --0x6
-          localRdData( 0)            <=  reg_data( 6)( 0);                             --
-        when 7 => --0x7
-          localRdData( 0)            <=  reg_data( 7)( 0);                             --
-        when 8 => --0x8
+          localRdData(31 downto  0)  <=  Mon.REFCLK.freq_126_clk0;                     --
+        when 32 => --0x20
+          localRdData( 0)            <=  reg_data(32)( 0);                             --
+        when 33 => --0x21
+          localRdData( 0)            <=  reg_data(33)( 0);                             --
+        when 34 => --0x22
+          localRdData( 0)            <=  reg_data(34)( 0);                             --
+        when 35 => --0x23
+          localRdData( 0)            <=  reg_data(35)( 0);                             --
+        when 36 => --0x24
+          localRdData( 0)            <=  reg_data(36)( 0);                             --
+        when 37 => --0x25
+          localRdData( 0)            <=  reg_data(37)( 0);                             --
+        when 38 => --0x26
+          localRdData( 0)            <=  reg_data(38)( 0);                             --
+        when 39 => --0x27
+          localRdData( 0)            <=  reg_data(39)( 0);                             --
+        when 40 => --0x28
           localRdData( 0)            <=  Mon.COMMON(0).GTWIZ_USERCLK_TX_ACTIVE;        --
-        when 9 => --0x9
+        when 41 => --0x29
           localRdData( 0)            <=  Mon.COMMON(0).GTWIZ_USERCLK_RX_ACTIVE;        --
-        when 10 => --0xa
+        when 42 => --0x2a
           localRdData( 0)            <=  Mon.COMMON(0).GTWIZ_RESET_RX_CDR_STABLE;      --
-        when 11 => --0xb
+        when 43 => --0x2b
           localRdData( 0)            <=  Mon.COMMON(0).GTWIZ_RESET_TX_DONE;            --
-        when 12 => --0xc
+        when 44 => --0x2c
           localRdData( 0)            <=  Mon.COMMON(0).GTWIZ_RESET_RX_DONE;            --
         when 2048 => --0x800
           localRdData( 0)            <=  reg_data(2048)( 0);                           --
@@ -447,14 +449,14 @@ begin  -- architecture behavioral
 
 
   -- Register mapping to ctrl structures
-  Ctrl.COMMON(0).GTWIZ_USERCLK_TX_RESET           <=  reg_data( 0)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_USERCLK_RX_RESET           <=  reg_data( 1)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_RESET_CLK_FREERUN          <=  reg_data( 2)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_RESET_ALL                  <=  reg_data( 3)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_RESET_TX_PLL_AND_DATAPATH  <=  reg_data( 4)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_RESET_TX_DATAPATH          <=  reg_data( 5)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_RESET_RX_PLL_AND_DATAPATH  <=  reg_data( 6)( 0);                 
-  Ctrl.COMMON(0).GTWIZ_RESET_RX_DATAPATH          <=  reg_data( 7)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_USERCLK_TX_RESET           <=  reg_data(32)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_USERCLK_RX_RESET           <=  reg_data(33)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_RESET_CLK_FREERUN          <=  reg_data(34)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_RESET_ALL                  <=  reg_data(35)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_RESET_TX_PLL_AND_DATAPATH  <=  reg_data(36)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_RESET_TX_DATAPATH          <=  reg_data(37)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_RESET_RX_PLL_AND_DATAPATH  <=  reg_data(38)( 0);                 
+  Ctrl.COMMON(0).GTWIZ_RESET_RX_DATAPATH          <=  reg_data(39)( 0);                 
   Ctrl.CHANNEL(0).CONFIG.EYESCANRESET             <=  reg_data(2048)( 0);               
   Ctrl.CHANNEL(0).CONFIG.EYESCANTRIGGER           <=  reg_data(2049)( 0);               
   Ctrl.CHANNEL(0).CONFIG.LOOPBACK                 <=  reg_data(2050)( 2 downto  0);     
@@ -564,14 +566,14 @@ begin  -- architecture behavioral
   reg_writes: process (clk_axi, reset_axi_n) is
   begin  -- process reg_writes
     if reset_axi_n = '0' then                 -- asynchronous reset (active low)
-      reg_data( 0)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_USERCLK_TX_RESET;
-      reg_data( 1)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_USERCLK_RX_RESET;
-      reg_data( 2)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_CLK_FREERUN;
-      reg_data( 3)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_ALL;
-      reg_data( 4)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_TX_PLL_AND_DATAPATH;
-      reg_data( 5)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_TX_DATAPATH;
-      reg_data( 6)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_RX_PLL_AND_DATAPATH;
-      reg_data( 7)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_RX_DATAPATH;
+      reg_data(32)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_USERCLK_TX_RESET;
+      reg_data(33)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_USERCLK_RX_RESET;
+      reg_data(34)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_CLK_FREERUN;
+      reg_data(35)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_ALL;
+      reg_data(36)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_TX_PLL_AND_DATAPATH;
+      reg_data(37)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_TX_DATAPATH;
+      reg_data(38)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_RX_PLL_AND_DATAPATH;
+      reg_data(39)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.COMMON(0).GTWIZ_RESET_RX_DATAPATH;
       reg_data(2048)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.CHANNEL(0).CONFIG.EYESCANRESET;
       reg_data(2049)( 0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.CHANNEL(0).CONFIG.EYESCANTRIGGER;
       reg_data(2050)( 2 downto  0)  <= DEFAULT_DEBUG_8B10B_CTRL_t.CHANNEL(0).CONFIG.LOOPBACK;
@@ -683,22 +685,22 @@ begin  -- architecture behavioral
       
       if localWrEn = '1' then
         case to_integer(unsigned(localAddress(13 downto 0))) is
-        when 0 => --0x0
-          reg_data( 0)( 0)              <=  localWrData( 0);                --
-        when 1 => --0x1
-          reg_data( 1)( 0)              <=  localWrData( 0);                --
-        when 2 => --0x2
-          reg_data( 2)( 0)              <=  localWrData( 0);                --
-        when 3 => --0x3
-          reg_data( 3)( 0)              <=  localWrData( 0);                --
-        when 4 => --0x4
-          reg_data( 4)( 0)              <=  localWrData( 0);                --
-        when 5 => --0x5
-          reg_data( 5)( 0)              <=  localWrData( 0);                --
-        when 6 => --0x6
-          reg_data( 6)( 0)              <=  localWrData( 0);                --
-        when 7 => --0x7
-          reg_data( 7)( 0)              <=  localWrData( 0);                --
+        when 32 => --0x20
+          reg_data(32)( 0)              <=  localWrData( 0);                --
+        when 33 => --0x21
+          reg_data(33)( 0)              <=  localWrData( 0);                --
+        when 34 => --0x22
+          reg_data(34)( 0)              <=  localWrData( 0);                --
+        when 35 => --0x23
+          reg_data(35)( 0)              <=  localWrData( 0);                --
+        when 36 => --0x24
+          reg_data(36)( 0)              <=  localWrData( 0);                --
+        when 37 => --0x25
+          reg_data(37)( 0)              <=  localWrData( 0);                --
+        when 38 => --0x26
+          reg_data(38)( 0)              <=  localWrData( 0);                --
+        when 39 => --0x27
+          reg_data(39)( 0)              <=  localWrData( 0);                --
         when 2048 => --0x800
           reg_data(2048)( 0)            <=  localWrData( 0);                --
         when 2049 => --0x801

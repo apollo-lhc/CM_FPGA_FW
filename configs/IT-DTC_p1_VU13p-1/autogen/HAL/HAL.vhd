@@ -31,9 +31,11 @@ end entity HAL;
 
 
 architecture behavioral of HAL is
-  signal                          refclk_122_clk1 : std_logic;
-  signal                        refclk_122_clk1_2 : std_logic;
+  signal                          refclk_126_clk0 : std_logic;
+  signal                        refclk_126_clk0_2 : std_logic;
+  signal                    buf_refclk_126_clk0_2 : std_logic;
 
+  signal                            freq_126_clk0 : std_logic_vector(31 downto 0);
   signal                 DEBUG_8B10B_common_input : DEBUG_8B10B_common_input_array_t(4-1 downto 0);
   signal                DEBUG_8B10B_common_output : DEBUG_8B10B_common_output_array_t(4-1 downto 0);
   signal                 DEBUG_8B10B_clocks_input : DEBUG_8B10B_clocks_input_array_t(4-1 downto 0);
@@ -46,17 +48,17 @@ architecture behavioral of HAL is
   signal                         Ctrl_DEBUG_8B10B : DEBUG_8B10B_Ctrl_t;
   signal                          Mon_DEBUG_8B10B : DEBUG_8B10B_Mon_t;
 begin
-  ibufds_122_clk1 : ibufds_gte4
+  ibufds_126_clk0 : ibufds_gte4
     generic map (
       REFCLK_EN_TX_PATH  => '0',
       REFCLK_HROW_CK_SEL => "00",
       REFCLK_ICNTL_RX    => "00")
     port map (
-      O     => refclk_122_clk1,
-      ODIV2 => refclk_122_clk1_2,
+      O     => refclk_126_clk0,
+      ODIV2 => refclk_126_clk0_2,
       CEB   => '0',
-      I     => HAL_refclks.refclk_122_clk1_P,
-      IB    => HAL_refclks.refclk_122_clk1_N
+      I     => HAL_refclks.refclk_126_clk0_P,
+      IB    => HAL_refclks.refclk_126_clk0_N
       );
       
 
@@ -75,12 +77,32 @@ DEBUG_8B10B_map_1: entity work.DEBUG_8B10B_map
     slave_writeMISO => writeMISO(0),
     Mon             => Mon_DEBUG_8B10B,
     Ctrl            => Ctrl_DEBUG_8B10B);
-  QUAD_GTH_122_DEBUG_8B10B_inst : entity work.QUAD_GTH_122_DEBUG_8B10B_wrapper
+  BUFG_GT_inst_126_clk0 : BUFG_GT
+  port map (
+  	      O => buf_refclk_126_clk0_2,
+  	      CE => '1',
+  	      CEMASK => '1',
+  	      CLR => '0',
+  	      CLRMASK => '1', 
+  	      DIV => "000",
+  	      I => refclk_126_clk0_2
+        );
+    rate_counter_126_clk0: entity work.rate_counter
+      generic map (
+        CLK_A_1_SECOND => 50000000)
+      port map (
+        clk_A         => clk_axi,
+        clk_B         => buf_refclk_126_clk0_2,
+        reset_A_async => not reset_axi_n,
+        event_b       => '1',
+        rate          => freq_126_clk0);            
+    Mon_DEBUG_8B10B.REFCLK.freq_126_clk0 <= freq_126_clk0;
+  QUAD_GTH_126_DEBUG_8B10B_inst : entity work.QUAD_GTH_126_DEBUG_8B10B_wrapper
     port map (
-                                            gtyrxn => HAL_serdes_input.QUAD_GTH_122_DEBUG_8B10B_gtyrxn,
-                                            gtyrxp => HAL_serdes_input.QUAD_GTH_122_DEBUG_8B10B_gtyrxp,
-                                            gtytxn => HAL_serdes_output.QUAD_GTH_122_DEBUG_8B10B_gtytxn,
-                                            gtytxp => HAL_serdes_output.QUAD_GTH_122_DEBUG_8B10B_gtytxp,
+                                            gtyrxn => HAL_serdes_input.QUAD_GTH_126_DEBUG_8B10B_gtyrxn,
+                                            gtyrxp => HAL_serdes_input.QUAD_GTH_126_DEBUG_8B10B_gtyrxp,
+                                            gtytxn => HAL_serdes_output.QUAD_GTH_126_DEBUG_8B10B_gtytxn,
+                                            gtytxp => HAL_serdes_output.QUAD_GTH_126_DEBUG_8B10B_gtytxp,
                                       common_input => DEBUG_8B10B_common_input(  0),
                                      common_output => DEBUG_8B10B_common_output(  0),
                                     userdata_input => DEBUG_8B10B_userdata_input(  3 downto   0),
@@ -94,7 +116,7 @@ DEBUG_8B10B_map_1: entity work.DEBUG_8B10B_map
     );
 
 
-    DEBUG_8B10B_clocks_input(0).gtrefclk00(0) <= refclk_122_clk1;
+    DEBUG_8B10B_clocks_input(0).gtrefclk00(0) <= refclk_126_clk0;
 
    DEBUG_8B10B_common_input(0).gtwiz_userclk_tx_reset(0)                  <= Ctrl_DEBUG_8B10B.common(0).gtwiz_userclk_tx_reset;
    DEBUG_8B10B_common_input(0).gtwiz_userclk_rx_reset(0)                  <= Ctrl_DEBUG_8B10B.common(0).gtwiz_userclk_rx_reset;

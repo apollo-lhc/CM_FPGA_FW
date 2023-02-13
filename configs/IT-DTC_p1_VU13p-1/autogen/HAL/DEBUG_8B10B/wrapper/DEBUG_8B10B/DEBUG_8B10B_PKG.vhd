@@ -5,6 +5,11 @@ use IEEE.std_logic_1164.all;
 
 
 package DEBUG_8B10B_CTRL is
+  type DEBUG_8B10B_REFCLK_MON_t is record
+    freq_126_clk0              :std_logic_vector(31 downto 0);
+  end record DEBUG_8B10B_REFCLK_MON_t;
+
+
   type DEBUG_8B10B_COMMON_MON_t is record
     GTWIZ_USERCLK_TX_ACTIVE    :std_logic;   
     GTWIZ_USERCLK_RX_ACTIVE    :std_logic;   
@@ -150,6 +155,7 @@ package DEBUG_8B10B_CTRL is
                                                                                DRP => Default_DEBUG_8B10B_CHANNEL_DRP_MOSI_t
                                                                               );
   type DEBUG_8B10B_MON_t is record
+    REFCLK                     :DEBUG_8B10B_REFCLK_MON_t;
     COMMON                     :DEBUG_8B10B_COMMON_MON_t_ARRAY;
     CHANNEL                    :DEBUG_8B10B_CHANNEL_MON_t_ARRAY;
   end record DEBUG_8B10B_MON_t;
