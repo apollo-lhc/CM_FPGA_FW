@@ -72,7 +72,7 @@ architecture structure of sub_module is
   -- kh aug'22
   signal C2C_Mon  : C2C_INTF_MON_t;
   signal C2C_Ctrl : C2C_INTF_Ctrl_t;
-  signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);  
+  signal clk_F2_C2C_PHY_user                  : STD_logic_vector(1 downto 1);  
   signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
