@@ -3,26 +3,24 @@
 
   <node id="GTWIZ_USERCLK_RX_RESET" address="0x00000001" mask="0x00000001" permission="rw" />
 
-  <node id="GTWIZ_RESET_CLK_FREERUN" address="0x00000002" mask="0x00000001" permission="rw" />
+  <node id="GTWIZ_RESET_ALL" address="0x00000002" mask="0x00000001" permission="rw" />
 
-  <node id="GTWIZ_RESET_ALL" address="0x00000003" mask="0x00000001" permission="rw" />
+  <node id="GTWIZ_RESET_TX_PLL_AND_DATAPATH" address="0x00000003" mask="0x00000001" permission="rw" />
 
-  <node id="GTWIZ_RESET_TX_PLL_AND_DATAPATH" address="0x00000004" mask="0x00000001" permission="rw" />
+  <node id="GTWIZ_RESET_TX_DATAPATH" address="0x00000004" mask="0x00000001" permission="rw" />
 
-  <node id="GTWIZ_RESET_TX_DATAPATH" address="0x00000005" mask="0x00000001" permission="rw" />
+  <node id="GTWIZ_RESET_RX_PLL_AND_DATAPATH" address="0x00000005" mask="0x00000001" permission="rw" />
 
-  <node id="GTWIZ_RESET_RX_PLL_AND_DATAPATH" address="0x00000006" mask="0x00000001" permission="rw" />
+  <node id="GTWIZ_RESET_RX_DATAPATH" address="0x00000006" mask="0x00000001" permission="rw" />
 
-  <node id="GTWIZ_RESET_RX_DATAPATH" address="0x00000007" mask="0x00000001" permission="rw" />
+  <node id="GTWIZ_USERCLK_TX_ACTIVE" address="0x00000007" mask="0x00000001" permission="r" />
 
-  <node id="GTWIZ_USERCLK_TX_ACTIVE" address="0x00000008" mask="0x00000001" permission="r" />
+  <node id="GTWIZ_USERCLK_RX_ACTIVE" address="0x00000008" mask="0x00000001" permission="r" />
 
-  <node id="GTWIZ_USERCLK_RX_ACTIVE" address="0x00000009" mask="0x00000001" permission="r" />
+  <node id="GTWIZ_RESET_RX_CDR_STABLE" address="0x00000009" mask="0x00000001" permission="r" />
 
-  <node id="GTWIZ_RESET_RX_CDR_STABLE" address="0x0000000A" mask="0x00000001" permission="r" />
+  <node id="GTWIZ_RESET_TX_DONE" address="0x0000000A" mask="0x00000001" permission="r" />
 
-  <node id="GTWIZ_RESET_TX_DONE" address="0x0000000B" mask="0x00000001" permission="r" />
-
-  <node id="GTWIZ_RESET_RX_DONE" address="0x0000000C" mask="0x00000001" permission="r" />
+  <node id="GTWIZ_RESET_RX_DONE" address="0x0000000B" mask="0x00000001" permission="r" />
 
 </node>

@@ -17,24 +17,22 @@ package DEBUG_8B10B_CTRL is
     GTWIZ_RESET_TX_DONE        :std_logic;   
     GTWIZ_RESET_RX_DONE        :std_logic;   
   end record DEBUG_8B10B_COMMON_MON_t;
-  type DEBUG_8B10B_COMMON_MON_t_ARRAY is array(0 to 0) of DEBUG_8B10B_COMMON_MON_t;
+  type DEBUG_8B10B_COMMON_MON_t_ARRAY is array(0 to 2) of DEBUG_8B10B_COMMON_MON_t;
 
   type DEBUG_8B10B_COMMON_CTRL_t is record
     GTWIZ_USERCLK_TX_RESET     :std_logic;   
     GTWIZ_USERCLK_RX_RESET     :std_logic;   
-    GTWIZ_RESET_CLK_FREERUN    :std_logic;   
     GTWIZ_RESET_ALL            :std_logic;   
     GTWIZ_RESET_TX_PLL_AND_DATAPATH  :std_logic;   
     GTWIZ_RESET_TX_DATAPATH          :std_logic;   
     GTWIZ_RESET_RX_PLL_AND_DATAPATH  :std_logic;   
     GTWIZ_RESET_RX_DATAPATH          :std_logic;   
   end record DEBUG_8B10B_COMMON_CTRL_t;
-  type DEBUG_8B10B_COMMON_CTRL_t_ARRAY is array(0 to 0) of DEBUG_8B10B_COMMON_CTRL_t;
+  type DEBUG_8B10B_COMMON_CTRL_t_ARRAY is array(0 to 2) of DEBUG_8B10B_COMMON_CTRL_t;
 
   constant DEFAULT_DEBUG_8B10B_COMMON_CTRL_t : DEBUG_8B10B_COMMON_CTRL_t := (
                                                                              GTWIZ_USERCLK_TX_RESET => '0',
                                                                              GTWIZ_USERCLK_RX_RESET => '0',
-                                                                             GTWIZ_RESET_CLK_FREERUN => '0',
                                                                              GTWIZ_RESET_ALL => '0',
                                                                              GTWIZ_RESET_TX_PLL_AND_DATAPATH => '0',
                                                                              GTWIZ_RESET_TX_DATAPATH => '0',
@@ -142,13 +140,13 @@ package DEBUG_8B10B_CTRL is
     CONFIG                     :DEBUG_8B10B_CHANNEL_CONFIG_MON_t;
     DRP                        :DEBUG_8B10B_CHANNEL_DRP_MISO_t;  
   end record DEBUG_8B10B_CHANNEL_MON_t;
-  type DEBUG_8B10B_CHANNEL_MON_t_ARRAY is array(0 to 3) of DEBUG_8B10B_CHANNEL_MON_t;
+  type DEBUG_8B10B_CHANNEL_MON_t_ARRAY is array(0 to 11) of DEBUG_8B10B_CHANNEL_MON_t;
 
   type DEBUG_8B10B_CHANNEL_CTRL_t is record
     CONFIG                     :DEBUG_8B10B_CHANNEL_CONFIG_CTRL_t;
     DRP                        :DEBUG_8B10B_CHANNEL_DRP_MOSI_t;   
   end record DEBUG_8B10B_CHANNEL_CTRL_t;
-  type DEBUG_8B10B_CHANNEL_CTRL_t_ARRAY is array(0 to 3) of DEBUG_8B10B_CHANNEL_CTRL_t;
+  type DEBUG_8B10B_CHANNEL_CTRL_t_ARRAY is array(0 to 11) of DEBUG_8B10B_CHANNEL_CTRL_t;
 
   constant DEFAULT_DEBUG_8B10B_CHANNEL_CTRL_t : DEBUG_8B10B_CHANNEL_CTRL_t := (
                                                                                CONFIG => DEFAULT_DEBUG_8B10B_CHANNEL_CONFIG_CTRL_t,

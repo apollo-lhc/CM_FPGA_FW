@@ -10,7 +10,6 @@ package DEBUG_8B10B_PKG is
 type DEBUG_8B10B_common_input_t is record
   GTWIZ_USERCLK_TX_RESET         : std_logic_vector(0 downto 0);
   GTWIZ_USERCLK_RX_RESET         : std_logic_vector(0 downto 0);
-  GTWIZ_RESET_CLK_FREERUN        : std_logic_vector(0 downto 0);
   GTWIZ_RESET_ALL                : std_logic_vector(0 downto 0);
   GTWIZ_RESET_TX_PLL_AND_DATAPATH : std_logic_vector(0 downto 0);
   GTWIZ_RESET_TX_DATAPATH        : std_logic_vector(0 downto 0);
@@ -27,6 +26,7 @@ type DEBUG_8B10B_common_output_t is record
 end record DEBUG_8B10B_common_output_t;
 type DEBUG_8B10B_common_output_array_t is array (integer range <>) of DEBUG_8B10B_common_output_t;
 type DEBUG_8B10B_clocks_input_t is record
+  GTWIZ_RESET_CLK_FREERUN        : std_logic_vector(0 downto 0);
   GTREFCLK00                     : std_logic_vector(0 downto 0);
 end record DEBUG_8B10B_clocks_input_t;
 type DEBUG_8B10B_clocks_input_array_t is array (integer range <>) of DEBUG_8B10B_clocks_input_t;

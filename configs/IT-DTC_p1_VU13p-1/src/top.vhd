@@ -272,7 +272,7 @@ entity top is
 
 
 
-      signal DEBUG_8B10B_userdata_input   : DEBUG_8B10B_userdata_input_array_t( 0 to 3);
+      signal DEBUG_8B10B_userdata_input   : DEBUG_8B10B_userdata_input_array_t( 0 to 11);
       signal DEBUG_8B10B_userdata_output  : DEBUG_8B10B_userdata_output_array_t(0 to DEBUG_8B10B_userdata_input'length-1);
   signal DEBUG_8B10B_clocks_output    : DEBUG_8B10B_clocks_output_array_t(  0 to DEBUG_8B10B_userdata_input'length-1);
   signal DEBUG_8B10B_TX_USRCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);

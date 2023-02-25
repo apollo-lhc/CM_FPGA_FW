@@ -50,7 +50,7 @@ package IO_CTRL is
     RX                         :IO_DEBUG_8B10B_CLK_CHANNEL_RX_MON_t;
     TX                         :IO_DEBUG_8B10B_CLK_CHANNEL_TX_MON_t;
   end record IO_DEBUG_8B10B_CLK_CHANNEL_MON_t;
-  type IO_DEBUG_8B10B_CLK_CHANNEL_MON_t_ARRAY is array(0 to 3) of IO_DEBUG_8B10B_CLK_CHANNEL_MON_t;
+  type IO_DEBUG_8B10B_CLK_CHANNEL_MON_t_ARRAY is array(0 to 11) of IO_DEBUG_8B10B_CLK_CHANNEL_MON_t;
 
   type IO_DEBUG_8B10B_CLK_MON_t is record
     CHANNEL                    :IO_DEBUG_8B10B_CLK_CHANNEL_MON_t_ARRAY;
@@ -91,13 +91,13 @@ package IO_CTRL is
   type IO_DEBUG_8B10B_CHANNEL_MON_t is record
     RX                         :IO_DEBUG_8B10B_CHANNEL_RX_MON_t;
   end record IO_DEBUG_8B10B_CHANNEL_MON_t;
-  type IO_DEBUG_8B10B_CHANNEL_MON_t_ARRAY is array(0 to 3) of IO_DEBUG_8B10B_CHANNEL_MON_t;
+  type IO_DEBUG_8B10B_CHANNEL_MON_t_ARRAY is array(0 to 11) of IO_DEBUG_8B10B_CHANNEL_MON_t;
 
   type IO_DEBUG_8B10B_CHANNEL_CTRL_t is record
     RX                         :IO_DEBUG_8B10B_CHANNEL_RX_CTRL_t;
     TX                         :IO_DEBUG_8B10B_CHANNEL_TX_CTRL_t;
   end record IO_DEBUG_8B10B_CHANNEL_CTRL_t;
-  type IO_DEBUG_8B10B_CHANNEL_CTRL_t_ARRAY is array(0 to 3) of IO_DEBUG_8B10B_CHANNEL_CTRL_t;
+  type IO_DEBUG_8B10B_CHANNEL_CTRL_t_ARRAY is array(0 to 11) of IO_DEBUG_8B10B_CHANNEL_CTRL_t;
 
   constant DEFAULT_IO_DEBUG_8B10B_CHANNEL_CTRL_t : IO_DEBUG_8B10B_CHANNEL_CTRL_t := (
                                                                                      RX => DEFAULT_IO_DEBUG_8B10B_CHANNEL_RX_CTRL_t,
