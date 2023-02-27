@@ -166,6 +166,8 @@ $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
+	@echo   ${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
+	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
 	$(MAKE) overlays  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
