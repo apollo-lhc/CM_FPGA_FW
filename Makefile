@@ -35,7 +35,7 @@ CONFIGS_BASE_PATH=configs/
 CONFIGS=$(patsubst ${CONFIGS_BASE_PATH}%/,%,$(dir $(wildcard ${CONFIGS_BASE_PATH}*/)))
 
 define CONFIGS_template =
- $(1): clean autogen_clean_$(1)
+ $(1): clean autogen_clean_$(1) clean_overlays
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
 define CONFIGS_autoclean_template =
