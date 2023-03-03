@@ -13,3 +13,9 @@
 	path = build-scripts
 	url = https://gitlab.com/BU-EDF/fw-bits/build-scripts.git
 	branch = develop
+[submodule "config/Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G/FPGA_heater"]
+	path = config/Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G/FPGA_heater
+	url = https://github.com/apollo-lhc/FPGA_heater.git
+[submodule "configs/Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G/FPGA_heater"]
+	path = configs/Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G/FPGA_heater
+	url = https://github.com/apollo-lhc/FPGA_heater.git
