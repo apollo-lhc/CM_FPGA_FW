@@ -5,7 +5,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.AXIRegPkg.all;
 use work.types.all;
-use work.VIRTEX_Ctrl.all;
+use work.HEATER_Ctrl.all;
 entity heater_interface is
   port (
     clk_axi          : in  std_logic;
