@@ -957,7 +957,7 @@ begin
     
 
 
-  TCDS_1: entity work.TCDS
+  heater_control_1: entity work.heater_control
     port map (
       clk_axi              => AXI_CLK,
       clk_200              => clk_200,
@@ -966,8 +966,7 @@ begin
       readMISO             => local_AXI_readMISO(1),
       writeMOSI            => local_AXI_writeMOSI(1),
       writeMISO            => local_AXI_writeMISO(1),
-      heater_output => heater_output,
-      TxRx_clk_sel => '0');
+      heater_output => heater_output);
     
     
  IBERT_L: entity work.ibert_ultrascale_gty_l
