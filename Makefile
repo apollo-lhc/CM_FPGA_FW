@@ -25,7 +25,8 @@ PL_PATH=${MAKE_PATH}/src
 BD_PATH=${MAKE_PATH}/bd
 CORES_PATH=${MAKE_PATH}/cores
 #ADDRESS_TABLE = ${MAKE_PATH}/os/address_table/address_apollo.xml
-$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table_%/address_%.xml
+#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/os/address_table_%/address_%.xml
+$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: ADDRESS_TABLE=${MAKE_PATH}/kernel/address_table_%/address_%.xml
 ################################################################################
 # Configs
 #################################################################################
@@ -34,7 +35,7 @@ CONFIGS_BASE_PATH=configs/
 CONFIGS=$(patsubst ${CONFIGS_BASE_PATH}%/,%,$(dir $(wildcard ${CONFIGS_BASE_PATH}*/)))
 
 define CONFIGS_template =
- $(1): clean autogen_clean_$(1)
+ $(1): clean autogen_clean_$(1) clean_overlays
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
 define CONFIGS_autoclean_template =
@@ -166,6 +167,8 @@ $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
+	@echo   ${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
+	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
 	$(MAKE) overlays  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
