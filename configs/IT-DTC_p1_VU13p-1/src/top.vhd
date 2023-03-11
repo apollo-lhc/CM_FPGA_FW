@@ -20,51 +20,31 @@ entity top is
   port (
     -- clocks
     p_clk_200 : in  std_logic;
-    n_clk_200 : in  std_logic;                -- 200 MHz system clock
-
-    -- A copy of the RefClk#0 used by the 12-channel FireFlys on the left side of the FPGA.
-    --This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x12_r0_clk : in std_logic;
-  --  n_lf_x12_r0_clk : in std_logic;
-    
-  --  -- A copy of the RefClk#0 used by the 4-channel FireFlys on the left side of the FPGA.
-  --  -- This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x4_r0_clk : in std_logic;
-  --  n_lf_x4_r0_clk : in std_logic;
-
-  ---- A copy of the RefClk#0 used by the 12-channel FireFlys on the right side of the FPGA.
-  ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x12_r0_clk : in std_logic;
-  --   n_rt_x12_r0_clk : in std_logic;
-
-  ---- A copy of the RefClk#0 used by the 4-channel FireFlys on the right side of the FPGA.
-  ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x4_r0_clk : in std_logic;
-  --   n_rt_x4_r0_clk : in std_logic;
-
+  n_clk_200 : in  std_logic;                -- 200 MHz system clock
+  
   --'input' "fpga_identity" to differentiate FPGA#1 from FPGA#2.
   -- The signal will be HI in FPGA#1 and LO in FPGA#2.
---   fpga_identity : in std_logic;
+  --   fpga_identity : in std_logic;
   
   -- 'output' "led": 3 bits to light a tri-color LED
   -- These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
   -- so each color for both FPGAs can be driven at the same time
-    led_f1_red : out std_logic;
-    led_f1_green : out std_logic;
-    led_f1_blue : out std_logic;
-    --led_f2_red : out std_logic;
-    --led_f2_green : out std_logic;
-    --led_f2_blue : out std_logic;
-    
+  led_f1_red : out std_logic;
+  led_f1_green : out std_logic;
+  led_f1_blue : out std_logic;
+  --led_f2_red : out std_logic;
+  --led_f2_green : out std_logic;
+  --led_f2_blue : out std_logic;
+  
   -- 'input' "mcu_to_f": 1 bit trom the MCU
   -- 'output' "f_to_mcu": 1 bit to the MCU
   -- There is no currently defined use for these.
-     --mcu_to_f : in std_logic;
-     --f_to_mcu : out std_logic;
+  --mcu_to_f : in std_logic;
+  --f_to_mcu : out std_logic;
 
   -- 'output' "c2c_ok": 1 bit to the MCU
   -- The FPGA should set this output HI when the chip-2-chip link is working.
-     c2c_ok : out std_logic;
+  c2c_ok : out std_logic;
 
   -- If the Zynq on the SM is the TCDS endpoint, then both FPGAs only use port #0 for TCDS
   -- signals and the two FPGAs are programmed identically.
@@ -171,109 +151,109 @@ entity top is
   --output reg hdr7, hdr8, hdr9, hdr10,
   
   -- C2C primary (#1) and secondary (#2) links to the Zynq on the SM
-     p_rt_r0_l : in std_logic;
-     n_rt_r0_l : in std_logic;
-     p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
-     n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
-     p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
-     n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+  p_rt_r0_l : in std_logic;
+  n_rt_r0_l : in std_logic;
+  p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+  n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+  p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+  n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
 
-    HAL_refclks      : in  HAL_refclks_t;
-    HAL_serdes_input : in  HAL_serdes_input_t;
-    HAL_serdes_output : out HAL_serdes_output_t;
-     
- -- Connect FF1, 12 lane, quad AC,AD,AE
- --    p_lt_r0_ad : in std_logic;
- --    n_lt_r0_ad : in std_logic;
- --    n_ff1_recv : in std_logic_vector(11 downto 0);
- --    p_ff1_recv : in std_logic_vector(11 downto 0);
- --    n_ff1_xmit : out std_logic_vector(11 downto 0);
- --    p_ff1_xmit : out std_logic_vector(11 downto 0);      
-
- ---- Connect FF4, 4 lane, quad AF
- --    p_lf_r0_af : in std_logic;
- --    n_lf_r0_af : in std_logic;
- --    n_ff4_recv : in std_logic_vector(3 downto 0);
- --    p_ff4_recv : in std_logic_vector(3 downto 0);
- --    n_ff4_xmit : out std_logic_vector(3 downto 0);
- --    p_ff4_xmit : out std_logic_vector(3 downto 0);  
+  HAL_refclks      : in  HAL_refclks_t;
+  HAL_serdes_input : in  HAL_serdes_input_t;
+  HAL_serdes_output : out HAL_serdes_output_t;
+  
+  -- Connect FF1, 12 lane, quad AC,AD,AE
+  --    p_lt_r0_ad : in std_logic;
+  --    n_lt_r0_ad : in std_logic;
+  --    n_ff1_recv : in std_logic_vector(11 downto 0);
+  --    p_ff1_recv : in std_logic_vector(11 downto 0);
+  --    n_ff1_xmit : out std_logic_vector(11 downto 0);
+  --    p_ff1_xmit : out std_logic_vector(11 downto 0);      
+  
+  ---- Connect FF4, 4 lane, quad AF
+  --    p_lf_r0_af : in std_logic;
+  --    n_lf_r0_af : in std_logic;
+  --    n_ff4_recv : in std_logic_vector(3 downto 0);
+  --    p_ff4_recv : in std_logic_vector(3 downto 0);
+  --    n_ff4_xmit : out std_logic_vector(3 downto 0);
+  --    p_ff4_xmit : out std_logic_vector(3 downto 0);  
    
- -- -- Connect FF4, 4 lane, quad U
- --    p_lf_r0_u : in std_logic;
- --    n_lf_r0_u : in std_logic;
- --    n_ff6_recv : in std_logic_vector(3 downto 0);
- --    p_ff6_recv : in std_logic_vector(3 downto 0);
- --    n_ff6_xmit : out std_logic_vector(3 downto 0);
- --    p_ff6_xmit : out std_logic_vector(3 downto 0);
+  -- -- Connect FF4, 4 lane, quad U
+  --    p_lf_r0_u : in std_logic;
+  --    n_lf_r0_u : in std_logic;
+  --    n_ff6_recv : in std_logic_vector(3 downto 0);
+  --    p_ff6_recv : in std_logic_vector(3 downto 0);
+  --    n_ff6_xmit : out std_logic_vector(3 downto 0);
+  --    p_ff6_xmit : out std_logic_vector(3 downto 0);
 
   -- I2C pins
   -- The "sysmon" port can be accessed before the FPGA is configured.
   -- The "generic" port requires a configured FPGA with an I2C module. The information
   -- that can be accessed on the generic port is user-defined.
-    --i2c_scl_f_generic   : inout std_logic;
-    --i2c_sda_f_generic   : inout std_logic;
-    i2c_scl_f_sysmon    : inout std_logic;
-    i2c_sda_f_sysmon    : inout std_logic
-    );
-  end entity top;
+  --i2c_scl_f_generic   : inout std_logic;
+  --i2c_sda_f_generic   : inout std_logic;
+  i2c_scl_f_sysmon    : inout std_logic;
+  i2c_sda_f_sysmon    : inout std_logic
+  );
+end entity top;
 
-  architecture structure of top is
-      signal clk_200_raw     : std_logic;
-      signal clk_200         : std_logic;
-      signal clk_50          : std_logic;
-      signal reset           : std_logic;
-      signal locked_clk200   : std_logic;
+architecture structure of top is
+  signal clk_200_raw     : std_logic;
+  signal clk_200         : std_logic;
+  signal clk_50          : std_logic;
+  signal reset           : std_logic;
+  signal locked_clk200   : std_logic;
 
-      signal led_blue_local  : slv_8_t;
-      signal led_red_local   : slv_8_t;
-      signal led_green_local : slv_8_t;
+  signal led_blue_local  : slv_8_t;
+  signal led_red_local   : slv_8_t;
+  signal led_green_local : slv_8_t;
 
-      constant localAXISlaves    : integer := 7;
-      signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
-      signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMISO);
-      signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMOSI);
-      signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMISO);
+  constant localAXISlaves    : integer := 7;
+  signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
+  signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMISO);
+  signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMOSI);
+  signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMISO);
 
-      signal AXI_CLK             : std_logic;
-      signal AXI_RST_N           : std_logic;
-      signal AXI_RESET           : std_logic;
+  signal AXI_CLK             : std_logic;
+  signal AXI_RST_N           : std_logic;
+  signal AXI_RESET           : std_logic;
 
-      signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
-      signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
-      signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
-      signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
+  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
-      signal C2C_Mon  : C2C_INTF_MON_t;
-      signal C2C_Ctrl : C2C_INTF_Ctrl_t;
+  signal C2C_Mon  : C2C_INTF_MON_t;
+  signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
-      signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
-      signal BRAM_write : std_logic;
-      signal BRAM_addr  : std_logic_vector(10 downto 0);
-      signal BRAM_WR_data : std_logic_vector(31 downto 0);
-      signal BRAM_RD_data : std_logic_vector(31 downto 0);
+  signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
+  signal BRAM_write : std_logic;
+  signal BRAM_addr  : std_logic_vector(10 downto 0);
+  signal BRAM_WR_data : std_logic_vector(31 downto 0);
+  signal BRAM_RD_data : std_logic_vector(31 downto 0);
 
-      signal bram_rst_a    : std_logic;
-      signal bram_clk_a    : std_logic;
-      signal bram_en_a     : std_logic;
-      signal bram_we_a     : std_logic_vector(7 downto 0);
-      signal bram_addr_a   : std_logic_vector(8 downto 0);
-      signal bram_wrdata_a : std_logic_vector(63 downto 0);
-      signal bram_rddata_a : std_logic_vector(63 downto 0);
+  signal bram_rst_a    : std_logic;
+  signal bram_clk_a    : std_logic;
+  signal bram_en_a     : std_logic;
+  signal bram_we_a     : std_logic_vector(7 downto 0);
+  signal bram_addr_a   : std_logic_vector(8 downto 0);
+  signal bram_wrdata_a : std_logic_vector(63 downto 0);
+  signal bram_rddata_a : std_logic_vector(63 downto 0);
 
 
-      signal AXI_BRAM_EN : std_logic;
-      signal AXI_BRAM_we : std_logic_vector(7 downto 0);
-      signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
-      signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
-      signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
+  signal AXI_BRAM_EN : std_logic;
+  signal AXI_BRAM_we : std_logic_vector(7 downto 0);
+  signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
+  signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
+  signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
-        signal pB_UART_tx : std_logic;
+  signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
 
 
-      signal DEBUG_8B10B_userdata_input   : DEBUG_8B10B_userdata_input_array_t( 0 to 11);
-      signal DEBUG_8B10B_userdata_output  : DEBUG_8B10B_userdata_output_array_t(0 to DEBUG_8B10B_userdata_input'length-1);
+  signal DEBUG_8B10B_userdata_input   : DEBUG_8B10B_userdata_input_array_t( 0 to 11);
+  signal DEBUG_8B10B_userdata_output  : DEBUG_8B10B_userdata_output_array_t(0 to DEBUG_8B10B_userdata_input'length-1);
   signal DEBUG_8B10B_clocks_output    : DEBUG_8B10B_clocks_output_array_t(  0 to DEBUG_8B10B_userdata_input'length-1);
   signal DEBUG_8B10B_TX_USRCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);
   signal DEBUG_8B10B_RX_USRCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);
@@ -287,21 +267,45 @@ entity top is
   signal F1_IO_Mon_DEBUG_8B10B        : IO_DEBUG_8B10B_MON_t;
   signal F1_IO_Ctrl_DEBUG_8B10B       : IO_DEBUG_8B10B_Ctrl_t;
 
-      
+  --TCDS
+  signal clk320      : std_logic;
+  signal clk_320en40 : std_logic;
+  signal clk_40Rec   : std_logic;
+  
 begin        
-    -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
-    Local_Clocking_1: entity work.onboardclk
-        port map (
-            clk_200Mhz => clk_200,
-            clk_50Mhz  => clk_50,
-            reset      => '0',
-            locked     => locked_clk200,
-            clk_in1_p  => p_clk_200,
-            clk_in1_n  => n_clk_200);
-    AXI_CLK <= clk_50;
+  -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
+  Local_Clocking_1: entity work.onboardclk
+    port map (
+      clk_200Mhz => clk_200,
+      clk_50Mhz  => clk_50,
+      reset      => '0',
+      locked     => locked_clk200,
+      clk_in1_p  => p_clk_200,
+      clk_in1_n  => n_clk_200);
+  AXI_CLK <= clk_50;
 
 
- c2csslave_wrapper_1: entity work.c2cslave_wrapper
+  FAKE_TCDS_1: entity work.FAKE_TCDS
+    generic map (
+      FREERUN_FREQ => 50000000)
+    port map (
+      freerun_clk   => AXI_CLK,
+      TCDS_BP_clk_p => p_TCDS_refclk(0),
+      TCDS_BP_clk_n => n_TCDS_refclk(0),
+      clk_320Mhz    => clk_320,
+      clk_320en40   => clk_320en40,
+      clk_40Mhz_FB  => clk_40Rec,
+      freq_320Mhz   => open);
+
+  clk_40Rec_output: obufds
+    port map (
+      i  => CLK_40Rec,
+      o  => p_TCDS_REC_out,
+      ob => n_TCDS_REC_out,
+      );
+
+  
+  c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
       AXI_CLK                               => AXI_CLK,
       AXI_RST_N(0)                          => AXI_RST_N,
@@ -550,9 +554,13 @@ begin
 
       F1_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
       F1_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
-);
+      );
 
-    c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD;
+  c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0) and
+            C2C_Mon.C2C(2).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0);
+            
 
 
   HAL_1: entity work.HAL
@@ -632,7 +640,7 @@ begin
 
   end generate debug_8b10b_clock_mons;
 
-    
+  
   RGB_pwm_1: entity work.RGB_pwm
     generic map (
       CLKFREQ => 200000000,
@@ -702,7 +710,7 @@ begin
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA,
       Ctrl.DEBUG_8B10B        => F1_IO_Ctrl_DEBUG_8B10B
       );
-    
+  
 
   CM_F1_info_1: entity work.CM_FW_info
     generic map (
@@ -799,6 +807,6 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
-    
+  
 end architecture structure;
 
