@@ -706,9 +706,9 @@ begin
 
   rate_counter_1: entity work.rate_counter
     generic map (
-      CLK_A_1_SECOND => 2000000)
+      CLK_A_1_SECOND => 50000000)
     port map (
-      clk_A         => clk_200,
+      clk_A         => clk_50,
       clk_B         => clk_F1_C2C_PHY_user(1),
       reset_A_async => AXI_RESET,
       event_b       => '1',

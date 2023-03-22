@@ -8,7 +8,7 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
-use work.AXISlaveAddrPkg.all;                                                                use work.DEBUG_8B10B_PKG.all;
+use work.AXISlaveAddrPkg.all;                                                                
 
 use work.HAL_PKG.all;
                               
@@ -193,7 +193,15 @@ entity top is
   --i2c_scl_f_generic   : inout std_logic;
   --i2c_sda_f_generic   : inout std_logic;
   i2c_scl_f_sysmon    : inout std_logic;
-  i2c_sda_f_sysmon    : inout std_logic
+  i2c_sda_f_sysmon    : inout std_logic;
+
+  -- TCDS
+  TCDS_BP_clk_p   : in std_logic;
+  TCDS_BP_clk_n   : in std_logic;
+
+  clk_40Mhz_out_p : out std_logic;
+  clk_40Mhz_out_n : out std_logic
+
   );
 end entity top;
 
@@ -208,7 +216,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 7;
+  constant localAXISlaves    : integer := 4;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMOSI);
@@ -252,23 +260,14 @@ architecture structure of top is
 
 
 
-  signal DEBUG_8B10B_userdata_input   : DEBUG_8B10B_userdata_input_array_t( 0 to 11);
-  signal DEBUG_8B10B_userdata_output  : DEBUG_8B10B_userdata_output_array_t(0 to DEBUG_8B10B_userdata_input'length-1);
-  signal DEBUG_8B10B_clocks_output    : DEBUG_8B10B_clocks_output_array_t(  0 to DEBUG_8B10B_userdata_input'length-1);
-  signal DEBUG_8B10B_TX_USRCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);
-  signal DEBUG_8B10B_RX_USRCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);
-  signal DEBUG_8B10B_TX_USRCLK2_FREQ  : slv32_array_t (0 to DEBUG_8B10B_clocks_output'length-1);
-  signal DEBUG_8B10B_RX_USRCLK2_FREQ  : slv32_array_t (0 to DEBUG_8B10B_clocks_output'length-1);
-  signal DEBUG_8B10B_TX_SRCCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);
-  signal DEBUG_8B10B_RX_SRCCLK_FREQ  : slv32_array_t  (0 to DEBUG_8B10B_clocks_output'length-1);
-
+ 
 
   signal F1_IO_Mon_DEBUG_8B10B_CLK    : IO_DEBUG_8B10B_CLK_MON_t;
   signal F1_IO_Mon_DEBUG_8B10B        : IO_DEBUG_8B10B_MON_t;
   signal F1_IO_Ctrl_DEBUG_8B10B       : IO_DEBUG_8B10B_Ctrl_t;
 
   --TCDS
-  signal clk320      : std_logic;
+  signal clk_320      : std_logic;
   signal clk_320en40 : std_logic;
   signal clk_40Rec   : std_logic;
   
@@ -285,25 +284,30 @@ begin
   AXI_CLK <= clk_50;
 
 
-  FAKE_TCDS_1: entity work.FAKE_TCDS
+  
+  itdtc_top_1: entity work.itdtc_top
     generic map (
-      FREERUN_FREQ => 50000000)
+      FREERUN_FREQ => 50000000,
+      AXI_CONNECTION_COUNT => 1)
     port map (
-      freerun_clk   => AXI_CLK,
-      TCDS_BP_clk_p => p_TCDS_refclk(0),
-      TCDS_BP_clk_n => n_TCDS_refclk(0),
-      clk_320Mhz    => clk_320,
-      clk_320en40   => clk_320en40,
-      clk_40Mhz_FB  => clk_40Rec,
-      freq_320Mhz   => open);
-
-  clk_40Rec_output: obufds
-    port map (
-      i  => CLK_40Rec,
-      o  => p_TCDS_REC_out,
-      ob => n_TCDS_REC_out,
+      clk_freerun        => clk_50,
+      clk_freerun_locked => locked_clk200,
+      TCDS_BP_clk_p      => TCDS_BP_clk_p,
+      TCDS_BP_clk_n      => TCDS_BP_clk_n,
+      clk_40Mhz_out_p    => clk_40Mhz_out_p,
+      clk_40Mhz_out_n    => clk_40Mhz_out_n,
+      clk320             => open,
+      clk_320en40        => open,
+      clk_40Rec          => open,
+      HAL_refclks        => HAL_refclks,
+      HAL_serdes_input   => HAL_serdes_input,
+      HAL_serdes_output  => HAL_serdes_output,
+      AXI_ReadMOSI       => local_AXI_ReadMOSI(3),
+      AXI_ReadMISO       => local_AXI_ReadMISO(3),
+      AXI_WriteMOSI      => local_AXI_WriteMOSI(3),
+      AXI_WriteMISO      => local_AXI_WriteMISO(3)
       );
-
+  
   
   c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
@@ -344,25 +348,6 @@ begin
       F1_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
 
 
-      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
-      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
-      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
-      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
-      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
-      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
-      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
-      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
-      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
-      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
-      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
-      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
-      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
-      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
-      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
-      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
-      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
-      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
-      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
 
       
       F1_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
@@ -385,28 +370,49 @@ begin
       F1_CM_FW_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
       F1_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
 
+      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
+      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
+      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
+      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
+      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
+      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
+      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
+      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
+      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
+      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
+      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
+      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
+      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
+      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
+      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
+      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
+      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
+      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
+      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
 
-      DEBUG_8B10B_araddr                   => local_AXI_ReadMOSI(6).address,                
-      DEBUG_8B10B_arprot                   => local_AXI_ReadMOSI(6).protection_type,      
-      DEBUG_8B10B_arready                  => local_AXI_ReadMISO(6).ready_for_address,    
-      DEBUG_8B10B_arvalid                  => local_AXI_ReadMOSI(6).address_valid,        
-      DEBUG_8B10B_awaddr                   => local_AXI_WriteMOSI(6).address,             
-      DEBUG_8B10B_awprot                   => local_AXI_WriteMOSI(6).protection_type,     
-      DEBUG_8B10B_awready                  => local_AXI_WriteMISO(6).ready_for_address,   
-      DEBUG_8B10B_awvalid                  => local_AXI_WriteMOSI(6).address_valid,       
-      DEBUG_8B10B_bready                   => local_AXI_WriteMOSI(6).ready_for_response,  
-      DEBUG_8B10B_bresp                    => local_AXI_WriteMISO(6).response,            
-      DEBUG_8B10B_bvalid                   => local_AXI_WriteMISO(6).response_valid,      
-      DEBUG_8B10B_rdata                    => local_AXI_ReadMISO(6).data,                 
-      DEBUG_8B10B_rready                   => local_AXI_ReadMOSI(6).ready_for_data,       
-      DEBUG_8B10B_rresp                    => local_AXI_ReadMISO(6).response,             
-      DEBUG_8B10B_rvalid                   => local_AXI_ReadMISO(6).data_valid,           
-      DEBUG_8B10B_wdata                    => local_AXI_WriteMOSI(6).data,                
-      DEBUG_8B10B_wready                   => local_AXI_WriteMISO(6).ready_for_data,       
-      DEBUG_8B10B_wstrb                    => local_AXI_WriteMOSI(6).data_write_strobe,   
-      DEBUG_8B10B_wvalid                   => local_AXI_WriteMOSI(6).data_valid,          
+
+      F1_LPGBT_araddr                      => local_AXI_ReadMOSI(3).address,              
+      F1_LPGBT_arprot                      => local_AXI_ReadMOSI(3).protection_type,      
+      F1_LPGBT_arready                     => local_AXI_ReadMISO(3).ready_for_address,    
+      F1_LPGBT_arvalid                     => local_AXI_ReadMOSI(3).address_valid,        
+      F1_LPGBT_awaddr                      => local_AXI_WriteMOSI(3).address,             
+      F1_LPGBT_awprot                      => local_AXI_WriteMOSI(3).protection_type,     
+      F1_LPGBT_awready                     => local_AXI_WriteMISO(3).ready_for_address,   
+      F1_LPGBT_awvalid                     => local_AXI_WriteMOSI(3).address_valid,       
+      F1_LPGBT_bready                      => local_AXI_WriteMOSI(3).ready_for_response,  
+      F1_LPGBT_bresp                       => local_AXI_WriteMISO(3).response,            
+      F1_LPGBT_bvalid                      => local_AXI_WriteMISO(3).response_valid,      
+      F1_LPGBT_rdata                       => local_AXI_ReadMISO(3).data,                 
+      F1_LPGBT_rready                      => local_AXI_ReadMOSI(3).ready_for_data,       
+      F1_LPGBT_rresp                       => local_AXI_ReadMISO(3).response,             
+      F1_LPGBT_rvalid                      => local_AXI_ReadMISO(3).data_valid,           
+      F1_LPGBT_wdata                       => local_AXI_WriteMOSI(3).data,                
+      F1_LPGBT_wready                      => local_AXI_WriteMISO(3).ready_for_data,       
+      F1_LPGBT_wstrb                       => local_AXI_WriteMOSI(3).data_write_strobe,   
+      F1_LPGBT_wvalid                      => local_AXI_WriteMOSI(3).data_valid,
 
 
+ 
       F1_IPBUS_araddr                   => ext_AXI_ReadMOSI.address,              
       F1_IPBUS_arburst                  => ext_AXI_ReadMOSI.burst_type,
       F1_IPBUS_arcache                  => ext_AXI_ReadMOSI.cache_type,
@@ -557,88 +563,10 @@ begin
       );
 
   c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD and
-            C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0) and
+            C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0) and
             C2C_Mon.C2C(2).STATUS.LINK_GOOD and
-            C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0);
+            C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0);
             
-
-
-  HAL_1: entity work.HAL
-    generic map (
-      DEBUG_8B10B_MEMORY_RANGE => to_integer(AXI_RANGE_DEBUG_8B10B)
-      )
-    port map (
-      clk_axi                      => axi_clk,
-      reset_axi_n                  => axi_rst_n,
-      readMOSI                     => local_AXI_readMOSI(6 downto 6),
-      readMISO                     => local_AXI_readMISO(6 downto 6),
-      writeMOSI                    => local_AXI_writeMOSI(6 downto 6),
-      writeMISO                    => local_AXI_writeMISO(6 downto 6),
-      HAL_refclks                  => HAL_refclks,
-      HAL_serdes_input             => HAL_serdes_input, 
-      HAL_serdes_output            => HAL_serdes_output,
-      DEBUG_8B10B_userdata_input   => DEBUG_8B10B_userdata_input,
-      DEBUG_8B10B_userdata_output  => DEBUG_8B10B_userdata_output,
-      DEBUG_8B10B_clocks_output    => DEBUG_8B10B_clocks_output);
-
-
-  debug_8b10b_clock_mons: for iClk in 0 to DEBUG_8B10B_clocks_output'length - 1 generate
-    rate_counter_rx: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 50000000)
-      port map (
-        clk_A         => AXI_CLK,
-        clk_B         => DEBUG_8B10B_clocks_output(iClk).GTWIZ_USERCLK_RX_USRCLK(0),
-        reset_A_async => '0',
-        event_b       => '1',
-        rate          => DEBUG_8B10B_RX_USRCLK_FREQ(iClk));
-    rate_counter_tx: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 50000000)
-      port map (
-        clk_A         => AXI_CLK,
-        clk_B         => DEBUG_8B10B_clocks_output(iClk).GTWIZ_USERCLK_TX_USRCLK(0),
-        reset_A_async => '0',
-        event_b       => '1',
-        rate          => DEBUG_8B10B_TX_USRCLK_FREQ(iClk));
-    rate_counter_rx2: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 50000000)
-      port map (
-        clk_A         => AXI_CLK,
-        clk_B         => DEBUG_8B10B_clocks_output(iClk).GTWIZ_USERCLK_RX_USRCLK2(0),
-        reset_A_async => '0',
-        event_b       => '1',
-        rate          => DEBUG_8B10B_RX_USRCLK2_FREQ(iClk));
-    rate_counter_tx2: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 50000000)
-      port map (
-        clk_A         => AXI_CLK,
-        clk_B         => DEBUG_8B10B_clocks_output(iClk).GTWIZ_USERCLK_TX_USRCLK2(0),
-        reset_A_async => '0',
-        event_b       => '1',
-        rate          => DEBUG_8B10B_TX_USRCLK2_FREQ(iClk));
-    rate_counter_rx_src: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 50000000)
-      port map (
-        clk_A         => AXI_CLK,
-        clk_B         => DEBUG_8B10B_clocks_output(iClk).GTWIZ_USERCLK_RX_SRCCLK(0),
-        reset_A_async => '0',
-        event_b       => '1',
-        rate          => DEBUG_8B10B_RX_SRCCLK_FREQ(iClk));
-    rate_counter_tx_src: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 50000000)
-      port map (
-        clk_A         => AXI_CLK,
-        clk_B         => DEBUG_8B10B_clocks_output(iClk).GTWIZ_USERCLK_TX_SRCCLK(0),
-        reset_A_async => '0',
-        event_b       => '1',
-        rate          => DEBUG_8B10B_TX_SRCCLK_FREQ(iClk));
-
-  end generate debug_8b10b_clock_mons;
 
   
   RGB_pwm_1: entity work.RGB_pwm
@@ -656,35 +584,15 @@ begin
 
   rate_counter_1: entity work.rate_counter
     generic map (
-      CLK_A_1_SECOND => 2000000)
+      CLK_A_1_SECOND => 50000000)
     port map (
-      clk_A         => clk_200,
+      clk_A         => clk_50,
       clk_B         => clk_F1_C2C_PHY_user(1),
       reset_A_async => AXI_RESET,
       event_b       => '1',
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
 
-  F1_IO_assignments: for iChannel in F1_IO_Mon_DEBUG_8B10B.CHANNEL'LOW to F1_IO_Mon_DEBUG_8B10B.CHANNEL'HIGH generate
-    F1_IO_Mon_DEBUG_8B10B.CHANNEL(iChannel).RX.DATA             <=     DEBUG_8B10B_userdata_output(iChannel).GTWIZ_USERDATA_RX;
-    F1_IO_Mon_DEBUG_8B10B.CHANNEL(iChannel).RX.KDATA            <=     DEBUG_8B10B_userdata_output(iChannel).RXCTRL0(3 downto 0);
-    F1_IO_Mon_DEBUG_8B10B.CHANNEL(iChannel).RX.DISP_ERR         <=     DEBUG_8B10B_userdata_output(iChannel).RXCTRL1(3 downto 0);
-    F1_IO_Mon_DEBUG_8B10B.CHANNEL(iChannel).RX.VALID            <= not DEBUG_8B10B_userdata_output(iChannel).RXCTRL1(3 downto 0);
-    F1_IO_Mon_DEBUG_8B10B.CHANNEL(iChannel).RX.COMMA            <= not DEBUG_8B10B_userdata_output(iChannel).RXCOMMADET(0);
-    F1_IO_Mon_DEBUG_8B10B_CLK.CHANNEL(iChannel).RX.USRCLK_FREQ  <= DEBUG_8B10B_RX_USRCLK_FREQ(iChannel);
-    F1_IO_Mon_DEBUG_8B10B_CLK.CHANNEL(iChannel).TX.USRCLK_FREQ  <= DEBUG_8B10B_TX_USRCLK_FREQ(iChannel);
-    F1_IO_Mon_DEBUG_8B10B_CLK.CHANNEL(iChannel).RX.USRCLK2_FREQ <= DEBUG_8B10B_RX_USRCLK2_FREQ(iChannel);
-    F1_IO_Mon_DEBUG_8B10B_CLK.CHANNEL(iChannel).TX.USRCLK2_FREQ <= DEBUG_8B10B_TX_USRCLK2_FREQ(iChannel);
---    F1_IO_Mon_DEBUG_8B10B_CLK.CHANNEL(iChannel).RX.SRCCLK_FREQ  <= DEBUG_8B10B_RX_SRCCLK_FREQ(iChannel);
---    F1_IO_Mon_DEBUG_8B10B_CLK.CHANNEL(iChannel).TX.SRCCLK_FREQ  <= DEBUG_8B10B_TX_SRCCLK_FREQ(iChannel);
-
-    DEBUG_8B10B_userdata_input(iChannel).RX8B10BEN(0)       <= F1_IO_Ctrl_DEBUG_8B10B.CHANNEL(iChannel).RX.ENABLE      ;
-    DEBUG_8B10B_userdata_input(iChannel).RXCOMMADETEN(0)    <= F1_IO_Ctrl_DEBUG_8B10B.CHANNEL(iChannel).RX.EN_COMMA_DET;
-    DEBUG_8B10B_userdata_input(iChannel).TX8B10BEN(0)       <= F1_IO_Ctrl_DEBUG_8B10B.CHANNEL(iChannel).TX.ENABLE      ;
-    DEBUG_8B10B_userdata_input(iChannel).GTWIZ_USERDATA_TX  <= F1_IO_Ctrl_DEBUG_8B10B.CHANNEL(iChannel).TX.DATA        ;
-    DEBUG_8B10B_userdata_input(iChannel).TXCTRL2(3 downto 0)<= F1_IO_Ctrl_DEBUG_8B10B.CHANNEL(iChannel).TX.KDATA       ;
-    
-  end generate F1_IO_assignments;
   F1_IO_interface_1: entity work.IO_map
     generic map(
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F1_IO)
@@ -707,8 +615,7 @@ begin
       Ctrl.BRAM.WRITE         => BRAM_WRITE,
       Ctrl.BRAM.ADDR(10 downto  0) => BRAM_ADDR,
       Ctrl.BRAM.ADDR(14 downto 11) => open,
-      Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA,
-      Ctrl.DEBUG_8B10B        => F1_IO_Ctrl_DEBUG_8B10B
+      Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
   
 
