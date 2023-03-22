@@ -26,18 +26,18 @@ entity top is
     
   --  -- A copy of the RefClk#0 used by the 4-channel FireFlys on the left side of the FPGA.
   --  -- This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x4_r0_clk : in std_logic;
-  --  n_lf_x4_r0_clk : in std_logic;
+    p_lf_x4_r0_clk : in std_logic;  --Alec uncommented
+    n_lf_x4_r0_clk : in std_logic;  --Alec uncommented
 
   ---- A copy of the RefClk#0 used by the 12-channel FireFlys on the right side of the FPGA.
   ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x12_r0_clk : in std_logic;
-  --   n_rt_x12_r0_clk : in std_logic;
+     p_rt_x12_r0_clk : in std_logic;  --Alec uncommented
+     n_rt_x12_r0_clk : in std_logic;  --Alec uncommented
 
   ---- A copy of the RefClk#0 used by the 4-channel FireFlys on the right side of the FPGA.
   ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x4_r0_clk : in std_logic;
-  --   n_rt_x4_r0_clk : in std_logic;
+     p_rt_x4_r0_clk : in std_logic;  --Alec uncommented
+     n_rt_x4_r0_clk : in std_logic;  --Alec uncommented
 
   --'input' "fpga_identity" to differentiate FPGA#1 from FPGA#2.
   -- The signal will be HI in FPGA#1 and LO in FPGA#2.
@@ -237,6 +237,24 @@ entity top is
       signal clk_50          : std_logic;
       signal reset           : std_logic;
       signal locked_clk200   : std_logic;
+      signal locked_clk322   : std_logic;  --Alec added
+      
+      signal lf_x12_r0_clk   : std_logic;  --Alec added
+      signal lf_x4_r0_clk   : std_logic;  --Alec added
+      signal rt_x12_r0_clk   : std_logic;  --Alec added
+      signal rt_x4_r0_clk   : std_logic;  --Alec added
+      
+      signal lf_x12_r0_clk_2   : std_logic;  --Alec added
+      signal lf_x4_r0_clk_2   : std_logic;  --Alec added
+      signal rt_x12_r0_clk_2   : std_logic;  --Alec added
+      signal rt_x4_r0_clk_2   : std_logic;  --Alec added
+      
+      signal buf_lf_x12_r0_clk   : std_logic;  --Alec added
+      signal buf_lf_x4_r0_clk   : std_logic;  --Alec added
+      signal buf_rt_x12_r0_clk   : std_logic;  --Alec added
+      signal buf_rt_x4_r0_clk   : std_logic;  --Alec added
+      
+      signal LED_test : std_logic;  --Alec LED test
 
       signal led_blue_local  : slv_8_t;
       signal led_red_local   : slv_8_t;
@@ -296,9 +314,105 @@ begin
             clk_in1_p  => p_clk_200,
             clk_in1_n  => n_clk_200);
     AXI_CLK <= clk_50;
+    
+    FF_Clocking_1: entity work.ffclk  --Alec added
+        port map (
+            clk_322_265625MHz => buf_lf_x12_r0_clk,
+            reset             => '0',
+            locked            => locked_clk322,
+            clk_in1_p         => p_lf_x12_r0_clk,
+            clk_in1_n         => n_lf_x12_r0_clk);
+    
+    --IBUFDS_GTE4_INST_1 : IBUFDS_GTE4
+        --generic map (
+            --REFCLK_EN_TX_PATH => '0',
+            --REFCLK_HROW_CK_SEL => "00",
+            --REFCLK_ICNTL_RX => "00")
+        --port map (
+            --O => lf_x12_r0_clk,
+            --ODIV2 => lf_x12_r0_clk_2,
+            --CEB => '0',
+            --I => p_lf_x12_r0_clk,
+            --IB => n_lf_x12_r0_clk);
+            
+    IBUFDS_GTE4_INST_2 : IBUFDS_GTE4
+        generic map (
+            REFCLK_EN_TX_PATH => '0',
+            REFCLK_HROW_CK_SEL => "00",
+            REFCLK_ICNTL_RX => "00")
+        port map (
+            O => lf_x4_r0_clk,
+            ODIV2 => lf_x4_r0_clk_2,
+            CEB => '0',
+            I => p_lf_x4_r0_clk,
+            IB => n_lf_x4_r0_clk);
+    
+    IBUFDS_GTE4_INST_3 : IBUFDS_GTE4
+        generic map (
+            REFCLK_EN_TX_PATH => '0',
+            REFCLK_HROW_CK_SEL => "00",
+            REFCLK_ICNTL_RX => "00")
+        port map (
+            O => rt_x12_r0_clk,
+            ODIV2 => rt_x12_r0_clk_2,
+            CEB => '0',
+            I => p_rt_x12_r0_clk,
+            IB => n_rt_x12_r0_clk);
 
--- add differential clock buffers to all the incoming clocks
---wire lf_x12_r0_clk;
+    IBUFDS_GTE4_INST_4 : IBUFDS_GTE4
+        generic map (
+            REFCLK_EN_TX_PATH => '0',
+            REFCLK_HROW_CK_SEL => "00",
+            REFCLK_ICNTL_RX => "00")
+        port map (
+            O => rt_x4_r0_clk,
+            ODIV2 => rt_x4_r0_clk_2,
+            CEB => '0',
+            I => p_rt_x4_r0_clk,
+            IB => n_rt_x4_r0_clk);
+            
+    --BUFG_GT_1 : BUFG_GT
+        --port map (
+            --O => buf_lf_x12_r0_clk,
+            --CE => '1',
+            --CEMASK => '1',
+            --CLR => '0',
+            --CLRMASK => '1',
+            --DIV => "000",
+            --I => lf_x12_r0_clk_2);
+            
+    BUFG_GT_2 : BUFG_GT
+        port map (
+            O => buf_lf_x4_r0_clk,
+            CE => '1',
+            CEMASK => '1',
+            CLR => '0',
+            CLRMASK => '1',
+            DIV => "000",
+            I => lf_x4_r0_clk_2);
+
+    BUFG_GT_3 : BUFG_GT
+        port map (
+            O => buf_rt_x12_r0_clk,
+            CE => '1',
+            CEMASK => '1',
+            CLR => '0',
+            CLRMASK => '1',
+            DIV => "000",
+            I => rt_x12_r0_clk_2);
+
+    BUFG_GT_4 : BUFG_GT
+        port map (
+            O => buf_rt_x4_r0_clk,
+            CE => '1',
+            CEMASK => '1',
+            CLR => '0',
+            CLRMASK => '1',
+            DIV => "000",
+            I => rt_x4_r0_clk_2);
+
+-- add differential clock buffers to all the incoming clocks,  Alec uncommented all of these IBUFDS above
+--wire lf_x12_r0_clk
 --IBUFDS lf_x12_r0_clk_buf(.O(lf_x12_r0_clk), .I(p_lf_x12_r0_clk), .IB(n_lf_x12_r0_clk) );
 --wire lf_x4_r0_clk;
 --IBUFDS lf_x4_r0_clk_buf(.O(lf_x4_r0_clk), .I(p_lf_x4_r0_clk), .IB(n_lf_x4_r0_clk) );
@@ -700,9 +814,10 @@ begin
       redcount   => led_red_local,
       greencount => led_green_local,
       bluecount  => led_blue_local,
-      LEDred     => led_f1_red,
+      --LEDred     => led_f1_red,
+      LEDred     => LED_test,
       LEDgreen   => led_f1_green,
-      LEDblue    => led_f1_blue);
+      LEDblue    => led_f1_blue); --Alec LED test
   
   diff_clk_pair_to_count_1: entity work.diff_clk_pair_to_count
     port map (
@@ -711,8 +826,11 @@ begin
       clk => clk_200,
       clk_50 => clk_50,
       reset   => AXI_RESET,
-      clk_cnt => C2C_Mon.C2C(1).CLK_CNT,
-      test_constant_out => C2C_Mon.C2C(1).TEST_CONST);
+      clk_cnt => C2C_Mon.C2C(1).CLK_CNT
+      --test_constant_out => C2C_Mon.C2C(1).TEST_CONST
+      );
+      
+  C2C_Mon.C2C(1).TEST_CONST <= X"BEEFBEEF";
 
   rate_counter_1: entity work.rate_counter
     generic map (
@@ -720,11 +838,55 @@ begin
     port map (
       clk_A         => clk_200,
       clk_B         => clk_F1_C2C_PHY_user(1),
+      --clk_B         => buf_lf_x12_r0_clk,
       reset_A_async => AXI_RESET,
       event_b       => '1',
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
 
+  rate_counter_2: entity work.rate_counter  --Alec added
+    generic map (
+      CLK_A_1_SECOND => 2000000)
+    port map (
+      clk_A         => clk_200,
+      clk_B         => buf_lf_x12_r0_clk,
+      --clk_B         => clk_F1_C2C_PHY_user(1),
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_Mon.C2C(1).LF_X12_R0_CLK);
+
+  rate_counter_3: entity work.rate_counter  --Alec added
+    generic map (
+      CLK_A_1_SECOND => 2000000)
+    port map (
+      clk_A         => clk_200,
+      clk_B         => buf_lf_x4_r0_clk,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_Mon.C2C(1).LF_X4_R0_CLK);
+
+  rate_counter_4: entity work.rate_counter  --Alec added
+    generic map (
+      CLK_A_1_SECOND => 2000000)
+    port map (
+      clk_A         => clk_200,
+      clk_B         => buf_rt_x12_r0_clk,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_Mon.C2C(1).RT_X12_R0_CLK);
+    
+  rate_counter_5: entity work.rate_counter  --Alec added
+    generic map (
+      CLK_A_1_SECOND => 2000000)
+    port map (
+      clk_A         => clk_200,
+      clk_B         => buf_rt_x4_r0_clk,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_Mon.C2C(1).RT_X4_R0_CLK);
+  
+  --led_f1_red <= buf_rt_x4_r0_clk;  --Alec LED test
+  led_f1_red <= clk_F1_C2C_PHY_user(1);
     
   F1_IO_interface_1: entity work.IO_map
     generic map(
@@ -738,6 +900,7 @@ begin
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
       Mon.CLK_200_LOCKED      => locked_clk200,
+      Mon.CLK_322_LOCKED      => locked_clk322,
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,

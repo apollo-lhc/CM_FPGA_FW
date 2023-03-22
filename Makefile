@@ -5,7 +5,7 @@
 #################################################################################
 VIVADO_FLAGS=-notrace -mode batch
 BUILD_VIVADO_VERSION?=2020.2
-BUILD_VIVADO_BASE?="/work/Xilinx/Vivado"
+BUILD_VIVADO_BASE?="/nfs/opt/Xilinx/Vivado"
 BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 
 
