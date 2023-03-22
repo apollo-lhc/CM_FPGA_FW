@@ -260,18 +260,18 @@ set_property PACKAGE_PIN	BD12 [get_ports	n_rt_r0_l]
 # 'input' "SM_TO_F": links from the Zynq on the SM
 # 'output' "F_TO_SM": links to the Zynq on the SM
 # Quad L (VU13P=220, VU9P=219)
-# Port #0 receive
-set_property PACKAGE_PIN	BG20 [get_ports {p_mgt_sm_to_f[1]} ]
-set_property PACKAGE_PIN	BG19 [get_ports {n_mgt_sm_to_f[1]} ]
-# Port #0 transmit
-set_property PACKAGE_PIN	BH13 [get_ports {p_mgt_f_to_sm[1]} ]
-set_property PACKAGE_PIN	BH12 [get_ports {n_mgt_f_to_sm[1]} ]
 # Port #1 receive
 set_property PACKAGE_PIN	BF18 [get_ports {p_mgt_sm_to_f[2]} ]
 set_property PACKAGE_PIN	BF17 [get_ports {n_mgt_sm_to_f[2]} ]
 # Port #1 transmit
 set_property PACKAGE_PIN	BF13 [get_ports {p_mgt_f_to_sm[2]} ]
 set_property PACKAGE_PIN	BF12 [get_ports {n_mgt_f_to_sm[2]} ]
+# Port #0 receive
+set_property PACKAGE_PIN	BG20 [get_ports {p_mgt_sm_to_f[1]} ]
+set_property PACKAGE_PIN	BG19 [get_ports {n_mgt_sm_to_f[1]} ]
+# Port #0 transmit
+set_property PACKAGE_PIN	BH13 [get_ports {p_mgt_f_to_sm[1]} ]
+set_property PACKAGE_PIN	BH12 [get_ports {n_mgt_f_to_sm[1]} ]
 #-----------------------------------------------
 
 #-----------------------------------------------
