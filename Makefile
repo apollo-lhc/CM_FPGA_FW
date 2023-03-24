@@ -157,8 +157,6 @@ interactive :
 	vivado -mode tcl
 
 
-#$(BIT_BASE)%.bit $(BIT_BASE)%.svf	: $(SLAVE_DTSI_PATH)/config_%.yaml $(ADDRESS_TABLE)
-#$(BIT_BASE)%.bit 	: $(SLAVE_DTSI_PATH)/config_%.yaml
 $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
@@ -167,7 +165,7 @@ $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	cd proj &&\
 	vivado $(VIVADO_FLAGS) -source $(SETUP_BUILD_TCL) -tclargs ${MAKE_PATH} ${BUILD_SCRIPTS_PATH} $(subst .bit,,$(subst ${BIT_BASE},,$@)) $(OUTPUT_MARKUP)
 	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
-	@echo   ${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
+	@echo 	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
 	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
 	$(MAKE) overlays  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
@@ -176,6 +174,7 @@ $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 SVF	:
 	@$(VIVADO_SETUP) &&\
 	vivado $(VIVADO_FLAGS) -source ${BUILD_SCRIPTS_PATH}/Generate_svf.tcl $(OUTPUT_MARKUP)
+
 
 
 #convert all push urls to ssh

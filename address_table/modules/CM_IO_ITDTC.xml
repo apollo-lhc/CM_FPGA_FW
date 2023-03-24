@@ -1,0 +1,68 @@
+<node id="CM_IO">  
+  <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
+  <node id="RGB"  address="0x00000200">
+    <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
+    <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>
+    <node id="B" mask="0xFF0000" permission="rw" parameters="default=0xFF"/>
+  </node>
+  <node id="BRAM"        address="0x00000300">
+    <node id="WRITE"     address="0x0" mask="0x1"        permission="w"  />
+    <node id="ADDR"      address="0x1" mask="0x7FFF"     permission="rw" />
+    <node id="WR_DATA"   address="0x2" mask="0xFFFFFFFF" permission="rw" />
+    <node id="RD_DATA"   address="0x3" mask="0xFFFFFFFF" permission="r" />
+  </node>
+  <node id="DEBUG_8B10B_CLK" address="0x00000400">
+    <node id="CHANNEL_0"  address="0x00" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_1"  address="0x08" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_2"  address="0x10" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_3"  address="0x18" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_4"  address="0x20" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_5"  address="0x28" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_6"  address="0x30" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_7"  address="0x38" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_8"  address="0x40" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_9"  address="0x48" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_10" address="0x50" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <node id="CHANNEL_11" address="0x58" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/>
+    <!-- <node id="CHANNEL_12" address="0x60" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_13" address="0x68" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_14" address="0x70" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_15" address="0x78" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_16" address="0x80" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_17" address="0x88" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_18" address="0x90" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_19" address="0x98" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_20" address="0xA0" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_21" address="0xA8" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_22" address="0xB0" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+    <!-- <node id="CHANNEL_23" address="0xB8" fwinfo="type=array" module="file://DEBUG_8B10B_channel_clk.xml"/> -->
+  </node>
+  <node id="DEBUG_8B10B" address="0x00000800">
+    <node id="CHANNEL_0" address="0x00" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_1" address="0x08" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_2" address="0x10" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_3" address="0x18" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_4" address="0x20" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_5" address="0x28" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_6" address="0x30" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_7" address="0x38" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_8" address="0x40" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_9" address="0x48" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_10" address="0x50" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <node id="CHANNEL_11" address="0x58" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/>
+    <!-- <node id="CHANNEL_12" address="0x60" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_13" address="0x68" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_14" address="0x70" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_15" address="0x78" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_16" address="0x80" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_17" address="0x88" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_18" address="0x90" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_19" address="0x98" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_20" address="0xA0" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_21" address="0xA8" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_22" address="0xB0" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+    <!-- <node id="CHANNEL_23" address="0xB8" fwinfo="type=array" module="file://DEBUG_8B10B_channel.xml"/> -->
+
+
+  </node>
+</node>

@@ -45,6 +45,18 @@ AXI_SLAVES:
       out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
+  KINTEX_BRAM:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT 
+      axi_control: "${::AXI_MASTER_CTRL}"
+      type: "AXI4"
+      addr:
+        offset: "0x80000000"
+        range: "16M"
+      data_width: "64"
+      remote_slave: "1"
+    XML: "address_table/modules/BRAM.xml"
+    UHAL_BASE: 0x85000000    
 
 
   K_C2C_INTF:
@@ -78,7 +90,7 @@ AXI_SLAVES:
 CORES:
   onboardclk:
     TCL_CALL:
-      command: BuildClockWizard
+      command: IP_CORE_ClockWizard
       in_clk_type: Differential_clock_capable_pin
       in_clk_freq_MHZ: 100
       out_clks:

@@ -8,7 +8,10 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
-use work.AXISlaveAddrPkg.all;                                                                                              
+use work.AXISlaveAddrPkg.all;                                                                
+
+use work.HAL_PKG.all;
+                              
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -17,51 +20,31 @@ entity top is
   port (
     -- clocks
     p_clk_200 : in  std_logic;
-    n_clk_200 : in  std_logic;                -- 200 MHz system clock
-
-    -- A copy of the RefClk#0 used by the 12-channel FireFlys on the left side of the FPGA.
-    --This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x12_r0_clk : in std_logic;
-  --  n_lf_x12_r0_clk : in std_logic;
-    
-  --  -- A copy of the RefClk#0 used by the 4-channel FireFlys on the left side of the FPGA.
-  --  -- This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x4_r0_clk : in std_logic;
-  --  n_lf_x4_r0_clk : in std_logic;
-
-  ---- A copy of the RefClk#0 used by the 12-channel FireFlys on the right side of the FPGA.
-  ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x12_r0_clk : in std_logic;
-  --   n_rt_x12_r0_clk : in std_logic;
-
-  ---- A copy of the RefClk#0 used by the 4-channel FireFlys on the right side of the FPGA.
-  ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x4_r0_clk : in std_logic;
-  --   n_rt_x4_r0_clk : in std_logic;
-
+  n_clk_200 : in  std_logic;                -- 200 MHz system clock
+  
   --'input' "fpga_identity" to differentiate FPGA#1 from FPGA#2.
   -- The signal will be HI in FPGA#1 and LO in FPGA#2.
---   fpga_identity : in std_logic;
+  --   fpga_identity : in std_logic;
   
   -- 'output' "led": 3 bits to light a tri-color LED
   -- These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
   -- so each color for both FPGAs can be driven at the same time
-    led_f1_red : out std_logic;
-    led_f1_green : out std_logic;
-    led_f1_blue : out std_logic;
-    --led_f2_red : out std_logic;
-    --led_f2_green : out std_logic;
-    --led_f2_blue : out std_logic;
-    
+  led_f1_red : out std_logic;
+  led_f1_green : out std_logic;
+  led_f1_blue : out std_logic;
+  --led_f2_red : out std_logic;
+  --led_f2_green : out std_logic;
+  --led_f2_blue : out std_logic;
+  
   -- 'input' "mcu_to_f": 1 bit trom the MCU
   -- 'output' "f_to_mcu": 1 bit to the MCU
   -- There is no currently defined use for these.
-     --mcu_to_f : in std_logic;
-     --f_to_mcu : out std_logic;
+  --mcu_to_f : in std_logic;
+  --f_to_mcu : out std_logic;
 
   -- 'output' "c2c_ok": 1 bit to the MCU
   -- The FPGA should set this output HI when the chip-2-chip link is working.
-     c2c_ok : out std_logic;
+  c2c_ok : out std_logic;
 
   -- If the Zynq on the SM is the TCDS endpoint, then both FPGAs only use port #0 for TCDS
   -- signals and the two FPGAs are programmed identically.
@@ -159,22 +142,6 @@ entity top is
   --   p_out_spare : out std_logic_vector(2 downto 0);
   --   n_out_spare : out std_logic_vector(2 downto 0);
   
-  ---- HDMI-style test connector on the front panel
-  ---- 5 differential and 2 single-ended
-  ---- 'test_conn_0' connects to global clock-capable input pins
-  ---- THE DIRECTIONS ARE SET UP FOR TESTING. CHANGE THEM FOR REAL APPLICATIONS.
-  --   p_test_conn_0 : in std_logic;
-  --   n_test_conn_0 : in std_logic;
-  --   p_test_conn_1 : in std_logic;
-  --   n_test_conn_1 : in std_logic;
-  --   p_test_conn_2 : in std_logic;
-  --   n_test_conn_2 : in std_logic;
-  --   p_test_conn_3 : in std_logic;
-  --   n_test_conn_3 : in std_logic;
-  --   p_test_conn_4 : in std_logic;
-  --   n_test_conn_4 : in std_logic;
-  --   test_conn_5   : out std_logic;
-  --   test_conn_6   : out std_logic;
   
   -- Spare pins to 1mm x 1mm headers on the bottom of the board
   -- They could be used in an emergency as I/Os, or for debugging
@@ -184,282 +151,165 @@ entity top is
   --output reg hdr7, hdr8, hdr9, hdr10,
   
   -- C2C primary (#1) and secondary (#2) links to the Zynq on the SM
-     p_rt_r0_l : in std_logic;
-     n_rt_r0_l : in std_logic;
-     p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
-     n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
-     p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
-     n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+  p_rt_r0_l : in std_logic;
+  n_rt_r0_l : in std_logic;
+  p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+  n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+  p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+  n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
 
-     --n_mgt_z2v        : in  std_logic_vector(1 downto 1);
-     --p_mgt_z2v        : in  std_logic_vector(1 downto 1);
-     --n_mgt_v2z        : out std_logic_vector(1 downto 1);
-     --p_mgt_v2z        : out std_logic_vector(1 downto 1);
-     
- -- Connect FF1, 12 lane, quad AC,AD,AE
- --    p_lt_r0_ad : in std_logic;
- --    n_lt_r0_ad : in std_logic;
- --    n_ff1_recv : in std_logic_vector(11 downto 0);
- --    p_ff1_recv : in std_logic_vector(11 downto 0);
- --    n_ff1_xmit : out std_logic_vector(11 downto 0);
- --    p_ff1_xmit : out std_logic_vector(11 downto 0);      
-
- ---- Connect FF4, 4 lane, quad AF
- --    p_lf_r0_af : in std_logic;
- --    n_lf_r0_af : in std_logic;
- --    n_ff4_recv : in std_logic_vector(3 downto 0);
- --    p_ff4_recv : in std_logic_vector(3 downto 0);
- --    n_ff4_xmit : out std_logic_vector(3 downto 0);
- --    p_ff4_xmit : out std_logic_vector(3 downto 0);  
+  HAL_refclks      : in  HAL_refclks_t;
+  HAL_serdes_input : in  HAL_serdes_input_t;
+  HAL_serdes_output : out HAL_serdes_output_t;
+  
+  -- Connect FF1, 12 lane, quad AC,AD,AE
+  --    p_lt_r0_ad : in std_logic;
+  --    n_lt_r0_ad : in std_logic;
+  --    n_ff1_recv : in std_logic_vector(11 downto 0);
+  --    p_ff1_recv : in std_logic_vector(11 downto 0);
+  --    n_ff1_xmit : out std_logic_vector(11 downto 0);
+  --    p_ff1_xmit : out std_logic_vector(11 downto 0);      
+  
+  ---- Connect FF4, 4 lane, quad AF
+  --    p_lf_r0_af : in std_logic;
+  --    n_lf_r0_af : in std_logic;
+  --    n_ff4_recv : in std_logic_vector(3 downto 0);
+  --    p_ff4_recv : in std_logic_vector(3 downto 0);
+  --    n_ff4_xmit : out std_logic_vector(3 downto 0);
+  --    p_ff4_xmit : out std_logic_vector(3 downto 0);  
    
- -- -- Connect FF4, 4 lane, quad U
- --    p_lf_r0_u : in std_logic;
- --    n_lf_r0_u : in std_logic;
- --    n_ff6_recv : in std_logic_vector(3 downto 0);
- --    p_ff6_recv : in std_logic_vector(3 downto 0);
- --    n_ff6_xmit : out std_logic_vector(3 downto 0);
- --    p_ff6_xmit : out std_logic_vector(3 downto 0);
+  -- -- Connect FF4, 4 lane, quad U
+  --    p_lf_r0_u : in std_logic;
+  --    n_lf_r0_u : in std_logic;
+  --    n_ff6_recv : in std_logic_vector(3 downto 0);
+  --    p_ff6_recv : in std_logic_vector(3 downto 0);
+  --    n_ff6_xmit : out std_logic_vector(3 downto 0);
+  --    p_ff6_xmit : out std_logic_vector(3 downto 0);
 
   -- I2C pins
   -- The "sysmon" port can be accessed before the FPGA is configured.
   -- The "generic" port requires a configured FPGA with an I2C module. The information
   -- that can be accessed on the generic port is user-defined.
-    --i2c_scl_f_generic   : inout std_logic;
-    --i2c_sda_f_generic   : inout std_logic;
-    i2c_scl_f_sysmon    : inout std_logic;
-    i2c_sda_f_sysmon    : inout std_logic
-    );
-  end entity top;
+  --i2c_scl_f_generic   : inout std_logic;
+  --i2c_sda_f_generic   : inout std_logic;
+  i2c_scl_f_sysmon    : inout std_logic;
+  i2c_sda_f_sysmon    : inout std_logic;
 
-  architecture structure of top is
-      signal clk_200_raw     : std_logic;
-      signal clk_200         : std_logic;
-      signal clk_50          : std_logic;
-      signal reset           : std_logic;
-      signal locked_clk200   : std_logic;
+  -- TCDS
+  TCDS_BP_clk_p   : in std_logic;
+  TCDS_BP_clk_n   : in std_logic;
 
-      signal led_blue_local  : slv_8_t;
-      signal led_red_local   : slv_8_t;
-      signal led_green_local : slv_8_t;
+  clk_40Mhz_out_p : out std_logic;
+  clk_40Mhz_out_n : out std_logic
 
-      constant localAXISlaves    : integer := 4;
-      signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
-      signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMISO);
-      signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMOSI);
-      signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMISO);
+  );
+end entity top;
 
-      signal AXI_CLK             : std_logic;
-      signal AXI_RST_N           : std_logic;
-      signal AXI_RESET           : std_logic;
+architecture structure of top is
+  signal clk_200_raw     : std_logic;
+  signal clk_200         : std_logic;
+  signal clk_50          : std_logic;
+  signal reset           : std_logic;
+  signal locked_clk200   : std_logic;
 
-      signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
-      signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
-      signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
-      signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
+  signal led_blue_local  : slv_8_t;
+  signal led_red_local   : slv_8_t;
+  signal led_green_local : slv_8_t;
 
-      signal C2C_Mon  : C2C_INTF_MON_t;
-      signal C2C_Ctrl : C2C_INTF_Ctrl_t;
+  constant localAXISlaves    : integer := 4;
+  signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
+  signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMISO);
+  signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMOSI);
+  signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMISO);
 
-      signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
-      signal BRAM_write : std_logic;
-      signal BRAM_addr  : std_logic_vector(10 downto 0);
-      signal BRAM_WR_data : std_logic_vector(31 downto 0);
-      signal BRAM_RD_data : std_logic_vector(31 downto 0);
+  signal AXI_CLK             : std_logic;
+  signal AXI_RST_N           : std_logic;
+  signal AXI_RESET           : std_logic;
 
-      signal bram_rst_a    : std_logic;
-      signal bram_clk_a    : std_logic;
-      signal bram_en_a     : std_logic;
-      signal bram_we_a     : std_logic_vector(7 downto 0);
-      signal bram_addr_a   : std_logic_vector(8 downto 0);
-      signal bram_wrdata_a : std_logic_vector(63 downto 0);
-      signal bram_rddata_a : std_logic_vector(63 downto 0);
+  signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
+  signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
+  signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+  signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
+
+  signal C2C_Mon  : C2C_INTF_MON_t;
+  signal C2C_Ctrl : C2C_INTF_Ctrl_t;
+
+  signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
+  signal BRAM_write : std_logic;
+  signal BRAM_addr  : std_logic_vector(10 downto 0);
+  signal BRAM_WR_data : std_logic_vector(31 downto 0);
+  signal BRAM_RD_data : std_logic_vector(31 downto 0);
+
+  signal bram_rst_a    : std_logic;
+  signal bram_clk_a    : std_logic;
+  signal bram_en_a     : std_logic;
+  signal bram_we_a     : std_logic_vector(7 downto 0);
+  signal bram_addr_a   : std_logic_vector(8 downto 0);
+  signal bram_wrdata_a : std_logic_vector(63 downto 0);
+  signal bram_rddata_a : std_logic_vector(63 downto 0);
 
 
-      signal AXI_BRAM_EN : std_logic;
-      signal AXI_BRAM_we : std_logic_vector(7 downto 0);
-      signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
-      signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
-      signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
+  signal AXI_BRAM_EN : std_logic;
+  signal AXI_BRAM_we : std_logic_vector(7 downto 0);
+  signal AXI_BRAM_addr :std_logic_vector(12 downto 0);
+  signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
+  signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
-        signal pB_UART_tx : std_logic;
+  signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
-      
+
+
+ 
+
+  signal F1_IO_Mon_DEBUG_8B10B_CLK    : IO_DEBUG_8B10B_CLK_MON_t;
+  signal F1_IO_Mon_DEBUG_8B10B        : IO_DEBUG_8B10B_MON_t;
+  signal F1_IO_Ctrl_DEBUG_8B10B       : IO_DEBUG_8B10B_Ctrl_t;
+
+  --TCDS
+  signal clk_320      : std_logic;
+  signal clk_320en40 : std_logic;
+  signal clk_40Rec   : std_logic;
+  
 begin        
-    -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
-    Local_Clocking_1: entity work.onboardclk
-        port map (
-            clk_200Mhz => clk_200,
-            clk_50Mhz  => clk_50,
-            reset      => '0',
-            locked     => locked_clk200,
-            clk_in1_p  => p_clk_200,
-            clk_in1_n  => n_clk_200);
-    AXI_CLK <= clk_50;
+  -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
+  Local_Clocking_1: entity work.onboardclk
+    port map (
+      clk_200Mhz => clk_200,
+      clk_50Mhz  => clk_50,
+      reset      => '0',
+      locked     => locked_clk200,
+      clk_in1_p  => p_clk_200,
+      clk_in1_n  => n_clk_200);
+  AXI_CLK <= clk_50;
 
--- add differential clock buffers to all the incoming clocks
---wire lf_x12_r0_clk;
---IBUFDS lf_x12_r0_clk_buf(.O(lf_x12_r0_clk), .I(p_lf_x12_r0_clk), .IB(n_lf_x12_r0_clk) );
---wire lf_x4_r0_clk;
---IBUFDS lf_x4_r0_clk_buf(.O(lf_x4_r0_clk), .I(p_lf_x4_r0_clk), .IB(n_lf_x4_r0_clk) );
---wire rt_x12_r0_clk;
---IBUFDS rt_x12_r0_clk_buf(.O(rt_x12_r0_clk), .I(p_rt_x12_r0_clk), .IB(n_rt_x12_r0_clk) );
---wire rt_x4_r0_clk;
---IBUFDS rt_x4_r0_clk_buf(.O(rt_x4_r0_clk), .I(p_rt_x4_r0_clk), .IB(n_rt_x4_r0_clk) );
---wire tcds40_clk;           -- 40 MHz LHC clock
---IBUFDS tcds40_clk_buf(.O(tcds40_clk), .I(p_tcds40_clk), .IB(n_tcds40_clk) );
 
--- add differential output buffer to TCDS recovered clock
---wire tcds_recov_clk;
---OBUFDS(.I(tcds_recov_clk), .O(p_tcds_recov_clk), .OB(n_tcds_recov_clk)); 
----- dummy connection to tcds_recov_clk
---assign tcds_recov_clk = tcds40_clk;
-
--- add a free running counter to divide the clock
---reg [27:0] divider;
---always @(posedge clk_200) begin
---  divider[27:0] <= divider[27:0] + 1;
---end
-
---assign led_f1_red = divider[27];
---assign led_f1_green = divider[26];
---assign led_f1_blue = divider[25];
---assign led_f2_red = divider[27];
---assign led_f2_green = divider[26];
---assign led_f2_blue = divider[25];
-
----- create 3 differential buffers for spare inputs 
---genvar chan;
---wire [2:0] in_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_in_spare_buf
---      IBUFDS in_spare_buf(.O(in_spare[chan]), .I(p_in_spare[chan]), .IB(n_in_spare[chan]) );
---  end
---endgenerate
-
----- create 3 differential buffers for spare outputs 
---reg [2:0] out_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_out_spare_buf
---      OBUFDS out_spare_buf(.I(out_spare[chan]), .O(p_out_spare[chan]), .OB(n_out_spare[chan]) );
---  end
---endgenerate
-
--- loop the spare in to the spare out
---always @(posedge clk_200) begin
---  out_spare[2:0] <= in_spare[2:0];
---end
-
----- create differential buffers to loop the test_conn signals
---wire test_conn_clk;
---IBUFDS test_conn_clk_buf(.O(test_conn_clk), .I(p_test_conn_0), .IB(n_test_conn_0) );
---wire test_conn_3, test_conn_4;
---IBUFDS test_conn_4_buf(.O(test_conn_4), .I(p_test_conn_4), .IB(n_test_conn_4));
---IBUFDS test_conn_3_buf(.O(test_conn_3), .I(p_test_conn_3), .IB(n_test_conn_3));
---reg test_conn_out_2, test_conn_out_1;
---OBUFDS test_conn_out_2_buf(.I(test_conn_out_2), .O(p_test_conn_2), .OB(n_test_conn_2));
---OBUFDS test_conn_out_1_buf(.I(test_conn_out_1), .O(p_test_conn_1), .OB(n_test_conn_1));
-
----- loop test_conn 'in' to 'out' using 'clk'
---always @(posedge test_conn_clk) begin
---  test_conn_out_2 <= test_conn_4;
---  test_conn_out_1 <= test_conn_3;
---  test_conn_5 <= test_conn_6;
---end
-
----- create differential buffers to loop the 'hdr' signals
---wire hdr_clk;
---IBUFDS hdr_clk_buf(.O(hdr_clk), .I(hdr1), .IB(hdr2) );
-
----- loop hdr 'in' to 'out' using 'clk'
---always @(posedge hdr_clk) begin
---  hdr7 <= hdr3;
---  hdr8 <= hdr4;
---  hdr9 <= hdr5;
---  hdr10 <= hdr6;
---end
-
----- create tri-state buffers for generic I2C scl and sda
---wire i2c_scl_generic_out, i2c_scl_generic_tri, i2c_scl_generic_in;
---generic_scl: IOBUF 
---  port map (
---    clk_200   => clk_200,
---    I => i2c_scl_generic_out,
---    T => i2c_scl_generic_tri,
---    O => i2c_scl_generic_in,
---    IO => i2c_scl_f_generic
---    );                    
---wire i2c_sda_generic_out, i2c_sda_generic_tri, i2c_sda_generic_in; 
---IOBUF generic_sda(.I(i2c_sda_generic_out),.T(i2c_sda_generic_tri), .O(i2c_sda_generic_in), .IO(i2c_sda_f_generic));
-
---wire i2c_scl_sysmon_out, i2c_scl_sysmon_tri, i2c_scl_sysmon_in; 
---IOBUF sysmon_scl(.I(i2c_scl_sysmon_out),.T(i2c_scl_sysmon_tri), .O(i2c_scl_sysmon_in), .IO(i2c_scl_f_sysmon));
---wire i2c_sda_sysmon_out, i2c_sda_sysmon_tri, i2c_sda_sysmon_in; 
---IOBUF sysmon_sda(.I(i2c_sda_sysmon_out),.T(i2c_sda_sysmon_tri), .O(i2c_sda_sysmon_in), .IO(i2c_sda_f_sysmon));
-
----- create dummy logic to use remaining inputs and outputs 
---always @(posedge clk_200) begin
---  f_to_mcu <= mcu_to_f & fpga_identity;
---end
-
--- Connect the c2c block
---top_block_wrapper top_block_wrapper1 (
---   .c2c_refclk_n(n_rt_r0_l),
---   .c2c_refclk_p(p_rt_r0_l),
---   .c2c_rxn(n_mgt_sm_to_f_1),
---   .c2c_rxp(p_mgt_sm_to_f_1),
---   .c2c_txn(n_mgt_f_to_sm_1),
---   .c2c_txp(p_mgt_f_to_sm_1),
---   .c2c2_rxn(n_mgt_sm_to_f_2),
---   .c2c2_rxp(p_mgt_sm_to_f_2),
---   .c2c2_txn(n_mgt_f_to_sm_2),
---   .c2c2_txp(p_mgt_f_to_sm_2),
---   .clk_100(clk_100),
---   .c2c_ok(c2c_ok),
---   .scl_i(i2c_scl_generic_in),
---   .scl_o(i2c_scl_generic_out),
---   .scl_t(i2c_scl_generic_tri),
---   .sda_i(i2c_sda_generic_in),
---   .sda_o(i2c_sda_generic_out),
---   .sda_t(i2c_sda_generic_tri)
---);
-
--- add a ffx4 block to use 1 quad (quad AF = FF4)
---BD_FFx4 FFx4_AF (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_af),
---  .refclk_p(p_lf_r0_af),
---  .rx_n({n_ff4_recv[0],n_ff4_recv[1],n_ff4_recv[2],n_ff4_recv[3]}),
---  .rx_p({p_ff4_recv[0],p_ff4_recv[1],p_ff4_recv[2],p_ff4_recv[3]}),
---  .tx_n({n_ff4_xmit[0],n_ff4_xmit[1],n_ff4_xmit[2],n_ff4_xmit[3]}),
---  .tx_p({p_ff4_xmit[0],p_ff4_xmit[1],p_ff4_xmit[2],p_ff4_xmit[3]})
---);
-
----- add a ffx4 block to use 1 quad (quad U = FF6)
---FFx4_U FFx4_U (
---  .init_clk(clk_200),
---  .refclk_n(n_lf_r0_u),
---  .refclk_p(p_lf_r0_u),
---  .rx_n({n_ff6_recv[0],n_ff6_recv[1],n_ff6_recv[2],n_ff6_recv[3]}),
---  .rx_p({p_ff6_recv[0],p_ff6_recv[1],p_ff6_recv[2],p_ff6_recv[3]}),
---  .tx_n({n_ff6_xmit[0],n_ff6_xmit[1],n_ff6_xmit[2],n_ff6_xmit[3]}),
---  .tx_p({p_ff6_xmit[0],p_ff6_xmit[1],p_ff6_xmit[2],p_ff6_xmit[3]})
---);
-
--- add a ffx12 block to use 3 quads (quad AC,AD,AE = FF1)
---BD_FFx12 FFx12_AD (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_ad),
---  .refclk_p(p_lf_r0_ad),
---  .rx_n({n_ff1_recv[11],n_ff1_recv[10],n_ff1_recv[9],n_ff1_recv[8],n_ff1_recv[7],n_ff1_recv[6],n_ff1_recv[5],n_ff1_recv[4],n_ff1_recv[3],n_ff1_recv[2],n_ff1_recv[1],n_ff1_recv[0]}),
---  .rx_p({p_ff1_recv[11],p_ff1_recv[10],p_ff1_recv[9],p_ff1_recv[8],p_ff1_recv[7],p_ff1_recv[6],p_ff1_recv[5],p_ff1_recv[4],p_ff1_recv[3],p_ff1_recv[2],p_ff1_recv[1],p_ff1_recv[0]}),
---  .tx_n({n_ff1_xmit[11],n_ff1_xmit[10],n_ff1_xmit[9],n_ff1_xmit[8],n_ff1_xmit[7],n_ff1_xmit[6],n_ff1_xmit[5],n_ff1_xmit[4],n_ff1_xmit[3],n_ff1_xmit[2],n_ff1_xmit[1],n_ff1_xmit[0]}),
---  .tx_p({p_ff1_xmit[11],p_ff1_xmit[10],p_ff1_xmit[9],p_ff1_xmit[8],p_ff1_xmit[7],p_ff1_xmit[6],p_ff1_xmit[5],p_ff1_xmit[4],p_ff1_xmit[3],p_ff1_xmit[2],p_ff1_xmit[1],p_ff1_xmit[0]})
---);
-
- c2csslave_wrapper_1: entity work.c2cslave_wrapper
+  
+  itdtc_top_1: entity work.itdtc_top
+    generic map (
+      FREERUN_FREQ => 50000000,
+      AXI_CONNECTION_COUNT => 1)
+    port map (
+      clk_freerun        => clk_50,
+      clk_freerun_locked => locked_clk200,
+      TCDS_BP_clk_p      => TCDS_BP_clk_p,
+      TCDS_BP_clk_n      => TCDS_BP_clk_n,
+      clk_40Mhz_out_p    => clk_40Mhz_out_p,
+      clk_40Mhz_out_n    => clk_40Mhz_out_n,
+      clk320             => open,
+      clk_320en40        => open,
+      clk_40Rec          => open,
+      HAL_refclks        => HAL_refclks,
+      HAL_serdes_input   => HAL_serdes_input,
+      HAL_serdes_output  => HAL_serdes_output,
+      AXI_ReadMOSI       => local_AXI_ReadMOSI(3),
+      AXI_ReadMISO       => local_AXI_ReadMISO(3),
+      AXI_WriteMOSI      => local_AXI_WriteMOSI(3),
+      AXI_WriteMISO      => local_AXI_WriteMISO(3)
+      );
+  
+  
+  c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
       AXI_CLK                               => AXI_CLK,
       AXI_RST_N(0)                          => AXI_RST_N,
@@ -498,25 +348,6 @@ begin
       F1_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
 
 
-      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
-      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
-      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
-      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
-      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
-      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
-      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
-      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
-      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
-      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
-      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
-      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
-      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
-      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
-      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
-      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
-      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
-      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
-      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
 
       
       F1_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
@@ -538,8 +369,50 @@ begin
       F1_CM_FW_INFO_wready                      => local_AXI_WriteMISO(1).ready_for_data,       
       F1_CM_FW_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
       F1_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
-      
 
+      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
+      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
+      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
+      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
+      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
+      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
+      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
+      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
+      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
+      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
+      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
+      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
+      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
+      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
+      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
+      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
+      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
+      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
+      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
+
+
+      F1_LPGBT_araddr                      => local_AXI_ReadMOSI(3).address,              
+      F1_LPGBT_arprot                      => local_AXI_ReadMOSI(3).protection_type,      
+      F1_LPGBT_arready                     => local_AXI_ReadMISO(3).ready_for_address,    
+      F1_LPGBT_arvalid                     => local_AXI_ReadMOSI(3).address_valid,        
+      F1_LPGBT_awaddr                      => local_AXI_WriteMOSI(3).address,             
+      F1_LPGBT_awprot                      => local_AXI_WriteMOSI(3).protection_type,     
+      F1_LPGBT_awready                     => local_AXI_WriteMISO(3).ready_for_address,   
+      F1_LPGBT_awvalid                     => local_AXI_WriteMOSI(3).address_valid,       
+      F1_LPGBT_bready                      => local_AXI_WriteMOSI(3).ready_for_response,  
+      F1_LPGBT_bresp                       => local_AXI_WriteMISO(3).response,            
+      F1_LPGBT_bvalid                      => local_AXI_WriteMISO(3).response_valid,      
+      F1_LPGBT_rdata                       => local_AXI_ReadMISO(3).data,                 
+      F1_LPGBT_rready                      => local_AXI_ReadMOSI(3).ready_for_data,       
+      F1_LPGBT_rresp                       => local_AXI_ReadMISO(3).response,             
+      F1_LPGBT_rvalid                      => local_AXI_ReadMISO(3).data_valid,           
+      F1_LPGBT_wdata                       => local_AXI_WriteMOSI(3).data,                
+      F1_LPGBT_wready                      => local_AXI_WriteMISO(3).ready_for_data,       
+      F1_LPGBT_wstrb                       => local_AXI_WriteMOSI(3).data_write_strobe,   
+      F1_LPGBT_wvalid                      => local_AXI_WriteMOSI(3).data_valid,
+
+
+ 
       F1_IPBUS_araddr                   => ext_AXI_ReadMOSI.address,              
       F1_IPBUS_arburst                  => ext_AXI_ReadMOSI.burst_type,
       F1_IPBUS_arcache                  => ext_AXI_ReadMOSI.cache_type,
@@ -687,10 +560,15 @@ begin
 
       F1_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
       F1_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
-);
+      );
 
-    c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD;
+  c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0) and
+            C2C_Mon.C2C(2).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0);
+            
 
+  
   RGB_pwm_1: entity work.RGB_pwm
     generic map (
       CLKFREQ => 200000000,
@@ -715,7 +593,6 @@ begin
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
 
-    
   F1_IO_interface_1: entity work.IO_map
     generic map(
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F1_IO)
@@ -727,16 +604,20 @@ begin
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
-      Mon.CLK_200_LOCKED      => locked_clk200,
+      Mon.CLK_200_LOCKED      => locked_clk200,      
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
+      Mon.DEBUG_8B10B  =>     F1_IO_Mon_DEBUG_8B10B,
+      Mon.DEBUG_8B10B_CLK  =>     F1_IO_Mon_DEBUG_8B10B_CLK,
+      
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
       Ctrl.BRAM.WRITE         => BRAM_WRITE,
-      Ctrl.BRAM.ADDR(10 downto 0) => BRAM_ADDR,
+      Ctrl.BRAM.ADDR(10 downto  0) => BRAM_ADDR,
       Ctrl.BRAM.ADDR(14 downto 11) => open,
       Ctrl.BRAM.WR_DATA       => BRAM_WR_DATA
       );
+  
 
   CM_F1_info_1: entity work.CM_FW_info
     generic map (
@@ -833,6 +714,6 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
-    
+  
 end architecture structure;
 
