@@ -13,10 +13,14 @@ set EXT_CLK clk50Mhz
 set EXT_RESET reset_n
 set EXT_CLK_FREQ 50000000
 
+global AXI_MASTER_CLK
+global AXI_MASTER_RSTN
+global AXI_MASTER_CLK_FREQ
+global AXI_INTERCONNECT_NAME
+
 set AXI_MASTER_CLK AXI_CLK
 set AXI_MASTER_RSTN AXI_RST_N
 set AXI_MASTER_CLK_FREQ 50000000
-
 set AXI_INTERCONNECT_NAME slave_interconnect
 
 
@@ -55,7 +59,7 @@ connect_bd_net [get_bd_ports $AXI_MASTER_RSTN] [get_bd_pins $SYS_RESETER_AXI_RST
 
 AXI_IP_C2C [dict create device_name ${C2C} \
 		axi_control [dict create axi_clk $AXI_MASTER_CLK \
-				 axi_rstn $AXI_MASTER_RSTN\
+				 axi_rstn $AXI_MASTER_RSTN \
 				 axi_freq $AXI_MASTER_CLK_FREQ] \
 		primary_serdes 1 \
 		init_clk $EXT_CLK \
@@ -66,7 +70,7 @@ AXI_IP_C2C [dict create device_name ${C2C} \
 if { [info exists C2CB] } {
     AXI_IP_C2C [dict create device_name ${C2CB} \
 		    axi_control [dict create axi_clk $AXI_MASTER_CLK \
-				     axi_rstn $AXI_MASTER_RSTN\
+				     axi_rstn $AXI_MASTER_RSTN \
 				     axi_freq $AXI_MASTER_CLK_FREQ] \
 		    primary_serdes ${C2C}_PHY \
 		    init_clk $EXT_CLK \
@@ -89,7 +93,7 @@ BUILD_JTAG_AXI_MASTER [dict create device_name ${JTAG_AXI_MASTER} axi_clk ${AXI_
 set mAXI [list ${C2C}/m_axi ${C2CB}/m_axi_lite ${JTAG_AXI_MASTER}/M_AXI]
 set mCLK [list ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK}  ${AXI_MASTER_CLK} ]
 set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}] 
-[BUILD_AXI_INTERCONNECT $AXI_INTERCONNECT_NAME ${AXI_MASTER_CLK} $AXI_MASTER_RSTN $mAXI $mCLK $mRST]
+BUILD_AXI_INTERCONNECT ${AXI_INTERCONNECT_NAME} ${AXI_MASTER_CLK} ${AXI_MASTER_RSTN} $mAXI $mCLK $mRST
 
 
 
