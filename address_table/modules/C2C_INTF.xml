@@ -15,11 +15,11 @@
   <node id="PHY_LANE_ERRORS_TO_RESET"   address="0x423" mask="0x000000FF"  permission="rw" description="Number of failures before we reset the pma" parameters="default=0xFF"/>
   <node id="PHY_MAX_SINGLE_BIT_ERROR_RATE"   address="0x424" mask="0xFFFFFFFF"  permission="rw" description="Max single bit error rate" parameters="default=0xFFFF"/>
   <node id="PHY_MAX_MULTI_BIT_ERROR_RATE"    address="0x425" mask="0xFFFFFFFF"  permission="rw" description="Max multi bit error rate" parameters="default=0xFFFF"/>
-  <node id="CLK_CNT"           address="0x426" permission="r" mask="0xFFFFFFFF" description="Clock count of 50MHz clock"/>
-  <node id="TEST_CONST"        address="0x427" permission="r" mask="0xFFFFFFFF" description="Test for CLK_CNT, should output 0xBEEFBEEF"/>
-  <node id="LF_X12_R0_CLK"        address="0x428" permission="r" mask="0xFFFFFFFF" description="Left X12 R0 clock count"/>
-  <node id="LF_X4_R0_CLK"        address="0x429" permission="r" mask="0xFFFFFFFF" description="Left X4 R0 clock count"/>
-  <node id="RT_X12_R0_CLK"        address="0x42A" permission="r" mask="0xFFFFFFFF" description="Right X12 R0 clock count"/>
-  <node id="RT_X4_R0_CLK"        address="0x42B" permission="r" mask="0xFFFFFFFF" description="Right X4 R0 clock count"/>
+  <!--<node id="CLK_CNT"           address="0x426" permission="r" mask="0xFFFFFFFF" description="Clock count of 50MHz clock"/>-->
+  <!--<node id="TEST_CONST"        address="0x427" permission="r" mask="0xFFFFFFFF" description="Test for CLK_CNT, should output 0xBEEFBEEF"/>-->
+  <!--<node id="LF_X12_R0_CLK"        address="0x428" permission="r" mask="0xFFFFFFFF" description="Left X12 R0 clock count"/>-->
+  <!--<node id="LF_X4_R0_CLK"        address="0x429" permission="r" mask="0xFFFFFFFF" description="Left X4 R0 clock count"/>-->
+  <!--<node id="RT_X12_R0_CLK"        address="0x42A" permission="r" mask="0xFFFFFFFF" description="Right X12 R0 clock count"/>-->
+  <!--<node id="RT_X4_R0_CLK"        address="0x42B" permission="r" mask="0xFFFFFFFF" description="Right X4 R0 clock count"/>-->
 
 </node>

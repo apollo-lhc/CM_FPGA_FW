@@ -1,0 +1,3 @@
+idcode,mask,irlen,name
+i,i,i,s
+0x4BA00477,0x0FFFFFFF,4,TM4C1290NCPDT

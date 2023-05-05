@@ -21,8 +21,6 @@ set vhdl_files "\
      src/C2C_INTF/CM_phy_lane_control.vhd \
      src/RGB_PWM.vhd \
      src/LED_PWM.vhd \
-     src/diff_clk_pair_to_count.vhd \
-     src/counter_clock.vhd \
      src/misc/rate_counter.vhd \
      src/CM_FW_info/CM_FW_info.vhd \
      ${autogen_path}/IO/IO_PKG.vhd \
