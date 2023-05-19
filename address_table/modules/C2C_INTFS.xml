@@ -5,7 +5,7 @@
     <node id="MEM" mode="incremental" size="0x800" address="0x000" fwinfo="type=mem18_0x800" />
     <node id="RESET" address="0x800" mask="0x00000001" permission="rw"/>  
     <node id="IRQ_COUNT" address="0x801" mask="0xFFFFFFFF" permission="rw" parameters="default=10000000"/>                                                                 
-
   </node>
-
+  <node id="C2C_REFCLK_FREQ" address="0x810" mask="0xFFFFFFFF" permission="r" parameters="Table=CLOCKING;Column=FREQ;Row=C2C_REFCLK_FREQ;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1"/>
+  
 </node>

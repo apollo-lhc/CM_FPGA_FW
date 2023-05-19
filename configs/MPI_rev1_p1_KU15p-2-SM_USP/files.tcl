@@ -40,8 +40,7 @@ set xdc_files "\
     configs/MPI_rev1_p1_KU15p-2-SM_USP/src/top_timing.xdc	\
     "	    
 
-set xci_files "\
-	      cores/AXI_BRAM/AXI_BRAM.xci \
-	      cores/DP_BRAM/DP_BRAM.xci \
-    	      "
 
+set include_files "\
+    		  src/i2cAXIMaster/files.tcl	\
+		  "		  
