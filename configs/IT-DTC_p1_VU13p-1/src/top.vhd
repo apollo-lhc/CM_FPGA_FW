@@ -10,7 +10,7 @@ use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
 use work.AXISlaveAddrPkg.all;                                                                
 
-use work.HAL_PKG.all;
+use work.HAL_TOP_IO_PKG.all;
                               
 
 Library UNISIM;
@@ -199,8 +199,8 @@ entity top is
   TCDS_BP_clk_p   : in std_logic;
   TCDS_BP_clk_n   : in std_logic;
 
-  clk_40Mhz_out_p : out std_logic;
-  clk_40Mhz_out_n : out std_logic
+  n_TCDS_REC_out : out std_logic;
+  p_TCDS_REC_out : out std_logic
 
   );
 end entity top;
@@ -216,7 +216,7 @@ architecture structure of top is
   signal led_red_local   : slv_8_t;
   signal led_green_local : slv_8_t;
 
-  constant localAXISlaves    : integer := 4;
+  constant localAXISlaves    : integer := 6;
   signal local_AXI_ReadMOSI  :  AXIReadMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMOSI);
   signal local_AXI_ReadMISO  :  AXIReadMISO_array_t(0 to localAXISlaves-1) := (others => DefaultAXIReadMISO);
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := (others => DefaultAXIWriteMOSI);
@@ -235,6 +235,7 @@ architecture structure of top is
   signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
   signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
+  signal BRAM_clk   : std_logic;
   signal BRAM_write : std_logic;
   signal BRAM_addr  : std_logic_vector(10 downto 0);
   signal BRAM_WR_data : std_logic_vector(31 downto 0);
@@ -258,18 +259,8 @@ architecture structure of top is
   signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
-
-
- 
-
-  signal F1_IO_Mon_DEBUG_8B10B_CLK    : IO_DEBUG_8B10B_CLK_MON_t;
-  signal F1_IO_Mon_DEBUG_8B10B        : IO_DEBUG_8B10B_MON_t;
-  signal F1_IO_Ctrl_DEBUG_8B10B       : IO_DEBUG_8B10B_Ctrl_t;
-
-  --TCDS
-  signal clk_320      : std_logic;
-  signal clk_320en40 : std_logic;
-  signal clk_40Rec   : std_logic;
+  signal clk_LHC_320 : std_logic;
+  signal rstn_LHC   : std_logic;
   
 begin        
   -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
@@ -288,24 +279,29 @@ begin
   itdtc_top_1: entity work.itdtc_top
     generic map (
       FREERUN_FREQ => 50000000,
-      AXI_CONNECTION_COUNT => 1)
+      AXI_CONNECTION_COUNT => 3,
+      HAL_MEMORY_RANGE => AXI_RANGE_F1_LPGBT,
+      IO_MEM_RANGE     => AXI_RANGE_F1_ITDTC_TESTING,
+      TCDS_MEM_RANGE   => AXI_RANGE_F1_ITDTC_TCDS)
     port map (
       clk_freerun        => clk_50,
       clk_freerun_locked => locked_clk200,
       TCDS_BP_clk_p      => TCDS_BP_clk_p,
       TCDS_BP_clk_n      => TCDS_BP_clk_n,
-      clk_40Mhz_out_p    => clk_40Mhz_out_p,
-      clk_40Mhz_out_n    => clk_40Mhz_out_n,
-      clk320             => open,
+      clk_40Mhz_out_p    => p_TCDS_REC_out,
+      clk_40Mhz_out_n    => n_TCDS_REC_out,
+      clk320             => clk_LHC_320,
       clk_320en40        => open,
-      clk_40Rec          => open,
+      clk_locked_320     => rstn_LHC,
       HAL_refclks        => HAL_refclks,
       HAL_serdes_input   => HAL_serdes_input,
       HAL_serdes_output  => HAL_serdes_output,
-      AXI_ReadMOSI       => local_AXI_ReadMOSI(3),
-      AXI_ReadMISO       => local_AXI_ReadMISO(3),
-      AXI_WriteMOSI      => local_AXI_WriteMOSI(3),
-      AXI_WriteMISO      => local_AXI_WriteMISO(3)
+      axi_clk            => clk_LHC_320,
+      axi_rst_n          => AXI_RST_N,
+      AXI_ReadMOSI       =>  local_AXI_ReadMOSI(3 to 5),
+      AXI_ReadMISO       =>  local_AXI_ReadMISO(3 to 5),
+      AXI_WriteMOSI      => local_AXI_WriteMOSI(3 to 5),
+      AXI_WriteMISO      => local_AXI_WriteMISO(3 to 5)
       );
   
   
@@ -326,6 +322,9 @@ begin
       F1_C2C_phy_refclk_clk_n            => n_rt_r0_l,
       F1_C2C_phy_refclk_clk_p            => p_rt_r0_l,
       clk50Mhz                              => clk_50,
+
+      lhc_clk                                => clk_LHC_320,
+      lhc_rstn                               => rstn_LHC,
       
       F1_IO_araddr                           => local_AXI_ReadMOSI(0).address,              
       F1_IO_arprot                           => local_AXI_ReadMOSI(0).protection_type,      
@@ -393,23 +392,63 @@ begin
 
       F1_LPGBT_araddr                      => local_AXI_ReadMOSI(3).address,              
       F1_LPGBT_arprot                      => local_AXI_ReadMOSI(3).protection_type,      
-      F1_LPGBT_arready                     => local_AXI_ReadMISO(3).ready_for_address,    
-      F1_LPGBT_arvalid                     => local_AXI_ReadMOSI(3).address_valid,        
+      F1_LPGBT_arready(0)                  => local_AXI_ReadMISO(3).ready_for_address,    
+      F1_LPGBT_arvalid(0)                  => local_AXI_ReadMOSI(3).address_valid,        
       F1_LPGBT_awaddr                      => local_AXI_WriteMOSI(3).address,             
       F1_LPGBT_awprot                      => local_AXI_WriteMOSI(3).protection_type,     
-      F1_LPGBT_awready                     => local_AXI_WriteMISO(3).ready_for_address,   
-      F1_LPGBT_awvalid                     => local_AXI_WriteMOSI(3).address_valid,       
-      F1_LPGBT_bready                      => local_AXI_WriteMOSI(3).ready_for_response,  
+      F1_LPGBT_awready(0)                  => local_AXI_WriteMISO(3).ready_for_address,   
+      F1_LPGBT_awvalid(0)                  => local_AXI_WriteMOSI(3).address_valid,       
+      F1_LPGBT_bready(0)                   => local_AXI_WriteMOSI(3).ready_for_response,  
       F1_LPGBT_bresp                       => local_AXI_WriteMISO(3).response,            
-      F1_LPGBT_bvalid                      => local_AXI_WriteMISO(3).response_valid,      
+      F1_LPGBT_bvalid(0)                   => local_AXI_WriteMISO(3).response_valid,      
       F1_LPGBT_rdata                       => local_AXI_ReadMISO(3).data,                 
-      F1_LPGBT_rready                      => local_AXI_ReadMOSI(3).ready_for_data,       
+      F1_LPGBT_rready(0)                   => local_AXI_ReadMOSI(3).ready_for_data,       
       F1_LPGBT_rresp                       => local_AXI_ReadMISO(3).response,             
-      F1_LPGBT_rvalid                      => local_AXI_ReadMISO(3).data_valid,           
+      F1_LPGBT_rvalid(0)                   => local_AXI_ReadMISO(3).data_valid,           
       F1_LPGBT_wdata                       => local_AXI_WriteMOSI(3).data,                
-      F1_LPGBT_wready                      => local_AXI_WriteMISO(3).ready_for_data,       
+      F1_LPGBT_wready(0)                   => local_AXI_WriteMISO(3).ready_for_data,       
       F1_LPGBT_wstrb                       => local_AXI_WriteMOSI(3).data_write_strobe,   
-      F1_LPGBT_wvalid                      => local_AXI_WriteMOSI(3).data_valid,
+      F1_LPGBT_wvalid(0)                   => local_AXI_WriteMOSI(3).data_valid,
+
+      F1_itdtc_testing_araddr                      => local_AXI_ReadMOSI(4).address,              
+      F1_itdtc_testing_arprot                      => local_AXI_ReadMOSI(4).protection_type,      
+      F1_itdtc_testing_arready(0)                  => local_AXI_ReadMISO(4).ready_for_address,    
+      F1_itdtc_testing_arvalid(0)                  => local_AXI_ReadMOSI(4).address_valid,        
+      F1_itdtc_testing_awaddr                      => local_AXI_WriteMOSI(4).address,             
+      F1_itdtc_testing_awprot                      => local_AXI_WriteMOSI(4).protection_type,     
+      F1_itdtc_testing_awready(0)                  => local_AXI_WriteMISO(4).ready_for_address,   
+      F1_itdtc_testing_awvalid(0)                  => local_AXI_WriteMOSI(4).address_valid,       
+      F1_itdtc_testing_bready(0)                   => local_AXI_WriteMOSI(4).ready_for_response,  
+      F1_itdtc_testing_bresp                       => local_AXI_WriteMISO(4).response,            
+      F1_itdtc_testing_bvalid(0)                   => local_AXI_WriteMISO(4).response_valid,      
+      F1_itdtc_testing_rdata                       => local_AXI_ReadMISO(4).data,                 
+      F1_itdtc_testing_rready(0)                   => local_AXI_ReadMOSI(4).ready_for_data,       
+      F1_itdtc_testing_rresp                       => local_AXI_ReadMISO(4).response,             
+      F1_itdtc_testing_rvalid(0)                   => local_AXI_ReadMISO(4).data_valid,           
+      F1_itdtc_testing_wdata                       => local_AXI_WriteMOSI(4).data,                
+      F1_itdtc_testing_wready(0)                   => local_AXI_WriteMISO(4).ready_for_data,       
+      F1_itdtc_testing_wstrb                       => local_AXI_WriteMOSI(4).data_write_strobe,   
+      F1_itdtc_testing_wvalid(0)                   => local_AXI_WriteMOSI(4).data_valid,
+
+      F1_ITDTC_TCDS_araddr                      => local_AXI_ReadMOSI(5).address,              
+      F1_ITDTC_TCDS_arprot                      => local_AXI_ReadMOSI(5).protection_type,      
+      F1_ITDTC_TCDS_arready(0)                  => local_AXI_ReadMISO(5).ready_for_address,    
+      F1_ITDTC_TCDS_arvalid(0)                  => local_AXI_ReadMOSI(5).address_valid,        
+      F1_ITDTC_TCDS_awaddr                      => local_AXI_WriteMOSI(5).address,             
+      F1_ITDTC_TCDS_awprot                      => local_AXI_WriteMOSI(5).protection_type,     
+      F1_ITDTC_TCDS_awready(0)                  => local_AXI_WriteMISO(5).ready_for_address,   
+      F1_ITDTC_TCDS_awvalid(0)                  => local_AXI_WriteMOSI(5).address_valid,       
+      F1_ITDTC_TCDS_bready(0)                   => local_AXI_WriteMOSI(5).ready_for_response,  
+      F1_ITDTC_TCDS_bresp                       => local_AXI_WriteMISO(5).response,            
+      F1_ITDTC_TCDS_bvalid(0)                   => local_AXI_WriteMISO(5).response_valid,      
+      F1_ITDTC_TCDS_rdata                       => local_AXI_ReadMISO(5).data,                 
+      F1_ITDTC_TCDS_rready(0)                   => local_AXI_ReadMOSI(5).ready_for_data,       
+      F1_ITDTC_TCDS_rresp                       => local_AXI_ReadMISO(5).response,             
+      F1_ITDTC_TCDS_rvalid(0)                   => local_AXI_ReadMISO(5).data_valid,           
+      F1_ITDTC_TCDS_wdata                       => local_AXI_WriteMOSI(5).data,                
+      F1_ITDTC_TCDS_wready(0)                   => local_AXI_WriteMISO(5).ready_for_data,       
+      F1_ITDTC_TCDS_wstrb                       => local_AXI_WriteMOSI(5).data_write_strobe,   
+      F1_ITDTC_TCDS_wvalid(0)                   => local_AXI_WriteMOSI(5).data_valid,
 
 
  
@@ -606,9 +645,6 @@ begin
       slave_writeMISO => local_AXI_writeMISO(0),
       Mon.CLK_200_LOCKED      => locked_clk200,      
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
-      Mon.DEBUG_8B10B  =>     F1_IO_Mon_DEBUG_8B10B,
-      Mon.DEBUG_8B10B_CLK  =>     F1_IO_Mon_DEBUG_8B10B_CLK,
-      
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
@@ -693,7 +729,7 @@ begin
       s_axi_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
       s_axi_wvalid              => ext_AXI_WriteMOSI.data_valid,          
       bram_rst_a                   => open,
-      bram_clk_a                   => AXI_CLK,
+      bram_clk_a                   => BRAM_CLK,
       bram_en_a                    => AXI_BRAM_en,
       bram_we_a                    => AXI_BRAM_we,
       bram_addr_a                  => AXI_BRAM_addr,
@@ -702,7 +738,7 @@ begin
 
   DP_BRAM_1: entity work.DP_BRAM
     port map (
-      clka  => AXI_CLK,
+      clka  => BRAM_CLK,
       ena   => AXI_BRAM_EN,
       wea   => AXI_BRAM_we,
       addra => AXI_BRAM_addr(11 downto 2),
