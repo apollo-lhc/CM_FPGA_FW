@@ -50,4 +50,5 @@ set xci_files "\
 
 set include_files "\
     		  configs/${build_name}/it-dtc-fw/files.tcl	\
+    		  src/i2cAXIMaster/files.tcl	\
 		  "		  
