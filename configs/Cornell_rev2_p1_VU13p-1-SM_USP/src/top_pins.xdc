@@ -32,6 +32,9 @@ set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]
 set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]
 #-------------------------------------------------
 
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.Config.SPI_BUSWIDTH 4 [current_design]
+
 #-------------------------------------------------
 # Set internal reference voltages to 0.90 on banks with I/O signals.
 # This is required for the HSTL and DIFF_HSTL I/O standards (if used)
