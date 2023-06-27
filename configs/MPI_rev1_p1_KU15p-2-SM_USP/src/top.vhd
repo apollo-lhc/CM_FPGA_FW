@@ -418,8 +418,8 @@ begin  -- architecture structure
   sda_iobuf : iobuf
     port map (
       IO => SDA,
-      O => SDA_out,
-      I => SDA_in,
+      O => SDA_in,
+      I => SDA_out,
       T => not SDA_en);
   
   RGB_pwm_1: entity work.RGB_pwm

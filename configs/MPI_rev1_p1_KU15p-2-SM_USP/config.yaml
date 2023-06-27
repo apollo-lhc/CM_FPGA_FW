@@ -175,3 +175,13 @@ CORES:
       out_clks:
         1: 200
         2: 50
+  DEBUG_ILA:
+    TCL_CALL:
+      command: IP_CORE_ILA
+      probes:
+        0:
+          TYPE: 0
+          WIDTH: 32
+        1:
+          TYPE: 1
+          WIDTH: 32
