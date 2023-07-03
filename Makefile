@@ -1,11 +1,13 @@
 -include build-scripts/mk/helpers.mk
+include mk/coe_gen.mk
 
 #################################################################################
 # VIVADO stuff
 #################################################################################
 VIVADO_FLAGS=-notrace -mode batch
 BUILD_VIVADO_VERSION?=2020.2
-BUILD_VIVADO_BASE?="/work/Xilinx/Vivado"
+#BUILD_VIVADO_BASE?="/work/Xilinx/Vivado"
+BUILD_VIVADO_BASE?="/nfs/opt/Xilinx/Vivado"
 BUILD_VIVADO_SHELL=${BUILD_VIVADO_BASE}"/"$(BUILD_VIVADO_VERSION)"/settings64.sh"
 
 
@@ -35,7 +37,7 @@ CONFIGS_BASE_PATH=configs/
 CONFIGS=$(patsubst ${CONFIGS_BASE_PATH}%/,%,$(dir $(wildcard ${CONFIGS_BASE_PATH}*/)))
 
 define CONFIGS_template =
- $(1): clean autogen_clean_$(1) clean_overlays
+ $(1): clean autogen_clean_$(1) clean_overlays coe_gen
 	time $(MAKE) $(BIT_BASE)$$(@).bit || $(MAKE) NOTIFY_DAN_BAD
 endef
 define CONFIGS_autoclean_template =
@@ -106,7 +108,7 @@ clean_bit:
 clean_kernel:
 	@echo "Clean hw files"
 	@rm -rf ${MAKE_PATH}/kernel/hw/*
-clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild 
+clean: clean_bd clean_ip clean_bit clean_kernel clean_prebuild clean_coe
 	@rm -rf ${MAKE_PATH}/proj/*
 	@rm -f make_log.txt
 	@echo "Cleaning up"
