@@ -12,6 +12,9 @@ proj/
 #all the vivado stuff in the cores directory execpt the xci files
 cores/*/*
 !cores/*/*.xci
+!cores/TC_BRAM/*/
+cores/TC_BRAM/*/*
+!cores/TC_BRAM/*/*.xci
 
 #anything sub directories in the bd directory
 bd/*/*
