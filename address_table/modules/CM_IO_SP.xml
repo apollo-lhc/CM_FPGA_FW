@@ -1,0 +1,27 @@
+<node id="CM_IO">  
+  <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
+  <node id="RGB"  address="0x00000200">
+    <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
+    <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>
+    <node id="B" mask="0xFF0000" permission="rw" parameters="default=0xFF"/>
+  </node>
+  <node id="BRAM" address="0x00000300">
+    <node id="WRITE"   address="0x0" mask="0x1"        permission="w"  />
+    <node id="ADDR"    address="0x1" mask="0x7FFF"     permission="rw" />
+    <node id="WR_DATA" address="0x2" mask="0xFFFFFFFF" permission="rw" />
+    <node id="RD_DATA" address="0x3" mask="0xFFFFFFFF" permission="r" />
+  </node>
+  <node id="TCRAM" address="0x00000400">
+    <node id="WRITE"     address="0x0" mask="0x1"        permission="w" />
+    <node id="WR_BASE"   address="0x0" mask="0x2"        permission="w" />
+    <node id="BASE_ADDR" address="0x1" mask="0x7FFF"     permission="rw"/>
+    <node id="ADDR"      address="0x2" mask="0x7FFF"     permission="r"/>
+    <node id="WR_DATA"   address="0x3" mask="0xFFFFFFFF" permission="rw"/>
+    <node id="RD_DATA"   address="0x4" mask="0xFFFFFFFF" permission="r" />
+    <node id="FF_MODE"   address="0x5" mask="0x00000001" permission="rw"/>
+    <node id="ENA"       address="0x5" mask="0x00003F00" permission="rw"/>
+    <node id="ENB"       address="0x5" mask="0x003F0000" permission="rw"/>
+    <node id="RST"       address="0x5" mask="0x01000000" permission="rw"/>
+    <node id="START"     address="0x5" mask="0x10000000" permission="rw"/>
+  </node>
+</node>

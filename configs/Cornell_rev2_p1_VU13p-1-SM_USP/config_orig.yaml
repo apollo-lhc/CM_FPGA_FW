@@ -1,0 +1,101 @@
+AXI_CONTROL_SETS:
+  AXI_MASTER_CTRL:
+    axi_interconnect: "${::AXI_INTERCONNECT_NAME}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "${::AXI_MASTER_RSTN}"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+
+
+AXI_SLAVES:
+  F1_IO:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB1002000"
+        range:  "4K"
+      remote_slave: "1"
+    XML: "address_table/modules/CM_IO.xml"
+    UHAL_BASE: 0x81000000
+    HDL: 
+      out_name: "IO"
+      map_template: "axi_generic/template_map_withbram.vhd"
+  F1_SYS_MGMT:
+    TCL_CALL:
+      command: AXI_IP_SYS_MGMT
+      enable_i2c_pins: 1
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB1001000"
+        range: "4K"
+      remote_slave: "1"
+    XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
+    UHAL_BASE: 0x80000000
+  
+  F1_CM_FW_INFO:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT 
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB1003000"
+        range:  "4K"
+      remote_slave: "1"
+    XML: "address_table/modules/FW_INFO.xml"
+    UHAL_BASE: 0x82000000
+    HDL: 
+      out_name: "CM_FW_INFO"
+      map_template: "axi_generic/template_map.vhd"
+
+
+  F1_IPBUS:
+    TCL_CALL:
+      command: AXI_PL_DEV_CONNECT 
+      axi_control: "${::AXI_MASTER_CTRL}"
+      type: "AXI4"
+      addr:
+        offset: "0xB0000000"
+        range:  "16M"
+      data_width: "64"
+      remote_slave: "1"
+    XML: "address_table/modules/IPBUS.xml"
+    UHAL_BASE: 0x85000000    
+
+  F1_C2C_INTF:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_MASTER_CTRL}"
+      addr:
+        offset: "0xB1010000"
+        range:  "64K"
+      remote_slave: "1"
+    XML: "address_table/modules/C2C_INTFS.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_name: "C2C_INTF"
+      map_template: "axi_generic/template_map_withbram.vhd"
+    SUB_SLAVES:
+      CM1_PB_UART:
+        TCL_CALL:
+          command: "AXI_IP_UART"
+          addr:
+            offset: "0xB1008000"
+            range:  "4K"
+          irq_port: "F1_C2CB/axi_c2c_s2m_intr_in"
+          baud_rate: "115200"  
+          axi_control: "${::AXI_MASTER_CTRL}"
+          manual_load_dtsi: "1"
+          remote_slave: "1"
+          dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;
+    "
+
+CORES:
+  onboardclk:
+    TCL_CALL:
+      command: BuildClockWizard
+      in_clk_type: Differential_clock_capable_pin
+      in_clk_freq_MHZ: 200
+      out_clks:
+        1: 200
+        2: 50
+
+

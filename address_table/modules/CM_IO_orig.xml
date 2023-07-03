@@ -1,0 +1,14 @@
+<node id="CM_IO">  
+  <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
+  <node id="RGB"  address="0x00000200">
+    <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
+    <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>
+    <node id="B" mask="0xFF0000" permission="rw" parameters="default=0xFF"/>
+  </node>
+  <node id="BRAM" address="0x00000300">
+    <node id="WRITE"   address="0x0" mask="0x1"        permission="w"  />
+    <node id="ADDR"    address="0x1" mask="0x7FFF"     permission="rw" />
+    <node id="WR_DATA" address="0x2" mask="0xFFFFFFFF" permission="rw" />
+    <node id="RD_DATA" address="0x3" mask="0xFFFFFFFF" permission="r" />
+  </node>
+</node>

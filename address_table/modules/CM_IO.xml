@@ -15,4 +15,34 @@
     <node id="WR_DATA" address="0x2" mask="0xFFFFFFFF" permission="rw" />
     <node id="RD_DATA" address="0x3" mask="0xFFFFFFFF" permission="r" />
   </node>
+  <node id="TCRAM" address="0x00000310">
+    <node id="WRITE"      address="0x0" mask="0x1"        permission="w" />
+    <node id="WR_BASE"    address="0x1" mask="0x1"        permission="w" />
+    <node id="RST_ADDR"   address="0x2" mask="0x1"        permission="w" />
+    <node id="FF_MODE"    address="0x3" mask="0x00000001" permission="rw" parameters="default=1"/>
+    <node id="RST"        address="0x3" mask="0x00000002" permission="rw" parameters="default=0"/>
+    <node id="START"      address="0x3" mask="0x00000004" permission="rw" parameters="default=0"/>
+    <node id="BASE_ADDR"  address="0x4" mask="0x7FFF"     permission="rw" parameters="default=0x0000"/>
+    <node id="ADDR"       address="0x5" mask="0x7FFF"     permission="r"/>
+    <node id="WR_DATA"    address="0x6" mask="0xFFFFFFFF" permission="rw" parameters="default=0x00000000"/>
+    <node id="RD_L1L2"    address="0x7" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L2L3"    address="0x8" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L3L4"    address="0x9" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L5L6"    address="0xA" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L1L2_L3" address="0xB" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L1L2_L4" address="0xC" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L1L2_L5" address="0xD" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L1L2_L6" address="0xE" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L2L3_L1" address="0xF" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L2L3_L4" address="0x10" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L2L3_L5" address="0x11" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L3L4_L1" address="0x12" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L3L4_L2" address="0x13" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L3L4_L5" address="0x14" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L3L4_L6" address="0x15" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L5L6_L1" address="0x16" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L5L6_L2" address="0x17" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L5L6_L3" address="0x18" mask="0xFFFFFFFF" permission="r" />
+    <node id="RD_L5L6_L4" address="0x19" mask="0xFFFFFFFF" permission="r" />
+  </node>
 </node>

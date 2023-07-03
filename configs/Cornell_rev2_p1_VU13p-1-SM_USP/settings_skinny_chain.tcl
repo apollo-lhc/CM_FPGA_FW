@@ -1,6 +1,6 @@
 
 #set the FPGA part number
-set FPGA_part xcvu13p-flga2577-2-e
+set FPGA_part xcvu13p-flga2577-1-e
 
 ##for c2c
 set C2C F1_C2C
@@ -18,5 +18,5 @@ set top top
 set outputDir ./
 
 #set paths to track trigger sources
-set TT_LUT_PATH ../src/tt_master/emData/LUTsBarrel
-set TT_IP_REPO_PATH ../src/tt_master/IntegrationTests/BarrelConfig/IRtoTB/script
+set TT_LUT_PATH ../src/tt_skinny_chain/emData/LUTsReduced
+set TT_IP_REPO_PATH ../src/tt_skinny_chain/IntegrationTests/ReducedConfig/IRtoTB/script
