@@ -267,11 +267,11 @@ begin  -- architecture behavioral
         when 770 => --0x302
           reg_data(770)(31 downto  0)  <=  localWrData(31 downto  0);      --
         when 784 => --0x310
-          Ctrl.TCRAM.WRITE             <=  localWrData( 0);     
+          Ctrl.TCRAM.WRITE             <=  localWrData( 0);               
         when 785 => --0x311
-          Ctrl.TCRAM.WR_BASE           <=  localWrData( 0);     
+          Ctrl.TCRAM.WR_BASE           <=  localWrData( 0);               
         when 786 => --0x312
-          Ctrl.TCRAM.RST_ADDR          <=  localWrData( 0);     
+          Ctrl.TCRAM.RST_ADDR          <=  localWrData( 0);               
         when 787 => --0x313
           reg_data(787)( 0)            <=  localWrData( 0);                --
           reg_data(787)( 1)            <=  localWrData( 1);                --
