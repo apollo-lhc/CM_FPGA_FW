@@ -193,3 +193,8 @@ make test :
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
 	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../address_tables address_table
+
+EMP%.tar.gz : kernel/config_EMP%.yaml
+	$(MAKE) clean_overlays
+	$(MAKE) overlays
+	@tar -h -zcf $@ -C kernel/hw/ dtbo -C ../address_tables address_table
