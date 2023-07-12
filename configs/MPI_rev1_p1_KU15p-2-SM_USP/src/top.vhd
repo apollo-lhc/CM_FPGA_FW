@@ -133,6 +133,7 @@ architecture structure of top is
   signal c2c_refclk_odiv2     : std_logic;
   signal buf_c2c_refclk_odiv2 : std_logic;
 
+  signal clk_200_FREQ : slv_32_t;
   
 begin  -- architecture structure
 
@@ -186,9 +187,11 @@ begin  -- architecture structure
   c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
       EXT_CLK                             => clk_50,
-      EXT_RSTN                            => locked_clk200,
+      SYS_RESET_rst_n(0)                  => AXI_RST_N,
+--      EXT_RSTN                            => locked_clk200,
       AXI_MASTER_CLK                             => AXI_CLK,      
-      AXI_MASTER_RSTN                        => AXI_RST_N,
+--      AXI_MASTER_RSTN                        => AXI_RST_N,
+      AXI_MASTER_RSTN                        => locked_clk200,
       CM1_PB_UART_rxd                     => pB_UART_tx,
       CM1_PB_UART_txd                     => pB_UART_rx,
 
@@ -201,6 +204,7 @@ begin  -- architecture structure
       F1_C2CB_phy_Tx_txn                  => n_mgt_k2z(2 downto 2),
       F1_C2CB_phy_Tx_txp                  => p_mgt_k2z(2 downto 2),
       F1_C2C_phy_refclk                   => c2c_refclk,
+      F1_C2CB_phy_refclk                   => c2c_refclk,
       --clk50Mhz                            => clk_50,
       F1_IO_araddr                         => local_AXI_ReadMOSI(0).address,              
       F1_IO_arprot                         => local_AXI_ReadMOSI(0).protection_type,      
@@ -402,7 +406,7 @@ begin  -- architecture structure
 
   i2cAXIMaster_1: entity work.i2cAXIMaster
     generic map (
-      I2C_ADDRESS => "0111000"
+      I2C_ADDRESS => "0100000"
       )
     port map (
       clk_axi         => AXI_CLK,
@@ -494,5 +498,51 @@ begin  -- architecture structure
 
   C2C_Mon.C2C_REFCLK_FREQ <= C2C_REFCLK_FREQ;
 
+    debug_ila2_inst : entity work.debug_ila2
+    PORT MAP (
+      clk => axi_clk,
+      probe0 => c2c_refclk_freq,
+      probe1 => C2C_Mon.C2C(1).USER_FREQ,
+      probe2( 0) => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+      probe2( 1) => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+      probe2( 2) => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+      probe2( 3) => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0),
+      probe2( 4) => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+      probe2( 5) => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+      probe2( 6) => C2C_Mon.C2C(1).STATUS.DO_CC,
+      probe2( 7) => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+      probe2( 8) => C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+      probe2( 9) => C2C_MON.C2C(1).STATUS.LINK_GOOD,
+      probe2(10) => C2C_MON.C2C(1).STATUS.MB_ERROR,
+      probe2(11) => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+      probe2(15 downto 12) => (others => '0'),
+      probe2(31 downto 16) => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+      probe3( 0) => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+      probe3( 1) => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+      probe3( 2) => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+      probe3( 3) => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0),
+      probe3( 4) => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      probe3( 5) => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
+      probe3( 6) => C2C_Mon.C2C(2).STATUS.DO_CC,
+      probe3( 7) => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+      probe3( 8) => C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+      probe3( 9) => C2C_MON.C2C(2).STATUS.LINK_GOOD,
+      probe3(10) => C2C_MON.C2C(2).STATUS.MB_ERROR,
+      probe3(11) => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+      probe3(12) => axi_rst_n,
+      probe3(15 downto 13) => (others => '0'),
+      probe3(31 downto 16) => C2C_Mon.C2C(2).DEBUG.DMONITOR,
+      probe4 => clk_200_freq
+      );
+
+  rate_counter_200: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+    port map (
+      clk_A         => axi_clk,
+      clk_B         => clk_200,
+      reset_A_async => not axi_rst_n,
+      event_b       => '1',
+      rate          => clk_200_freq);                
   
 end architecture structure;

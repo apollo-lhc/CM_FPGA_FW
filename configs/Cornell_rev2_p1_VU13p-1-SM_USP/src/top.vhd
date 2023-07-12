@@ -786,6 +786,7 @@ begin
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
 
+  C2C_Mon.C2C_REFCLK_FREQ <= C2C_REFCLK_FREQ;
     
   debug_ila2_inst : entity work.debug_ila2
     PORT MAP (
