@@ -37,6 +37,8 @@ set_property -quiet PACKAGE_PIN AT17 [get_ports p_clk_200] ; # IN: oscillator cl
 set_property -quiet PACKAGE_PIN AU16 [get_ports n_clk_200] ; # IN: oscillator clock
 create_clock -period 5.00 -name clock_async [get_ports p_clk_200]
 set_property DIFF_TERM_ADV TERM_100 [get_ports *_clk_200]
+set_property IOSTANDARD LVDS [get_ports  *_clk_200]
+
 
 #-------------------------------------------------
 
@@ -45,15 +47,15 @@ set_property PACKAGE_PIN  BD12 [get_ports  n_util_clk_chan0 ]
 set_property PACKAGE_PIN  BD13 [get_ports  p_util_clk_chan0 ]
 
 
-set_property PACKAGE_PIN  BG19  [get_ports  {n_mgt_z2k[1]} ]
-set_property PACKAGE_PIN  BG20  [get_ports  {p_mgt_z2k[1]} ]
+set_property PACKAGE_PIN  BF12  [get_ports  {n_mgt_k2z[2]} ]
+set_property PACKAGE_PIN  BF13  [get_ports  {p_mgt_k2z[2]} ]
 set_property PACKAGE_PIN  BH12  [get_ports  {n_mgt_z2k[2]} ]
 set_property PACKAGE_PIN  BH13  [get_ports  {p_mgt_z2k[2]} ]
 
 set_property PACKAGE_PIN  BF17  [get_ports  {n_mgt_k2z[1]} ]
 set_property PACKAGE_PIN  BF18 [get_ports  {p_mgt_k2z[1]} ]
-set_property PACKAGE_PIN  BF12  [get_ports  {n_mgt_k2z[2]} ]
-set_property PACKAGE_PIN  BF13  [get_ports  {p_mgt_k2z[2]} ]
+set_property PACKAGE_PIN  BG19  [get_ports  {n_mgt_z2k[1]} ]
+set_property PACKAGE_PIN  BG20  [get_ports  {p_mgt_z2k[1]} ]
 #-----------------------------------------------
 
 
