@@ -8,7 +8,9 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
-use work.AXISlaveAddrPkg.all;                                                                                              
+use work.AXISlaveAddrPkg.all;
+
+use work.Global_PKG.all;
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -254,6 +256,12 @@ entity top is
       signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
       signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
+      signal i2c_AXI_MASTER_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
+      signal i2c_AXI_MASTER_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
+      signal i2c_AXI_MASTER_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
+      signal i2c_AXI_MASTER_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+      signal i2c_AXI_MASTER_rst_n : std_logic;
+      
       signal C2C_Mon  : C2C_INTF_MON_t;
       signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
@@ -278,8 +286,17 @@ entity top is
       signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
       signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
-        signal pB_UART_tx : std_logic;
-  signal pB_UART_rx : std_logic;
+      signal pB_UART_tx : std_logic;
+      signal pB_UART_rx : std_logic;
+
+      signal C2C_REFCLK_FREQ : slv_32_t;
+      signal c2c_refclk : std_logic;
+      signal c2c_refclk_odiv2     : std_logic;
+      signal buf_c2c_refclk_odiv2 : std_logic;
+
+      signal sda_in  : std_logic;
+      signal sda_out : std_logic;
+      signal sda_en  : std_logic;
 
       
 begin        
@@ -294,150 +311,47 @@ begin
             clk_in1_n  => n_clk_200);
     AXI_CLK <= clk_50;
 
--- add differential clock buffers to all the incoming clocks
---wire lf_x12_r0_clk;
---IBUFDS lf_x12_r0_clk_buf(.O(lf_x12_r0_clk), .I(p_lf_x12_r0_clk), .IB(n_lf_x12_r0_clk) );
---wire lf_x4_r0_clk;
---IBUFDS lf_x4_r0_clk_buf(.O(lf_x4_r0_clk), .I(p_lf_x4_r0_clk), .IB(n_lf_x4_r0_clk) );
---wire rt_x12_r0_clk;
---IBUFDS rt_x12_r0_clk_buf(.O(rt_x12_r0_clk), .I(p_rt_x12_r0_clk), .IB(n_rt_x12_r0_clk) );
---wire rt_x4_r0_clk;
---IBUFDS rt_x4_r0_clk_buf(.O(rt_x4_r0_clk), .I(p_rt_x4_r0_clk), .IB(n_rt_x4_r0_clk) );
---wire tcds40_clk;           -- 40 MHz LHC clock
---IBUFDS tcds40_clk_buf(.O(tcds40_clk), .I(p_tcds40_clk), .IB(n_tcds40_clk) );
 
--- add differential output buffer to TCDS recovered clock
---wire tcds_recov_clk;
---OBUFDS(.I(tcds_recov_clk), .O(p_tcds_recov_clk), .OB(n_tcds_recov_clk)); 
----- dummy connection to tcds_recov_clk
---assign tcds_recov_clk = tcds40_clk;
+  ibufds_c2c : ibufds_gte4
+    generic map (
+      REFCLK_EN_TX_PATH  => '0',
+      REFCLK_HROW_CK_SEL => "00",
+      REFCLK_ICNTL_RX    => "00")
+    port map (
+      O     => c2c_refclk,
+      ODIV2 => c2c_refclk_odiv2,
+      CEB   => '0',
+      I     => p_rt_r0_l,
+      IB    => n_rt_r0_l
+      );
+  
+  BUFG_GT_inst_c2c_odiv2 : BUFG_GT
+    port map (
+      O => buf_c2c_refclk_odiv2,
+      CE => '1',
+      CEMASK => '1',
+      CLR => '0',
+      CLRMASK => '1', 
+      DIV => "000",
+      I => c2c_refclk_odiv2
+      );
+  rate_counter_c2c: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+    port map (
+      clk_A         => axi_clk,
+      clk_B         => buf_c2c_refclk_odiv2,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => c2c_refclk_freq);                
 
--- add a free running counter to divide the clock
---reg [27:0] divider;
---always @(posedge clk_200) begin
---  divider[27:0] <= divider[27:0] + 1;
---end
-
---assign led_f1_red = divider[27];
---assign led_f1_green = divider[26];
---assign led_f1_blue = divider[25];
---assign led_f2_red = divider[27];
---assign led_f2_green = divider[26];
---assign led_f2_blue = divider[25];
-
----- create 3 differential buffers for spare inputs 
---genvar chan;
---wire [2:0] in_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_in_spare_buf
---      IBUFDS in_spare_buf(.O(in_spare[chan]), .I(p_in_spare[chan]), .IB(n_in_spare[chan]) );
---  end
---endgenerate
-
----- create 3 differential buffers for spare outputs 
---reg [2:0] out_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_out_spare_buf
---      OBUFDS out_spare_buf(.I(out_spare[chan]), .O(p_out_spare[chan]), .OB(n_out_spare[chan]) );
---  end
---endgenerate
-
--- loop the spare in to the spare out
---always @(posedge clk_200) begin
---  out_spare[2:0] <= in_spare[2:0];
---end
-
----- create differential buffers to loop the test_conn signals
---wire test_conn_clk;
---IBUFDS test_conn_clk_buf(.O(test_conn_clk), .I(p_test_conn_0), .IB(n_test_conn_0) );
---wire test_conn_3, test_conn_4;
---IBUFDS test_conn_4_buf(.O(test_conn_4), .I(p_test_conn_4), .IB(n_test_conn_4));
---IBUFDS test_conn_3_buf(.O(test_conn_3), .I(p_test_conn_3), .IB(n_test_conn_3));
---reg test_conn_out_2, test_conn_out_1;
---OBUFDS test_conn_out_2_buf(.I(test_conn_out_2), .O(p_test_conn_2), .OB(n_test_conn_2));
---OBUFDS test_conn_out_1_buf(.I(test_conn_out_1), .O(p_test_conn_1), .OB(n_test_conn_1));
-
----- loop test_conn 'in' to 'out' using 'clk'
---always @(posedge test_conn_clk) begin
---  test_conn_out_2 <= test_conn_4;
---  test_conn_out_1 <= test_conn_3;
---  test_conn_5 <= test_conn_6;
---end
-
----- create differential buffers to loop the 'hdr' signals
---wire hdr_clk;
---IBUFDS hdr_clk_buf(.O(hdr_clk), .I(hdr1), .IB(hdr2) );
-
----- loop hdr 'in' to 'out' using 'clk'
---always @(posedge hdr_clk) begin
---  hdr7 <= hdr3;
---  hdr8 <= hdr4;
---  hdr9 <= hdr5;
---  hdr10 <= hdr6;
---end
-
----- create tri-state buffers for generic I2C scl and sda
---wire i2c_scl_generic_out, i2c_scl_generic_tri, i2c_scl_generic_in;
---generic_scl: IOBUF 
---  port map (
---    clk_200   => clk_200,
---    I => i2c_scl_generic_out,
---    T => i2c_scl_generic_tri,
---    O => i2c_scl_generic_in,
---    IO => i2c_scl_f_generic
---    );                    
---wire i2c_sda_generic_out, i2c_sda_generic_tri, i2c_sda_generic_in; 
---IOBUF generic_sda(.I(i2c_sda_generic_out),.T(i2c_sda_generic_tri), .O(i2c_sda_generic_in), .IO(i2c_sda_f_generic));
-
---wire i2c_scl_sysmon_out, i2c_scl_sysmon_tri, i2c_scl_sysmon_in; 
---IOBUF sysmon_scl(.I(i2c_scl_sysmon_out),.T(i2c_scl_sysmon_tri), .O(i2c_scl_sysmon_in), .IO(i2c_scl_f_sysmon));
---wire i2c_sda_sysmon_out, i2c_sda_sysmon_tri, i2c_sda_sysmon_in; 
---IOBUF sysmon_sda(.I(i2c_sda_sysmon_out),.T(i2c_sda_sysmon_tri), .O(i2c_sda_sysmon_in), .IO(i2c_sda_f_sysmon));
-
----- create dummy logic to use remaining inputs and outputs 
---always @(posedge clk_200) begin
---  f_to_mcu <= mcu_to_f & fpga_identity;
---end
-
--- add a ffx4 block to use 1 quad (quad AF = FF4)
---BD_FFx4 FFx4_AF (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_af),
---  .refclk_p(p_lf_r0_af),
---  .rx_n({n_ff4_recv[0],n_ff4_recv[1],n_ff4_recv[2],n_ff4_recv[3]}),
---  .rx_p({p_ff4_recv[0],p_ff4_recv[1],p_ff4_recv[2],p_ff4_recv[3]}),
---  .tx_n({n_ff4_xmit[0],n_ff4_xmit[1],n_ff4_xmit[2],n_ff4_xmit[3]}),
---  .tx_p({p_ff4_xmit[0],p_ff4_xmit[1],p_ff4_xmit[2],p_ff4_xmit[3]})
---);
-
----- add a ffx4 block to use 1 quad (quad U = FF6)
---FFx4_U FFx4_U (
---  .init_clk(clk_200),
---  .refclk_n(n_lf_r0_u),
---  .refclk_p(p_lf_r0_u),
---  .rx_n({n_ff6_recv[0],n_ff6_recv[1],n_ff6_recv[2],n_ff6_recv[3]}),
---  .rx_p({p_ff6_recv[0],p_ff6_recv[1],p_ff6_recv[2],p_ff6_recv[3]}),
---  .tx_n({n_ff6_xmit[0],n_ff6_xmit[1],n_ff6_xmit[2],n_ff6_xmit[3]}),
---  .tx_p({p_ff6_xmit[0],p_ff6_xmit[1],p_ff6_xmit[2],p_ff6_xmit[3]})
---);
-
--- add a ffx12 block to use 3 quads (quad AC,AD,AE = FF1)
---BD_FFx12 FFx12_AD (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_ad),
---  .refclk_p(p_lf_r0_ad),
---  .rx_n({n_ff1_recv[11],n_ff1_recv[10],n_ff1_recv[9],n_ff1_recv[8],n_ff1_recv[7],n_ff1_recv[6],n_ff1_recv[5],n_ff1_recv[4],n_ff1_recv[3],n_ff1_recv[2],n_ff1_recv[1],n_ff1_recv[0]}),
---  .rx_p({p_ff1_recv[11],p_ff1_recv[10],p_ff1_recv[9],p_ff1_recv[8],p_ff1_recv[7],p_ff1_recv[6],p_ff1_recv[5],p_ff1_recv[4],p_ff1_recv[3],p_ff1_recv[2],p_ff1_recv[1],p_ff1_recv[0]}),
---  .tx_n({n_ff1_xmit[11],n_ff1_xmit[10],n_ff1_xmit[9],n_ff1_xmit[8],n_ff1_xmit[7],n_ff1_xmit[6],n_ff1_xmit[5],n_ff1_xmit[4],n_ff1_xmit[3],n_ff1_xmit[2],n_ff1_xmit[1],n_ff1_xmit[0]}),
---  .tx_p({p_ff1_xmit[11],p_ff1_xmit[10],p_ff1_xmit[9],p_ff1_xmit[8],p_ff1_xmit[7],p_ff1_xmit[6],p_ff1_xmit[5],p_ff1_xmit[4],p_ff1_xmit[3],p_ff1_xmit[2],p_ff1_xmit[1],p_ff1_xmit[0]})
---);
 
  c2csslave_wrapper_1: entity work.c2cslave_wrapper
-    port map (
-      AXI_CLK                               => AXI_CLK,
-      AXI_RST_N(0)                          => AXI_RST_N,
+   port map (
+     EXT_CLK                             => clk_50,
+     AXI_MASTER_CLK                             => AXI_CLK,      
+     AXI_MASTER_RSTN                        => locked_clk200,
+     sys_reset_rst_n(0)                     => AXI_RST_N,
       CM1_PB_UART_rxd                     => pB_UART_tx,
       CM1_PB_UART_txd                     => pB_UART_rx,
       F2_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
@@ -448,9 +362,8 @@ begin
       F2_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
       F2_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
       F2_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
-      F2_C2C_phy_refclk_clk_n            => n_rt_r0_l,
-      F2_C2C_phy_refclk_clk_p            => p_rt_r0_l,
-      clk50Mhz                              => clk_50,
+      F2_C2C_phy_refclk                   => c2c_refclk,
+      F2_C2CB_phy_refclk                   => c2c_refclk,
       
       F2_IO_araddr                           => local_AXI_ReadMOSI(0).address,              
       F2_IO_arprot                           => local_AXI_ReadMOSI(0).protection_type,      
@@ -550,7 +463,6 @@ begin
       F2_IPBUS_wready(0)                => ext_AXI_WriteMISO.ready_for_data,       
       F2_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
       F2_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
-      reset_n                               => locked_clk200,--reset,
 
       F2_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
       F2_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
@@ -660,6 +572,28 @@ begin
       F2_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
       F2_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
 
+
+      I2C_MASTER_araddr                  => i2c_AXI_MASTER_readMOSI.address,
+      I2C_MASTER_arprot                  => i2c_AXI_MASTER_readMOSI.protection_type,
+      I2C_MASTER_arready                 => i2c_AXI_MASTER_readMISO.ready_for_address,
+      I2C_MASTER_arvalid                 => i2c_AXI_MASTER_readMOSI.address_valid,
+      I2C_MASTER_awaddr                  => i2c_AXI_MASTER_writeMOSI.address,
+      I2C_MASTER_awprot                  => i2c_AXI_MASTER_writeMOSI.protection_type,
+      I2C_MASTER_awready                 => i2c_AXI_MASTER_writeMISO.ready_for_address,
+      I2C_MASTER_awvalid                 => i2c_AXI_MASTER_writeMOSI.address_valid,
+      I2C_MASTER_bready                  => i2c_AXI_MASTER_writeMOSI.ready_for_response,
+      I2C_MASTER_bresp                   => i2c_AXI_MASTER_writeMISO.response,
+      I2C_MASTER_bvalid                  => i2c_AXI_MASTER_writeMISO.response_valid,
+      I2C_MASTER_rdata                   => i2c_AXI_MASTER_readMISO.data,
+      I2C_MASTER_rready                  => i2c_AXI_MASTER_readMOSI.ready_for_data,
+      I2C_MASTER_rresp                   => i2c_AXI_MASTER_readMISO.response,
+      I2C_MASTER_rvalid                  => i2c_AXI_MASTER_readMISO.data_valid,
+      I2C_MASTER_wdata                   => i2c_AXI_MASTER_writeMOSI.data,
+      I2C_MASTER_wready                  => i2c_AXI_MASTER_writeMISO.ready_for_data,
+      I2C_MASTER_wstrb                   => i2c_AXI_MASTER_writeMOSI.data_write_strobe,
+      I2C_MASTER_wvalid                  => i2c_AXI_MASTER_writeMOSI.data_valid,
+
+     
       F2_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
       F2_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
 );
@@ -808,6 +742,9 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
+
+  C2C_Mon.C2C_REFCLK_FREQ <= C2C_REFCLK_FREQ;
+
     
 end architecture structure;
 
