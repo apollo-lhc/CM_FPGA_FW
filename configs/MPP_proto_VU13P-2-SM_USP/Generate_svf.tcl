@@ -20,8 +20,8 @@ open_hw_target [get_hw_targets -regexp .*/${SVF_TARGET}]
 #add the uC to the chain
 #create_hw_device -idcode 4BA00477
 
-#add the Zynq to the chain
-create_hw_device -part xczu11eg-ffvc1760-1-e
+# #add the Zynq to the chain
+# create_hw_device -part xcvu13p-flga2577-1-e
 
 #add the kintex to the chain
 set DEVICE [create_hw_device -part ${FPGA_part}]
