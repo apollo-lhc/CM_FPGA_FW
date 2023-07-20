@@ -1,7 +1,6 @@
 [submodule "bd"]
 	path = bd
-	url = http://github.com/dgastler/BU_BUILD.git
-	branch = develop
+	url = http://github.com/BU-Tools/BU_BUILD.git
 
 [submodule "regmap_helper"]
 	path = regmap_helper
