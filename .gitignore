@@ -8,7 +8,7 @@ make_log.txt
 #################################################################################
 #build direcotry
 proj/
-
+.Xil
 #all the vivado stuff in the cores directory execpt the xci files
 cores/*/*
 !cores/*/*.xci
@@ -53,3 +53,4 @@ doc/*.pdf
 configs/*/autogen/*
 vivado*
 *.log
+kernel
