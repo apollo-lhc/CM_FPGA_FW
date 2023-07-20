@@ -11,7 +11,10 @@ set C2CB_PHY ${C2CB}_PHY
 
 #create remote device tree entries
 global REMOTE_C2C
+global REMOTE_C2C_64
 set REMOTE_C2C 1
+set REMOTE_C2C_64 1
+
 
 set top top
 

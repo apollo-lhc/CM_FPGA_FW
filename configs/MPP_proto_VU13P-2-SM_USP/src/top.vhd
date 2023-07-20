@@ -17,36 +17,28 @@ use UNISIM.vcomponents.all;
 entity top is
   port (
     -- clocks
-    p_clk_200 : in std_logic;
-    n_clk_200 : in std_logic;           -- 100 MHz system clock
+    clk_200_p : in std_logic;
+    clk_200_n : in std_logic;           -- 100 MHz system clock
+    -- FF clocks
+    clk_ff_P        : in  std_logic_vector(63 downto 0);
+    clk_ff_N        : in  std_logic_vector(63 downto 0);
 
     -- Zynq AXI Chip2Chip
-    n_util_clk_chan0 : in std_logic;
-    p_util_clk_chan0 : in std_logic;
     n_mgt_z2k        : in  std_logic_vector(2 downto 1);
     p_mgt_z2k        : in  std_logic_vector(2 downto 1);
     n_mgt_k2z        : out std_logic_vector(2 downto 1);
-    p_mgt_k2z        : out std_logic_vector(2 downto 1)
+    p_mgt_k2z        : out std_logic_vector(2 downto 1);
 
---    k_fpga_i2c_scl   : inout std_logic;
---    k_fpga_i2c_sda   : inout std_logic
+    -- 200.00 MHz clock f
+    clk_tc_p        : in  std_logic;
+    clk_tc_n        : in  std_logic;        
+    -- clock out
+    CLK_TC_OUT_P    : out std_logic;
+    CLK_TC_OUT_N    : out std_logic;
+    -- I2C
+    SCL             : in  std_logic;
+    SDA             : inout std_logic
 
-    --TCDS
-    --p_clk0_chan0     : in std_logic; -- 200 MHz system clock
-    --n_clk0_chan0     : in std_logic; 
-    --p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
-    --n_clk1_chan0     : in std_logic;
-    --p_atca_tts_out   : out std_logic;
-    --n_atca_tts_out   : out std_logic;
-    --p_atca_ttc_in    : in  std_logic;
-    --n_atca_ttc_in    : in  std_logic;
-
-    
-    -- tri-color LED
-    --led_red : out std_logic;
-    --led_green : out std_logic;
-    --led_blue : out std_logic       -- assert to turn on
-    -- utility bits to/from TM4C
     );    
 end entity top;
 
@@ -103,8 +95,21 @@ architecture structure of top is
   signal bram_wrdata_a : std_logic_vector(63 downto 0);
   signal bram_rddata_a : std_logic_vector(63 downto 0);
 
+  signal clocktc          : std_logic;
+  signal clocktc_bufg     : std_logic;
+  signal clk_ff_ds        : std_logic_vector (63 downto 0);
+  signal clk_ff_bufg      : std_logic_vector (63 downto 0);
+  signal SCL_b            : std_logic;
+  signal SDA_b            : std_logic;
+  signal SDA_Z_en         : std_logic;
+  signal mmcm_reset_r0    : std_logic;
+  signal mmcm_reset_r1    : std_logic;
+  signal mmcm_reset_r2    : std_logic;
+  signal mmcm_lock        : std_logic;
+  
+  signal clock_tc_out     : std_logic;
 
-  constant family : string := "kintexuplus";
+  constant family : string := "virtexuplus";
   constant axi_protocol : string := "AXI4";
 
 
@@ -114,7 +119,21 @@ architecture structure of top is
   
 begin  -- architecture structure
 
-  --Clocking
+  core : entity work.core
+  port map (
+      clock200    =>  clk_200,
+      reset       =>  mmcm_reset_r2,
+      SCL         =>  SCL_b,
+      SDA         =>  SDA_b,
+      SDA_Z_en    =>  SDA_Z_en,
+      clocks      =>  clk_ff_bufg,
+      clk_50      =>  clk_50,
+      clk_in_tc   =>  clocktc_bufg,
+      clk_out_tc  =>  clocktc_bufg
+  );
+
+
+
   --Clocking
   Local_Clocking: entity work.onboardclk
     port map (
@@ -122,8 +141,8 @@ begin  -- architecture structure
       clk_50Mhz    => clk_50,
       reset     => '0',
       locked    => locked_clk200,
-      clk_in1_p => p_clk_200,
-      clk_in1_n => n_clk_200);
+      clk_in1_p => clk_200_p,
+      clk_in1_n => clk_200_n);
   
   AXI_CLK <= clk_50;
 
@@ -144,8 +163,8 @@ begin  -- architecture structure
       K_C2CB_phy_Rx_rxp                  => p_mgt_z2k(2 downto 2),
       K_C2CB_phy_Tx_txn                  => n_mgt_k2z(2 downto 2),
       K_C2CB_phy_Tx_txp                  => p_mgt_k2z(2 downto 2),
-      K_C2C_phy_refclk_clk_n            => n_util_clk_chan0,
-      K_C2C_phy_refclk_clk_p            => p_util_clk_chan0,
+      K_C2C_phy_refclk_clk_n            => clk_ff_n(62),
+      K_C2C_phy_refclk_clk_p            => clk_ff_p(62),
       clk50Mhz                            => clk_50,
       K_IO_araddr                         => local_AXI_ReadMOSI(0).address,              
       K_IO_arprot                         => local_AXI_ReadMOSI(0).protection_type,      
@@ -386,7 +405,112 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
+    -- clocktc
+    clocktc_i_buff : IBUFDS
+    generic map (
+        DIFF_TERM       =>  TRUE,
+        IBUF_LOW_PWR    =>  FALSE
+    )
+    port map
+    (
+        I  => clk_tc_p,
+        IB => clk_tc_n,
+        O  => clocktc
+    );
+    clocktc_bufg_inst : BUFG
+    port map (
+        O => clocktc_bufg,
+        I => clocktc
+    );
 
+
+  -- reset
+  reset_logic : process(clk_200)
+  begin
+      if rising_edge(clk_200) then
+          if mmcm_lock = '0' then
+              mmcm_reset_r0 <= '1';
+              mmcm_reset_r1 <= '1';
+              mmcm_reset_r2 <= '1';
+          else
+              mmcm_reset_r0 <= '0';
+              mmcm_reset_r1 <= mmcm_reset_r0;
+              mmcm_reset_r2 <= mmcm_reset_r1;
+          end if;
+      end if;
+  end process;
+
+  -- FF clocks
+  IBUFDS_GTE4_64: for i in 0 to 63 generate
+    clockFF_i_buff : IBUFDS_GTE4
+--        generic map (
+--            REFCLK_HROW_CK_SEL  =>  2'b00
+--        )
+    port map
+    (
+        I   => clk_ff_p(i),
+        IB  => clk_ff_n(i),
+        CEB => '0',
+        ODIV2   => clk_ff_ds(i)
+    );
+  
+  clockFF_bufg : BUFG_GT
+  port map (
+    O => clk_ff_bufg(i),             -- 1-bit output: Buffer
+    CE => '1',           -- 1-bit input: Buffer enable
+    CEMASK => '1',   -- 1-bit input: CE Mask
+    CLR => '0',         -- 1-bit input: Asynchronous clear
+    CLRMASK => '0', -- 1-bit input: CLR Mask
+    DIV => "000",         -- 3-bit input: Dynamic divide Value
+    I => clk_ff_ds(i)             -- 1-bit input: Buffer
+  );
+  end generate;
+
+
+
+  ODDRE1_inst : ODDRE1
+  generic map (
+    IS_C_INVERTED => '0',            -- Optional inversion for C
+    IS_D1_INVERTED => '0',           -- Unsupported, do not use
+    IS_D2_INVERTED => '0',           -- Unsupported, do not use
+    SIM_DEVICE => "ULTRASCALE_PLUS", -- Set the device version for simulation functionality (ULTRASCALE,
+                                    -- ULTRASCALE_PLUS, ULTRASCALE_PLUS_ES1, ULTRASCALE_PLUS_ES2)
+    SRVAL => '0'                     -- Initializes the ODDRE1 Flip-Flops to the specified value ('0', '1')
+  )
+  port map (
+    Q => clock_tc_out,   -- 1-bit output: Data output to IOB
+    C => clk_ff_bufg(0),   --  clk_ff_bufg(0) corresponds to gty120
+    D1 => '1', -- 1-bit input: Parallel data input 1
+    D2 => '0', -- 1-bit input: Parallel data input 2
+    SR => '0'  -- 1-bit input: Active-High Async Reset
+  );
+  OBUFDS_inst : OBUFDS
+  port map (
+    O => CLK_TC_OUT_P,   -- 1-bit output: Diff_p output (connect directly to top-level port)
+    OB => CLK_TC_OUT_N, -- 1-bit output: Diff_n output (connect directly to top-level port)
+    I => clock_tc_out    -- 1-bit input: Buffer input
+  );
+  SCL_buff_in: IBUF
+  port map (
+      I => SCL,
+      O => SCL_b
+  );
+
+  SDA_buff_io : IOBUF
+  generic map (
+    DRIVE => 12,
+    IOSTANDARD => "DEFAULT",
+    SLEW => "SLOW")
+  port map (
+    O  => SDA_b,   -- Buffer output
+    IO => SDA,     -- Buffer inout port (connect directly to top-level port)
+    I  => '0',     -- Buffer input
+    T  => SDA_Z_en -- 3-state enable input, high=input, low=output 
+  );
+
+
+
+  
 
   
 end architecture structure;
