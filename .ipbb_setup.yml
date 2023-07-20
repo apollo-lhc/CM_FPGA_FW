@@ -3,13 +3,10 @@ init:
   - make list 
   - make prebuild_EMP_Cornell_rev1_p2_VU7p-1-SM_USP
   - make address_table_EMP_Cornell_rev1_p2_VU7p-1-SM_USP
-  - make EMP_Cornell_rev1_p2_VU7p-1-SM_USP.tar.gz
   - make prebuild_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
   - make address_table_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
-  - make EMP_Cornell_rev2_p1_VU13p-1-SM_USP.tar.gz
   - make prebuild_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
   - make address_table_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
-  - make EMP_Cornell_rev2_p2_VU13p-1-SM_USP.tar.gz
 
 
 reset:
