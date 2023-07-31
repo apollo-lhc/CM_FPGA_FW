@@ -15,7 +15,7 @@ AXI_SLAVES:
         range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/CM_IO.xml"
-    UHAL_BASE: 0x81000000
+    UHAL_BASE: 0x83000000
     HDL: 
       out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
