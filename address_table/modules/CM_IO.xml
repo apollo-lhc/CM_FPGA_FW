@@ -1,40 +1,9 @@
 <node id="CM_IO">
   <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
   <!--<node id="CLK_LF_X12_R0_LOCKED"    address="0x00000010" mask="0x00000002" permission="r"/>-->
-  <node id="TEST_CONST"        address="0x00000011" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_X12_R0_CLK"     address="0x00000012" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_X4_R0_CLK"     address="0x00000013" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_X12_R0_CLK"     address="0x00000014" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_X4_R0_CLK"     address="0x00000015" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R0_AB"     address="0x00000016" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_AB"     address="0x00000017" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_L"     address="0x00000018" mask="0xFFFFFFFF" permission="r"/>
-  <node id="TCDS40_CLK"     address="0x00000019" mask="0xFFFFFFFF" permission="r"/>
-  <!--<node id="RT_R0_L"     address="0x00000020" mask="0xFFFFFFFF" permission="r"/>-->
-  <node id="LF_R0_AD"     address="0x00000021" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_AD"     address="0x00000022" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R0_AF"     address="0x00000023" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_AF"     address="0x00000024" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R0_U"     address="0x00000025" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_U"     address="0x00000026" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R0_R"     address="0x00000032" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_R"     address="0x00000033" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R0_Y"     address="0x00000034" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R1_Y"     address="0x00000035" mask="0xFFFFFFFF" permission="r"/>
-  <node id="LF_R0_V"     address="0x00000036" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_N"     address="0x00000037" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R1_N"     address="0x00000038" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_B"     address="0x00000039" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R1_B"     address="0x00000040" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_E"     address="0x00000041" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R1_E"     address="0x00000042" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_F"     address="0x00000043" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_G"     address="0x00000044" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R1_G"     address="0x00000045" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_P"     address="0x00000046" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R1_P"     address="0x00000047" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R0_I"     address="0x00000048" mask="0xFFFFFFFF" permission="r"/>
-  <node id="RT_R1_I"     address="0x00000049" mask="0xFFFFFFFF" permission="r"/>
+  <node id="TEST_CONST"    address="0x00000011" mask="0xffffffff" permission="r"/>
+  <node id="CLOCKS"            address="0x00000100" module="file://CM_IO_CLOCKS.xml">
+  </node>
   <node id="RGB"  address="0x00000200">
     <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
     <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>

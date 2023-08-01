@@ -11,6 +11,7 @@ use work.C2C_INTF_CTRL.all;
 use work.AXISlaveAddrPkg.all;                                                                
 
 use work.HAL_TOP_IO_PKG.all;
+use work.Global_PKG.all;
                               
 
 Library UNISIM;
@@ -200,7 +201,10 @@ entity top is
   TCDS_BP_clk_n   : in std_logic;
 
   n_TCDS_REC_out : out std_logic;
-  p_TCDS_REC_out : out std_logic
+  p_TCDS_REC_out : out std_logic;
+
+  SDA                : inout std_logic;
+  SCL                : in    std_logic
 
   );
 end entity top;
@@ -231,6 +235,13 @@ architecture structure of top is
   signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
   signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
+  signal i2c_AXI_MASTER_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
+  signal i2c_AXI_MASTER_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
+  signal i2c_AXI_MASTER_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
+  signal i2c_AXI_MASTER_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+  signal i2c_AXI_MASTER_rst_n : std_logic;
+  
+  
   signal C2C_Mon  : C2C_INTF_MON_t;
   signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
@@ -261,6 +272,15 @@ architecture structure of top is
 
   signal clk_LHC_320 : std_logic;
   signal rstn_LHC   : std_logic;
+
+  signal C2C_REFCLK_FREQ : slv_32_t;
+  signal c2c_refclk : std_logic;
+  signal c2c_refclk_odiv2     : std_logic;
+  signal buf_c2c_refclk_odiv2 : std_logic;
+
+  signal sda_in  : std_logic;
+  signal sda_out : std_logic;
+  signal sda_en  : std_logic;
   
 begin        
   -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
@@ -275,6 +295,40 @@ begin
   AXI_CLK <= clk_50;
 
 
+  ibufds_c2c : ibufds_gte4
+    generic map (
+      REFCLK_EN_TX_PATH  => '0',
+      REFCLK_HROW_CK_SEL => "00",
+      REFCLK_ICNTL_RX    => "00")
+    port map (
+      O     => c2c_refclk,
+      ODIV2 => c2c_refclk_odiv2,
+      CEB   => '0',
+      I     => p_rt_r0_l,
+      IB    => n_rt_r0_l
+      );
+  
+  BUFG_GT_inst_c2c_odiv2 : BUFG_GT
+    port map (
+      O => buf_c2c_refclk_odiv2,
+      CE => '1',
+      CEMASK => '1',
+      CLR => '0',
+      CLRMASK => '1', 
+      DIV => "000",
+      I => c2c_refclk_odiv2
+      );
+  rate_counter_c2c: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+    port map (
+      clk_A         => axi_clk,
+      clk_B         => buf_c2c_refclk_odiv2,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => c2c_refclk_freq);                
+
+  
   
   itdtc_top_1: entity work.itdtc_top
     generic map (
@@ -307,8 +361,12 @@ begin
   
   c2csslave_wrapper_1: entity work.c2cslave_wrapper
     port map (
-      AXI_CLK                               => AXI_CLK,
-      AXI_RST_N(0)                          => AXI_RST_N,
+      EXT_CLK                             => clk_50,
+      --EXT_RSTN                            => locked_clk200,
+      AXI_MASTER_CLK                             => AXI_CLK,      
+      --AXI_MASTER_RSTN                        => --AXI_RST_N,
+      AXI_MASTER_RSTN                        => locked_clk200,
+      sys_reset_rst_n(0)                     => AXI_RST_N,
       CM1_PB_UART_rxd                     => pB_UART_tx,
       CM1_PB_UART_txd                     => pB_UART_rx,
       F1_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
@@ -319,9 +377,9 @@ begin
       F1_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
       F1_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
       F1_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
-      F1_C2C_phy_refclk_clk_n            => n_rt_r0_l,
-      F1_C2C_phy_refclk_clk_p            => p_rt_r0_l,
-      clk50Mhz                              => clk_50,
+      F1_C2C_phy_refclk                   => c2c_refclk,
+      F1_C2CB_phy_refclk                   => c2c_refclk,
+--      clk50Mhz                              => clk_50,
 
       lhc_clk                                => clk_LHC_320,
       lhc_rstn                               => rstn_LHC,
@@ -474,7 +532,7 @@ begin
       F1_IPBUS_awregion                 => ext_AXI_WriteMOSI.region,
       F1_IPBUS_awsize                   => ext_AXI_WriteMOSI.burst_size,
       F1_IPBUS_awvalid(0)               => ext_AXI_WriteMOSI.address_valid,       
-      F1_IPBUS_bready(0)                => ext_AXI_WriteMOSI.ready_for_response,  
+      F1_IPBUS_bready(0)                => ext_AXI_WriteMOSI.ready_for_response, 
       F1_IPBUS_bresp                    => ext_AXI_WriteMISO.response,            
       F1_IPBUS_bvalid(0)                => ext_AXI_WriteMISO.response_valid,      
       F1_IPBUS_rdata                    => ext_AXI_ReadMISO.data,
@@ -487,7 +545,7 @@ begin
       F1_IPBUS_wready(0)                => ext_AXI_WriteMISO.ready_for_data,       
       F1_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
       F1_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
-      reset_n                               => locked_clk200,--reset,
+--      reset_n                               => locked_clk200,--reset,
 
       F1_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
       F1_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
@@ -597,6 +655,28 @@ begin
       F1_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
       F1_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
 
+      SYS_RESET_bus_rst_n(0)             => i2c_AXI_MASTER_rst_n,
+      I2C_MASTER_araddr                  => i2c_AXI_MASTER_readMOSI.address,
+      I2C_MASTER_arprot                  => i2c_AXI_MASTER_readMOSI.protection_type,
+      I2C_MASTER_arready                 => i2c_AXI_MASTER_readMISO.ready_for_address,
+      I2C_MASTER_arvalid                 => i2c_AXI_MASTER_readMOSI.address_valid,
+      I2C_MASTER_awaddr                  => i2c_AXI_MASTER_writeMOSI.address,
+      I2C_MASTER_awprot                  => i2c_AXI_MASTER_writeMOSI.protection_type,
+      I2C_MASTER_awready                 => i2c_AXI_MASTER_writeMISO.ready_for_address,
+      I2C_MASTER_awvalid                 => i2c_AXI_MASTER_writeMOSI.address_valid,
+      I2C_MASTER_bready                  => i2c_AXI_MASTER_writeMOSI.ready_for_response,
+      I2C_MASTER_bresp                   => i2c_AXI_MASTER_writeMISO.response,
+      I2C_MASTER_bvalid                  => i2c_AXI_MASTER_writeMISO.response_valid,
+      I2C_MASTER_rdata                   => i2c_AXI_MASTER_readMISO.data,
+      I2C_MASTER_rready                  => i2c_AXI_MASTER_readMOSI.ready_for_data,
+      I2C_MASTER_rresp                   => i2c_AXI_MASTER_readMISO.response,
+      I2C_MASTER_rvalid                  => i2c_AXI_MASTER_readMISO.data_valid,
+      I2C_MASTER_wdata                   => i2c_AXI_MASTER_writeMOSI.data,
+      I2C_MASTER_wready                  => i2c_AXI_MASTER_writeMISO.ready_for_data,
+      I2C_MASTER_wstrb                   => i2c_AXI_MASTER_writeMOSI.data_write_strobe,
+      I2C_MASTER_wvalid                  => i2c_AXI_MASTER_writeMOSI.data_valid,
+
+      
       F1_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
       F1_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
       );
@@ -607,6 +687,29 @@ begin
             C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0);
             
 
+  i2cAXIMaster_1: entity work.i2cAXIMaster
+    generic map (
+      I2C_ADDRESS => "0100000"
+      )
+    port map (
+      clk_axi         => AXI_CLK,
+      reset_axi_n     => i2c_AXI_MASTER_rst_n,
+      readMOSI        => i2c_AXI_MASTER_readMOSI,
+      readMISO        => i2c_AXI_MASTER_readMISO,
+      writeMOSI       => i2c_AXI_MASTER_writeMOSI,
+      writeMISO       => i2c_AXI_MASTER_writeMISO,
+      SCL             => SCL,
+      SDA_in          => SDA_in,
+      SDA_out         => SDA_out,
+      SDA_en          => SDA_en);
+  sda_iobuf : iobuf
+    port map (
+      IO => SDA,
+      O => SDA_in,
+      I => SDA_out,
+      T => not SDA_en);
+
+  
   
   RGB_pwm_1: entity work.RGB_pwm
     generic map (
@@ -750,6 +853,45 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
+
+
+
+  debug_ila2_inst : entity work.debug_ila2
+    PORT MAP (
+      clk => axi_clk,
+      probe0 => c2c_refclk_freq,
+      probe1 => C2C_Mon.C2C(1).USER_FREQ,
+      probe2( 0) => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+      probe2( 1) => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+      probe2( 2) => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+      probe2( 3) => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0),
+      probe2( 4) => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+      probe2( 5) => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+      probe2( 6) => C2C_Mon.C2C(1).STATUS.DO_CC,
+      probe2( 7) => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+      probe2( 8) => C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+      probe2( 9) => C2C_MON.C2C(1).STATUS.LINK_GOOD,
+      probe2(10) => C2C_MON.C2C(1).STATUS.MB_ERROR,
+      probe2(11) => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+      probe2(15 downto 12) => (others => '0'),
+      probe2(31 downto 16) => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+      probe3( 0) => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+      probe3( 1) => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+      probe3( 2) => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+      probe3( 3) => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0),
+      probe3( 4) => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      probe3( 5) => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
+      probe3( 6) => C2C_Mon.C2C(2).STATUS.DO_CC,
+      probe3( 7) => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+      probe3( 8) => C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+      probe3( 9) => C2C_MON.C2C(2).STATUS.LINK_GOOD,
+      probe3(10) => C2C_MON.C2C(2).STATUS.MB_ERROR,
+      probe3(11) => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+      probe3(15 downto 12) => (others => '0'),
+      probe3(31 downto 16) => C2C_Mon.C2C(2).DEBUG.DMONITOR
+      );
+
+
   
 end architecture structure;
 

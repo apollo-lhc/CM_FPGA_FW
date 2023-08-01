@@ -52,21 +52,15 @@ set_property PACKAGE_PIN  BA3  [get_ports  {n_mgt_z2k[2]} ]
 set_property PACKAGE_PIN  BA4  [get_ports  {p_mgt_z2k[2]} ]
 
 set_property PACKAGE_PIN  AW7  [get_ports  {n_mgt_k2z[1]} ]
-set_property PACKAGE_PIN  AW7 [get_ports  {p_mgt_k2z[1]} ]
+set_property PACKAGE_PIN  AW8 [get_ports  {p_mgt_k2z[1]} ]
 set_property PACKAGE_PIN  AV9  [get_ports  {n_mgt_k2z[2]} ]
 set_property PACKAGE_PIN  AV10  [get_ports  {p_mgt_k2z[2]} ]
 #-----------------------------------------------
 
 
-#-----------------------------------------------
-# Pins AP14 and AP15 are fanned out to vias, but then go nowhere.
-# They could be used in an emergency as I/Os to bank 66
-#set_property PACKAGE_PIN  AP15 [get_ports  _d_18df08e0 ]
-#set_property PACKAGE_PIN  AP14 [get_ports  _d_18df15b0 ]
-#-----------------------------------------------
 
-
-
+set_property -dict {IOSTANDARD LVCMOS33  PACKAGE_PIN F14} [get_ports SCL ] ; 
+set_property -dict {IOSTANDARD LVCMOS33  PACKAGE_PIN F13} [get_ports SDA ] ; 
 
 
 

@@ -145,8 +145,10 @@ set_property PACKAGE_PIN	L35	[get_ports c2c_ok]
 set_property IOSTANDARD LVCMOS18 [get_ports i2c_s*]
 set_property PACKAGE_PIN	BB16 [get_ports i2c_scl_f_sysmon]
 set_property PACKAGE_PIN	BC16 [get_ports i2c_sda_f_sysmon]
-set_property PACKAGE_PIN	V36  [get_ports i2c_scl_f_generic]
-set_property PACKAGE_PIN	J32  [get_ports i2c_sda_f_generic]
+set_property IOSTANDARD LVCMOS18 [get_ports SCL]
+set_property IOSTANDARD LVCMOS18 [get_ports SDA]
+set_property PACKAGE_PIN	V36  [get_ports SCL]
+set_property PACKAGE_PIN	J32  [get_ports SDA]
 #-----------------------------------------------
 
 #-----------------------------------------------

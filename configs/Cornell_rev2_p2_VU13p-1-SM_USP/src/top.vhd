@@ -8,7 +8,9 @@ use work.axiRegPkg_d64.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
-use work.AXISlaveAddrPkg.all;                                                                                              
+use work.AXISlaveAddrPkg.all;
+
+use work.Global_PKG.all;
 
 Library UNISIM;
 use UNISIM.vcomponents.all;
@@ -287,106 +289,132 @@ entity top is
       signal reset           : std_logic;
       signal locked_clk200   : std_logic;
 
-      signal lf_x12_r0_clk   : std_logic;
-      signal lf_x4_r0_clk   : std_logic;
-      signal rt_x12_r0_clk   : std_logic;
-      signal rt_x4_r0_clk   : std_logic;
-      signal lf_r0_ab       : std_logic;
-      signal lf_r1_ab       : std_logic;
-      signal lf_r1_l        : std_logic;
-      signal tcds40_clk     : std_logic;
-      --signal rt_r0_l        : std_logic;
-      signal lf_r0_ad        : std_logic;
-      signal lf_r1_ad        : std_logic;
-      signal lf_r0_af        : std_logic;
-      signal lf_r1_af        : std_logic;
-      signal lf_r0_u        : std_logic;
-      signal lf_r1_u        : std_logic;
+--      signal lf_x12_r0_clk   : std_logic;
+--      signal lf_x4_r0_clk   : std_logic;
+--      signal rt_x12_r0_clk   : std_logic;
+--      signal rt_x4_r0_clk   : std_logic;
+--      signal lf_r0_ab       : std_logic;
+--      signal lf_r1_ab       : std_logic;
+--      signal lf_r1_l        : std_logic;
+--      signal tcds40_clk     : std_logic;
+--      --signal rt_r0_l        : std_logic;
+--      signal lf_r0_ad        : std_logic;
+--      signal lf_r1_ad        : std_logic;
+--      signal lf_r0_af        : std_logic;
+--      signal lf_r1_af        : std_logic;
+--      signal lf_r0_u        : std_logic;
+--      signal lf_r1_u        : std_logic;
       --signal tcds_in        : std_logic;
       --signal tcds_from_zynq_a : std_logic;
       --signal tcds_from_zynq_b : std_logic;
       --signal tcds_cross_recv_a :std_logic;
       --signal tcds_cross_recv_b :std_logic;
-      signal lf_r0_r        : std_logic;
-      signal lf_r1_r        : std_logic;
-      signal lf_r0_y        : std_logic;
-      signal lf_r1_y        : std_logic;
-      signal lf_r0_v        : std_logic;
-      signal rt_r0_n        : std_logic;
-      signal rt_r1_n        : std_logic;
-      signal rt_r0_b        : std_logic;
-      signal rt_r1_b        : std_logic;
-      signal rt_r0_e        : std_logic;
-      signal rt_r1_e        : std_logic;
-      signal rt_r0_f        : std_logic;
-      signal rt_r0_g        : std_logic;
-      signal rt_r1_g        : std_logic;
-      signal rt_r0_p        : std_logic;
-      signal rt_r1_p        : std_logic;
-      signal rt_r0_i        : std_logic;
-      signal rt_r1_i        : std_logic;
 
-      signal lf_r0_ab_2      : std_logic;
-      signal lf_r1_ab_2      : std_logic;
-      signal lf_r1_l_2      : std_logic;
-      signal lf_r0_ad_2      : std_logic;
-      signal lf_r1_ad_2      : std_logic;
-      signal lf_r0_af_2      : std_logic;
-      signal lf_r1_af_2      : std_logic;
-      signal lf_r0_u_2      : std_logic;
-      signal lf_r1_u_2      : std_logic;
-      signal lf_r0_r_2      : std_logic;
-      signal lf_r1_r_2      : std_logic;
-      signal lf_r0_y_2      : std_logic;
-      signal lf_r1_y_2      : std_logic;
-      signal lf_r0_v_2      : std_logic;
-      signal rt_r0_n_2      : std_logic;
-      signal rt_r1_n_2      : std_logic;
-      signal rt_r0_b_2      : std_logic;
-      signal rt_r1_b_2      : std_logic;
-      signal rt_r0_e_2      : std_logic;
-      signal rt_r1_e_2      : std_logic;
-      signal rt_r0_f_2      : std_logic;
-      signal rt_r0_g_2      : std_logic;
-      signal rt_r1_g_2      : std_logic;
-      signal rt_r0_p_2      : std_logic;
-      signal rt_r1_p_2      : std_logic;
-      signal rt_r0_i_2      : std_logic;
-      signal rt_r1_i_2      : std_logic;
+      
+      constant serdes_refclk_count        : integer := 28;
+      type serdes_t is record
+        p        : std_logic;
+        n        : std_logic;
+        refclk   : std_logic;
+        refclk_2 : std_logic;
+        clk      : std_logic;
+        freq     : std_logic_vector(31 downto 0);
+      end record serdes_t;
+      type serdes_array_t is array (integer range <>) of serdes_t;
+      signal serdes_refclk : serdes_array_t(0 to SERDES_REFCLK_COUNT-1);
 
-      signal buf_lf_x12_r0_clk   : std_logic;
-      signal buf_lf_x4_r0_clk   : std_logic;
-      signal buf_rt_x12_r0_clk   : std_logic;
-      signal buf_rt_x4_r0_clk   : std_logic;
-      signal buf_lf_r0_ab       : std_logic;
-      signal buf_lf_r1_ab       : std_logic;
-      signal buf_lf_r1_l       : std_logic;
-      signal buf_tcds40_clk        : std_logic;
-      --signal buf_rt_r0_l           : std_logic;
-      signal buf_lf_r0_ad           : std_logic;
-      signal buf_lf_r1_ad           : std_logic;
-      signal buf_lf_r0_af           : std_logic;
-      signal buf_lf_r1_af           : std_logic;
-      signal buf_lf_r0_u           : std_logic;
-      signal buf_lf_r1_u           : std_logic;
-      signal buf_lf_r0_r           : std_logic;
-      signal buf_lf_r1_r           : std_logic;
-      signal buf_lf_r0_y           : std_logic;
-      signal buf_lf_r1_y           : std_logic;
-      signal buf_lf_r0_v           : std_logic;
-      signal buf_rt_r0_n           : std_logic;
-      signal buf_rt_r1_n           : std_logic;
-      signal buf_rt_r0_b           : std_logic;
-      signal buf_rt_r1_b           : std_logic;
-      signal buf_rt_r0_e           : std_logic;
-      signal buf_rt_r1_e           : std_logic;
-      signal buf_rt_r0_f           : std_logic;
-      signal buf_rt_r0_g           : std_logic;
-      signal buf_rt_r1_g           : std_logic;
-      signal buf_rt_r0_p           : std_logic;
-      signal buf_rt_r1_p           : std_logic;
-      signal buf_rt_r0_i           : std_logic;
-      signal buf_rt_r1_i           : std_logic;
+      constant fabric_refclk_count        : integer := 5;
+      type fabric_t is record
+        p     : std_logic;
+        n     : std_logic;
+        clk   : std_logic;
+        freq  : std_logic_vector(31 downto 0);
+      end record fabric_t;
+      type fabric_array_t is array (integer range <>) of fabric_t;
+      signal fabric_refclk : fabric_array_t(0 to FABRIC_REFCLK_COUNT-1);
+
+      
+        
+--      signal lf_r0_r        : std_logic;
+--      signal lf_r1_r        : std_logic;
+--      signal lf_r0_y        : std_logic;
+--      signal lf_r1_y        : std_logic;
+--      signal lf_r0_v        : std_logic;
+--      signal rt_r0_n        : std_logic;
+--      signal rt_r1_n        : std_logic;
+--      signal rt_r0_b        : std_logic;
+--      signal rt_r1_b        : std_logic;
+--      signal rt_r0_e        : std_logic;
+--      signal rt_r1_e        : std_logic;
+--      signal rt_r0_f        : std_logic;
+--      signal rt_r0_g        : std_logic;
+--      signal rt_r1_g        : std_logic;
+--      signal rt_r0_p        : std_logic;
+--      signal rt_r1_p        : std_logic;
+--      signal rt_r0_i        : std_logic;
+--      signal rt_r1_i        : std_logic;
+--
+--      signal lf_r0_ab_2      : std_logic;
+--      signal lf_r1_ab_2      : std_logic;
+--      signal lf_r1_l_2      : std_logic;
+--      signal lf_r0_ad_2      : std_logic;
+--      signal lf_r1_ad_2      : std_logic;
+--      signal lf_r0_af_2      : std_logic;
+--      signal lf_r1_af_2      : std_logic;
+--      signal lf_r0_u_2      : std_logic;
+--      signal lf_r1_u_2      : std_logic;
+--      signal lf_r0_r_2      : std_logic;
+--      signal lf_r1_r_2      : std_logic;
+--      signal lf_r0_y_2      : std_logic;
+--      signal lf_r1_y_2      : std_logic;
+--      signal lf_r0_v_2      : std_logic;
+--      signal rt_r0_n_2      : std_logic;
+--      signal rt_r1_n_2      : std_logic;
+--      signal rt_r0_b_2      : std_logic;
+--      signal rt_r1_b_2      : std_logic;
+--      signal rt_r0_e_2      : std_logic;
+--      signal rt_r1_e_2      : std_logic;
+--      signal rt_r0_f_2      : std_logic;
+--      signal rt_r0_g_2      : std_logic;
+--      signal rt_r1_g_2      : std_logic;
+--      signal rt_r0_p_2      : std_logic;
+--      signal rt_r1_p_2      : std_logic;
+--      signal rt_r0_i_2      : std_logic;
+--      signal rt_r1_i_2      : std_logic;
+--
+--      signal buf_lf_x12_r0_clk   : std_logic;
+--      signal buf_lf_x4_r0_clk   : std_logic;
+--      signal buf_rt_x12_r0_clk   : std_logic;
+--      signal buf_rt_x4_r0_clk   : std_logic;
+--      signal buf_lf_r0_ab       : std_logic;
+--      signal buf_lf_r1_ab       : std_logic;
+--      signal buf_lf_r1_l       : std_logic;
+--      signal buf_tcds40_clk        : std_logic;
+--      --signal buf_rt_r0_l           : std_logic;
+--      signal buf_lf_r0_ad           : std_logic;
+--      signal buf_lf_r1_ad           : std_logic;
+--      signal buf_lf_r0_af           : std_logic;
+--      signal buf_lf_r1_af           : std_logic;
+--      signal buf_lf_r0_u           : std_logic;
+--      signal buf_lf_r1_u           : std_logic;
+--      signal buf_lf_r0_r           : std_logic;
+--      signal buf_lf_r1_r           : std_logic;
+--      signal buf_lf_r0_y           : std_logic;
+--      signal buf_lf_r1_y           : std_logic;
+--      signal buf_lf_r0_v           : std_logic;
+--      signal buf_rt_r0_n           : std_logic;
+--      signal buf_rt_r1_n           : std_logic;
+--      signal buf_rt_r0_b           : std_logic;
+--      signal buf_rt_r1_b           : std_logic;
+--      signal buf_rt_r0_e           : std_logic;
+--      signal buf_rt_r1_e           : std_logic;
+--      signal buf_rt_r0_f           : std_logic;
+--      signal buf_rt_r0_g           : std_logic;
+--      signal buf_rt_r1_g           : std_logic;
+--      signal buf_rt_r0_p           : std_logic;
+--      signal buf_rt_r1_p           : std_logic;
+--      signal buf_rt_r0_i           : std_logic;
+--      signal buf_rt_r1_i           : std_logic;
 
       signal count_lf_x12_r0_clk  : std_logic_vector(31 downto 0);
       signal count_lf_x4_r0_clk  : std_logic_vector(31 downto 0);
@@ -396,7 +424,7 @@ entity top is
       signal count_lf_r1_ab  : std_logic_vector(31 downto 0);
       signal count_lf_r1_l  : std_logic_vector(31 downto 0);
       signal count_tcds40_clk  : std_logic_vector(31 downto 0);
-      --signal count_rt_r0_l  : std_logic_vector(31 downto 0);
+      signal count_rt_r0_l  : std_logic_vector(31 downto 0);
       signal count_lf_r0_ad  : std_logic_vector(31 downto 0);
       signal count_lf_r1_ad  : std_logic_vector(31 downto 0);
       signal count_lf_r0_af  : std_logic_vector(31 downto 0);
@@ -441,6 +469,12 @@ entity top is
       signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
       signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
+      signal i2c_AXI_MASTER_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
+      signal i2c_AXI_MASTER_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
+      signal i2c_AXI_MASTER_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
+      signal i2c_AXI_MASTER_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+      signal i2c_AXI_MASTER_rst_n : std_logic;
+      
       signal C2C_Mon  : C2C_INTF_MON_t;
       signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
@@ -465,8 +499,17 @@ entity top is
       signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
       signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
-        signal pB_UART_tx : std_logic;
-  signal pB_UART_rx : std_logic;
+      signal pB_UART_tx : std_logic;
+      signal pB_UART_rx : std_logic;
+
+      signal C2C_REFCLK_FREQ : slv_32_t;
+      signal c2c_refclk : std_logic;
+      signal c2c_refclk_odiv2     : std_logic;
+      signal buf_c2c_refclk_odiv2 : std_logic;
+
+      signal sda_in  : std_logic;
+      signal sda_out : std_logic;
+      signal sda_en  : std_logic;
 
       
 begin        
@@ -481,841 +524,180 @@ begin
             clk_in1_n  => n_clk_200);
     AXI_CLK <= clk_50;
 
-    IBUFDS_inst_1 : IBUFDS
-      generic map (
-        DIFF_TERM => FALSE,
-        IBUF_LOW_PWR => TRUE,
-        IOSTANDARD => "DEFAULT")
-      port map (
-        O => lf_x12_r0_clk,
-        I => p_lf_x12_r0_clk,
-        IB => n_lf_x12_r0_clk);
+    fabric_refclk(0).p <= p_lf_x12_r0_clk;
+    fabric_refclk(0).n <= n_lf_x12_r0_clk;
+    count_lf_x12_r0_clk <= fabric_refclk(0).freq;
+    fabric_refclk(1).p <= p_lf_x4_r0_clk;
+    fabric_refclk(1).n <= n_lf_x4_r0_clk;
+    count_lf_x4_r0_clk <= fabric_refclk(1).freq;
+    fabric_refclk(2).p <= p_rt_x12_r0_clk;
+    fabric_refclk(2).n <= n_rt_x12_r0_clk;
+    count_rt_x12_r0_clk <= fabric_refclk(2).freq;
+    fabric_refclk(3).p <= p_rt_x4_r0_clk;
+    fabric_refclk(3).n <= n_rt_x4_r0_clk;
+    count_rt_x4_r0_clk <= fabric_refclk(3).freq;
+    fabric_refclk(4).p <= p_tcds40_clk;
+    fabric_refclk(4).n <= n_tcds40_clk;
+    count_tcds40_clk <= fabric_refclk(4).freq;
+    
+    serdes_refclk(0).p <= p_lf_r0_ab;
+    serdes_refclk(0).n <= n_lf_r0_ab;
+    count_lf_r0_ab <= serdes_refclk(0).freq;
+    serdes_refclk(1).p <= p_lf_r1_ab;
+    serdes_refclk(1).n <= n_lf_r1_ab;
+    count_lf_r1_ab <= serdes_refclk(1).freq;
+    serdes_refclk(2).p <= p_lf_r1_l;
+    serdes_refclk(2).n <= n_lf_r1_l;
+    count_lf_r1_l  <= serdes_refclk(2).freq;
+    serdes_refclk(3).p <= p_lf_r0_ad;
+    serdes_refclk(3).n <= n_lf_r0_ad;
+    count_lf_r0_ad <= serdes_refclk(3).freq;
+    serdes_refclk(4).p <= p_lf_r1_ad;
+    serdes_refclk(4).n <= n_lf_r1_ad;
+    count_lf_r1_ad <= serdes_refclk(4).freq;
+    serdes_refclk(5).p <= p_lf_r0_af;
+    serdes_refclk(5).n <= n_lf_r0_af;
+    count_lf_r0_af <= serdes_refclk(5).freq;
+    serdes_refclk(6).p <= p_lf_r1_af;
+    serdes_refclk(6).n <= n_lf_r1_af;
+    count_lf_r1_af <= serdes_refclk(6).freq;
+    serdes_refclk(7).p <= p_lf_r0_u;
+    serdes_refclk(7).n <= n_lf_r0_u;
+    count_lf_r0_u  <= serdes_refclk(7).freq;
+    serdes_refclk(8).p <= p_lf_r1_u;
+    serdes_refclk(8).n <= n_lf_r1_u;
+    count_lf_r1_u  <= serdes_refclk(8).freq;
+    serdes_refclk(9).p <= p_lf_r0_r;
+    serdes_refclk(9).n <= n_lf_r0_r;
+    count_lf_r0_r  <= serdes_refclk(9).freq;
+    serdes_refclk(10).p <= p_lf_r1_r;
+    serdes_refclk(10).n <= n_lf_r1_r;
+    count_lf_r1_r  <= serdes_refclk(10).freq;
+    serdes_refclk(11).p <= p_lf_r0_y;
+    serdes_refclk(11).n <= n_lf_r0_y;
+    count_lf_r0_y  <= serdes_refclk(11).freq;
+    serdes_refclk(12).p <= p_lf_r1_y;
+    serdes_refclk(12).n <= n_lf_r1_y;
+    count_lf_r1_y  <= serdes_refclk(12).freq;
+    serdes_refclk(13).p <= p_lf_r0_v;
+    serdes_refclk(13).n <= n_lf_r0_v;
+    count_lf_r0_v  <= serdes_refclk(13).freq;
+    serdes_refclk(14).p <= p_rt_r0_n;
+    serdes_refclk(14).n <= n_rt_r0_n;
+    count_rt_r0_n  <= serdes_refclk(14).freq;
+    serdes_refclk(15).p <= p_rt_r1_n;
+    serdes_refclk(15).n <= n_rt_r1_n;
+    count_rt_r1_n  <= serdes_refclk(15).freq;
+    serdes_refclk(16).p <= p_rt_r0_b;
+    serdes_refclk(16).n <= n_rt_r0_b;
+    count_rt_r0_b  <= serdes_refclk(16).freq;
+    serdes_refclk(17).p <= p_rt_r1_b;
+    serdes_refclk(17).n <= n_rt_r1_b;
+    count_rt_r1_b  <= serdes_refclk(17).freq;
+    serdes_refclk(18).p <= p_rt_r0_e;
+    serdes_refclk(18).n <= n_rt_r0_e;
+    count_rt_r0_e  <= serdes_refclk(18).freq;
+    serdes_refclk(19).p <= p_rt_r1_e;
+    serdes_refclk(19).n <= n_rt_r1_e;
+    count_rt_r1_e  <= serdes_refclk(19).freq;
+    serdes_refclk(20).p <= p_rt_r0_f;
+    serdes_refclk(20).n <= n_rt_r0_f;
+    count_rt_r0_f  <= serdes_refclk(20).freq;    
+    serdes_refclk(21).p <= p_rt_r0_g;
+    serdes_refclk(21).n <= n_rt_r0_g;
+    count_rt_r0_g  <= serdes_refclk(21).freq;
+    serdes_refclk(22).p <= p_rt_r1_g;
+    serdes_refclk(22).n <= n_rt_r1_g;
+    count_rt_r1_g  <= serdes_refclk(22).freq;
+    serdes_refclk(23).p <= p_rt_r0_p;
+    serdes_refclk(23).n <= n_rt_r0_p;
+    count_rt_r0_p  <= serdes_refclk(23).freq;
+    serdes_refclk(24).p <= p_rt_r1_p;
+    serdes_refclk(24).n <= n_rt_r1_p;
+    count_rt_r1_p  <= serdes_refclk(24).freq;
+    serdes_refclk(25).p <= p_rt_r0_i;
+    serdes_refclk(25).n <= n_rt_r0_i;
+    count_rt_r0_i  <= serdes_refclk(25).freq;
+    serdes_refclk(26).p <= p_rt_r1_i;
+    serdes_refclk(26).n <= n_rt_r1_i;
+    count_rt_r1_i  <= serdes_refclk(26).freq;
+    serdes_refclk(27).p <= p_rt_r0_l;
+    serdes_refclk(27).n <= n_rt_r0_l;
+    count_rt_r0_l  <= serdes_refclk(27).freq;
+    
 
-    IBUFDS_inst_2 : IBUFDS
-      generic map (
-        DIFF_TERM => FALSE,
-        IBUF_LOW_PWR => TRUE,
-        IOSTANDARD => "DEFAULT")
-      port map (
-        O => lf_x4_r0_clk,
-        I => p_lf_x4_r0_clk,
-        IB => n_lf_x4_r0_clk);
-    
-    IBUFDS_inst_3 : IBUFDS
-      generic map (
-        DIFF_TERM => FALSE,
-        IBUF_LOW_PWR => TRUE,
-        IOSTANDARD => "DEFAULT")
-      port map (
-        O => rt_x12_r0_clk,
-        I => p_rt_x12_r0_clk,
-        IB => n_rt_x12_r0_clk);
-    
-    IBUFDS_inst_4 : IBUFDS
-      generic map (
-        DIFF_TERM => FALSE,
-        IBUF_LOW_PWR => TRUE,
-        IOSTANDARD => "DEFAULT")
-      port map (
-        O => rt_x4_r0_clk,
-        I => p_rt_x4_r0_clk,
-        IB => n_rt_x4_r0_clk);
 
-    IBUFDS_GTE4_INST_lf_r0_ab : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_ab,
-        ODIV2 => lf_r0_ab_2,
-        CEB => '0',
-        I => p_lf_r0_ab,
-        IB => n_lf_r0_ab);
-    
-    IBUFDS_GTE4_INST_lf_r1_ab : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_ad,
-        ODIV2 => lf_r1_ab_2,
-        CEB => '0',
-        I => p_lf_r1_ab,
-        IB => n_lf_r1_ab);
-    
-    IBUFDS_GTE4_INST_lf_r1_l : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r1_l,
-        ODIV2 => lf_r1_l_2,
-        CEB => '0',
-        I => p_lf_r1_l,
-        IB => n_lf_r1_l);
-    
-    IBUFDS_inst_tcds40_clk : IBUFDS
-      generic map (
-        DIFF_TERM => FALSE,
-        IBUF_LOW_PWR => TRUE,
-        IOSTANDARD => "DEFAULT")
-      port map (
-        O => tcds40_clk,
-        I => p_tcds40_clk,
-        IB => n_tcds40_clk);
-    
-    --IBUFDS_GTE4_INST_rt_r0_l : IBUFDS_GTE4
-      --generic map (
-        --REFCLK_EN_TX_PATH => '0',
-        --REFCLK_HROW_CK_SEL => "00",
-        --REFCLK_ICNTL_RX => "00")
-      --port map (
-        --O => rt_r0_l,
-        --ODIV2 => rt_r0_l_2,
-        --CEB => '0',
-        --I => p_rt_r0_l,
-        --IB => n_rt_r0_l);
+    monitor_serdes_refclks: for iCLK in 0 to SERDES_REFCLK_COUNT-1 generate
+      --Capture the refclk and generate copies for MGTS and for the fabric clocking
+      IBUFDS_GTE4_INST : IBUFDS_GTE4
+        generic map (
+          REFCLK_EN_TX_PATH => '0',
+          REFCLK_HROW_CK_SEL => "00",
+          REFCLK_ICNTL_RX => "00")
+        port map (
+          O     => serdes_refclk(iClk).refclk,
+          ODIV2 => serdes_refclk(iClk).refclk_2,
+          CEB   => '0',
+          I     => serdes_refclk(iClk).p,
+          IB    => serdes_refclk(iClk).n);
+      --place the second clock from the GTE4 onto the clock routing network
+      BUFG_GT_INST : BUFG_GT
+        port map (
+          O       => serdes_refclk(iClk).clk,
+          CE      => '1',
+          CEMASK  => '1',
+          CLR     => '0',
+          CLRMASK => '1',
+          DIV     => "000",
+          I       => serdes_refclk(iClk).refclk_2
+        );
+      -- monitor the fabric clock with the axi clock to get its freq
+      rate_counter_inst: entity work.rate_counter
+        generic map (
+          CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+        port map (
+          clk_A         => AXI_CLK,
+          clk_B         => serdes_refclk(iClk).clk,
+          reset_A_async => AXI_RESET,
+          event_b       => '1',
+          rate          => serdes_refclk(iClk).freq);
+      
+    end generate monitor_serdes_refclks;
 
-    IBUFDS_GTE4_INST_lf_r0_ad : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_ad,
-        ODIV2 => lf_r0_ad_2,
-        CEB => '0',
-        I => p_lf_r0_ad,
-        IB => n_lf_r0_ad);
-    
-    IBUFDS_GTE4_INST_lf_r1_ad : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r1_ad,
-        ODIV2 => lf_r1_ad_2,
-        CEB => '0',
-        I => p_lf_r1_ad,
-        IB => n_lf_r1_ad);
-    
-    IBUFDS_GTE4_INST_lf_r0_af : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_af,
-        ODIV2 => lf_r0_af_2,
-        CEB => '0',
-        I => p_lf_r0_af,
-        IB => n_lf_r0_af);
-    
-    IBUFDS_GTE4_INST_lf_r1_af : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r1_af,
-        ODIV2 => lf_r1_af_2,
-        CEB => '0',
-        I => p_lf_r1_af,
-        IB => n_lf_r1_af);
-    
-    IBUFDS_GTE4_INST_lf_r0_u : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_u,
-        ODIV2 => lf_r0_u_2,
-        CEB => '0',
-        I => p_lf_r0_u,
-        IB => n_lf_r0_u);
-    
-    IBUFDS_GTE4_INST_lf_r1_u : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r1_u,
-        ODIV2 => lf_r1_u_2,
-        CEB => '0',
-        I => p_lf_r1_u,
-        IB => n_lf_r1_u);
-    
-    IBUFDS_GTE4_INST_lf_r0_r : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_r,
-        ODIV2 => lf_r0_r_2,
-        CEB => '0',
-        I => p_lf_r0_r,
-        IB => n_lf_r0_r);
-    
-    IBUFDS_GTE4_INST_lf_r1_r : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r1_r,
-        ODIV2 => lf_r1_r_2,
-        CEB => '0',
-        I => p_lf_r1_r,
-        IB => n_lf_r1_r);
-    
-    IBUFDS_GTE4_INST_lf_r0_y : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_y,
-        ODIV2 => lf_r0_y_2,
-        CEB => '0',
-        I => p_lf_r0_y,
-        IB => n_lf_r0_y);
-    
-    IBUFDS_GTE4_INST_lf_r1_y : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r1_y,
-        ODIV2 => lf_r1_y_2,
-        CEB => '0',
-        I => p_lf_r1_y,
-        IB => n_lf_r1_y);
-    
-    IBUFDS_GTE4_INST_lf_r0_v : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => lf_r0_v,
-        ODIV2 => lf_r0_v_2,
-        CEB => '0',
-        I => p_lf_r0_v,
-        IB => n_lf_r0_v);
-    
-    IBUFDS_GTE4_INST_rt_r0_n : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_n,
-        ODIV2 => rt_r0_n_2,
-        CEB => '0',
-        I => p_rt_r0_n,
-        IB => n_rt_r0_n);
-    
-    IBUFDS_GTE4_INST_rt_r1_n : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r1_n,
-        ODIV2 => rt_r1_n_2,
-        CEB => '0',
-        I => p_rt_r1_n,
-        IB => n_rt_r1_n);
-    
-    IBUFDS_GTE4_INST_rt_r0_b : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_b,
-        ODIV2 => rt_r0_b_2,
-        CEB => '0',
-        I => p_rt_r0_b,
-        IB => n_rt_r0_b);
-    
-    IBUFDS_GTE4_INST_rt_r1_b : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r1_b,
-        ODIV2 => rt_r1_b_2,
-        CEB => '0',
-        I => p_rt_r1_b,
-        IB => n_rt_r1_b);
-    
-    IBUFDS_GTE4_INST_rt_r0_e : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_e,
-        ODIV2 => rt_r0_e_2,
-        CEB => '0',
-        I => p_rt_r0_e,
-        IB => n_rt_r0_e);
-    
-    IBUFDS_GTE4_INST_rt_r1_e : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r1_e,
-        ODIV2 => rt_r1_e_2,
-        CEB => '0',
-        I => p_rt_r1_e,
-        IB => n_rt_r1_e);
-    
-    IBUFDS_GTE4_INST_rt_r0_f : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_f,
-        ODIV2 => rt_r0_f_2,
-        CEB => '0',
-        I => p_rt_r0_f,
-        IB => n_rt_r0_f);
-    
-    IBUFDS_GTE4_INST_rt_r0_g : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_g,
-        ODIV2 => rt_r0_g_2,
-        CEB => '0',
-        I => p_rt_r0_g,
-        IB => n_rt_r0_g);
-    
-    IBUFDS_GTE4_INST_rt_r1_g : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r1_g,
-        ODIV2 => rt_r1_g_2,
-        CEB => '0',
-        I => p_rt_r1_g,
-        IB => n_rt_r1_g);
-    
-    IBUFDS_GTE4_INST_rt_r0_p : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_p,
-        ODIV2 => rt_r0_p_2,
-        CEB => '0',
-        I => p_rt_r0_p,
-        IB => n_rt_r0_p);
-    
-    IBUFDS_GTE4_INST_rt_r1_p : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r1_p,
-        ODIV2 => rt_r1_p_2,
-        CEB => '0',
-        I => p_rt_r1_p,
-        IB => n_rt_r1_p);
-    
-    IBUFDS_GTE4_INST_rt_r0_i : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r0_i,
-        ODIV2 => rt_r0_i_2,
-        CEB => '0',
-        I => p_rt_r0_i,
-        IB => n_rt_r0_i);
-    
-    IBUFDS_GTE4_INST_rt_r1_i : IBUFDS_GTE4
-      generic map (
-        REFCLK_EN_TX_PATH => '0',
-        REFCLK_HROW_CK_SEL => "00",
-        REFCLK_ICNTL_RX => "00")
-      port map (
-        O => rt_r1_i,
-        ODIV2 => rt_r1_i_2,
-        CEB => '0',
-        I => p_rt_r1_i,
-        IB => n_rt_r1_i);
-    
-    BUFG_inst_1 : BUFG
-      port map (
-        O => buf_lf_x12_r0_clk,
-        I => lf_x12_r0_clk);
-    
-    BUFG_inst_2 : BUFG
-      port map (
-        O => buf_lf_x4_r0_clk,
-        I => lf_x4_r0_clk);
-    
-    BUFG_inst_3 : BUFG
-      port map (
-        O => buf_rt_x12_r0_clk,
-        I => rt_x12_r0_clk);
-    
-    BUFG_inst_4 : BUFG
-      port map (
-        O => buf_rt_x4_r0_clk,
-        I => rt_x4_r0_clk);
-    
-    BUFG_GT_lf_r0_ab : BUFG_GT
-      port map (
-        O => buf_lf_r0_ab,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_ab_2);
-    
-    BUFG_GT_lf_r1_ab : BUFG_GT
-      port map (
-        O => buf_lf_r1_ab,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_ab_2);
-    
-    BUFG_GT_lf_r1_l : BUFG_GT
-      port map (
-        O => buf_lf_r1_l,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_l_2);
-    
-    BUFG_inst_tcds40_clk : BUFG
-      port map (
-        O => buf_tcds40_clk,
-        I => tcds40_clk);
+    monitor_fabric_refclks: for iCLK in 0 to FABRIC_REFCLK_COUNT-1 generate
+      --cacpture the clock and put it on the clocking network
+      IBUFDS_inst_1 : IBUFDS
+        generic map (
+          DIFF_TERM => FALSE,
+          IBUF_LOW_PWR => TRUE,
+          IOSTANDARD => "DEFAULT")
+        port map (
+          O  => fabric_refclk(iCLK).clk,
+          I  => fabric_refclk(iCLK).p,
+          IB => fabric_refclk(iCLK).n);
+      -- monitor the clk with the AXI clk
+      rate_counter_inst: entity work.rate_counter
+        generic map (
+          CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+        port map (
+          clk_A         => AXI_CLK,
+          clk_B         => fabric_refclk(iClk).clk,
+          reset_A_async => AXI_RESET,
+          event_b       => '1',
+          rate          => fabric_refclk(iClk).freq);
+      
+    end generate monitor_fabric_refclks;
 
-    --BUFG_GT_rt_r0_l : BUFG_GT
-            --port map (
-                --O => buf_rt_r0_l,
-                --CE => '1',
-                --CEMASK => '1',
-                --CLR => '0',
-                --CLRMASK => '1',
-                --DIV => "000",
-                --I => rt_r0_l_2);
 
-    BUFG_GT_lf_r0_ad : BUFG_GT
-      port map (
-        O => buf_lf_r0_ad,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_ad_2);
-    
-    BUFG_GT_lf_r1_ad : BUFG_GT
-      port map (
-        O => buf_lf_r1_ad,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_ad_2);
-    
-    BUFG_GT_lf_r0_af : BUFG_GT
-      port map (
-        O => buf_lf_r0_af,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_af_2);
-    
-    BUFG_GT_lf_r1_af : BUFG_GT
-      port map (
-        O => buf_lf_r1_af,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_af_2);
-    
-    BUFG_GT_lf_r0_u : BUFG_GT
-      port map (
-        O => buf_lf_r0_u,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_u_2);
-    
-    BUFG_GT_lf_r1_u : BUFG_GT
-      port map (
-        O => buf_lf_r1_u,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_u_2);
+  c2c_refclk <= serdes_refclk(27).refclk;
 
-    BUFG_GT_lf_r0_r : BUFG_GT
-      port map (
-        O => buf_lf_r0_r,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_r_2);
     
-    BUFG_GT_lf_r1_r : BUFG_GT
-      port map (
-        O => buf_lf_r1_r,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_r_2);
-    
-    BUFG_GT_lf_r0_y : BUFG_GT
-      port map (
-        O => buf_lf_r0_y,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_y_2);
-    
-    BUFG_GT_lf_r1_y : BUFG_GT
-      port map (
-        O => buf_lf_r1_y,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r1_y_2);
-    
-    BUFG_GT_lf_r0_v : BUFG_GT
-      port map (
-        O => buf_lf_r0_v,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => lf_r0_v_2);
-    
-    BUFG_GT_rt_r0_n : BUFG_GT
-      port map (
-        O => buf_rt_r0_n,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_n_2);
-    
-    BUFG_GT_rt_r1_n : BUFG_GT
-      port map (
-        O => buf_rt_r1_n,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r1_n_2);
-    
-    BUFG_GT_rt_r0_b : BUFG_GT
-      port map (
-        O => buf_rt_r0_b,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_b_2);
-    
-    BUFG_GT_rt_r1_b : BUFG_GT
-      port map (
-        O => buf_rt_r1_b,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r1_b_2);
-    
-    BUFG_GT_rt_r0_e : BUFG_GT
-      port map (
-        O => buf_rt_r0_e,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_e_2);
-    
-    BUFG_GT_rt_r1_e : BUFG_GT
-      port map (
-        O => buf_rt_r1_e,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r1_e_2);
-    
-    BUFG_GT_rt_r0_f : BUFG_GT
-      port map (
-        O => buf_rt_r0_f,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_f_2);
-    
-    BUFG_GT_rt_r0_g : BUFG_GT
-      port map (
-        O => buf_rt_r0_g,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_g_2);
-    
-    BUFG_GT_rt_r1_g : BUFG_GT
-      port map (
-        O => buf_rt_r1_g,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r1_g_2);
-    
-    BUFG_GT_rt_r0_p : BUFG_GT
-      port map (
-        O => buf_rt_r0_p,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_p_2);
-    
-    BUFG_GT_rt_r1_p : BUFG_GT
-      port map (
-        O => buf_rt_r1_p,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r1_p_2);
-    
-    BUFG_GT_rt_r0_i : BUFG_GT
-      port map (
-        O => buf_rt_r0_i,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r0_i_2);
-    
-    BUFG_GT_rt_r1_i : BUFG_GT
-      port map (
-        O => buf_rt_r1_i,
-        CE => '1',
-        CEMASK => '1',
-        CLR => '0',
-        CLRMASK => '1',
-        DIV => "000",
-        I => rt_r1_i_2);
-
--- add differential clock buffers to all the incoming clocks
---wire lf_x12_r0_clk;
---IBUFDS lf_x12_r0_clk_buf(.O(lf_x12_r0_clk), .I(p_lf_x12_r0_clk), .IB(n_lf_x12_r0_clk) );
---wire lf_x4_r0_clk;
---IBUFDS lf_x4_r0_clk_buf(.O(lf_x4_r0_clk), .I(p_lf_x4_r0_clk), .IB(n_lf_x4_r0_clk) );
---wire rt_x12_r0_clk;
---IBUFDS rt_x12_r0_clk_buf(.O(rt_x12_r0_clk), .I(p_rt_x12_r0_clk), .IB(n_rt_x12_r0_clk) );
---wire rt_x4_r0_clk;
---IBUFDS rt_x4_r0_clk_buf(.O(rt_x4_r0_clk), .I(p_rt_x4_r0_clk), .IB(n_rt_x4_r0_clk) );
---wire tcds40_clk;           -- 40 MHz LHC clock
---IBUFDS tcds40_clk_buf(.O(tcds40_clk), .I(p_tcds40_clk), .IB(n_tcds40_clk) );
-
--- add differential output buffer to TCDS recovered clock
---wire tcds_recov_clk;
---OBUFDS(.I(tcds_recov_clk), .O(p_tcds_recov_clk), .OB(n_tcds_recov_clk)); 
----- dummy connection to tcds_recov_clk
---assign tcds_recov_clk = tcds40_clk;
-
--- add a free running counter to divide the clock
---reg [27:0] divider;
---always @(posedge clk_200) begin
---  divider[27:0] <= divider[27:0] + 1;
---end
-
---assign led_f1_red = divider[27];
---assign led_f1_green = divider[26];
---assign led_f1_blue = divider[25];
---assign led_f2_red = divider[27];
---assign led_f2_green = divider[26];
---assign led_f2_blue = divider[25];
-
----- create 3 differential buffers for spare inputs 
---genvar chan;
---wire [2:0] in_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_in_spare_buf
---      IBUFDS in_spare_buf(.O(in_spare[chan]), .I(p_in_spare[chan]), .IB(n_in_spare[chan]) );
---  end
---endgenerate
-
----- create 3 differential buffers for spare outputs 
---reg [2:0] out_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_out_spare_buf
---      OBUFDS out_spare_buf(.I(out_spare[chan]), .O(p_out_spare[chan]), .OB(n_out_spare[chan]) );
---  end
---endgenerate
-
--- loop the spare in to the spare out
---always @(posedge clk_200) begin
---  out_spare[2:0] <= in_spare[2:0];
---end
-
----- create differential buffers to loop the test_conn signals
---wire test_conn_clk;
---IBUFDS test_conn_clk_buf(.O(test_conn_clk), .I(p_test_conn_0), .IB(n_test_conn_0) );
---wire test_conn_3, test_conn_4;
---IBUFDS test_conn_4_buf(.O(test_conn_4), .I(p_test_conn_4), .IB(n_test_conn_4));
---IBUFDS test_conn_3_buf(.O(test_conn_3), .I(p_test_conn_3), .IB(n_test_conn_3));
---reg test_conn_out_2, test_conn_out_1;
---OBUFDS test_conn_out_2_buf(.I(test_conn_out_2), .O(p_test_conn_2), .OB(n_test_conn_2));
---OBUFDS test_conn_out_1_buf(.I(test_conn_out_1), .O(p_test_conn_1), .OB(n_test_conn_1));
-
----- loop test_conn 'in' to 'out' using 'clk'
---always @(posedge test_conn_clk) begin
---  test_conn_out_2 <= test_conn_4;
---  test_conn_out_1 <= test_conn_3;
---  test_conn_5 <= test_conn_6;
---end
-
----- create differential buffers to loop the 'hdr' signals
---wire hdr_clk;
---IBUFDS hdr_clk_buf(.O(hdr_clk), .I(hdr1), .IB(hdr2) );
-
----- loop hdr 'in' to 'out' using 'clk'
---always @(posedge hdr_clk) begin
---  hdr7 <= hdr3;
---  hdr8 <= hdr4;
---  hdr9 <= hdr5;
---  hdr10 <= hdr6;
---end
-
----- create tri-state buffers for generic I2C scl and sda
---wire i2c_scl_generic_out, i2c_scl_generic_tri, i2c_scl_generic_in;
---generic_scl: IOBUF 
---  port map (
---    clk_200   => clk_200,
---    I => i2c_scl_generic_out,
---    T => i2c_scl_generic_tri,
---    O => i2c_scl_generic_in,
---    IO => i2c_scl_f_generic
---    );                    
---wire i2c_sda_generic_out, i2c_sda_generic_tri, i2c_sda_generic_in; 
---IOBUF generic_sda(.I(i2c_sda_generic_out),.T(i2c_sda_generic_tri), .O(i2c_sda_generic_in), .IO(i2c_sda_f_generic));
-
---wire i2c_scl_sysmon_out, i2c_scl_sysmon_tri, i2c_scl_sysmon_in; 
---IOBUF sysmon_scl(.I(i2c_scl_sysmon_out),.T(i2c_scl_sysmon_tri), .O(i2c_scl_sysmon_in), .IO(i2c_scl_f_sysmon));
---wire i2c_sda_sysmon_out, i2c_sda_sysmon_tri, i2c_sda_sysmon_in; 
---IOBUF sysmon_sda(.I(i2c_sda_sysmon_out),.T(i2c_sda_sysmon_tri), .O(i2c_sda_sysmon_in), .IO(i2c_sda_f_sysmon));
-
----- create dummy logic to use remaining inputs and outputs 
---always @(posedge clk_200) begin
---  f_to_mcu <= mcu_to_f & fpga_identity;
---end
-
--- add a ffx4 block to use 1 quad (quad AF = FF4)
---BD_FFx4 FFx4_AF (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_af),
---  .refclk_p(p_lf_r0_af),
---  .rx_n({n_ff4_recv[0],n_ff4_recv[1],n_ff4_recv[2],n_ff4_recv[3]}),
---  .rx_p({p_ff4_recv[0],p_ff4_recv[1],p_ff4_recv[2],p_ff4_recv[3]}),
---  .tx_n({n_ff4_xmit[0],n_ff4_xmit[1],n_ff4_xmit[2],n_ff4_xmit[3]}),
---  .tx_p({p_ff4_xmit[0],p_ff4_xmit[1],p_ff4_xmit[2],p_ff4_xmit[3]})
---);
-
----- add a ffx4 block to use 1 quad (quad U = FF6)
---FFx4_U FFx4_U (
---  .init_clk(clk_200),
---  .refclk_n(n_lf_r0_u),
---  .refclk_p(p_lf_r0_u),
---  .rx_n({n_ff6_recv[0],n_ff6_recv[1],n_ff6_recv[2],n_ff6_recv[3]}),
---  .rx_p({p_ff6_recv[0],p_ff6_recv[1],p_ff6_recv[2],p_ff6_recv[3]}),
---  .tx_n({n_ff6_xmit[0],n_ff6_xmit[1],n_ff6_xmit[2],n_ff6_xmit[3]}),
---  .tx_p({p_ff6_xmit[0],p_ff6_xmit[1],p_ff6_xmit[2],p_ff6_xmit[3]})
---);
-
--- add a ffx12 block to use 3 quads (quad AC,AD,AE = FF1)
---BD_FFx12 FFx12_AD (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_ad),
---  .refclk_p(p_lf_r0_ad),
---  .rx_n({n_ff1_recv[11],n_ff1_recv[10],n_ff1_recv[9],n_ff1_recv[8],n_ff1_recv[7],n_ff1_recv[6],n_ff1_recv[5],n_ff1_recv[4],n_ff1_recv[3],n_ff1_recv[2],n_ff1_recv[1],n_ff1_recv[0]}),
---  .rx_p({p_ff1_recv[11],p_ff1_recv[10],p_ff1_recv[9],p_ff1_recv[8],p_ff1_recv[7],p_ff1_recv[6],p_ff1_recv[5],p_ff1_recv[4],p_ff1_recv[3],p_ff1_recv[2],p_ff1_recv[1],p_ff1_recv[0]}),
---  .tx_n({n_ff1_xmit[11],n_ff1_xmit[10],n_ff1_xmit[9],n_ff1_xmit[8],n_ff1_xmit[7],n_ff1_xmit[6],n_ff1_xmit[5],n_ff1_xmit[4],n_ff1_xmit[3],n_ff1_xmit[2],n_ff1_xmit[1],n_ff1_xmit[0]}),
---  .tx_p({p_ff1_xmit[11],p_ff1_xmit[10],p_ff1_xmit[9],p_ff1_xmit[8],p_ff1_xmit[7],p_ff1_xmit[6],p_ff1_xmit[5],p_ff1_xmit[4],p_ff1_xmit[3],p_ff1_xmit[2],p_ff1_xmit[1],p_ff1_xmit[0]})
---);
-
  c2csslave_wrapper_1: entity work.c2cslave_wrapper
-    port map (
-      AXI_CLK                               => AXI_CLK,
-      AXI_RST_N(0)                          => AXI_RST_N,
+   port map (
+     EXT_CLK                             => clk_50,
+     AXI_MASTER_CLK                             => AXI_CLK,      
+     AXI_MASTER_RSTN                        => locked_clk200,
+     sys_reset_rst_n(0)                     => AXI_RST_N,
       CM1_PB_UART_rxd                     => pB_UART_tx,
       CM1_PB_UART_txd                     => pB_UART_rx,
       F2_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
@@ -1326,9 +708,8 @@ begin
       F2_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
       F2_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
       F2_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
-      F2_C2C_phy_refclk_clk_n            => n_rt_r0_l,
-      F2_C2C_phy_refclk_clk_p            => p_rt_r0_l,
-      clk50Mhz                              => clk_50,
+      F2_C2C_phy_refclk                   => c2c_refclk,
+      F2_C2CB_phy_refclk                   => c2c_refclk,
       
       F2_IO_araddr                           => local_AXI_ReadMOSI(0).address,              
       F2_IO_arprot                           => local_AXI_ReadMOSI(0).protection_type,      
@@ -1428,7 +809,6 @@ begin
       F2_IPBUS_wready(0)                => ext_AXI_WriteMISO.ready_for_data,       
       F2_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
       F2_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
-      reset_n                               => locked_clk200,--reset,
 
       F2_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
       F2_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
@@ -1538,6 +918,28 @@ begin
       F2_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
       F2_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
 
+
+      I2C_MASTER_araddr                  => i2c_AXI_MASTER_readMOSI.address,
+      I2C_MASTER_arprot                  => i2c_AXI_MASTER_readMOSI.protection_type,
+      I2C_MASTER_arready                 => i2c_AXI_MASTER_readMISO.ready_for_address,
+      I2C_MASTER_arvalid                 => i2c_AXI_MASTER_readMOSI.address_valid,
+      I2C_MASTER_awaddr                  => i2c_AXI_MASTER_writeMOSI.address,
+      I2C_MASTER_awprot                  => i2c_AXI_MASTER_writeMOSI.protection_type,
+      I2C_MASTER_awready                 => i2c_AXI_MASTER_writeMISO.ready_for_address,
+      I2C_MASTER_awvalid                 => i2c_AXI_MASTER_writeMOSI.address_valid,
+      I2C_MASTER_bready                  => i2c_AXI_MASTER_writeMOSI.ready_for_response,
+      I2C_MASTER_bresp                   => i2c_AXI_MASTER_writeMISO.response,
+      I2C_MASTER_bvalid                  => i2c_AXI_MASTER_writeMISO.response_valid,
+      I2C_MASTER_rdata                   => i2c_AXI_MASTER_readMISO.data,
+      I2C_MASTER_rready                  => i2c_AXI_MASTER_readMOSI.ready_for_data,
+      I2C_MASTER_rresp                   => i2c_AXI_MASTER_readMISO.response,
+      I2C_MASTER_rvalid                  => i2c_AXI_MASTER_readMISO.data_valid,
+      I2C_MASTER_wdata                   => i2c_AXI_MASTER_writeMOSI.data,
+      I2C_MASTER_wready                  => i2c_AXI_MASTER_writeMISO.ready_for_data,
+      I2C_MASTER_wstrb                   => i2c_AXI_MASTER_writeMOSI.data_write_strobe,
+      I2C_MASTER_wvalid                  => i2c_AXI_MASTER_writeMOSI.data_valid,
+
+     
       F2_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
       F2_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
 );
@@ -1567,336 +969,6 @@ begin
       event_b       => '1',
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
-
-  rate_counter_2: entity work.rate_counter
-    generic map (
-      CLK_A_1_SECOND => 200000000)
-    port map (
-      clk_A         => clk_200,
-      clk_B         => buf_lf_x12_r0_clk,
-      reset_A_async => AXI_RESET,
-      event_b       => '1',
-      rate          => count_lf_x12_r0_clk);
-    
-    rate_counter_3: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_x4_r0_clk,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_x4_r0_clk);
-    
-    rate_counter_4: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_x12_r0_clk,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_x12_r0_clk);
-    
-    rate_counter_5: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_x4_r0_clk,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_x4_r0_clk);
-    
-    rate_counter_lf_r0_ab: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_ab,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_ab);
-    
-    rate_counter_lf_r1_ab: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_ab,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_ab);
-    
-    rate_counter_lf_r1_l: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_l,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_l);
-    
-    rate_counter_tcds40_clk: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_tcds40_clk,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_tcds40_clk);
-
-    --rate_counter_rt_r0_l: entity work.rate_counter  --Alec added
-        --generic map (
-          --CLK_A_1_SECOND => 200000000)
-        --port map (
-          --clk_A         => clk_200,
-          --clk_B         => buf_rt_r0_l,
-          --reset_A_async => AXI_RESET,
-          --event_b       => '1',
-          --rate          => count_rt_r0_l);
-
-    rate_counter_lf_r0_ad: entity work.rate_counter  --Alec added
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_ad,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_ad);
-    
-    rate_counter_lf_r1_ad: entity work.rate_counter  --Alec added
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_ad,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_ad);
-    
-    rate_counter_lf_r0_af: entity work.rate_counter  --Alec added
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_af,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_af);
-    
-    rate_counter_lf_r1_af: entity work.rate_counter  --Alec added
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_af,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_af);
-    
-    rate_counter_lf_r0_u: entity work.rate_counter  --Alec added
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_u,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_u);
-    
-    rate_counter_lf_r1_u: entity work.rate_counter  --Alec added
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_u,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_u);
-
-    rate_counter_lf_r0_r: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_r,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_r);
-    
-    rate_counter_lf_r1_r: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_r,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_r);
-    
-    rate_counter_lf_r0_y: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_y,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_y);
-    
-    rate_counter_lf_r1_y: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r1_y,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r1_y);
-    
-    rate_counter_lf_r0_v: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_lf_r0_v,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_lf_r0_v);
-
-    rate_counter_rt_r0_n: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_n,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_n);
-    
-    rate_counter_rt_r1_n: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r1_n,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r1_n);
-    
-    rate_counter_rt_r0_b: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_b,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_b);
-    
-    rate_counter_rt_r1_b: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r1_b,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r1_b);
-    
-    rate_counter_rt_r0_e: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_e,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_e);
-    
-    rate_counter_rt_r1_e: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r1_e,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r1_e);
-    
-    rate_counter_rt_r0_f: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_f,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_f);
-    
-    rate_counter_rt_r0_g: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_g,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_g);
-    
-    rate_counter_rt_r1_g: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r1_g,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r1_g);
-    
-    rate_counter_rt_r0_p: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_p,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_p);
-    
-    rate_counter_rt_r1_p: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r1_p,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r1_p);
-    
-    rate_counter_rt_r0_i: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r0_i,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r0_i);
-    
-    rate_counter_rt_r1_i: entity work.rate_counter
-      generic map (
-        CLK_A_1_SECOND => 200000000)
-      port map (
-        clk_A         => clk_200,
-        clk_B         => buf_rt_r1_i,
-        reset_A_async => AXI_RESET,
-        event_b       => '1',
-        rate          => count_rt_r1_i);
     
   F1_IO_interface_1: entity work.IO_map
     generic map(
@@ -1911,39 +983,39 @@ begin
       slave_writeMISO => local_AXI_writeMISO(0),
       Mon.CLK_200_LOCKED      => locked_clk200,
       Mon.TEST_CONST          => X"BEEFBEEF",
-      Mon.LF_X12_R0_CLK       => count_lf_x12_r0_clk,
-      Mon.LF_X4_R0_CLK       => count_lf_x4_r0_clk,
-      Mon.RT_X12_R0_CLK       => count_rt_x12_r0_clk,
-      Mon.RT_X4_R0_CLK       => count_rt_x4_r0_clk,
-      Mon.LF_R0_AB           => count_lf_r0_ab,
-      Mon.LF_R1_AB           => count_lf_r1_ab,
-      Mon.LF_R1_L            => count_lf_r1_l,
-      Mon.TCDS40_CLK         => count_tcds40_clk,
-      --Mon.RT_R0_L            => count_rt_r0_l,
-      Mon.LF_R0_AD           => count_lf_r0_ad,
-      Mon.LF_R1_AD           => count_lf_r1_ad,
-      Mon.LF_R0_AF           => count_lf_r0_af,
-      Mon.LF_R1_AF           => count_lf_r0_af,
-      Mon.LF_R0_U            => count_lf_r0_u,
-      Mon.LF_R1_U            => count_lf_r1_u,
-      Mon.LF_R0_R             => count_lf_r0_r,
-      Mon.LF_R1_R             => count_lf_r1_r,
-      Mon.LF_R0_Y             => count_lf_r0_y,
-      Mon.LF_R1_Y             => count_lf_r1_y,
-      Mon.LF_R0_V             => count_lf_r0_v,
-      Mon.RT_R0_N             => count_rt_r0_n,
-      Mon.RT_R1_N             => count_rt_r1_n,
-      Mon.RT_R0_B             => count_rt_r0_b,
-      Mon.RT_R1_B             => count_rt_r1_b,
-      Mon.RT_R0_E             => count_rt_r0_e,
-      Mon.RT_R1_E             => count_rt_r1_e,
-      Mon.RT_R0_F             => count_rt_r0_f,
-      Mon.RT_R0_G             => count_rt_r0_g,
-      Mon.RT_R1_G             => count_rt_r1_g,
-      Mon.RT_R0_P             => count_rt_r0_p,
-      Mon.RT_R1_P             => count_rt_r1_p,
-      Mon.RT_R0_I             => count_rt_r0_i,
-      Mon.RT_R1_I             => count_rt_r1_i,
+      Mon.CLOCKS.LF_X12_R0_CLK       => count_lf_x12_r0_clk,
+      Mon.CLOCKS.LF_X4_R0_CLK        => count_lf_x4_r0_clk,
+      Mon.CLOCKS.RT_X12_R0_CLK       => count_rt_x12_r0_clk,
+      Mon.CLOCKS.RT_X4_R0_CLK        => count_rt_x4_r0_clk,
+      Mon.CLOCKS.LF_R0_AB            => count_lf_r0_ab,
+      Mon.CLOCKS.LF_R1_AB            => count_lf_r1_ab,
+      Mon.CLOCKS.LF_R1_L             => count_lf_r1_l,
+      Mon.CLOCKS.TCDS40_CLK          => count_tcds40_clk,
+      Mon.CLOCKS.RT_R0_L             => count_rt_r0_l,
+      Mon.CLOCKS.LF_R0_AD            => count_lf_r0_ad,
+      Mon.CLOCKS.LF_R1_AD            => count_lf_r1_ad,
+      Mon.CLOCKS.LF_R0_AF            => count_lf_r0_af,
+      Mon.CLOCKS.LF_R1_AF            => count_lf_r0_af,
+      Mon.CLOCKS.LF_R0_U             => count_lf_r0_u,
+      Mon.CLOCKS.LF_R1_U             => count_lf_r1_u,
+      Mon.CLOCKS.LF_R0_R             => count_lf_r0_r,
+      Mon.CLOCKS.LF_R1_R             => count_lf_r1_r,
+      Mon.CLOCKS.LF_R0_Y             => count_lf_r0_y,
+      Mon.CLOCKS.LF_R1_Y             => count_lf_r1_y,
+      Mon.CLOCKS.LF_R0_V             => count_lf_r0_v,
+      Mon.CLOCKS.RT_R0_N             => count_rt_r0_n,
+      Mon.CLOCKS.RT_R1_N             => count_rt_r1_n,
+      Mon.CLOCKS.RT_R0_B             => count_rt_r0_b,
+      Mon.CLOCKS.RT_R1_B             => count_rt_r1_b,
+      Mon.CLOCKS.RT_R0_E             => count_rt_r0_e,
+      Mon.CLOCKS.RT_R1_E             => count_rt_r1_e,
+      Mon.CLOCKS.RT_R0_F             => count_rt_r0_f,
+      Mon.CLOCKS.RT_R0_G             => count_rt_r0_g,
+      Mon.CLOCKS.RT_R1_G             => count_rt_r1_g,
+      Mon.CLOCKS.RT_R0_P             => count_rt_r0_p,
+      Mon.CLOCKS.RT_R1_P             => count_rt_r1_p,
+      Mon.CLOCKS.RT_R0_I             => count_rt_r0_i,
+      Mon.CLOCKS.RT_R1_I             => count_rt_r1_i,
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
@@ -2049,6 +1121,9 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
+
+  C2C_Mon.C2C_REFCLK_FREQ <=  count_rt_r0_l;
+
     
 end architecture structure;
 
