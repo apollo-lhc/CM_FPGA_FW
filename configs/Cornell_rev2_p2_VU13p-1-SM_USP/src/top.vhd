@@ -289,27 +289,6 @@ entity top is
       signal reset           : std_logic;
       signal locked_clk200   : std_logic;
 
---      signal lf_x12_r0_clk   : std_logic;
---      signal lf_x4_r0_clk   : std_logic;
---      signal rt_x12_r0_clk   : std_logic;
---      signal rt_x4_r0_clk   : std_logic;
---      signal lf_r0_ab       : std_logic;
---      signal lf_r1_ab       : std_logic;
---      signal lf_r1_l        : std_logic;
---      signal tcds40_clk     : std_logic;
---      --signal rt_r0_l        : std_logic;
---      signal lf_r0_ad        : std_logic;
---      signal lf_r1_ad        : std_logic;
---      signal lf_r0_af        : std_logic;
---      signal lf_r1_af        : std_logic;
---      signal lf_r0_u        : std_logic;
---      signal lf_r1_u        : std_logic;
-      --signal tcds_in        : std_logic;
-      --signal tcds_from_zynq_a : std_logic;
-      --signal tcds_from_zynq_b : std_logic;
-      --signal tcds_cross_recv_a :std_logic;
-      --signal tcds_cross_recv_b :std_logic;
-
       
       constant serdes_refclk_count        : integer := 28;
       type serdes_t is record
@@ -335,86 +314,6 @@ entity top is
 
       
         
---      signal lf_r0_r        : std_logic;
---      signal lf_r1_r        : std_logic;
---      signal lf_r0_y        : std_logic;
---      signal lf_r1_y        : std_logic;
---      signal lf_r0_v        : std_logic;
---      signal rt_r0_n        : std_logic;
---      signal rt_r1_n        : std_logic;
---      signal rt_r0_b        : std_logic;
---      signal rt_r1_b        : std_logic;
---      signal rt_r0_e        : std_logic;
---      signal rt_r1_e        : std_logic;
---      signal rt_r0_f        : std_logic;
---      signal rt_r0_g        : std_logic;
---      signal rt_r1_g        : std_logic;
---      signal rt_r0_p        : std_logic;
---      signal rt_r1_p        : std_logic;
---      signal rt_r0_i        : std_logic;
---      signal rt_r1_i        : std_logic;
---
---      signal lf_r0_ab_2      : std_logic;
---      signal lf_r1_ab_2      : std_logic;
---      signal lf_r1_l_2      : std_logic;
---      signal lf_r0_ad_2      : std_logic;
---      signal lf_r1_ad_2      : std_logic;
---      signal lf_r0_af_2      : std_logic;
---      signal lf_r1_af_2      : std_logic;
---      signal lf_r0_u_2      : std_logic;
---      signal lf_r1_u_2      : std_logic;
---      signal lf_r0_r_2      : std_logic;
---      signal lf_r1_r_2      : std_logic;
---      signal lf_r0_y_2      : std_logic;
---      signal lf_r1_y_2      : std_logic;
---      signal lf_r0_v_2      : std_logic;
---      signal rt_r0_n_2      : std_logic;
---      signal rt_r1_n_2      : std_logic;
---      signal rt_r0_b_2      : std_logic;
---      signal rt_r1_b_2      : std_logic;
---      signal rt_r0_e_2      : std_logic;
---      signal rt_r1_e_2      : std_logic;
---      signal rt_r0_f_2      : std_logic;
---      signal rt_r0_g_2      : std_logic;
---      signal rt_r1_g_2      : std_logic;
---      signal rt_r0_p_2      : std_logic;
---      signal rt_r1_p_2      : std_logic;
---      signal rt_r0_i_2      : std_logic;
---      signal rt_r1_i_2      : std_logic;
---
---      signal buf_lf_x12_r0_clk   : std_logic;
---      signal buf_lf_x4_r0_clk   : std_logic;
---      signal buf_rt_x12_r0_clk   : std_logic;
---      signal buf_rt_x4_r0_clk   : std_logic;
---      signal buf_lf_r0_ab       : std_logic;
---      signal buf_lf_r1_ab       : std_logic;
---      signal buf_lf_r1_l       : std_logic;
---      signal buf_tcds40_clk        : std_logic;
---      --signal buf_rt_r0_l           : std_logic;
---      signal buf_lf_r0_ad           : std_logic;
---      signal buf_lf_r1_ad           : std_logic;
---      signal buf_lf_r0_af           : std_logic;
---      signal buf_lf_r1_af           : std_logic;
---      signal buf_lf_r0_u           : std_logic;
---      signal buf_lf_r1_u           : std_logic;
---      signal buf_lf_r0_r           : std_logic;
---      signal buf_lf_r1_r           : std_logic;
---      signal buf_lf_r0_y           : std_logic;
---      signal buf_lf_r1_y           : std_logic;
---      signal buf_lf_r0_v           : std_logic;
---      signal buf_rt_r0_n           : std_logic;
---      signal buf_rt_r1_n           : std_logic;
---      signal buf_rt_r0_b           : std_logic;
---      signal buf_rt_r1_b           : std_logic;
---      signal buf_rt_r0_e           : std_logic;
---      signal buf_rt_r1_e           : std_logic;
---      signal buf_rt_r0_f           : std_logic;
---      signal buf_rt_r0_g           : std_logic;
---      signal buf_rt_r1_g           : std_logic;
---      signal buf_rt_r0_p           : std_logic;
---      signal buf_rt_r1_p           : std_logic;
---      signal buf_rt_r0_i           : std_logic;
---      signal buf_rt_r1_i           : std_logic;
 
       signal count_lf_x12_r0_clk  : std_logic_vector(31 downto 0);
       signal count_lf_x4_r0_clk  : std_logic_vector(31 downto 0);
@@ -692,123 +591,58 @@ begin
   c2c_refclk <= serdes_refclk(27).refclk;
 
     
- c2csslave_wrapper_1: entity work.c2cslave_wrapper
+ c2csslave_wrapper_1: entity work.c2cslave_sane_wrapper
    port map (
      EXT_CLK                             => clk_50,
      AXI_MASTER_CLK                             => AXI_CLK,      
      AXI_MASTER_RSTN                        => locked_clk200,
      sys_reset_rst_n(0)                     => AXI_RST_N,
-      CM1_PB_UART_rxd                     => pB_UART_tx,
-      CM1_PB_UART_txd                     => pB_UART_rx,
-      F2_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
-      F2_C2C_phy_Rx_rxp                  => p_mgt_sm_to_f(1 downto 1),
-      F2_C2C_phy_Tx_txn                  => n_mgt_f_to_sm(1 downto 1),
-      F2_C2C_phy_Tx_txp                  => p_mgt_f_to_sm(1 downto 1),
-      F2_C2CB_phy_Rx_rxn                  => n_mgt_sm_to_f(2 downto 2),
-      F2_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
-      F2_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
-      F2_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
-      F2_C2C_phy_refclk                   => c2c_refclk,
-      F2_C2CB_phy_refclk                   => c2c_refclk,
+     CM1_PB_UART_rxd                     => pB_UART_tx,
+     CM1_PB_UART_txd                     => pB_UART_rx,
+
+      --AXI master--                         
+      I2C_MASTER_RMOSI                       => i2c_AXI_MASTER_ReadMOSI,
+      I2C_MASTER_RMISO                       => i2c_AXI_MASTER_ReadMISO,
+      I2C_MASTER_WMOSI                       => i2c_AXI_MASTER_WriteMOSI,
+      I2C_MASTER_WMISO                       => i2c_AXI_MASTER_WriteMISO,
+      --AXI endpoint--                       
+      F2_C2C_INTF_RMOSI                      => local_AXI_ReadMOSI(2), 
+      F2_C2C_INTF_RMISO                      => local_AXI_ReadMISO(2), 
+      F2_C2C_INTF_WMOSI                      => local_AXI_WriteMOSI(2),
+      F2_C2C_INTF_WMISO                      => local_AXI_WriteMISO(2),
+      --AXI endpoint--                       
+      F2_CM_FW_INFO_RMOSI                    => local_AXI_ReadMOSI(1), 
+      F2_CM_FW_INFO_RMISO                    => local_AXI_ReadMISO(1), 
+      F2_CM_FW_INFO_WMOSI                    => local_AXI_WriteMOSI(1),
+      F2_CM_FW_INFO_WMISO                    => local_AXI_WriteMISO(1),
+      --AXI endpoint--                       
+      F2_IO_RMOSI                            => local_AXI_ReadMOSI(0), 
+      F2_IO_RMISO                            => local_AXI_ReadMISO(0), 
+      F2_IO_WMOSI                            => local_AXI_WriteMOSI(0),
+      F2_IO_WMISO                            => local_AXI_WriteMISO(0),
+      --AXI endpoint--                       
+      F2_IPBUS_RMOSI                         => ext_AXI_ReadMOSI, 
+      F2_IPBUS_RMISO                         => ext_AXI_ReadMISO, 
+      F2_IPBUS_WMOSI                         => ext_AXI_WriteMOSI,
+      F2_IPBUS_WMISO                         => ext_AXI_WriteMISO,
+
+
+
+
+
+
+     
+     F2_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
+     F2_C2C_phy_Rx_rxp                  => p_mgt_sm_to_f(1 downto 1),
+     F2_C2C_phy_Tx_txn                  => n_mgt_f_to_sm(1 downto 1),
+     F2_C2C_phy_Tx_txp                  => p_mgt_f_to_sm(1 downto 1),
+     F2_C2CB_phy_Rx_rxn                  => n_mgt_sm_to_f(2 downto 2),
+     F2_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
+     F2_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
+     F2_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
+     F2_C2C_phy_refclk                   => c2c_refclk,
+     F2_C2CB_phy_refclk                   => c2c_refclk,
       
-      F2_IO_araddr                           => local_AXI_ReadMOSI(0).address,              
-      F2_IO_arprot                           => local_AXI_ReadMOSI(0).protection_type,      
-      F2_IO_arready                          => local_AXI_ReadMISO(0).ready_for_address,    
-      F2_IO_arvalid                          => local_AXI_ReadMOSI(0).address_valid,        
-      F2_IO_awaddr                           => local_AXI_WriteMOSI(0).address,             
-      F2_IO_awprot                           => local_AXI_WriteMOSI(0).protection_type,     
-      F2_IO_awready                          => local_AXI_WriteMISO(0).ready_for_address,   
-      F2_IO_awvalid                          => local_AXI_WriteMOSI(0).address_valid,       
-      F2_IO_bready                           => local_AXI_WriteMOSI(0).ready_for_response,  
-      F2_IO_bresp                            => local_AXI_WriteMISO(0).response,            
-      F2_IO_bvalid                           => local_AXI_WriteMISO(0).response_valid,      
-      F2_IO_rdata                            => local_AXI_ReadMISO(0).data,                 
-      F2_IO_rready                           => local_AXI_ReadMOSI(0).ready_for_data,       
-      F2_IO_rresp                            => local_AXI_ReadMISO(0).response,             
-      F2_IO_rvalid                           => local_AXI_ReadMISO(0).data_valid,           
-      F2_IO_wdata                            => local_AXI_WriteMOSI(0).data,                
-      F2_IO_wready                           => local_AXI_WriteMISO(0).ready_for_data,       
-      F2_IO_wstrb                            => local_AXI_WriteMOSI(0).data_write_strobe,   
-      F2_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
-
-
-      F2_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
-      F2_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
-      F2_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
-      F2_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
-      F2_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
-      F2_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
-      F2_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
-      F2_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
-      F2_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
-      F2_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
-      F2_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
-      F2_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
-      F2_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
-      F2_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
-      F2_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
-      F2_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
-      F2_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
-      F2_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
-      F2_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
-
-      
-      F2_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
-      F2_CM_FW_INFO_arprot                      => local_AXI_ReadMOSI(1).protection_type,      
-      F2_CM_FW_INFO_arready                     => local_AXI_ReadMISO(1).ready_for_address,    
-      F2_CM_FW_INFO_arvalid                     => local_AXI_ReadMOSI(1).address_valid,        
-      F2_CM_FW_INFO_awaddr                      => local_AXI_WriteMOSI(1).address,             
-      F2_CM_FW_INFO_awprot                      => local_AXI_WriteMOSI(1).protection_type,     
-      F2_CM_FW_INFO_awready                     => local_AXI_WriteMISO(1).ready_for_address,   
-      F2_CM_FW_INFO_awvalid                     => local_AXI_WriteMOSI(1).address_valid,       
-      F2_CM_FW_INFO_bready                      => local_AXI_WriteMOSI(1).ready_for_response,  
-      F2_CM_FW_INFO_bresp                       => local_AXI_WriteMISO(1).response,            
-      F2_CM_FW_INFO_bvalid                      => local_AXI_WriteMISO(1).response_valid,      
-      F2_CM_FW_INFO_rdata                       => local_AXI_ReadMISO(1).data,                 
-      F2_CM_FW_INFO_rready                      => local_AXI_ReadMOSI(1).ready_for_data,       
-      F2_CM_FW_INFO_rresp                       => local_AXI_ReadMISO(1).response,             
-      F2_CM_FW_INFO_rvalid                      => local_AXI_ReadMISO(1).data_valid,           
-      F2_CM_FW_INFO_wdata                       => local_AXI_WriteMOSI(1).data,                
-      F2_CM_FW_INFO_wready                      => local_AXI_WriteMISO(1).ready_for_data,       
-      F2_CM_FW_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
-      F2_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
-      
-
-      F2_IPBUS_araddr                   => ext_AXI_ReadMOSI.address,              
-      F2_IPBUS_arburst                  => ext_AXI_ReadMOSI.burst_type,
-      F2_IPBUS_arcache                  => ext_AXI_ReadMOSI.cache_type,
-      F2_IPBUS_arlen                    => ext_AXI_ReadMOSI.burst_length,
-      F2_IPBUS_arlock(0)                => ext_AXI_ReadMOSI.lock_type,
-      F2_IPBUS_arprot                   => ext_AXI_ReadMOSI.protection_type,      
-      F2_IPBUS_arqos                    => ext_AXI_ReadMOSI.qos,
-      F2_IPBUS_arready(0)               => ext_AXI_ReadMISO.ready_for_address,
-      F2_IPBUS_arregion                 => ext_AXI_ReadMOSI.region,
-      F2_IPBUS_arsize                   => ext_AXI_ReadMOSI.burst_size,
-      F2_IPBUS_arvalid(0)               => ext_AXI_ReadMOSI.address_valid,        
-      F2_IPBUS_awaddr                   => ext_AXI_WriteMOSI.address,             
-      F2_IPBUS_awburst                  => ext_AXI_WriteMOSI.burst_type,
-      F2_IPBUS_awcache                  => ext_AXI_WriteMOSI.cache_type,
-      F2_IPBUS_awlen                    => ext_AXI_WriteMOSI.burst_length,
-      F2_IPBUS_awlock(0)                => ext_AXI_WriteMOSI.lock_type,
-      F2_IPBUS_awprot                   => ext_AXI_WriteMOSI.protection_type,
-      F2_IPBUS_awqos                    => ext_AXI_WriteMOSI.qos,
-      F2_IPBUS_awready(0)               => ext_AXI_WriteMISO.ready_for_address,   
-      F2_IPBUS_awregion                 => ext_AXI_WriteMOSI.region,
-      F2_IPBUS_awsize                   => ext_AXI_WriteMOSI.burst_size,
-      F2_IPBUS_awvalid(0)               => ext_AXI_WriteMOSI.address_valid,       
-      F2_IPBUS_bready(0)                => ext_AXI_WriteMOSI.ready_for_response,  
-      F2_IPBUS_bresp                    => ext_AXI_WriteMISO.response,            
-      F2_IPBUS_bvalid(0)                => ext_AXI_WriteMISO.response_valid,      
-      F2_IPBUS_rdata                    => ext_AXI_ReadMISO.data,
-      F2_IPBUS_rlast(0)                 => ext_AXI_ReadMISO.last,
-      F2_IPBUS_rready(0)                => ext_AXI_ReadMOSI.ready_for_data,       
-      F2_IPBUS_rresp                    => ext_AXI_ReadMISO.response,             
-      F2_IPBUS_rvalid(0)                => ext_AXI_ReadMISO.data_valid,           
-      F2_IPBUS_wdata                    => ext_AXI_WriteMOSI.data,
-      F2_IPBUS_wlast(0)                 => ext_AXI_WriteMOSI.last,
-      F2_IPBUS_wready(0)                => ext_AXI_WriteMISO.ready_for_data,       
-      F2_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
-      F2_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
 
       F2_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
       F2_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
@@ -917,28 +751,6 @@ begin
       F2_C2CB_PHY_DRP_do                  => C2C_MON.C2C(2).DRP.rd_data,
       F2_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
       F2_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
-
-
-      I2C_MASTER_araddr                  => i2c_AXI_MASTER_readMOSI.address,
-      I2C_MASTER_arprot                  => i2c_AXI_MASTER_readMOSI.protection_type,
-      I2C_MASTER_arready                 => i2c_AXI_MASTER_readMISO.ready_for_address,
-      I2C_MASTER_arvalid                 => i2c_AXI_MASTER_readMOSI.address_valid,
-      I2C_MASTER_awaddr                  => i2c_AXI_MASTER_writeMOSI.address,
-      I2C_MASTER_awprot                  => i2c_AXI_MASTER_writeMOSI.protection_type,
-      I2C_MASTER_awready                 => i2c_AXI_MASTER_writeMISO.ready_for_address,
-      I2C_MASTER_awvalid                 => i2c_AXI_MASTER_writeMOSI.address_valid,
-      I2C_MASTER_bready                  => i2c_AXI_MASTER_writeMOSI.ready_for_response,
-      I2C_MASTER_bresp                   => i2c_AXI_MASTER_writeMISO.response,
-      I2C_MASTER_bvalid                  => i2c_AXI_MASTER_writeMISO.response_valid,
-      I2C_MASTER_rdata                   => i2c_AXI_MASTER_readMISO.data,
-      I2C_MASTER_rready                  => i2c_AXI_MASTER_readMOSI.ready_for_data,
-      I2C_MASTER_rresp                   => i2c_AXI_MASTER_readMISO.response,
-      I2C_MASTER_rvalid                  => i2c_AXI_MASTER_readMISO.data_valid,
-      I2C_MASTER_wdata                   => i2c_AXI_MASTER_writeMOSI.data,
-      I2C_MASTER_wready                  => i2c_AXI_MASTER_writeMISO.ready_for_data,
-      I2C_MASTER_wstrb                   => i2c_AXI_MASTER_writeMOSI.data_write_strobe,
-      I2C_MASTER_wvalid                  => i2c_AXI_MASTER_writeMOSI.data_valid,
-
      
       F2_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
       F2_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
