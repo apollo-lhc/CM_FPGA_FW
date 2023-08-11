@@ -65,7 +65,7 @@ AXI_SLAVES:
           addr:
             offset: "0xB1008000"
             range:  "4K"
-          irq_port: "${C2CB}/axi_c2c_s2m_intr_in"
+          irq_port: "F2_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXI_MASTER_CTRL}"
           manual_load_dtsi: "1"
