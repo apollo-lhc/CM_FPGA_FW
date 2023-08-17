@@ -14,7 +14,7 @@ AXI_SLAVES:
         offset: "0xB3002000"
         range:  "4K"
       remote_slave: "1"
-    XML: "address_table/modules/CM_IO.xml"
+    XML: "address_table/modules/CM_IO_EMP.xml"
     UHAL_BASE: 0x81000000
     HDL: 
       out_name: "IO"
