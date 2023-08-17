@@ -143,7 +143,7 @@ AXI_SLAVES:
                             offset: "0xB3010000"
                             range: "64K"
                           remote_slave: "1"
-                        XML: "address_table/modules/C2C_INTFS.xml"
+                        XML: "address_table/modules/C2C_INTFS_CornellRev2P2.xml"
                         UHAL_BASE: 0x86000000
                         HDL: 
                           out_name: "C2C_INTF"

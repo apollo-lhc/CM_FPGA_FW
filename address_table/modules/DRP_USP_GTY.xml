@@ -1,5 +1,5 @@
 <node id="ES">
-  <node id="TYPE_USP_GTH"       address="0x0000" mask="0xFFFF" permission="r"/>
+  <node id="TYPE_USP_GTY"       address="0x0000" mask="0xFFFF" permission="r"/>
 
   <node id="RX_DATA_WIDTH"         address="0x0003" mask="0x01E0" permission="rw"/>
 
