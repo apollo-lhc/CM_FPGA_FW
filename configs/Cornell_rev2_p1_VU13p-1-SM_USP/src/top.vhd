@@ -788,40 +788,40 @@ begin
 
   C2C_Mon.C2C_REFCLK_FREQ <= C2C_REFCLK_FREQ;
     
-  debug_ila2_inst : entity work.debug_ila2
-    PORT MAP (
-      clk => axi_clk,
-      probe0 => c2c_refclk_freq,
-      probe1 => C2C_Mon.C2C(1).USER_FREQ,
-      probe2( 0) => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
-      probe2( 1) => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
-      probe2( 2) => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
-      probe2( 3) => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0),
-      probe2( 4) => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
-      probe2( 5) => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
-      probe2( 6) => C2C_Mon.C2C(1).STATUS.DO_CC,
-      probe2( 7) => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
-      probe2( 8) => C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
-      probe2( 9) => C2C_MON.C2C(1).STATUS.LINK_GOOD,
-      probe2(10) => C2C_MON.C2C(1).STATUS.MB_ERROR,
-      probe2(11) => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
-      probe2(15 downto 12) => (others => '0'),
-      probe2(31 downto 16) => C2C_Mon.C2C(1).DEBUG.DMONITOR,
-      probe3( 0) => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
-      probe3( 1) => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
-      probe3( 2) => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
-      probe3( 3) => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0),
-      probe3( 4) => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
-      probe3( 5) => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
-      probe3( 6) => C2C_Mon.C2C(2).STATUS.DO_CC,
-      probe3( 7) => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
-      probe3( 8) => C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
-      probe3( 9) => C2C_MON.C2C(2).STATUS.LINK_GOOD,
-      probe3(10) => C2C_MON.C2C(2).STATUS.MB_ERROR,
-      probe3(11) => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
-      probe3(15 downto 12) => (others => '0'),
-      probe3(31 downto 16) => C2C_Mon.C2C(2).DEBUG.DMONITOR
-      );
+--  debug_ila2_inst : entity work.debug_ila2
+--    PORT MAP (
+--      clk => axi_clk,
+--      probe0 => c2c_refclk_freq,
+--      probe1 => C2C_Mon.C2C(1).USER_FREQ,
+--      probe2( 0) => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+--      probe2( 1) => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+--      probe2( 2) => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+--      probe2( 3) => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0),
+--      probe2( 4) => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+--      probe2( 5) => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+--      probe2( 6) => C2C_Mon.C2C(1).STATUS.DO_CC,
+--      probe2( 7) => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+--      probe2( 8) => C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+--      probe2( 9) => C2C_MON.C2C(1).STATUS.LINK_GOOD,
+--      probe2(10) => C2C_MON.C2C(1).STATUS.MB_ERROR,
+--      probe2(11) => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+--      probe2(15 downto 12) => (others => '0'),
+--      probe2(31 downto 16) => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+--      probe3( 0) => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+--      probe3( 1) => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+--      probe3( 2) => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+--      probe3( 3) => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0),
+--      probe3( 4) => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+--      probe3( 5) => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
+--      probe3( 6) => C2C_Mon.C2C(2).STATUS.DO_CC,
+--      probe3( 7) => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+--      probe3( 8) => C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+--      probe3( 9) => C2C_MON.C2C(2).STATUS.LINK_GOOD,
+--      probe3(10) => C2C_MON.C2C(2).STATUS.MB_ERROR,
+--      probe3(11) => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+--      probe3(15 downto 12) => (others => '0'),
+--      probe3(31 downto 16) => C2C_Mon.C2C(2).DEBUG.DMONITOR
+--      );
 
 
 end architecture structure;

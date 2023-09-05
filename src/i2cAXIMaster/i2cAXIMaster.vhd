@@ -136,22 +136,22 @@ begin  -- architecture behavioral
       register_address => i2c_register_address);
 
 
-  your_instance_name : entity work.debug_ila
-    PORT MAP (
-      clk => clk_axi,
-      probe0(0) => SDA_in,
-      probe0(1) => SDA_out,
-      probe0(2) => SDA_en,
-      probe0(3) => SCL,
-      probe0(4) => i2c_data_out_dv,
-      probe0( 8 downto  5) => i2c_register_address,
-      probe0(10 downto  9) => std_logic_vector(to_unsigned(SMR_state_t'POS(read_state),2)),
-      probe0(12 downto 11) => std_logic_vector(to_unsigned(SMW_state_t'POS(write_state),2)),
-      probe0(15 downto 13) => "000",
-      probe0(23 downto 16) => i2c_data_in,
-      probe0(31 downto 24) => i2c_data_out,
-      probe1 => x"00000000"
-      );
+--  your_instance_name : entity work.debug_ila
+--    PORT MAP (
+--      clk => clk_axi,
+--      probe0(0) => SDA_in,
+--      probe0(1) => SDA_out,
+--      probe0(2) => SDA_en,
+--      probe0(3) => SCL,
+--      probe0(4) => i2c_data_out_dv,
+--      probe0( 8 downto  5) => i2c_register_address,
+--      probe0(10 downto  9) => std_logic_vector(to_unsigned(SMR_state_t'POS(read_state),2)),
+--      probe0(12 downto 11) => std_logic_vector(to_unsigned(SMW_state_t'POS(write_state),2)),
+--      probe0(15 downto 13) => "000",
+--      probe0(23 downto 16) => i2c_data_in,
+--      probe0(31 downto 24) => i2c_data_out,
+--      probe1 => x"00000000"
+--      );
 
 
   

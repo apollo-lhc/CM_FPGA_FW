@@ -1,0 +1,49 @@
+AXI_SLAVES:
+  F2_C2C:
+    TCL_CALL:
+      command: AXI_IP_C2C
+      axi_control: ${::AXI_BUS_CTRL}
+      primary_serdes: 1
+      init_clk: ${::EXT_CLK}
+      refclk_freq: 200
+      c2c_master: false
+      speed: 5
+      singleend_refclk: True
+      addr: ${::AXI_BUS_CTRL}
+  F2_C2CB:
+    TCL_CALL:
+      command: AXI_IP_C2C
+      axi_control: ${::AXI_BUS_CTRL}
+      primary_serdes: 1
+      init_clk: ${::EXT_CLK}
+      refclk_freq: 200
+      c2c_master: false
+      speed: 5
+      singleend_refclk: True
+      addr_lite: ${::AXI_BUS_CTRL}
+  F2_C2C_INTF:
+    TCL_CALL: 
+      command: AXI_PL_DEV_CONNECT
+      axi_control: "${::AXI_ENDPOINT_CTRL}"
+      addr:
+        offset: "0xB1010000"
+        range: "64K"
+      remote_slave: "1"
+    XML: "address_table/modules/C2C_INTFS_CornellRev2P1.xml"
+    UHAL_BASE: 0x86000000
+    HDL: 
+      out_name: "C2C_INTF"
+      map_template: "axi_generic/template_map_withbram.vhd"
+    SUB_SLAVES:
+      CM1_PB_UART:
+        TCL_CALL:
+          command: "AXI_IP_UART"
+          addr:
+            offset: "0xB1008000"
+            range: "4K"
+          irq_port: "F2_C2CB/axi_c2c_s2m_intr_in"
+          baud_rate: "115200"  
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          manual_load_dtsi: "1"
+          remote_slave: "1"
+          dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;"
