@@ -1,55 +1,58 @@
+AXI_CONTROL_SETS:
+  INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM2_base.yaml
+
 AXI_SLAVES:
   BASE:
     INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/Cornell_base.yaml
     SUB_SLAVES:
       C2C:
-        INCLUDE_FILE: ${::apollo_root_path}/src/CM_C2C/Cornell_rev2_p2_C2C.yaml
+        INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p2_C2C.yaml
       F2_IPBUS:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
           axi_control: "${::AXI_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
-            offset: "0xB0000000"
+            offset: "0x00000000"
             range:  "16M"
           data_width: "64"
           remote_slave: "1"
         XML: "address_table/modules/IPBUS.xml"
-        UHAL_BASE: 0x85000000    
-      F2_IO:
-        TCL_CALL: 
-          command: AXI_PL_DEV_CONNECT
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
-          addr:
-            offset: "0xB1002000"
-            range: "4K"
-          remote_slave: "1"
-        XML: "address_table/modules/CM_IO.xml"
-        UHAL_BASE: 0x81000000
-        HDL: 
-          out_name: "IO"
-          map_template: "axi_generic/template_map_withbram.vhd"
+        UHAL_BASE: "auto"
       F2_SYS_MGMT:
         TCL_CALL:
           command: AXI_IP_SYS_MGMT
           enable_i2c_pins: 1
           axi_control: "${::AXI_ENDPOINT_CTRL}"
           addr:
-            offset: "0xB1001000"
+            offset: "0x01001000"
             range: "4K"
           remote_slave: "1"
         XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
-        UHAL_BASE: 0x80000000
+        UHAL_BASE: "auto"
+      F2_IO:
+        TCL_CALL: 
+          command: AXI_PL_DEV_CONNECT
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          addr:
+            offset: "0x01002000"
+            range: "4K"
+          remote_slave: "1"
+        XML: "address_table/modules/CM_IO.xml"
+        UHAL_BASE: "auto"
+        HDL: 
+          out_name: "IO"
+          map_template: "axi_generic/template_map_withbram.vhd"
       F2_CM_FW_INFO:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
           axi_control: "${::AXI_ENDPOINT_CTRL}"
           addr:
-            offset: "0xB1003000"
+            offset: "0x01003000"
             range: "4K"
           remote_slave: "1"
         XML: "address_table/modules/FW_INFO.xml"
-        UHAL_BASE: 0x82000000
+        UHAL_BASE: "auto"
         HDL: 
           out_name: "CM_FW_INFO"
           map_template: "axi_generic/template_map.vhd"

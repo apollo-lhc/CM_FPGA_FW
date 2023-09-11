@@ -1,21 +1,3 @@
-AXI_CONTROL_SETS:
-  AXI_ENDPOINT_CTRL:
-    axi_interconnect: "${::CM_INTERCONNECT}"
-    axi_clk: "${::AXI_MASTER_CLK}"
-    axi_rstn: "/SYS_RESET/peripheral_aresetn"
-    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
-  AXI_INTERCONNECT_CTRL:
-    axi_interconnect: "${::CM_INTERCONNECT}"
-    axi_clk: "${::AXI_MASTER_CLK}"
-    axi_rstn: "/SYS_RESET/interconnect_aresetn"
-    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
-  AXI_BUS_CTRL: 
-    axi_interconnect: "${::CM_INTERCONNECT}"
-    axi_clk: "${::AXI_MASTER_CLK}"
-    axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
-    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
-
-
 AXI_SLAVES:
   EXT_CLK:
     TCL_CALL:

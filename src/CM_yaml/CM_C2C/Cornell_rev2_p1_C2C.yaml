@@ -1,5 +1,5 @@
 AXI_SLAVES:
-  F2_C2C:
+  F1_C2C:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
@@ -10,7 +10,7 @@ AXI_SLAVES:
       speed: 5
       singleend_refclk: True
       addr: ${::AXI_BUS_CTRL}
-  F2_C2CB:
+  F1_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
@@ -21,16 +21,16 @@ AXI_SLAVES:
       speed: 5
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
-  F2_C2C_INTF:
+  F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_ENDPOINT_CTRL}"
       addr:
-        offset: "0xB1010000"
+        offset: "0x01010000"
         range: "64K"
       remote_slave: "1"
     XML: "address_table/modules/C2C_INTFS_CornellRev2P1.xml"
-    UHAL_BASE: 0x86000000
+    UHAL_BASE: "auto"
     HDL: 
       out_name: "C2C_INTF"
       map_template: "axi_generic/template_map_withbram.vhd"
@@ -39,9 +39,9 @@ AXI_SLAVES:
         TCL_CALL:
           command: "AXI_IP_UART"
           addr:
-            offset: "0xB1008000"
+            offset: "0x01000000"
             range: "4K"
-          irq_port: "F2_C2CB/axi_c2c_s2m_intr_in"
+          irq_port: "F1_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXI_ENDPOINT_CTRL}"
           manual_load_dtsi: "1"
