@@ -167,7 +167,7 @@ $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	$(MAKE) NOTIFY_DAN_GOOD  $(OUTPUT_MARKUP)
 	@echo 	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
 	${MAKE} $(ADDRESS_TABLE_CREATION_PATH)address_tables/address_table_$*/address_apollo.xml
-	$(MAKE) overlays  $(OUTPUT_MARKUP)
+	$(MAKE) overlays DTSI_PATH=kernel/hw/$*  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
 
@@ -191,9 +191,9 @@ make test :
 
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
-	@tar -h -zcf $@ $< -C kernel/hw/ dtbo -C ../address_tables address_table
+	@tar -h -zcf $@ $< -C kernel/hw/$* dtbo -C ../../address_tables address_table
 
 EMP%.tar.gz : kernel/config_EMP%.yaml
 	$(MAKE) clean_overlays
 	$(MAKE) overlays
-	@tar -h -zcf $@ -C kernel/hw/ dtbo -C ../address_tables address_table
+	@tar -h -zcf $@ -C kernel/hw/$* dtbo -C ../address_tables address_table

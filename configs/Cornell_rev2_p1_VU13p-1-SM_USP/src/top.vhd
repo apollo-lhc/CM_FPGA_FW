@@ -49,12 +49,9 @@ entity top is
   -- 'output' "led": 3 bits to light a tri-color LED
   -- These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
   -- so each color for both FPGAs can be driven at the same time
-    led_f1_red : out std_logic;
-    led_f1_green : out std_logic;
-    led_f1_blue : out std_logic;
-    --led_f2_red : out std_logic;
-    --led_f2_green : out std_logic;
-    --led_f2_blue : out std_logic;
+    led_red : out std_logic;
+    led_green : out std_logic;
+    led_blue : out std_logic;
     
   -- 'input' "mcu_to_f": 1 bit trom the MCU
   -- 'output' "f_to_mcu": 1 bit to the MCU
@@ -803,9 +800,9 @@ begin
       redcount   => led_red_local,
       greencount => led_green_local,
       bluecount  => led_blue_local,
-      LEDred     => led_f1_red,
-      LEDgreen   => led_f1_green,
-      LEDblue    => led_f1_blue);
+      LEDred     => led_red,
+      LEDgreen   => led_green,
+      LEDblue    => led_blue);
 
   rate_counter_1: entity work.rate_counter
     generic map (

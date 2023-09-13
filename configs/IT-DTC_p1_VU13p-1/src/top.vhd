@@ -21,192 +21,159 @@ entity top is
   port (
     -- clocks
     p_clk_200 : in  std_logic;
-  n_clk_200 : in  std_logic;                -- 200 MHz system clock
-  
-  --'input' "fpga_identity" to differentiate FPGA#1 from FPGA#2.
-  -- The signal will be HI in FPGA#1 and LO in FPGA#2.
-  --   fpga_identity : in std_logic;
-  
-  -- 'output' "led": 3 bits to light a tri-color LED
-  -- These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
-  -- so each color for both FPGAs can be driven at the same time
-  led_f1_red : out std_logic;
-  led_f1_green : out std_logic;
-  led_f1_blue : out std_logic;
-  --led_f2_red : out std_logic;
-  --led_f2_green : out std_logic;
-  --led_f2_blue : out std_logic;
-  
-  -- 'input' "mcu_to_f": 1 bit trom the MCU
-  -- 'output' "f_to_mcu": 1 bit to the MCU
-  -- There is no currently defined use for these.
-  --mcu_to_f : in std_logic;
-  --f_to_mcu : out std_logic;
+    n_clk_200 : in  std_logic;                -- 200 MHz system clock
+    
+    --'input' "fpga_identity" to differentiate FPGA#1 from FPGA#2.
+    -- The signal will be HI in FPGA#1 and LO in FPGA#2.
+    --   fpga_identity : in std_logic;
+    
+    -- 'output' "led": 3 bits to light a tri-color LED
+    -- These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
+    -- so each color for both FPGAs can be driven at the same time
+    led_red : out std_logic;
+    led_green : out std_logic;
+    led_blue : out std_logic;
+    
+    -- 'input' "mcu_to_f": 1 bit trom the MCU
+    -- 'output' "f_to_mcu": 1 bit to the MCU
+    -- There is no currently defined use for these.
+    --mcu_to_f : in std_logic;
+    --f_to_mcu : out std_logic;
+    
+    -- 'output' "c2c_ok": 1 bit to the MCU
+    -- The FPGA should set this output HI when the chip-2-chip link is working.
+    c2c_ok : out std_logic;
 
-  -- 'output' "c2c_ok": 1 bit to the MCU
-  -- The FPGA should set this output HI when the chip-2-chip link is working.
-  c2c_ok : out std_logic;
+    -- If the Zynq on the SM is the TCDS endpoint, then both FPGAs only use port #0 for TCDS
+    -- signals and the two FPGAs are programmed identically.
+    --
+    -- If FPGA#1 is the TCDS endpoint, then:
+    --  1) TCDS signals from the ATCA backplane connect to port#0 on FPGA#1
+    --  2) TCDS information is sent from FPGA#1 to FPGA#2 on port #3
+    --  3) TCDS information is sent from FPGA#1 to the Zynq on the SM on port #2.
+    --
+    -- RefClk#0 for quad AB comes from REFCLK SYNTHESIZER R1A which can be driven by: 
+    --  a) synth oscillator
+    --  b) HQ_CLK from the SM
+    --     b1) 320 MHz if FPGA#1 is the TCDS endpoint
+    --     b2) 40 MHz if the SM is the TCDS endpoint
+    --  c) Optional front panel connector for an external LVDS clock
+    -- quad AB
+    --  p_lf_r0_ab : in std_logic;
+    --  n_lf_r0_ab : in std_logic;
+    ----
+    ---- RefClk#1 comes from REFCLK SYNTHESIZER R1B which can be driven by: 
+    ----  a) synth oscillator
+    ----  b) an output from EXTERNAL REFCLK SYNTH R1A
+    ----  c) the 40 MHz TCDS RECOVERED CLOCK from FPGA #1 
+    ---- RefClk#1 is only connected on FPGA#1, and is only used when FPGA#1 is the TCDS endpoint.
+    ---- quad AB
+    --   p_lf_r1_ab : in std_logic;
+    --   n_lf_r1_ab : in std_logic;
+    ---- quad L
+    --   p_lf_r1_l : in std_logic;
+    --   n_lf_r1_l : in std_logic;   
 
-  -- If the Zynq on the SM is the TCDS endpoint, then both FPGAs only use port #0 for TCDS
-  -- signals and the two FPGAs are programmed identically.
-  --
-  -- If FPGA#1 is the TCDS endpoint, then:
-  --  1) TCDS signals from the ATCA backplane connect to port#0 on FPGA#1
-  --  2) TCDS information is sent from FPGA#1 to FPGA#2 on port #3
-  --  3) TCDS information is sent from FPGA#1 to the Zynq on the SM on port #2.
-  --
-  -- RefClk#0 for quad AB comes from REFCLK SYNTHESIZER R1A which can be driven by: 
-  --  a) synth oscillator
-  --  b) HQ_CLK from the SM
-  --     b1) 320 MHz if FPGA#1 is the TCDS endpoint
-  --     b2) 40 MHz if the SM is the TCDS endpoint
-  --  c) Optional front panel connector for an external LVDS clock
-  -- quad AB
-  --  p_lf_r0_ab : in std_logic;
-  --  n_lf_r0_ab : in std_logic;
-  ----
-  ---- RefClk#1 comes from REFCLK SYNTHESIZER R1B which can be driven by: 
-  ----  a) synth oscillator
-  ----  b) an output from EXTERNAL REFCLK SYNTH R1A
-  ----  c) the 40 MHz TCDS RECOVERED CLOCK from FPGA #1 
-  ---- RefClk#1 is only connected on FPGA#1, and is only used when FPGA#1 is the TCDS endpoint.
-  ---- quad AB
-  --   p_lf_r1_ab : in std_logic;
-  --   n_lf_r1_ab : in std_logic;
-  ---- quad L
-  --   p_lf_r1_l : in std_logic;
-  --   n_lf_r1_l : in std_logic;   
+    --
+    -- Port #0 is the main TCDS path. Both FPGAs use it when the Zynq on the SM is the
+    -- TCDS endpoint. Only FPGA#1 uses it when FPGA#1 is the TCDS endpoint.
+    -- Port #0 receive (schematic name is "con*_tcds_in")
+    --   p_tcds_in : in std_logic;
+    --   n_tcds_in : in std_logic;
 
-  --
-  -- Port #0 is the main TCDS path. Both FPGAs use it when the Zynq on the SM is the
-  -- TCDS endpoint. Only FPGA#1 uses it when FPGA#1 is the TCDS endpoint.
-  -- Port #0 receive (schematic name is "con*_tcds_in")
-  --   p_tcds_in : in std_logic;
-  --   n_tcds_in : in std_logic;
+    ---- Port #0 transmit (schematic name is "con*_tcds_out")
+    --   p_tcds_out : out std_logic;
+    --   n_tcds_out : out std_logic;
+    ----
+    ---- Port #2 is used to send TCDS signals between FPGA#1 and the Zynq when
+    ---- FPGA#1 is the TCDS endpoint. Port #2 is not used when the Zynq on the SM is the
+    ---- TCDS endpoint. Port #2 is not connected to anything on FPGA#2.
+    ---- quad AB
+    --   p_tcds_from_zynq_a : in std_logic;
+    --   n_tcds_from_zynq_a : in std_logic;
+    --   p_tcds_to_zynq_a   : out std_logic;
+    --   n_tcds_to_zynq_a   : out std_logic;
 
-  ---- Port #0 transmit (schematic name is "con*_tcds_out")
-  --   p_tcds_out : out std_logic;
-  --   n_tcds_out : out std_logic;
-  ----
-  ---- Port #2 is used to send TCDS signals between FPGA#1 and the Zynq when
-  ---- FPGA#1 is the TCDS endpoint. Port #2 is not used when the Zynq on the SM is the
-  ---- TCDS endpoint. Port #2 is not connected to anything on FPGA#2.
-  ---- quad AB
-  --   p_tcds_from_zynq_a : in std_logic;
-  --   n_tcds_from_zynq_a : in std_logic;
-  --   p_tcds_to_zynq_a   : out std_logic;
-  --   n_tcds_to_zynq_a   : out std_logic;
+    ---- quad L
+    --   p_tcds_from_zynq_b : in std_logic;
+    --   n_tcds_from_zynq_b : in std_logic;
+    --   p_tcds_to_zynq_b   : out std_logic;
+    --   n_tcds_to_zynq_b   : out std_logic;
 
-  ---- quad L
-  --   p_tcds_from_zynq_b : in std_logic;
-  --   n_tcds_from_zynq_b : in std_logic;
-  --   p_tcds_to_zynq_b   : out std_logic;
-  --   n_tcds_to_zynq_b   : out std_logic;
+    ----
+    ---- Port #3 is cross-connected between the two FPGAs. It is only used when FPGA#1
+    ---- is the TCDS endpoint.
+    ---- quad AB
+    --   p_tcds_cross_recv_a : in std_logic;
+    --   n_tcds_cross_recv_a : in std_logic;
+    --   p_tcds_cross_xmit_a   : out std_logic;
+    --   n_tcds_cross_xmit_a   : out std_logic;
 
-  ----
-  ---- Port #3 is cross-connected between the two FPGAs. It is only used when FPGA#1
-  ---- is the TCDS endpoint.
-  ---- quad AB
-  --   p_tcds_cross_recv_a : in std_logic;
-  --   n_tcds_cross_recv_a : in std_logic;
-  --   p_tcds_cross_xmit_a   : out std_logic;
-  --   n_tcds_cross_xmit_a   : out std_logic;
+    ---- quad L
+    --   p_tcds_cross_recv_b : in std_logic;
+    --   n_tcds_cross_recv_b : in std_logic;
+    --   p_tcds_cross_xmit_b   : out std_logic;
+    --   n_tcds_cross_xmit_b   : out std_logic;
 
-  ---- quad L
-  --   p_tcds_cross_recv_b : in std_logic;
-  --   n_tcds_cross_recv_b : in std_logic;
-  --   p_tcds_cross_xmit_b   : out std_logic;
-  --   n_tcds_cross_xmit_b   : out std_logic;
+    ----
+    ---- Recovered 40 MHz TCDS clock output to feed REFCLK SYNTHESIZER R1B.
+    ---- This is only connected on FPGA#1, and is only used when FPGA#1 is the
+    ---- TCDS endpoint. On FPGA#2, these signals are not connected, but are reserved.
+    --   p_tcds_recov_clk   : out std_logic;
+    --   n_tcds_recov_clk   : out std_logic;
 
-  ----
-  ---- Recovered 40 MHz TCDS clock output to feed REFCLK SYNTHESIZER R1B.
-  ---- This is only connected on FPGA#1, and is only used when FPGA#1 is the
-  ---- TCDS endpoint. On FPGA#2, these signals are not connected, but are reserved.
-  --   p_tcds_recov_clk   : out std_logic;
-  --   n_tcds_recov_clk   : out std_logic;
+    ----
+    ---- 40 MHz TCDS clock connected to FPGA logic. This is used in the FPGA for two
+    ---- purposes. The first is to generate high-speed processing clocks by multiplying
+    ---- in an MMCM. The second is to synchronize processing to the 40 MHz LHC bunch crossing.
+    --   p_tcds40_clk : in std_logic;
+    --   n_tcds40_clk : in std_logic;
 
-  ----
-  ---- 40 MHz TCDS clock connected to FPGA logic. This is used in the FPGA for two
-  ---- purposes. The first is to generate high-speed processing clocks by multiplying
-  ---- in an MMCM. The second is to synchronize processing to the 40 MHz LHC bunch crossing.
-  --   p_tcds40_clk : in std_logic;
-  --   n_tcds40_clk : in std_logic;
+    
+    ---- Spare input signals from the "other" FPGA.
+    ---- These cross-connect to the spare output signals on the other FPGA
+    ---- 'in_spare[2]' is connected to global glock-capable input pins
+    --   p_in_spare : in std_logic_vector(2 downto 0);
+    --   n_in_spare : in std_logic_vector(2 downto 0);
+    ---- Spare output signals to the "other" FPGA.
+    ---- These cross-connect to the spare input signals on the other FPGA
+    --   p_out_spare : out std_logic_vector(2 downto 0);
+    --   n_out_spare : out std_logic_vector(2 downto 0);
+    
+    
+    
+    -- C2C primary (#1) and secondary (#2) links to the Zynq on the SM
+    p_rt_r0_l : in std_logic;
+    n_rt_r0_l : in std_logic;
+    p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+    n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
+    p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+    n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
 
-  
-  ---- Spare input signals from the "other" FPGA.
-  ---- These cross-connect to the spare output signals on the other FPGA
-  ---- 'in_spare[2]' is connected to global glock-capable input pins
-  --   p_in_spare : in std_logic_vector(2 downto 0);
-  --   n_in_spare : in std_logic_vector(2 downto 0);
-  ---- Spare output signals to the "other" FPGA.
-  ---- These cross-connect to the spare input signals on the other FPGA
-  --   p_out_spare : out std_logic_vector(2 downto 0);
-  --   n_out_spare : out std_logic_vector(2 downto 0);
-  
-  
-  -- Spare pins to 1mm x 1mm headers on the bottom of the board
-  -- They could be used in an emergency as I/Os, or for debugging
-  -- hdr[1] and hdr[2] are on global clock-capable pins
-  --input hdr1, hdr2,
-  --input hdr3, hdr4, hdr5, hdr6,
-  --output reg hdr7, hdr8, hdr9, hdr10,
-  
-  -- C2C primary (#1) and secondary (#2) links to the Zynq on the SM
-  p_rt_r0_l : in std_logic;
-  n_rt_r0_l : in std_logic;
-  p_mgt_sm_to_f : in std_logic_vector(2 downto 1);
-  n_mgt_sm_to_f : in std_logic_vector(2 downto 1);
-  p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
-  n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
+    HAL_refclks      : in  HAL_refclks_t;
+    HAL_serdes_input : in  HAL_serdes_input_t;
+    HAL_serdes_output : out HAL_serdes_output_t;
+    
+    -- I2C pins
+    -- The "sysmon" port can be accessed before the FPGA is configured.
+    -- The "generic" port requires a configured FPGA with an I2C module. The information
+    -- that can be accessed on the generic port is user-defined.
+    --i2c_scl_f_generic   : inout std_logic;
+    --i2c_sda_f_generic   : inout std_logic;
+    i2c_scl_f_sysmon    : inout std_logic;
+    i2c_sda_f_sysmon    : inout std_logic;
 
-  HAL_refclks      : in  HAL_refclks_t;
-  HAL_serdes_input : in  HAL_serdes_input_t;
-  HAL_serdes_output : out HAL_serdes_output_t;
-  
-  -- Connect FF1, 12 lane, quad AC,AD,AE
-  --    p_lt_r0_ad : in std_logic;
-  --    n_lt_r0_ad : in std_logic;
-  --    n_ff1_recv : in std_logic_vector(11 downto 0);
-  --    p_ff1_recv : in std_logic_vector(11 downto 0);
-  --    n_ff1_xmit : out std_logic_vector(11 downto 0);
-  --    p_ff1_xmit : out std_logic_vector(11 downto 0);      
-  
-  ---- Connect FF4, 4 lane, quad AF
-  --    p_lf_r0_af : in std_logic;
-  --    n_lf_r0_af : in std_logic;
-  --    n_ff4_recv : in std_logic_vector(3 downto 0);
-  --    p_ff4_recv : in std_logic_vector(3 downto 0);
-  --    n_ff4_xmit : out std_logic_vector(3 downto 0);
-  --    p_ff4_xmit : out std_logic_vector(3 downto 0);  
-   
-  -- -- Connect FF4, 4 lane, quad U
-  --    p_lf_r0_u : in std_logic;
-  --    n_lf_r0_u : in std_logic;
-  --    n_ff6_recv : in std_logic_vector(3 downto 0);
-  --    p_ff6_recv : in std_logic_vector(3 downto 0);
-  --    n_ff6_xmit : out std_logic_vector(3 downto 0);
-  --    p_ff6_xmit : out std_logic_vector(3 downto 0);
+    -- TCDS
+    TCDS_BP_clk_p   : in std_logic;
+    TCDS_BP_clk_n   : in std_logic;
 
-  -- I2C pins
-  -- The "sysmon" port can be accessed before the FPGA is configured.
-  -- The "generic" port requires a configured FPGA with an I2C module. The information
-  -- that can be accessed on the generic port is user-defined.
-  --i2c_scl_f_generic   : inout std_logic;
-  --i2c_sda_f_generic   : inout std_logic;
-  i2c_scl_f_sysmon    : inout std_logic;
-  i2c_sda_f_sysmon    : inout std_logic;
+    n_TCDS_REC_out : out std_logic;
+    p_TCDS_REC_out : out std_logic;
 
-  -- TCDS
-  TCDS_BP_clk_p   : in std_logic;
-  TCDS_BP_clk_n   : in std_logic;
+    SDA                : inout std_logic;
+    SCL                : in    std_logic
 
-  n_TCDS_REC_out : out std_logic;
-  p_TCDS_REC_out : out std_logic;
-
-  SDA                : inout std_logic;
-  SCL                : in    std_logic
-
-  );
+    );
 end entity top;
 
 architecture structure of top is
@@ -281,6 +248,8 @@ architecture structure of top is
   signal sda_in  : std_logic;
   signal sda_out : std_logic;
   signal sda_en  : std_logic;
+
+  signal ITDTC_CLK_FREQ : std_logic_vector(31 downto 0);
   
 begin        
   -- connect 200 MHz to a clock wizard that outputs 200 MHz, 100 MHz, and 50 MHz
@@ -357,196 +326,83 @@ begin
       AXI_WriteMOSI      => local_AXI_WriteMOSI(3 to 5),
       AXI_WriteMISO      => local_AXI_WriteMISO(3 to 5)
       );
-  
-  
-  c2csslave_wrapper_1: entity work.c2cslave_wrapper
+  rate_counter_ITDTC: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
     port map (
-      EXT_CLK                             => clk_50,
-      --EXT_RSTN                            => locked_clk200,
-      AXI_MASTER_CLK                             => AXI_CLK,      
-      --AXI_MASTER_RSTN                        => --AXI_RST_N,
+      clk_A         => axi_clk,
+      clk_B         => clk_LHC_320,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => ITDTC_CLK_freq);                
+  
+  
+  c2csslave_wrapper_1: entity work.c2cslave_sane_wrapper
+    port map (
+      EXT_CLK                                => clk_50,
+      AXI_MASTER_CLK                         => AXI_CLK,      
       AXI_MASTER_RSTN                        => locked_clk200,
       sys_reset_rst_n(0)                     => AXI_RST_N,
-      CM1_PB_UART_rxd                     => pB_UART_tx,
-      CM1_PB_UART_txd                     => pB_UART_rx,
-      F1_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
-      F1_C2C_phy_Rx_rxp                  => p_mgt_sm_to_f(1 downto 1),
-      F1_C2C_phy_Tx_txn                  => n_mgt_f_to_sm(1 downto 1),
-      F1_C2C_phy_Tx_txp                  => p_mgt_f_to_sm(1 downto 1),
-      F1_C2CB_phy_Rx_rxn                  => n_mgt_sm_to_f(2 downto 2),
-      F1_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
-      F1_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
-      F1_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
-      F1_C2C_phy_refclk                   => c2c_refclk,
-      F1_C2CB_phy_refclk                   => c2c_refclk,
---      clk50Mhz                              => clk_50,
 
       lhc_clk                                => clk_LHC_320,
       lhc_rstn                               => rstn_LHC,
       
-      F1_IO_araddr                           => local_AXI_ReadMOSI(0).address,              
-      F1_IO_arprot                           => local_AXI_ReadMOSI(0).protection_type,      
-      F1_IO_arready                          => local_AXI_ReadMISO(0).ready_for_address,    
-      F1_IO_arvalid                          => local_AXI_ReadMOSI(0).address_valid,        
-      F1_IO_awaddr                           => local_AXI_WriteMOSI(0).address,             
-      F1_IO_awprot                           => local_AXI_WriteMOSI(0).protection_type,     
-      F1_IO_awready                          => local_AXI_WriteMISO(0).ready_for_address,   
-      F1_IO_awvalid                          => local_AXI_WriteMOSI(0).address_valid,       
-      F1_IO_bready                           => local_AXI_WriteMOSI(0).ready_for_response,  
-      F1_IO_bresp                            => local_AXI_WriteMISO(0).response,            
-      F1_IO_bvalid                           => local_AXI_WriteMISO(0).response_valid,      
-      F1_IO_rdata                            => local_AXI_ReadMISO(0).data,                 
-      F1_IO_rready                           => local_AXI_ReadMOSI(0).ready_for_data,       
-      F1_IO_rresp                            => local_AXI_ReadMISO(0).response,             
-      F1_IO_rvalid                           => local_AXI_ReadMISO(0).data_valid,           
-      F1_IO_wdata                            => local_AXI_WriteMOSI(0).data,                
-      F1_IO_wready                           => local_AXI_WriteMISO(0).ready_for_data,       
-      F1_IO_wstrb                            => local_AXI_WriteMOSI(0).data_write_strobe,   
-      F1_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
+      --AXI master--
+      I2C_MASTER_RMOSI                       => i2c_AXI_MASTER_ReadMOSI,
+      I2C_MASTER_RMISO                       => i2c_AXI_MASTER_ReadMISO,
+      I2C_MASTER_WMOSI                       => i2c_AXI_MASTER_WriteMOSI,
+      I2C_MASTER_WMISO                       => i2c_AXI_MASTER_WriteMISO,
+      --AXI endpoint--
+      F1_C2C_INTF_RMOSI                      => local_AXI_ReadMOSI(2), 
+      F1_C2C_INTF_RMISO                      => local_AXI_ReadMISO(2), 
+      F1_C2C_INTF_WMOSI                      => local_AXI_WriteMOSI(2),
+      F1_C2C_INTF_WMISO                      => local_AXI_WriteMISO(2),
+      --AXI endpoint--                       
+      F1_CM_FW_INFO_RMOSI                    => local_AXI_ReadMOSI(1), 
+      F1_CM_FW_INFO_RMISO                    => local_AXI_ReadMISO(1), 
+      F1_CM_FW_INFO_WMOSI                    => local_AXI_WriteMOSI(1),
+      F1_CM_FW_INFO_WMISO                    => local_AXI_WriteMISO(1),
+      --AXI endpoint--                       
+      F1_IO_RMOSI                            => local_AXI_ReadMOSI(0), 
+      F1_IO_RMISO                            => local_AXI_ReadMISO(0), 
+      F1_IO_WMOSI                            => local_AXI_WriteMOSI(0),
+      F1_IO_WMISO                            => local_AXI_WriteMISO(0),
+      --AXI endpoint--                       
+      F1_IPBUS_RMOSI                         => ext_AXI_ReadMOSI, 
+      F1_IPBUS_RMISO                         => ext_AXI_ReadMISO, 
+      F1_IPBUS_WMOSI                         => ext_AXI_WriteMOSI,
+      F1_IPBUS_WMISO                         => ext_AXI_WriteMISO,
+      --AXI endpoint--
+      F1_LPGBT_RMOSI                         => local_AXI_ReadMOSI(3),
+      F1_LPGBT_RMISO                         => local_AXI_ReadMISO(3),
+      F1_LPGBT_WMOSI                         => local_AXI_WriteMOSI(3),
+      F1_LPGBT_WMISO                         => local_AXI_WriteMISO(3),
+      --AXI endpoint--
+      F1_itdtc_testing_RMOSI                 => local_AXI_ReadMOSI(4), 
+      F1_itdtc_testing_RMISO                 => local_AXI_ReadMISO(4), 
+      F1_itdtc_testing_WMOSI                 => local_AXI_WriteMOSI(4),
+      F1_itdtc_testing_WMISO                 => local_AXI_WriteMISO(4),
+      --AXI endpoint--
+      F1_ITDTC_TCDS_RMOSI                    => local_AXI_ReadMOSI(5), 
+      F1_ITDTC_TCDS_RMISO                    => local_AXI_ReadMISO(5), 
+      F1_ITDTC_TCDS_WMOSI                    => local_AXI_WriteMOSI(5),
+      F1_ITDTC_TCDS_WMISO                    => local_AXI_WriteMISO(5),
 
-
+      CM1_PB_UART_rxd                        => pB_UART_tx,
+      CM1_PB_UART_txd                        => pB_UART_rx,
+      
+      F1_C2C_phy_Rx_rxn                      => n_mgt_sm_to_f(1 downto 1),
+      F1_C2C_phy_Rx_rxp                      => p_mgt_sm_to_f(1 downto 1),
+      F1_C2C_phy_Tx_txn                      => n_mgt_f_to_sm(1 downto 1),
+      F1_C2C_phy_Tx_txp                      => p_mgt_f_to_sm(1 downto 1),
+      F1_C2CB_phy_Rx_rxn                     => n_mgt_sm_to_f(2 downto 2),
+      F1_C2CB_phy_Rx_rxp                     => p_mgt_sm_to_f(2 downto 2),
+      F1_C2CB_phy_Tx_txn                     => n_mgt_f_to_sm(2 downto 2),
+      F1_C2CB_phy_Tx_txp                     => p_mgt_f_to_sm(2 downto 2),
+      F1_C2C_phy_refclk                      => c2c_refclk,
+      F1_C2CB_phy_refclk                     => c2c_refclk,
 
       
-      F1_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
-      F1_CM_FW_INFO_arprot                      => local_AXI_ReadMOSI(1).protection_type,      
-      F1_CM_FW_INFO_arready                     => local_AXI_ReadMISO(1).ready_for_address,    
-      F1_CM_FW_INFO_arvalid                     => local_AXI_ReadMOSI(1).address_valid,        
-      F1_CM_FW_INFO_awaddr                      => local_AXI_WriteMOSI(1).address,             
-      F1_CM_FW_INFO_awprot                      => local_AXI_WriteMOSI(1).protection_type,     
-      F1_CM_FW_INFO_awready                     => local_AXI_WriteMISO(1).ready_for_address,   
-      F1_CM_FW_INFO_awvalid                     => local_AXI_WriteMOSI(1).address_valid,       
-      F1_CM_FW_INFO_bready                      => local_AXI_WriteMOSI(1).ready_for_response,  
-      F1_CM_FW_INFO_bresp                       => local_AXI_WriteMISO(1).response,            
-      F1_CM_FW_INFO_bvalid                      => local_AXI_WriteMISO(1).response_valid,      
-      F1_CM_FW_INFO_rdata                       => local_AXI_ReadMISO(1).data,                 
-      F1_CM_FW_INFO_rready                      => local_AXI_ReadMOSI(1).ready_for_data,       
-      F1_CM_FW_INFO_rresp                       => local_AXI_ReadMISO(1).response,             
-      F1_CM_FW_INFO_rvalid                      => local_AXI_ReadMISO(1).data_valid,           
-      F1_CM_FW_INFO_wdata                       => local_AXI_WriteMOSI(1).data,                
-      F1_CM_FW_INFO_wready                      => local_AXI_WriteMISO(1).ready_for_data,       
-      F1_CM_FW_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
-      F1_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
-
-      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
-      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
-      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
-      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
-      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
-      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
-      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
-      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
-      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
-      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
-      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
-      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
-      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
-      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
-      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
-      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
-      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
-      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
-      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
-
-
-      F1_LPGBT_araddr                      => local_AXI_ReadMOSI(3).address,              
-      F1_LPGBT_arprot                      => local_AXI_ReadMOSI(3).protection_type,      
-      F1_LPGBT_arready(0)                  => local_AXI_ReadMISO(3).ready_for_address,    
-      F1_LPGBT_arvalid(0)                  => local_AXI_ReadMOSI(3).address_valid,        
-      F1_LPGBT_awaddr                      => local_AXI_WriteMOSI(3).address,             
-      F1_LPGBT_awprot                      => local_AXI_WriteMOSI(3).protection_type,     
-      F1_LPGBT_awready(0)                  => local_AXI_WriteMISO(3).ready_for_address,   
-      F1_LPGBT_awvalid(0)                  => local_AXI_WriteMOSI(3).address_valid,       
-      F1_LPGBT_bready(0)                   => local_AXI_WriteMOSI(3).ready_for_response,  
-      F1_LPGBT_bresp                       => local_AXI_WriteMISO(3).response,            
-      F1_LPGBT_bvalid(0)                   => local_AXI_WriteMISO(3).response_valid,      
-      F1_LPGBT_rdata                       => local_AXI_ReadMISO(3).data,                 
-      F1_LPGBT_rready(0)                   => local_AXI_ReadMOSI(3).ready_for_data,       
-      F1_LPGBT_rresp                       => local_AXI_ReadMISO(3).response,             
-      F1_LPGBT_rvalid(0)                   => local_AXI_ReadMISO(3).data_valid,           
-      F1_LPGBT_wdata                       => local_AXI_WriteMOSI(3).data,                
-      F1_LPGBT_wready(0)                   => local_AXI_WriteMISO(3).ready_for_data,       
-      F1_LPGBT_wstrb                       => local_AXI_WriteMOSI(3).data_write_strobe,   
-      F1_LPGBT_wvalid(0)                   => local_AXI_WriteMOSI(3).data_valid,
-
-      F1_itdtc_testing_araddr                      => local_AXI_ReadMOSI(4).address,              
-      F1_itdtc_testing_arprot                      => local_AXI_ReadMOSI(4).protection_type,      
-      F1_itdtc_testing_arready(0)                  => local_AXI_ReadMISO(4).ready_for_address,    
-      F1_itdtc_testing_arvalid(0)                  => local_AXI_ReadMOSI(4).address_valid,        
-      F1_itdtc_testing_awaddr                      => local_AXI_WriteMOSI(4).address,             
-      F1_itdtc_testing_awprot                      => local_AXI_WriteMOSI(4).protection_type,     
-      F1_itdtc_testing_awready(0)                  => local_AXI_WriteMISO(4).ready_for_address,   
-      F1_itdtc_testing_awvalid(0)                  => local_AXI_WriteMOSI(4).address_valid,       
-      F1_itdtc_testing_bready(0)                   => local_AXI_WriteMOSI(4).ready_for_response,  
-      F1_itdtc_testing_bresp                       => local_AXI_WriteMISO(4).response,            
-      F1_itdtc_testing_bvalid(0)                   => local_AXI_WriteMISO(4).response_valid,      
-      F1_itdtc_testing_rdata                       => local_AXI_ReadMISO(4).data,                 
-      F1_itdtc_testing_rready(0)                   => local_AXI_ReadMOSI(4).ready_for_data,       
-      F1_itdtc_testing_rresp                       => local_AXI_ReadMISO(4).response,             
-      F1_itdtc_testing_rvalid(0)                   => local_AXI_ReadMISO(4).data_valid,           
-      F1_itdtc_testing_wdata                       => local_AXI_WriteMOSI(4).data,                
-      F1_itdtc_testing_wready(0)                   => local_AXI_WriteMISO(4).ready_for_data,       
-      F1_itdtc_testing_wstrb                       => local_AXI_WriteMOSI(4).data_write_strobe,   
-      F1_itdtc_testing_wvalid(0)                   => local_AXI_WriteMOSI(4).data_valid,
-
-      F1_ITDTC_TCDS_araddr                      => local_AXI_ReadMOSI(5).address,              
-      F1_ITDTC_TCDS_arprot                      => local_AXI_ReadMOSI(5).protection_type,      
-      F1_ITDTC_TCDS_arready(0)                  => local_AXI_ReadMISO(5).ready_for_address,    
-      F1_ITDTC_TCDS_arvalid(0)                  => local_AXI_ReadMOSI(5).address_valid,        
-      F1_ITDTC_TCDS_awaddr                      => local_AXI_WriteMOSI(5).address,             
-      F1_ITDTC_TCDS_awprot                      => local_AXI_WriteMOSI(5).protection_type,     
-      F1_ITDTC_TCDS_awready(0)                  => local_AXI_WriteMISO(5).ready_for_address,   
-      F1_ITDTC_TCDS_awvalid(0)                  => local_AXI_WriteMOSI(5).address_valid,       
-      F1_ITDTC_TCDS_bready(0)                   => local_AXI_WriteMOSI(5).ready_for_response,  
-      F1_ITDTC_TCDS_bresp                       => local_AXI_WriteMISO(5).response,            
-      F1_ITDTC_TCDS_bvalid(0)                   => local_AXI_WriteMISO(5).response_valid,      
-      F1_ITDTC_TCDS_rdata                       => local_AXI_ReadMISO(5).data,                 
-      F1_ITDTC_TCDS_rready(0)                   => local_AXI_ReadMOSI(5).ready_for_data,       
-      F1_ITDTC_TCDS_rresp                       => local_AXI_ReadMISO(5).response,             
-      F1_ITDTC_TCDS_rvalid(0)                   => local_AXI_ReadMISO(5).data_valid,           
-      F1_ITDTC_TCDS_wdata                       => local_AXI_WriteMOSI(5).data,                
-      F1_ITDTC_TCDS_wready(0)                   => local_AXI_WriteMISO(5).ready_for_data,       
-      F1_ITDTC_TCDS_wstrb                       => local_AXI_WriteMOSI(5).data_write_strobe,   
-      F1_ITDTC_TCDS_wvalid(0)                   => local_AXI_WriteMOSI(5).data_valid,
-
-
- 
-      F1_IPBUS_araddr                   => ext_AXI_ReadMOSI.address,              
-      F1_IPBUS_arburst                  => ext_AXI_ReadMOSI.burst_type,
-      F1_IPBUS_arcache                  => ext_AXI_ReadMOSI.cache_type,
-      F1_IPBUS_arlen                    => ext_AXI_ReadMOSI.burst_length,
-      F1_IPBUS_arlock(0)                => ext_AXI_ReadMOSI.lock_type,
-      F1_IPBUS_arprot                   => ext_AXI_ReadMOSI.protection_type,      
-      F1_IPBUS_arqos                    => ext_AXI_ReadMOSI.qos,
-      F1_IPBUS_arready(0)               => ext_AXI_ReadMISO.ready_for_address,
-      F1_IPBUS_arregion                 => ext_AXI_ReadMOSI.region,
-      F1_IPBUS_arsize                   => ext_AXI_ReadMOSI.burst_size,
-      F1_IPBUS_arvalid(0)               => ext_AXI_ReadMOSI.address_valid,        
-      F1_IPBUS_awaddr                   => ext_AXI_WriteMOSI.address,             
-      F1_IPBUS_awburst                  => ext_AXI_WriteMOSI.burst_type,
-      F1_IPBUS_awcache                  => ext_AXI_WriteMOSI.cache_type,
-      F1_IPBUS_awlen                    => ext_AXI_WriteMOSI.burst_length,
-      F1_IPBUS_awlock(0)                => ext_AXI_WriteMOSI.lock_type,
-      F1_IPBUS_awprot                   => ext_AXI_WriteMOSI.protection_type,
-      F1_IPBUS_awqos                    => ext_AXI_WriteMOSI.qos,
-      F1_IPBUS_awready(0)               => ext_AXI_WriteMISO.ready_for_address,   
-      F1_IPBUS_awregion                 => ext_AXI_WriteMOSI.region,
-      F1_IPBUS_awsize                   => ext_AXI_WriteMOSI.burst_size,
-      F1_IPBUS_awvalid(0)               => ext_AXI_WriteMOSI.address_valid,       
-      F1_IPBUS_bready(0)                => ext_AXI_WriteMOSI.ready_for_response, 
-      F1_IPBUS_bresp                    => ext_AXI_WriteMISO.response,            
-      F1_IPBUS_bvalid(0)                => ext_AXI_WriteMISO.response_valid,      
-      F1_IPBUS_rdata                    => ext_AXI_ReadMISO.data,
-      F1_IPBUS_rlast(0)                 => ext_AXI_ReadMISO.last,
-      F1_IPBUS_rready(0)                => ext_AXI_ReadMOSI.ready_for_data,       
-      F1_IPBUS_rresp                    => ext_AXI_ReadMISO.response,             
-      F1_IPBUS_rvalid(0)                => ext_AXI_ReadMISO.data_valid,           
-      F1_IPBUS_wdata                    => ext_AXI_WriteMOSI.data,
-      F1_IPBUS_wlast(0)                 => ext_AXI_WriteMOSI.last,
-      F1_IPBUS_wready(0)                => ext_AXI_WriteMISO.ready_for_data,       
-      F1_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
-      F1_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
---      reset_n                               => locked_clk200,--reset,
-
       F1_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
       F1_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
       F1_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
@@ -656,25 +512,6 @@ begin
       F1_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
 
       SYS_RESET_bus_rst_n(0)             => i2c_AXI_MASTER_rst_n,
-      I2C_MASTER_araddr                  => i2c_AXI_MASTER_readMOSI.address,
-      I2C_MASTER_arprot                  => i2c_AXI_MASTER_readMOSI.protection_type,
-      I2C_MASTER_arready                 => i2c_AXI_MASTER_readMISO.ready_for_address,
-      I2C_MASTER_arvalid                 => i2c_AXI_MASTER_readMOSI.address_valid,
-      I2C_MASTER_awaddr                  => i2c_AXI_MASTER_writeMOSI.address,
-      I2C_MASTER_awprot                  => i2c_AXI_MASTER_writeMOSI.protection_type,
-      I2C_MASTER_awready                 => i2c_AXI_MASTER_writeMISO.ready_for_address,
-      I2C_MASTER_awvalid                 => i2c_AXI_MASTER_writeMOSI.address_valid,
-      I2C_MASTER_bready                  => i2c_AXI_MASTER_writeMOSI.ready_for_response,
-      I2C_MASTER_bresp                   => i2c_AXI_MASTER_writeMISO.response,
-      I2C_MASTER_bvalid                  => i2c_AXI_MASTER_writeMISO.response_valid,
-      I2C_MASTER_rdata                   => i2c_AXI_MASTER_readMISO.data,
-      I2C_MASTER_rready                  => i2c_AXI_MASTER_readMOSI.ready_for_data,
-      I2C_MASTER_rresp                   => i2c_AXI_MASTER_readMISO.response,
-      I2C_MASTER_rvalid                  => i2c_AXI_MASTER_readMISO.data_valid,
-      I2C_MASTER_wdata                   => i2c_AXI_MASTER_writeMOSI.data,
-      I2C_MASTER_wready                  => i2c_AXI_MASTER_writeMISO.ready_for_data,
-      I2C_MASTER_wstrb                   => i2c_AXI_MASTER_writeMOSI.data_write_strobe,
-      I2C_MASTER_wvalid                  => i2c_AXI_MASTER_writeMOSI.data_valid,
 
       
       F1_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
@@ -720,9 +557,9 @@ begin
       redcount   => led_red_local,
       greencount => led_green_local,
       bluecount  => led_blue_local,
-      LEDred     => led_f1_red,
-      LEDgreen   => led_f1_green,
-      LEDblue    => led_f1_blue);
+      LEDred     => led_red,
+      LEDgreen   => led_green,
+      LEDblue    => led_blue);
 
   rate_counter_1: entity work.rate_counter
     generic map (
@@ -748,6 +585,7 @@ begin
       slave_writeMISO => local_AXI_writeMISO(0),
       Mon.CLK_200_LOCKED      => locked_clk200,      
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
+      Mon.ITDTC_CLK_freq      => ITDTC_CLK_freq,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
@@ -853,43 +691,6 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
-
-
-
-  debug_ila2_inst : entity work.debug_ila2
-    PORT MAP (
-      clk => axi_clk,
-      probe0 => c2c_refclk_freq,
-      probe1 => C2C_Mon.C2C(1).USER_FREQ,
-      probe2( 0) => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
-      probe2( 1) => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
-      probe2( 2) => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
-      probe2( 3) => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0),
-      probe2( 4) => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
-      probe2( 5) => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
-      probe2( 6) => C2C_Mon.C2C(1).STATUS.DO_CC,
-      probe2( 7) => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
-      probe2( 8) => C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
-      probe2( 9) => C2C_MON.C2C(1).STATUS.LINK_GOOD,
-      probe2(10) => C2C_MON.C2C(1).STATUS.MB_ERROR,
-      probe2(11) => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
-      probe2(15 downto 12) => (others => '0'),
-      probe2(31 downto 16) => C2C_Mon.C2C(1).DEBUG.DMONITOR,
-      probe3( 0) => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
-      probe3( 1) => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
-      probe3( 2) => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
-      probe3( 3) => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0),
-      probe3( 4) => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
-      probe3( 5) => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
-      probe3( 6) => C2C_Mon.C2C(2).STATUS.DO_CC,
-      probe3( 7) => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
-      probe3( 8) => C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
-      probe3( 9) => C2C_MON.C2C(2).STATUS.LINK_GOOD,
-      probe3(10) => C2C_MON.C2C(2).STATUS.MB_ERROR,
-      probe3(11) => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
-      probe3(15 downto 12) => (others => '0'),
-      probe3(31 downto 16) => C2C_Mon.C2C(2).DEBUG.DMONITOR
-      );
 
 
   

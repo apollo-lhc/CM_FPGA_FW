@@ -108,13 +108,9 @@ set_property PACKAGE_PIN	B29 [get_ports fpga_identity]
 # These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
 # so each color for both FPGAs can be driven at the same time
 set_property IOSTANDARD LVCMOS18 [get_ports led_*]
-set_property PACKAGE_PIN	A30 [get_ports led_f1_blue]
-set_property PACKAGE_PIN	A29 [get_ports led_f1_green]
-set_property PACKAGE_PIN	A28 [get_ports led_f1_red]
-
-set_property PACKAGE_PIN	BL27 [get_ports led_f2_blue]
-set_property PACKAGE_PIN	BL28 [get_ports led_f2_green]
-set_property PACKAGE_PIN	BL30 [get_ports led_f2_red]
+set_property PACKAGE_PIN	A30 [get_ports led_blue]
+set_property PACKAGE_PIN	A29 [get_ports led_green]
+set_property PACKAGE_PIN	A28 [get_ports led_red]
 #-----------------------------------------------
 
 #-----------------------------------------------
