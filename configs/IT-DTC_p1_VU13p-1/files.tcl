@@ -40,6 +40,7 @@ set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
     configs/${build_name}/src/top_pins_TCDS.xdc \
     configs/${build_name}/src/top_timing.xdc	\
+    configs/${build_name}/it-dtc-fw/src/top_timing.xdc
     "	    
 
 set xci_files "\
