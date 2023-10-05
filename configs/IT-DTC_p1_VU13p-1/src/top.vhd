@@ -10,7 +10,7 @@ use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
 use work.AXISlaveAddrPkg.all;                                                                
 
---use work.HAL_TOP_IO_PKG.all;
+use work.HAL_TOP_IO_PKG.all;
 use work.Global_PKG.all;
                               
 
@@ -150,9 +150,9 @@ entity top is
     p_mgt_f_to_sm : out std_logic_vector(2 downto 1);
     n_mgt_f_to_sm : out std_logic_vector(2 downto 1);
 
---    HAL_refclks      : in  HAL_refclks_t;
---    HAL_serdes_input : in  HAL_serdes_input_t;
---    HAL_serdes_output : out HAL_serdes_output_t;
+    HAL_refclks      : in  HAL_refclks_t;
+    HAL_serdes_input : in  HAL_serdes_input_t;
+    HAL_serdes_output : out HAL_serdes_output_t;
     
     -- I2C pins
     -- The "sysmon" port can be accessed before the FPGA is configured.
@@ -201,6 +201,8 @@ architecture structure of top is
 
   signal AXI_BUS_RESET_REQ   : std_logic;
   signal AXI_BUS_RESET_REQ_N : std_logic;
+  signal AXI_BUS_RESET_REQ_SR : std_logic_vector(1 downto 0);
+  signal LHC_AXI_USER_RESET  : std_logic;
   
   signal ext_AXI_ReadMOSI  :  AXIReadMOSI_d64 := DefaultAXIReadMOSI_d64;
   signal ext_AXI_ReadMISO  :  AXIReadMISO_d64 := DefaultAXIReadMISO_d64;
@@ -308,9 +310,9 @@ begin
   itdtc_top_1: entity work.itdtc_top
     generic map (
       FREERUN_FREQ => 50000000,
-      AXI_CONNECTION_COUNT => 1,--3,
---      HAL_MEMORY_RANGE => AXI_RANGE_F1_LPGBT,
---      IO_MEM_RANGE     => AXI_RANGE_F1_ITDTC_TESTING,
+      AXI_CONNECTION_COUNT => 3,
+      HAL_MEMORY_RANGE => AXI_RANGE_F1_LPGBT,
+      IO_MEM_RANGE     => AXI_RANGE_F1_ITDTC_TESTING,
       TCDS_MEM_RANGE   => AXI_RANGE_F1_ITDTC_TCDS)
     port map (
       clk_freerun        => clk_50,
@@ -323,15 +325,15 @@ begin
       clk320             => clk_LHC_320,
       clk_320en40        => open,
       clk_locked_320     => rstn_LHC,
---      HAL_refclks        => HAL_refclks,
---      HAL_serdes_input   => HAL_serdes_input,
---      HAL_serdes_output  => HAL_serdes_output,
+      HAL_refclks        => HAL_refclks,
+      HAL_serdes_input   => HAL_serdes_input,
+      HAL_serdes_output  => HAL_serdes_output,
       axi_clk            => clk_LHC_320,
       axi_rst_n          => AXI_LHC_RST_N,
-      AXI_ReadMOSI       => local_AXI_ReadMOSI (5 to 5),
-      AXI_ReadMISO       => local_AXI_ReadMISO (5 to 5),
-      AXI_WriteMOSI      => local_AXI_WriteMOSI(5 to 5),
-      AXI_WriteMISO      => local_AXI_WriteMISO(5 to 5)
+      AXI_ReadMOSI       => local_AXI_ReadMOSI (3 to 5),
+      AXI_ReadMISO       => local_AXI_ReadMISO (3 to 5),
+      AXI_WriteMOSI      => local_AXI_WriteMOSI(3 to 5),
+      AXI_WriteMISO      => local_AXI_WriteMISO(3 to 5)
       );
   rate_counter_ITDTC: entity work.rate_counter
     generic map (
@@ -351,6 +353,7 @@ begin
       AXI_MASTER_RSTN                        => locked_clk200,
       sys_reset_rst_n(0)                     => AXI_RST_N,
       SYS_RESET_aux_rstn                     => AXI_BUS_RESET_REQ_N,
+      SYS_RESET_user_rst                     => LHC_AXI_USER_RESET,
 
       lhc_clk                                => clk_LHC_320,
       lhc_rstn                               => rstn_LHC,
@@ -383,15 +386,15 @@ begin
       F1_IPBUS_WMOSI                         => ext_AXI_WriteMOSI,
       F1_IPBUS_WMISO                         => ext_AXI_WriteMISO,
       --AXI endpoint--
---      F1_LPGBT_RMOSI                         => local_AXI_ReadMOSI(3),
---      F1_LPGBT_RMISO                         => local_AXI_ReadMISO(3),
---      F1_LPGBT_WMOSI                         => local_AXI_WriteMOSI(3),
---      F1_LPGBT_WMISO                         => local_AXI_WriteMISO(3),
---      --AXI endpoint--
---      F1_itdtc_testing_RMOSI                 => local_AXI_ReadMOSI(4), 
---      F1_itdtc_testing_RMISO                 => local_AXI_ReadMISO(4), 
---      F1_itdtc_testing_WMOSI                 => local_AXI_WriteMOSI(4),
---      F1_itdtc_testing_WMISO                 => local_AXI_WriteMISO(4),
+      F1_LPGBT_RMOSI                         => local_AXI_ReadMOSI(3),
+      F1_LPGBT_RMISO                         => local_AXI_ReadMISO(3),
+      F1_LPGBT_WMOSI                         => local_AXI_WriteMOSI(3),
+      F1_LPGBT_WMISO                         => local_AXI_WriteMISO(3),
+      --AXI endpoint--
+      F1_itdtc_testing_RMOSI                 => local_AXI_ReadMOSI(4), 
+      F1_itdtc_testing_RMISO                 => local_AXI_ReadMISO(4), 
+      F1_itdtc_testing_WMOSI                 => local_AXI_WriteMOSI(4),
+      F1_itdtc_testing_WMISO                 => local_AXI_WriteMISO(4),
       --AXI endpoint--
       F1_ITDTC_TCDS_RMOSI                    => local_AXI_ReadMOSI(5), 
       F1_ITDTC_TCDS_RMISO                    => local_AXI_ReadMISO(5), 
@@ -588,7 +591,11 @@ begin
     if locked_clk200 = '0' then               -- asynchronous reset (active low)
       AXI_BUS_RESET_REQ_N <= '0';
     elsif AXI_CLK'event and AXI_CLK = '1' then  -- rising clock edge
-      AXI_BUS_RESET_REQ_N <= not AXI_BUS_RESET_REQ;      
+      AXI_BUS_RESET_REQ_N <= '1';
+      if AXI_BUS_RESET_REQ_SR = "01" then
+        AXI_BUS_RESET_REQ_N <= '0';
+      end if;
+      AXI_BUS_RESET_REQ_SR <= AXI_BUS_RESET_REQ_SR(0) & AXI_BUS_RESET_REQ;
     end if;
   end process AXI_BUS_RESET_DELAY;
 
@@ -609,6 +616,7 @@ begin
       Mon.TCDS_RST_N          => rstn_LHC,
       Mon.LHC_RST_N           => AXI_LHC_RST_N,
       Ctrl.RESET_AXI_BUS      => AXI_BUS_RESET_REQ,
+      Ctrl.RESET_LHC_BUS      => LHC_AXI_USER_RESET,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,

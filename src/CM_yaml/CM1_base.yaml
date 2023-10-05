@@ -4,7 +4,19 @@ AXI_CONTROL_SETS:
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET/peripheral_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
-    axi_base: 0xB0000000
+    allocator:
+      starting_address: 0xB0000000
+      size: 0x01000000
+      block_size: 4K
+  AXILITE_ENDPOINT_CTRL:
+    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET/peripheral_aresetn"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    allocator:
+      starting_address: 0xB1000000
+      size: 0x01000000
+      block_size: 4K
   AXI_INTERCONNECT_CTRL:
     axi_interconnect: "${::CM_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
@@ -16,4 +28,4 @@ AXI_CONTROL_SETS:
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
-    axi_base: 0xB0000000    
+    axi_base: 0xB0000000

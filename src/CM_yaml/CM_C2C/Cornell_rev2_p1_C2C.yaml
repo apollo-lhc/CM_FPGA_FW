@@ -24,9 +24,9 @@ AXI_SLAVES:
   F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
-      axi_control: "${::AXI_ENDPOINT_CTRL}"
+      axi_control: "${::AXILITE_ENDPOINT_CTRL}"
       addr:
-        offset: "0x01010000"
+        offset: "-1"
         range: "64K"
       remote_slave: "1"
     XML: "address_table/modules/C2C_INTFS_CornellRev2P1.xml"
@@ -39,11 +39,11 @@ AXI_SLAVES:
         TCL_CALL:
           command: "AXI_IP_UART"
           addr:
-            offset: "0x01000000"
+            offset: "-1"
             range: "4K"
           irq_port: "F1_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
           manual_load_dtsi: "1"
           remote_slave: "1"
           dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;"
