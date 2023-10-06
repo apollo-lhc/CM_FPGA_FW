@@ -20,19 +20,6 @@ AXI_SLAVES:
     HDL: 
       out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
-
-      # KH Feb'23
-      # F2_SYS_MGMT:
-      #   TCL_CALL:
-      #     command: AXI_IP_SYS_MGMT
-      #     enable_i2c_pins: 1
-      #     axi_control: "${::AXI_MASTER_CTRL}"
-      #     addr:
-      #       offset: "0xB3001000"
-      #       range: "4K"
-      #     remote_slave: "1"
-      #   XML: "address_table/modules/VIRTEX_SYS_MGMT.xml"
-      #   UHAL_BASE: 0xc0000000
   
   F2_CM_FW_INFO:
     TCL_CALL:
