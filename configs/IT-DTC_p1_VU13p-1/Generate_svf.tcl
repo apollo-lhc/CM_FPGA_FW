@@ -15,15 +15,15 @@ close_hw_target
 open_hw_target [get_hw_targets -regexp .*/${SVF_TARGET}]
 
 
-#1st in chain, no need to add another FPGA to the chain
-#create_hw_device -part xcku15p-ffva1760-2-e
-
+#1st in chain
 #add the virtex to the chain
 set DEVICE [create_hw_device -part ${FPGA_part}]
 set_property PROGRAM.FILE ${apollo_root_path}/bit/top_${build_name}.bit $DEVICE
 set_param xicom.config_chunk_size 0
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
 
+#2nd chain
+create_hw_device -part xcvu13p-flga2577-1-e
 
 program_hw_devices -force -svf_file ${apollo_root_path}/bit/top_${build_name}.svf ${DEVICE}
 

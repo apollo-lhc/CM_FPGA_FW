@@ -108,13 +108,9 @@ set_property PACKAGE_PIN	B29 [get_ports fpga_identity]
 # These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
 # so each color for both FPGAs can be driven at the same time
 set_property IOSTANDARD LVCMOS18 [get_ports led_*]
-set_property PACKAGE_PIN	A30 [get_ports led_f1_blue]
-set_property PACKAGE_PIN	A29 [get_ports led_f1_green]
-set_property PACKAGE_PIN	A28 [get_ports led_f1_red]
-
-set_property PACKAGE_PIN	BL27 [get_ports led_f2_blue]
-set_property PACKAGE_PIN	BL28 [get_ports led_f2_green]
-set_property PACKAGE_PIN	BL30 [get_ports led_f2_red]
+set_property PACKAGE_PIN	A30 [get_ports led_blue]
+set_property PACKAGE_PIN	A29 [get_ports led_green]
+set_property PACKAGE_PIN	A28 [get_ports led_red]
 #-----------------------------------------------
 
 #-----------------------------------------------
@@ -142,8 +138,10 @@ set_property PACKAGE_PIN	L35	[get_ports c2c_ok]
 set_property IOSTANDARD LVCMOS18 [get_ports i2c_s*]
 set_property PACKAGE_PIN	BB16 [get_ports i2c_scl_f_sysmon]
 set_property PACKAGE_PIN	BC16 [get_ports i2c_sda_f_sysmon]
-set_property PACKAGE_PIN	V36  [get_ports i2c_scl_f_generic]
-set_property PACKAGE_PIN	J32  [get_ports i2c_sda_f_generic]
+set_property IOSTANDARD LVCMOS18 [get_ports SCL]
+set_property IOSTANDARD LVCMOS18 [get_ports SDA]
+set_property PACKAGE_PIN	V36  [get_ports SCL]
+set_property PACKAGE_PIN	J32  [get_ports SDA]
 #-----------------------------------------------
 
 #-----------------------------------------------
@@ -1170,4 +1168,3 @@ set_property PACKAGE_PIN  A23 [get_ports  hdr9 ]
 set_property PACKAGE_PIN  A22 [get_ports  hdr10 ]
 
 #-----------------------------------------------
-
