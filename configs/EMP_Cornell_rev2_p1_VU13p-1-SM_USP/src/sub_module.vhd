@@ -86,8 +86,12 @@ architecture structure of sub_module is
   signal C2CLink_phy_link_reset_out          : STD_LOGIC;
   signal C2CLink_phy_mmcm_not_locked_out     : STD_LOGIC;
   signal C2CLink_phy_soft_err                : STD_LOGIC;
-
-
+  
+  signal C2C_REFCLK_FREQ : slv_32_t;
+  signal c2c_refclk : std_logic;
+  signal c2c_refclk_odiv2     : std_logic;
+  signal buf_c2c_refclk_odiv2 : std_logic;
+  
   constant std_logic1 : std_logic := '1';
   constant std_logic0 : std_logic := '0';
 
@@ -104,6 +108,42 @@ begin  -- architecture structure
   clk_axi <= AXI_CLK;
   rst_n_axi <= AXI_RST_N;
 
+  --Capture the refclk and generate copies for MGTS and for the fabric clocking
+  IBUFDS_GTE4_INST : IBUFDS_GTE4
+    generic map (
+      REFCLK_EN_TX_PATH => '0',
+      REFCLK_HROW_CK_SEL => "00",
+      REFCLK_ICNTL_RX => "00")
+    port map (
+      O     => c2c_refclk,
+      ODIV2 => c2c_refclk_odiv2,
+      CEB   => '0',
+      I     => p_util_clk,
+      IB    => n_util_clk);
+  --place the second clock from the GTE4 onto the clock routing network
+  BUFG_GT_INST : BUFG_GT
+    port map (
+      O       => buf_c2c_refclk_odiv2
+      CE      => '1',
+      CEMASK  => '1',
+      CLR     => '0',
+      CLRMASK => '1',
+      DIV     => "000",
+      I       => c2c_refclk_odiv2
+      );
+  -- monitor the fabric clock with the axi clock to get its freq
+  rate_counter_inst: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+    port map (
+      clk_A         => AXI_CLK,
+      clk_B         => buf_c2c_refclk_odiv2,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_REFCLK_FREQ);
+  C2C_Mon.C2C_REFCLK_FREQ <= C2C_REFCLK_FREQ;
+
+  
   -- kh aug'22 : add uart.  c2cb. V->F1
   c2csslave_wrapper_1: entity work.c2cSlave_sane_wrapper
     port map (
