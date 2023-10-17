@@ -40,7 +40,7 @@ src ../../autogen/C2C_INTF/C2C_INTF_map.vhd
 src ../../autogen/C2C_INTF/C2C_INTF_PKG.vhd
 src ../../autogen/IO/IO_map.vhd
 src ../../autogen/IO/IO_PKG.vhd
-
+src ../../autogen/Global_PKG.vhd
 
 
 
