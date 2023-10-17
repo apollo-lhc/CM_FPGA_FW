@@ -123,7 +123,7 @@ begin  -- architecture structure
   --place the second clock from the GTE4 onto the clock routing network
   BUFG_GT_INST : BUFG_GT
     port map (
-      O       => buf_c2c_refclk_odiv2
+      O       => buf_c2c_refclk_odiv2,
       CE      => '1',
       CEMASK  => '1',
       CLR     => '0',
