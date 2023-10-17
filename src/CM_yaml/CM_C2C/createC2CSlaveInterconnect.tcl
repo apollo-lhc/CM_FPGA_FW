@@ -117,8 +117,20 @@ read_vhdl "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"
 validate_bd_design
 
 make_wrapper -files [get_files ${bd_design_name}.bd] -top -import -force
+set wrapper_file [make_wrapper -files [get_files $bd_name.bd] -top -force]
+set wrapper_file_sane [string map {_wrapper.vhd _sane_wrapper.vhd} $wrapper_file]
+puts "Modifying ${bd_name} wrapper file ${wrapper_file}"
+set output_text [exec ${apollo_root_path}/build-scripts/update_bd_wrapper.py -i $wrapper_file -o $wrapper_file_sane]
+puts "Adding ${wrapper_file_sane}"
+read_vhdl $wrapper_file_sane
+
+
+
 save_bd_design
 
 close_bd_design ${bd_design_name}
+
+
+
 
 Generate_Global_package
