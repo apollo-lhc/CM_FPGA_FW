@@ -10,6 +10,8 @@ use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
 use work.AXISlaveAddrPkg.all;
 
+use work.Global_PKG.all;
+
 Library UNISIM;
 use UNISIM.vcomponents.all;
 
