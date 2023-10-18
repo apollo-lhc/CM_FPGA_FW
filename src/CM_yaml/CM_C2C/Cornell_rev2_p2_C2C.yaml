@@ -26,10 +26,10 @@ AXI_SLAVES:
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_ENDPOINT_CTRL}"
       addr:
-        offset: "0x01010000"
+        offset: "-1"
         range: "64K"
       remote_slave: "1"
-    XML: "address_table/modules/C2C_INTFS_CornellRev2P1.xml"
+    XML: "address_table/modules/C2C_INTFS_CornellRev2.xml"
     UHAL_BASE: "auto"
     HDL: 
       out_name: "C2C_INTF"
@@ -39,7 +39,7 @@ AXI_SLAVES:
         TCL_CALL:
           command: "AXI_IP_UART"
           addr:
-            offset: "0x01000000"
+            offset: "-1"
             range: "4K"
           irq_port: "F2_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
