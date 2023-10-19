@@ -347,7 +347,6 @@ begin  -- architecture structure
   
 
 
---  V_IO_interface_1: entity work.V_IO_interface
   F1_IO_interface_1: entity work.IO_map
     generic map(
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F1_IO)
