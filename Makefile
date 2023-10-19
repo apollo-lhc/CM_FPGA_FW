@@ -191,8 +191,8 @@ make test :
 
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
-	@tar -h -zcf $@ $< -C kernel/hw/$* dtbo -C ../../address_tables address_table
+	@tar -h -zcf $@ $< -C kernel/hw/$* dtbo -C ../../address_tables address_table_$*
 
 EMP%.tar.gz : kernel/config_EMP%.yaml
-	$(MAKE) overlays DTSI_PATH=kernel/hw/$*
-	@tar -h -zcf $@ -C kernel/hw/$* dtbo -C ../../address_tables address_table
+	$(MAKE) overlays DTSI_PATH=kernel/hw/EMP$*
+	@tar -h -zcf $@ -C kernel/hw/EMP$* dtbo -C ../../address_tables address_table_EMP$*
