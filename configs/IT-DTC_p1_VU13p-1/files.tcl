@@ -1,6 +1,6 @@
 set bd_path proj
 
-array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
@@ -40,6 +40,7 @@ set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
     configs/${build_name}/src/top_pins_TCDS.xdc \
     configs/${build_name}/src/top_timing.xdc	\
+    configs/${build_name}/it-dtc-fw/src/top_timing.xdc
     "	    
 
 set xci_files "\
@@ -50,4 +51,5 @@ set xci_files "\
 
 set include_files "\
     		  configs/${build_name}/it-dtc-fw/files.tcl	\
+    		  src/i2cAXIMaster/files.tcl	\
 		  "		  

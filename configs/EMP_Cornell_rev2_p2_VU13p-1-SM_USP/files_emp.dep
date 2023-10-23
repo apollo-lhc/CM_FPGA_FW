@@ -1,4 +1,4 @@
-setup ../../../../src/c2cBD/createC2CSlaveInterconnect.tcl
+setup ../../../../src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl
 setup -c emp-fwk:boards/apollo/common ../cfg/apollo_set_paths.tcl
 
 

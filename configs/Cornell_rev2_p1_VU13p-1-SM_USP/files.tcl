@@ -1,6 +1,6 @@
 set bd_path proj
 
-array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
@@ -44,3 +44,7 @@ set xci_files "\
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
     	      "
+
+set include_files "\
+    		  src/i2cAXIMaster/files.tcl	\
+		  "		  
