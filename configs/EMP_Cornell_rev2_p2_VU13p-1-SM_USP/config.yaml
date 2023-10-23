@@ -14,7 +14,7 @@ AXI_CONTROL_SETS:
 
 AXI_SLAVES:
   BASE:
-    INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/Cornell_base.yaml
+    INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/EMP_base.yaml
     SUB_SLAVES:
       C2C:
         INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p2_C2C.yaml
