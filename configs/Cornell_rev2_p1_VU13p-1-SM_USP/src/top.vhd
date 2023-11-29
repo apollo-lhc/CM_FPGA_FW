@@ -10,6 +10,9 @@ use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
 use work.AXISlaveAddrPkg.all;                                                                                              
 
+use work.Global_PKG.all;
+
+
 Library UNISIM;
 use UNISIM.vcomponents.all;
 
@@ -21,23 +24,23 @@ entity top is
 
     -- A copy of the RefClk#0 used by the 12-channel FireFlys on the left side of the FPGA.
     --This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x12_r0_clk : in std_logic;
-  --  n_lf_x12_r0_clk : in std_logic;
+    p_lf_x12_r0_clk : in std_logic;
+    n_lf_x12_r0_clk : in std_logic;
     
   --  -- A copy of the RefClk#0 used by the 4-channel FireFlys on the left side of the FPGA.
   --  -- This can be the output of either refclk synthesizer R0A or R0B. 
-  --  p_lf_x4_r0_clk : in std_logic;
-  --  n_lf_x4_r0_clk : in std_logic;
+    p_lf_x4_r0_clk : in std_logic;
+    n_lf_x4_r0_clk : in std_logic;
 
   ---- A copy of the RefClk#0 used by the 12-channel FireFlys on the right side of the FPGA.
   ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x12_r0_clk : in std_logic;
-  --   n_rt_x12_r0_clk : in std_logic;
+     p_rt_x12_r0_clk : in std_logic;
+     n_rt_x12_r0_clk : in std_logic;
 
   ---- A copy of the RefClk#0 used by the 4-channel FireFlys on the right side of the FPGA.
   ---- This can be the output of either refclk synthesizer R0A or R0B. 
-  --   p_rt_x4_r0_clk : in std_logic;
-  --   n_rt_x4_r0_clk : in std_logic;
+     p_rt_x4_r0_clk : in std_logic;
+     n_rt_x4_r0_clk : in std_logic;
 
   --'input' "fpga_identity" to differentiate FPGA#1 from FPGA#2.
   -- The signal will be HI in FPGA#1 and LO in FPGA#2.
@@ -46,12 +49,9 @@ entity top is
   -- 'output' "led": 3 bits to light a tri-color LED
   -- These use different pins on F1 vs. F2. The pins are unused on the "other" FPGA,
   -- so each color for both FPGAs can be driven at the same time
-    led_f1_red : out std_logic;
-    led_f1_green : out std_logic;
-    led_f1_blue : out std_logic;
-    --led_f2_red : out std_logic;
-    --led_f2_green : out std_logic;
-    --led_f2_blue : out std_logic;
+    led_red : out std_logic;
+    led_green : out std_logic;
+    led_blue : out std_logic;
     
   -- 'input' "mcu_to_f": 1 bit trom the MCU
   -- 'output' "f_to_mcu": 1 bit to the MCU
@@ -78,8 +78,8 @@ entity top is
   --     b2) 40 MHz if the SM is the TCDS endpoint
   --  c) Optional front panel connector for an external LVDS clock
   -- quad AB
-  --  p_lf_r0_ab : in std_logic;
-  --  n_lf_r0_ab : in std_logic;
+    p_lf_r0_ab : in std_logic;
+    n_lf_r0_ab : in std_logic;
   ----
   ---- RefClk#1 comes from REFCLK SYNTHESIZER R1B which can be driven by: 
   ----  a) synth oscillator
@@ -87,11 +87,11 @@ entity top is
   ----  c) the 40 MHz TCDS RECOVERED CLOCK from FPGA #1 
   ---- RefClk#1 is only connected on FPGA#1, and is only used when FPGA#1 is the TCDS endpoint.
   ---- quad AB
-  --   p_lf_r1_ab : in std_logic;
-  --   n_lf_r1_ab : in std_logic;
+     p_lf_r1_ab : in std_logic;
+     n_lf_r1_ab : in std_logic;
   ---- quad L
-  --   p_lf_r1_l : in std_logic;
-  --   n_lf_r1_l : in std_logic;   
+     p_lf_r1_l : in std_logic;
+     n_lf_r1_l : in std_logic; 
 
   --
   -- Port #0 is the main TCDS path. Both FPGAs use it when the Zynq on the SM is the
@@ -145,8 +145,8 @@ entity top is
   ---- 40 MHz TCDS clock connected to FPGA logic. This is used in the FPGA for two
   ---- purposes. The first is to generate high-speed processing clocks by multiplying
   ---- in an MMCM. The second is to synchronize processing to the 40 MHz LHC bunch crossing.
-  --   p_tcds40_clk : in std_logic;
-  --   n_tcds40_clk : in std_logic;
+     p_tcds40_clk : in std_logic;
+     n_tcds40_clk : in std_logic;
 
   
   ---- Spare input signals from the "other" FPGA.
@@ -197,28 +197,80 @@ entity top is
      --p_mgt_v2z        : out std_logic_vector(1 downto 1);
      
  -- Connect FF1, 12 lane, quad AC,AD,AE
- --    p_lt_r0_ad : in std_logic;
- --    n_lt_r0_ad : in std_logic;
+     p_lf_r0_ad : in std_logic;
+     n_lf_r0_ad : in std_logic;
+     p_lf_r1_ad : in std_logic;
+     n_lf_r1_ad : in std_logic;
  --    n_ff1_recv : in std_logic_vector(11 downto 0);
  --    p_ff1_recv : in std_logic_vector(11 downto 0);
  --    n_ff1_xmit : out std_logic_vector(11 downto 0);
  --    p_ff1_xmit : out std_logic_vector(11 downto 0);      
 
  ---- Connect FF4, 4 lane, quad AF
- --    p_lf_r0_af : in std_logic;
- --    n_lf_r0_af : in std_logic;
+     p_lf_r0_af : in std_logic;
+     n_lf_r0_af : in std_logic;
+     p_lf_r1_af : in std_logic;
+     n_lf_r1_af : in std_logic;
  --    n_ff4_recv : in std_logic_vector(3 downto 0);
  --    p_ff4_recv : in std_logic_vector(3 downto 0);
  --    n_ff4_xmit : out std_logic_vector(3 downto 0);
  --    p_ff4_xmit : out std_logic_vector(3 downto 0);  
    
  -- -- Connect FF4, 4 lane, quad U
- --    p_lf_r0_u : in std_logic;
- --    n_lf_r0_u : in std_logic;
+     p_lf_r0_u : in std_logic;
+     n_lf_r0_u : in std_logic;
+     p_lf_r1_u : in std_logic;
+     n_lf_r1_u : in std_logic;
  --    n_ff6_recv : in std_logic_vector(3 downto 0);
  --    p_ff6_recv : in std_logic_vector(3 downto 0);
  --    n_ff6_xmit : out std_logic_vector(3 downto 0);
  --    p_ff6_xmit : out std_logic_vector(3 downto 0);
+ 
+     p_lf_r0_r : in std_logic;
+     n_lf_r0_r : in std_logic;
+     p_lf_r1_r : in std_logic;
+     n_lf_r1_r : in std_logic;
+     
+     p_lf_r0_y : in std_logic;
+     n_lf_r0_y : in std_logic;
+     p_lf_r1_y : in std_logic;
+     n_lf_r1_y : in std_logic;
+     
+     p_lf_r0_v : in std_logic;
+     n_lf_r0_v : in std_logic;
+     
+     p_rt_r0_n : in std_logic;
+     n_rt_r0_n : in std_logic;
+     p_rt_r1_n : in std_logic;
+     n_rt_r1_n : in std_logic;
+     
+     p_rt_r0_b : in std_logic;
+     n_rt_r0_b : in std_logic;
+     p_rt_r1_b : in std_logic;
+     n_rt_r1_b : in std_logic;
+     
+     p_rt_r0_e : in std_logic;
+     n_rt_r0_e : in std_logic;
+     p_rt_r1_e : in std_logic;
+     n_rt_r1_e : in std_logic;
+     
+     p_rt_r0_f : in std_logic;
+     n_rt_r0_f : in std_logic;
+     
+     p_rt_r0_g : in std_logic;
+     n_rt_r0_g : in std_logic;
+     p_rt_r1_g : in std_logic;
+     n_rt_r1_g : in std_logic;
+     
+     p_rt_r0_p : in std_logic;
+     n_rt_r0_p : in std_logic;
+     p_rt_r1_p : in std_logic;
+     n_rt_r1_p : in std_logic;
+     
+     p_rt_r0_i : in std_logic;
+     n_rt_r0_i : in std_logic;
+     p_rt_r1_i : in std_logic;
+     n_rt_r1_i : in std_logic;
 
   -- I2C pins
   -- The "sysmon" port can be accessed before the FPGA is configured.
@@ -227,7 +279,9 @@ entity top is
     --i2c_scl_f_generic   : inout std_logic;
     --i2c_sda_f_generic   : inout std_logic;
     i2c_scl_f_sysmon    : inout std_logic;
-    i2c_sda_f_sysmon    : inout std_logic
+    i2c_sda_f_sysmon    : inout std_logic;
+    SDA                : inout std_logic;
+    SCL                : in    std_logic
     );
   end entity top;
 
@@ -237,6 +291,63 @@ entity top is
       signal clk_50          : std_logic;
       signal reset           : std_logic;
       signal locked_clk200   : std_logic;
+
+
+      constant serdes_refclk_count        : integer := 28;
+      type serdes_t is record
+        p        : std_logic;
+        n        : std_logic;
+        refclk   : std_logic;
+        refclk_2 : std_logic;
+        clk      : std_logic;
+        freq     : std_logic_vector(31 downto 0);
+      end record serdes_t;
+      type serdes_array_t is array (integer range <>) of serdes_t;
+      signal serdes_refclk : serdes_array_t(0 to SERDES_REFCLK_COUNT-1);
+
+      constant fabric_refclk_count        : integer := 5;
+      type fabric_t is record
+        p     : std_logic;
+        n     : std_logic;
+        clk   : std_logic;
+        freq  : std_logic_vector(31 downto 0);
+      end record fabric_t;
+      type fabric_array_t is array (integer range <>) of fabric_t;
+      signal fabric_refclk : fabric_array_t(0 to FABRIC_REFCLK_COUNT-1);
+      
+      signal count_lf_x12_r0_clk : std_logic_vector(31 downto 0);
+      signal count_lf_x4_r0_clk  : std_logic_vector(31 downto 0);
+      signal count_rt_x12_r0_clk : std_logic_vector(31 downto 0);
+      signal count_rt_x4_r0_clk  : std_logic_vector(31 downto 0);
+      signal count_lf_r0_ab      : std_logic_vector(31 downto 0);
+      signal count_lf_r1_ab      : std_logic_vector(31 downto 0);
+      signal count_lf_r1_l       : std_logic_vector(31 downto 0);
+      signal count_tcds40_clk    : std_logic_vector(31 downto 0);      
+      signal count_rt_r0_l       : std_logic_vector(31 downto 0);
+      signal count_lf_r0_ad      : std_logic_vector(31 downto 0);
+      signal count_lf_r1_ad      : std_logic_vector(31 downto 0);
+      signal count_lf_r0_af      : std_logic_vector(31 downto 0);
+      signal count_lf_r1_af      : std_logic_vector(31 downto 0);
+      signal count_lf_r0_u       : std_logic_vector(31 downto 0);
+      signal count_lf_r1_u       : std_logic_vector(31 downto 0);
+      signal count_lf_r0_r       : std_logic_vector(31 downto 0);
+      signal count_lf_r1_r       : std_logic_vector(31 downto 0);
+      signal count_lf_r0_y       : std_logic_vector(31 downto 0);
+      signal count_lf_r1_y       : std_logic_vector(31 downto 0);
+      signal count_lf_r0_v       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_n       : std_logic_vector(31 downto 0);
+      signal count_rt_r1_n       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_b       : std_logic_vector(31 downto 0);
+      signal count_rt_r1_b       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_e       : std_logic_vector(31 downto 0);
+      signal count_rt_r1_e       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_f       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_g       : std_logic_vector(31 downto 0);
+      signal count_rt_r1_g       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_p       : std_logic_vector(31 downto 0);
+      signal count_rt_r1_p       : std_logic_vector(31 downto 0);
+      signal count_rt_r0_i       : std_logic_vector(31 downto 0);
+      signal count_rt_r1_i       : std_logic_vector(31 downto 0);
 
       signal led_blue_local  : slv_8_t;
       signal led_red_local   : slv_8_t;
@@ -257,6 +368,14 @@ entity top is
       signal ext_AXI_WriteMOSI : AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
       signal ext_AXI_WriteMISO : AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
 
+      signal i2c_AXI_MASTER_ReadMOSI  :  AXIReadMOSI := DefaultAXIReadMOSI;
+      signal i2c_AXI_MASTER_ReadMISO  :  AXIReadMISO := DefaultAXIReadMISO;
+      signal i2c_AXI_MASTER_WriteMOSI : AXIWriteMOSI := DefaultAXIWriteMOSI;
+      signal i2c_AXI_MASTER_WriteMISO : AXIWriteMISO := DefaultAXIWriteMISO;
+      signal i2c_AXI_MASTER_rst_n : std_logic;
+      
+
+      
       signal C2C_Mon  : C2C_INTF_MON_t;
       signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
@@ -281,8 +400,18 @@ entity top is
       signal AXI_BRAM_DATA_IN : std_logic_vector(63 downto 0);
       signal AXI_BRAM_DATA_OUT : std_logic_vector(63 downto 0);
 
-        signal pB_UART_tx : std_logic;
-  signal pB_UART_rx : std_logic;
+      signal pB_UART_tx : std_logic;
+      signal pB_UART_rx : std_logic;
+
+      signal C2C_REFCLK_FREQ : slv_32_t;
+      signal c2c_refclk : std_logic;
+      signal c2c_refclk_odiv2     : std_logic;
+      signal buf_c2c_refclk_odiv2 : std_logic;
+      
+      signal sda_in  : std_logic;
+      signal sda_out : std_logic;
+      signal sda_en  : std_logic;
+
 
       
 begin        
@@ -297,399 +426,370 @@ begin
             clk_in1_n  => n_clk_200);
     AXI_CLK <= clk_50;
 
--- add differential clock buffers to all the incoming clocks
---wire lf_x12_r0_clk;
---IBUFDS lf_x12_r0_clk_buf(.O(lf_x12_r0_clk), .I(p_lf_x12_r0_clk), .IB(n_lf_x12_r0_clk) );
---wire lf_x4_r0_clk;
---IBUFDS lf_x4_r0_clk_buf(.O(lf_x4_r0_clk), .I(p_lf_x4_r0_clk), .IB(n_lf_x4_r0_clk) );
---wire rt_x12_r0_clk;
---IBUFDS rt_x12_r0_clk_buf(.O(rt_x12_r0_clk), .I(p_rt_x12_r0_clk), .IB(n_rt_x12_r0_clk) );
---wire rt_x4_r0_clk;
---IBUFDS rt_x4_r0_clk_buf(.O(rt_x4_r0_clk), .I(p_rt_x4_r0_clk), .IB(n_rt_x4_r0_clk) );
---wire tcds40_clk;           -- 40 MHz LHC clock
---IBUFDS tcds40_clk_buf(.O(tcds40_clk), .I(p_tcds40_clk), .IB(n_tcds40_clk) );
+    --Fabric copies of refclks
+    fabric_refclk(0).p <= p_lf_x12_r0_clk;
+    fabric_refclk(0).n <= n_lf_x12_r0_clk;
+    count_lf_x12_r0_clk <= fabric_refclk(0).freq;
+    fabric_refclk(1).p <= p_lf_x4_r0_clk;
+    fabric_refclk(1).n <= n_lf_x4_r0_clk;
+    count_lf_x4_r0_clk <= fabric_refclk(1).freq;
+    fabric_refclk(2).p <= p_rt_x12_r0_clk;
+    fabric_refclk(2).n <= n_rt_x12_r0_clk;
+    count_rt_x12_r0_clk <= fabric_refclk(2).freq;
+    fabric_refclk(3).p <= p_rt_x4_r0_clk;
+    fabric_refclk(3).n <= n_rt_x4_r0_clk;
+    count_rt_x4_r0_clk <= fabric_refclk(3).freq;
+    fabric_refclk(4).p <= p_tcds40_clk;
+    fabric_refclk(4).n <= n_tcds40_clk;
+    count_tcds40_clk <= fabric_refclk(4).freq;
 
--- add differential output buffer to TCDS recovered clock
---wire tcds_recov_clk;
---OBUFDS(.I(tcds_recov_clk), .O(p_tcds_recov_clk), .OB(n_tcds_recov_clk)); 
----- dummy connection to tcds_recov_clk
---assign tcds_recov_clk = tcds40_clk;
-
--- add a free running counter to divide the clock
---reg [27:0] divider;
---always @(posedge clk_200) begin
---  divider[27:0] <= divider[27:0] + 1;
---end
-
---assign led_f1_red = divider[27];
---assign led_f1_green = divider[26];
---assign led_f1_blue = divider[25];
---assign led_f2_red = divider[27];
---assign led_f2_green = divider[26];
---assign led_f2_blue = divider[25];
-
----- create 3 differential buffers for spare inputs 
---genvar chan;
---wire [2:0] in_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_in_spare_buf
---      IBUFDS in_spare_buf(.O(in_spare[chan]), .I(p_in_spare[chan]), .IB(n_in_spare[chan]) );
---  end
---endgenerate
-
----- create 3 differential buffers for spare outputs 
---reg [2:0] out_spare;
---generate
---  for (chan=0; chan < 3; chan=chan+1)
---    begin: gen_out_spare_buf
---      OBUFDS out_spare_buf(.I(out_spare[chan]), .O(p_out_spare[chan]), .OB(n_out_spare[chan]) );
---  end
---endgenerate
-
--- loop the spare in to the spare out
---always @(posedge clk_200) begin
---  out_spare[2:0] <= in_spare[2:0];
---end
-
----- create differential buffers to loop the test_conn signals
---wire test_conn_clk;
---IBUFDS test_conn_clk_buf(.O(test_conn_clk), .I(p_test_conn_0), .IB(n_test_conn_0) );
---wire test_conn_3, test_conn_4;
---IBUFDS test_conn_4_buf(.O(test_conn_4), .I(p_test_conn_4), .IB(n_test_conn_4));
---IBUFDS test_conn_3_buf(.O(test_conn_3), .I(p_test_conn_3), .IB(n_test_conn_3));
---reg test_conn_out_2, test_conn_out_1;
---OBUFDS test_conn_out_2_buf(.I(test_conn_out_2), .O(p_test_conn_2), .OB(n_test_conn_2));
---OBUFDS test_conn_out_1_buf(.I(test_conn_out_1), .O(p_test_conn_1), .OB(n_test_conn_1));
-
----- loop test_conn 'in' to 'out' using 'clk'
---always @(posedge test_conn_clk) begin
---  test_conn_out_2 <= test_conn_4;
---  test_conn_out_1 <= test_conn_3;
---  test_conn_5 <= test_conn_6;
---end
-
----- create differential buffers to loop the 'hdr' signals
---wire hdr_clk;
---IBUFDS hdr_clk_buf(.O(hdr_clk), .I(hdr1), .IB(hdr2) );
-
----- loop hdr 'in' to 'out' using 'clk'
---always @(posedge hdr_clk) begin
---  hdr7 <= hdr3;
---  hdr8 <= hdr4;
---  hdr9 <= hdr5;
---  hdr10 <= hdr6;
---end
-
----- create tri-state buffers for generic I2C scl and sda
---wire i2c_scl_generic_out, i2c_scl_generic_tri, i2c_scl_generic_in;
---generic_scl: IOBUF 
---  port map (
---    clk_200   => clk_200,
---    I => i2c_scl_generic_out,
---    T => i2c_scl_generic_tri,
---    O => i2c_scl_generic_in,
---    IO => i2c_scl_f_generic
---    );                    
---wire i2c_sda_generic_out, i2c_sda_generic_tri, i2c_sda_generic_in; 
---IOBUF generic_sda(.I(i2c_sda_generic_out),.T(i2c_sda_generic_tri), .O(i2c_sda_generic_in), .IO(i2c_sda_f_generic));
-
---wire i2c_scl_sysmon_out, i2c_scl_sysmon_tri, i2c_scl_sysmon_in; 
---IOBUF sysmon_scl(.I(i2c_scl_sysmon_out),.T(i2c_scl_sysmon_tri), .O(i2c_scl_sysmon_in), .IO(i2c_scl_f_sysmon));
---wire i2c_sda_sysmon_out, i2c_sda_sysmon_tri, i2c_sda_sysmon_in; 
---IOBUF sysmon_sda(.I(i2c_sda_sysmon_out),.T(i2c_sda_sysmon_tri), .O(i2c_sda_sysmon_in), .IO(i2c_sda_f_sysmon));
-
----- create dummy logic to use remaining inputs and outputs 
---always @(posedge clk_200) begin
---  f_to_mcu <= mcu_to_f & fpga_identity;
---end
-
--- Connect the c2c block
---top_block_wrapper top_block_wrapper1 (
---   .c2c_refclk_n(n_rt_r0_l),
---   .c2c_refclk_p(p_rt_r0_l),
---   .c2c_rxn(n_mgt_sm_to_f_1),
---   .c2c_rxp(p_mgt_sm_to_f_1),
---   .c2c_txn(n_mgt_f_to_sm_1),
---   .c2c_txp(p_mgt_f_to_sm_1),
---   .c2c2_rxn(n_mgt_sm_to_f_2),
---   .c2c2_rxp(p_mgt_sm_to_f_2),
---   .c2c2_txn(n_mgt_f_to_sm_2),
---   .c2c2_txp(p_mgt_f_to_sm_2),
---   .clk_100(clk_100),
---   .c2c_ok(c2c_ok),
---   .scl_i(i2c_scl_generic_in),
---   .scl_o(i2c_scl_generic_out),
---   .scl_t(i2c_scl_generic_tri),
---   .sda_i(i2c_sda_generic_in),
---   .sda_o(i2c_sda_generic_out),
---   .sda_t(i2c_sda_generic_tri)
---);
-
--- add a ffx4 block to use 1 quad (quad AF = FF4)
---BD_FFx4 FFx4_AF (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_af),
---  .refclk_p(p_lf_r0_af),
---  .rx_n({n_ff4_recv[0],n_ff4_recv[1],n_ff4_recv[2],n_ff4_recv[3]}),
---  .rx_p({p_ff4_recv[0],p_ff4_recv[1],p_ff4_recv[2],p_ff4_recv[3]}),
---  .tx_n({n_ff4_xmit[0],n_ff4_xmit[1],n_ff4_xmit[2],n_ff4_xmit[3]}),
---  .tx_p({p_ff4_xmit[0],p_ff4_xmit[1],p_ff4_xmit[2],p_ff4_xmit[3]})
---);
-
----- add a ffx4 block to use 1 quad (quad U = FF6)
---FFx4_U FFx4_U (
---  .init_clk(clk_200),
---  .refclk_n(n_lf_r0_u),
---  .refclk_p(p_lf_r0_u),
---  .rx_n({n_ff6_recv[0],n_ff6_recv[1],n_ff6_recv[2],n_ff6_recv[3]}),
---  .rx_p({p_ff6_recv[0],p_ff6_recv[1],p_ff6_recv[2],p_ff6_recv[3]}),
---  .tx_n({n_ff6_xmit[0],n_ff6_xmit[1],n_ff6_xmit[2],n_ff6_xmit[3]}),
---  .tx_p({p_ff6_xmit[0],p_ff6_xmit[1],p_ff6_xmit[2],p_ff6_xmit[3]})
---);
-
--- add a ffx12 block to use 3 quads (quad AC,AD,AE = FF1)
---BD_FFx12 FFx12_AD (
---  .init_clk(clk_50),
---  .refclk_n(n_lf_r0_ad),
---  .refclk_p(p_lf_r0_ad),
---  .rx_n({n_ff1_recv[11],n_ff1_recv[10],n_ff1_recv[9],n_ff1_recv[8],n_ff1_recv[7],n_ff1_recv[6],n_ff1_recv[5],n_ff1_recv[4],n_ff1_recv[3],n_ff1_recv[2],n_ff1_recv[1],n_ff1_recv[0]}),
---  .rx_p({p_ff1_recv[11],p_ff1_recv[10],p_ff1_recv[9],p_ff1_recv[8],p_ff1_recv[7],p_ff1_recv[6],p_ff1_recv[5],p_ff1_recv[4],p_ff1_recv[3],p_ff1_recv[2],p_ff1_recv[1],p_ff1_recv[0]}),
---  .tx_n({n_ff1_xmit[11],n_ff1_xmit[10],n_ff1_xmit[9],n_ff1_xmit[8],n_ff1_xmit[7],n_ff1_xmit[6],n_ff1_xmit[5],n_ff1_xmit[4],n_ff1_xmit[3],n_ff1_xmit[2],n_ff1_xmit[1],n_ff1_xmit[0]}),
---  .tx_p({p_ff1_xmit[11],p_ff1_xmit[10],p_ff1_xmit[9],p_ff1_xmit[8],p_ff1_xmit[7],p_ff1_xmit[6],p_ff1_xmit[5],p_ff1_xmit[4],p_ff1_xmit[3],p_ff1_xmit[2],p_ff1_xmit[1],p_ff1_xmit[0]})
---);
-
- c2csslave_wrapper_1: entity work.c2cslave_wrapper
-    port map (
-      AXI_CLK                               => AXI_CLK,
-      AXI_RST_N(0)                          => AXI_RST_N,
-      CM1_PB_UART_rxd                     => pB_UART_tx,
-      CM1_PB_UART_txd                     => pB_UART_rx,
-      F1_C2C_phy_Rx_rxn                  => n_mgt_sm_to_f(1 downto 1),
-      F1_C2C_phy_Rx_rxp                  => p_mgt_sm_to_f(1 downto 1),
-      F1_C2C_phy_Tx_txn                  => n_mgt_f_to_sm(1 downto 1),
-      F1_C2C_phy_Tx_txp                  => p_mgt_f_to_sm(1 downto 1),
-      F1_C2CB_phy_Rx_rxn                  => n_mgt_sm_to_f(2 downto 2),
-      F1_C2CB_phy_Rx_rxp                  => p_mgt_sm_to_f(2 downto 2),
-      F1_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
-      F1_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
-      F1_C2C_phy_refclk_clk_n            => n_rt_r0_l,
-      F1_C2C_phy_refclk_clk_p            => p_rt_r0_l,
-      clk50Mhz                              => clk_50,
+    --refclocks
+    serdes_refclk(0).p <= p_lf_r0_ab;
+    serdes_refclk(0).n <= n_lf_r0_ab;
+    count_lf_r0_ab <= serdes_refclk(0).freq;
+    serdes_refclk(1).p <= p_lf_r1_ab;
+    serdes_refclk(1).n <= n_lf_r1_ab;
+    count_lf_r1_ab <= serdes_refclk(1).freq;
+    serdes_refclk(2).p <= p_lf_r1_l;
+    serdes_refclk(2).n <= n_lf_r1_l;
+    count_lf_r1_l  <= serdes_refclk(2).freq;
+    serdes_refclk(3).p <= p_lf_r0_ad;
+    serdes_refclk(3).n <= n_lf_r0_ad;
+    count_lf_r0_ad <= serdes_refclk(3).freq;
+    serdes_refclk(4).p <= p_lf_r1_ad;
+    serdes_refclk(4).n <= n_lf_r1_ad;
+    count_lf_r1_ad <= serdes_refclk(4).freq;
+    serdes_refclk(5).p <= p_lf_r0_af;
+    serdes_refclk(5).n <= n_lf_r0_af;
+    count_lf_r0_af <= serdes_refclk(5).freq;
+    serdes_refclk(6).p <= p_lf_r1_af;
+    serdes_refclk(6).n <= n_lf_r1_af;
+    count_lf_r1_af <= serdes_refclk(6).freq;
+    serdes_refclk(7).p <= p_lf_r0_u;
+    serdes_refclk(7).n <= n_lf_r0_u;
+    count_lf_r0_u  <= serdes_refclk(7).freq;
+    serdes_refclk(8).p <= p_lf_r1_u;
+    serdes_refclk(8).n <= n_lf_r1_u;
+    count_lf_r1_u  <= serdes_refclk(8).freq;
+    serdes_refclk(9).p <= p_lf_r0_r;
+    serdes_refclk(9).n <= n_lf_r0_r;
+    count_lf_r0_r  <= serdes_refclk(9).freq;
+    serdes_refclk(10).p <= p_lf_r1_r;
+    serdes_refclk(10).n <= n_lf_r1_r;
+    count_lf_r1_r  <= serdes_refclk(10).freq;
+    serdes_refclk(11).p <= p_lf_r0_y;
+    serdes_refclk(11).n <= n_lf_r0_y;
+    count_lf_r0_y  <= serdes_refclk(11).freq;
+    serdes_refclk(12).p <= p_lf_r1_y;
+    serdes_refclk(12).n <= n_lf_r1_y;
+    count_lf_r1_y  <= serdes_refclk(12).freq;
+    serdes_refclk(13).p <= p_lf_r0_v;
+    serdes_refclk(13).n <= n_lf_r0_v;
+    count_lf_r0_v  <= serdes_refclk(13).freq;
+    serdes_refclk(14).p <= p_rt_r0_n;
+    serdes_refclk(14).n <= n_rt_r0_n;
+    count_rt_r0_n  <= serdes_refclk(14).freq;
+    serdes_refclk(15).p <= p_rt_r1_n;
+    serdes_refclk(15).n <= n_rt_r1_n;
+    count_rt_r1_n  <= serdes_refclk(15).freq;
+    serdes_refclk(16).p <= p_rt_r0_b;
+    serdes_refclk(16).n <= n_rt_r0_b;
+    count_rt_r0_b  <= serdes_refclk(16).freq;
+    serdes_refclk(17).p <= p_rt_r1_b;
+    serdes_refclk(17).n <= n_rt_r1_b;
+    count_rt_r1_b  <= serdes_refclk(17).freq;
+    serdes_refclk(18).p <= p_rt_r0_e;
+    serdes_refclk(18).n <= n_rt_r0_e;
+    count_rt_r0_e  <= serdes_refclk(18).freq;
+    serdes_refclk(19).p <= p_rt_r1_e;
+    serdes_refclk(19).n <= n_rt_r1_e;
+    count_rt_r1_e  <= serdes_refclk(19).freq;
+    serdes_refclk(20).p <= p_rt_r0_f;
+    serdes_refclk(20).n <= n_rt_r0_f;
+    count_rt_r0_f  <= serdes_refclk(20).freq;    
+    serdes_refclk(21).p <= p_rt_r0_g;
+    serdes_refclk(21).n <= n_rt_r0_g;
+    count_rt_r0_g  <= serdes_refclk(21).freq;
+    serdes_refclk(22).p <= p_rt_r1_g;
+    serdes_refclk(22).n <= n_rt_r1_g;
+    count_rt_r1_g  <= serdes_refclk(22).freq;
+    serdes_refclk(23).p <= p_rt_r0_p;
+    serdes_refclk(23).n <= n_rt_r0_p;
+    count_rt_r0_p  <= serdes_refclk(23).freq;
+    serdes_refclk(24).p <= p_rt_r1_p;
+    serdes_refclk(24).n <= n_rt_r1_p;
+    count_rt_r1_p  <= serdes_refclk(24).freq;
+    serdes_refclk(25).p <= p_rt_r0_i;
+    serdes_refclk(25).n <= n_rt_r0_i;
+    count_rt_r0_i  <= serdes_refclk(25).freq;
+    serdes_refclk(26).p <= p_rt_r1_i;
+    serdes_refclk(26).n <= n_rt_r1_i;
+    count_rt_r1_i  <= serdes_refclk(26).freq;
+    serdes_refclk(27).p <= p_rt_r0_l;
+    serdes_refclk(27).n <= n_rt_r0_l;
+    count_rt_r0_l  <= serdes_refclk(27).freq;
+    
+    monitor_serdes_refclks: for iCLK in 0 to SERDES_REFCLK_COUNT-1 generate
+      --Capture the refclk and generate copies for MGTS and for the fabric clocking
+      IBUFDS_GTE4_INST : IBUFDS_GTE4
+        generic map (
+          REFCLK_EN_TX_PATH => '0',
+          REFCLK_HROW_CK_SEL => "00",
+          REFCLK_ICNTL_RX => "00")
+        port map (
+          O     => serdes_refclk(iClk).refclk,
+          ODIV2 => serdes_refclk(iClk).refclk_2,
+          CEB   => '0',
+          I     => serdes_refclk(iClk).p,
+          IB    => serdes_refclk(iClk).n);
+      --place the second clock from the GTE4 onto the clock routing network
+      BUFG_GT_INST : BUFG_GT
+        port map (
+          O       => serdes_refclk(iClk).clk,
+          CE      => '1',
+          CEMASK  => '1',
+          CLR     => '0',
+          CLRMASK => '1',
+          DIV     => "000",
+          I       => serdes_refclk(iClk).refclk_2
+        );
+      -- monitor the fabric clock with the axi clock to get its freq
+      rate_counter_inst: entity work.rate_counter
+        generic map (
+          CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+        port map (
+          clk_A         => AXI_CLK,
+          clk_B         => serdes_refclk(iClk).clk,
+          reset_A_async => AXI_RESET,
+          event_b       => '1',
+          rate          => serdes_refclk(iClk).freq);
       
-      F1_IO_araddr                           => local_AXI_ReadMOSI(0).address,              
-      F1_IO_arprot                           => local_AXI_ReadMOSI(0).protection_type,      
-      F1_IO_arready                          => local_AXI_ReadMISO(0).ready_for_address,    
-      F1_IO_arvalid                          => local_AXI_ReadMOSI(0).address_valid,        
-      F1_IO_awaddr                           => local_AXI_WriteMOSI(0).address,             
-      F1_IO_awprot                           => local_AXI_WriteMOSI(0).protection_type,     
-      F1_IO_awready                          => local_AXI_WriteMISO(0).ready_for_address,   
-      F1_IO_awvalid                          => local_AXI_WriteMOSI(0).address_valid,       
-      F1_IO_bready                           => local_AXI_WriteMOSI(0).ready_for_response,  
-      F1_IO_bresp                            => local_AXI_WriteMISO(0).response,            
-      F1_IO_bvalid                           => local_AXI_WriteMISO(0).response_valid,      
-      F1_IO_rdata                            => local_AXI_ReadMISO(0).data,                 
-      F1_IO_rready                           => local_AXI_ReadMOSI(0).ready_for_data,       
-      F1_IO_rresp                            => local_AXI_ReadMISO(0).response,             
-      F1_IO_rvalid                           => local_AXI_ReadMISO(0).data_valid,           
-      F1_IO_wdata                            => local_AXI_WriteMOSI(0).data,                
-      F1_IO_wready                           => local_AXI_WriteMISO(0).ready_for_data,       
-      F1_IO_wstrb                            => local_AXI_WriteMOSI(0).data_write_strobe,   
-      F1_IO_wvalid                           => local_AXI_WriteMOSI(0).data_valid,
+    end generate monitor_serdes_refclks;
 
-
-      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
-      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
-      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
-      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
-      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
-      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
-      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
-      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
-      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
-      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
-      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
-      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
-      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
-      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
-      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
-      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
-      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
-      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
-      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
-
+    monitor_fabric_refclks: for iCLK in 0 to FABRIC_REFCLK_COUNT-1 generate
+      --cacpture the clock and put it on the clocking network
+      IBUFDS_inst_1 : IBUFDS
+        generic map (
+          DIFF_TERM => FALSE,
+          IBUF_LOW_PWR => TRUE,
+          IOSTANDARD => "DEFAULT")
+        port map (
+          O  => fabric_refclk(iCLK).clk,
+          I  => fabric_refclk(iCLK).p,
+          IB => fabric_refclk(iCLK).n);
+      -- monitor the clk with the AXI clk
+      rate_counter_inst: entity work.rate_counter
+        generic map (
+          CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+        port map (
+          clk_A         => AXI_CLK,
+          clk_B         => fabric_refclk(iClk).clk,
+          reset_A_async => AXI_RESET,
+          event_b       => '1',
+          rate          => fabric_refclk(iClk).freq);
       
-      F1_CM_FW_INFO_araddr                      => local_AXI_ReadMOSI(1).address,              
-      F1_CM_FW_INFO_arprot                      => local_AXI_ReadMOSI(1).protection_type,      
-      F1_CM_FW_INFO_arready                     => local_AXI_ReadMISO(1).ready_for_address,    
-      F1_CM_FW_INFO_arvalid                     => local_AXI_ReadMOSI(1).address_valid,        
-      F1_CM_FW_INFO_awaddr                      => local_AXI_WriteMOSI(1).address,             
-      F1_CM_FW_INFO_awprot                      => local_AXI_WriteMOSI(1).protection_type,     
-      F1_CM_FW_INFO_awready                     => local_AXI_WriteMISO(1).ready_for_address,   
-      F1_CM_FW_INFO_awvalid                     => local_AXI_WriteMOSI(1).address_valid,       
-      F1_CM_FW_INFO_bready                      => local_AXI_WriteMOSI(1).ready_for_response,  
-      F1_CM_FW_INFO_bresp                       => local_AXI_WriteMISO(1).response,            
-      F1_CM_FW_INFO_bvalid                      => local_AXI_WriteMISO(1).response_valid,      
-      F1_CM_FW_INFO_rdata                       => local_AXI_ReadMISO(1).data,                 
-      F1_CM_FW_INFO_rready                      => local_AXI_ReadMOSI(1).ready_for_data,       
-      F1_CM_FW_INFO_rresp                       => local_AXI_ReadMISO(1).response,             
-      F1_CM_FW_INFO_rvalid                      => local_AXI_ReadMISO(1).data_valid,           
-      F1_CM_FW_INFO_wdata                       => local_AXI_WriteMOSI(1).data,                
-      F1_CM_FW_INFO_wready                      => local_AXI_WriteMISO(1).ready_for_data,       
-      F1_CM_FW_INFO_wstrb                       => local_AXI_WriteMOSI(1).data_write_strobe,   
-      F1_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
-      
+    end generate monitor_fabric_refclks;
 
-      F1_IPBUS_araddr                   => ext_AXI_ReadMOSI.address,              
-      F1_IPBUS_arburst                  => ext_AXI_ReadMOSI.burst_type,
-      F1_IPBUS_arcache                  => ext_AXI_ReadMOSI.cache_type,
-      F1_IPBUS_arlen                    => ext_AXI_ReadMOSI.burst_length,
-      F1_IPBUS_arlock(0)                => ext_AXI_ReadMOSI.lock_type,
-      F1_IPBUS_arprot                   => ext_AXI_ReadMOSI.protection_type,      
-      F1_IPBUS_arqos                    => ext_AXI_ReadMOSI.qos,
-      F1_IPBUS_arready(0)               => ext_AXI_ReadMISO.ready_for_address,
-      F1_IPBUS_arregion                 => ext_AXI_ReadMOSI.region,
-      F1_IPBUS_arsize                   => ext_AXI_ReadMOSI.burst_size,
-      F1_IPBUS_arvalid(0)               => ext_AXI_ReadMOSI.address_valid,        
-      F1_IPBUS_awaddr                   => ext_AXI_WriteMOSI.address,             
-      F1_IPBUS_awburst                  => ext_AXI_WriteMOSI.burst_type,
-      F1_IPBUS_awcache                  => ext_AXI_WriteMOSI.cache_type,
-      F1_IPBUS_awlen                    => ext_AXI_WriteMOSI.burst_length,
-      F1_IPBUS_awlock(0)                => ext_AXI_WriteMOSI.lock_type,
-      F1_IPBUS_awprot                   => ext_AXI_WriteMOSI.protection_type,
-      F1_IPBUS_awqos                    => ext_AXI_WriteMOSI.qos,
-      F1_IPBUS_awready(0)               => ext_AXI_WriteMISO.ready_for_address,   
-      F1_IPBUS_awregion                 => ext_AXI_WriteMOSI.region,
-      F1_IPBUS_awsize                   => ext_AXI_WriteMOSI.burst_size,
-      F1_IPBUS_awvalid(0)               => ext_AXI_WriteMOSI.address_valid,       
-      F1_IPBUS_bready(0)                => ext_AXI_WriteMOSI.ready_for_response,  
-      F1_IPBUS_bresp                    => ext_AXI_WriteMISO.response,            
-      F1_IPBUS_bvalid(0)                => ext_AXI_WriteMISO.response_valid,      
-      F1_IPBUS_rdata                    => ext_AXI_ReadMISO.data,
-      F1_IPBUS_rlast(0)                 => ext_AXI_ReadMISO.last,
-      F1_IPBUS_rready(0)                => ext_AXI_ReadMOSI.ready_for_data,       
-      F1_IPBUS_rresp                    => ext_AXI_ReadMISO.response,             
-      F1_IPBUS_rvalid(0)                => ext_AXI_ReadMISO.data_valid,           
-      F1_IPBUS_wdata                    => ext_AXI_WriteMOSI.data,
-      F1_IPBUS_wlast(0)                 => ext_AXI_WriteMOSI.last,
-      F1_IPBUS_wready(0)                => ext_AXI_WriteMISO.ready_for_data,       
-      F1_IPBUS_wstrb                    => ext_AXI_WriteMOSI.data_write_strobe,   
-      F1_IPBUS_wvalid(0)                => ext_AXI_WriteMOSI.data_valid,          
-      reset_n                               => locked_clk200,--reset,
 
-      F1_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
-      F1_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
-      F1_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
-      
-      F1_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_RESET,
-      F1_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_TRIGGER,
-      F1_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(1).DEBUG.PCS_RSV_DIN,
-      F1_C2C_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(1).DEBUG.QPLL_LOCK,
-      F1_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.BUF_RESET,
-      F1_C2C_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(1).DEBUG.RX.BUF_STATUS,
-      F1_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(1).DEBUG.RX.CDR_HOLD,
-      F1_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(1).DEBUG.RX.DFE_LPM_RESET,
-      F1_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(1).DEBUG.RX.LPM_EN,
-      F1_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PCS_RESET,
-      F1_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PMA_RESET,
-      F1_C2C_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(1).DEBUG.RX.PMA_RESET_DONE,
-      F1_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_CNT_RST,
-      F1_C2C_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(1).DEBUG.RX.PRBS_ERR,
-      F1_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_SEL,
-      F1_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(1).DEBUG.RX.RATE,
-      F1_C2C_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(1).DEBUG.RX.RESET_DONE,
-      F1_C2C_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(1).DEBUG.TX.BUF_STATUS,
-      F1_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(1).DEBUG.TX.DIFF_CTRL,
-      F1_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(1).DEBUG.TX.INHIBIT,
-      F1_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PCS_RESET,
-      F1_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PMA_RESET,
-      F1_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.POLARITY,
-      F1_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(1).DEBUG.TX.POST_CURSOR,
-      F1_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_FORCE_ERR,
-      F1_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_SEL,
-      F1_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(1).DEBUG.TX.PRE_CURSOR,
-      F1_C2C_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(1).DEBUG.TX.RESET_DONE,
+  c2c_refclk <= serdes_refclk(27).refclk;
 
-      F1_C2C_PHY_channel_up         => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
-      F1_C2C_PHY_gt_pll_lock        => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
-      F1_C2C_PHY_hard_err           => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
-      F1_C2C_PHY_lane_up            => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0),
-      F1_C2C_PHY_mmcm_not_locked_out    => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
-      F1_C2C_PHY_soft_err           => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+    
+ c2csslave_wrapper_1: entity work.c2cslave_sane_wrapper
+   port map (
+      EXT_CLK                                => clk_50,
+      AXI_MASTER_CLK                         => AXI_CLK,      
+      AXI_MASTER_RSTN                        => locked_clk200,
+      sys_reset_rst_n(0)                     => AXI_RST_N,
+                                             
+      --AXI master--                         
+      I2C_MASTER_RMOSI                       => i2c_AXI_MASTER_ReadMOSI,
+      I2C_MASTER_RMISO                       => i2c_AXI_MASTER_ReadMISO,
+      I2C_MASTER_WMOSI                       => i2c_AXI_MASTER_WriteMOSI,
+      I2C_MASTER_WMISO                       => i2c_AXI_MASTER_WriteMISO,
+      --AXI endpoint--                       
+      F1_C2C_INTF_RMOSI                      => local_AXI_ReadMOSI(2), 
+      F1_C2C_INTF_RMISO                      => local_AXI_ReadMISO(2), 
+      F1_C2C_INTF_WMOSI                      => local_AXI_WriteMOSI(2),
+      F1_C2C_INTF_WMISO                      => local_AXI_WriteMISO(2),
+      --AXI endpoint--                       
+      F1_CM_FW_INFO_RMOSI                    => local_AXI_ReadMOSI(1), 
+      F1_CM_FW_INFO_RMISO                    => local_AXI_ReadMISO(1), 
+      F1_CM_FW_INFO_WMOSI                    => local_AXI_WriteMOSI(1),
+      F1_CM_FW_INFO_WMISO                    => local_AXI_WriteMISO(1),
+      --AXI endpoint--                       
+      F1_IO_RMOSI                            => local_AXI_ReadMOSI(0), 
+      F1_IO_RMISO                            => local_AXI_ReadMISO(0), 
+      F1_IO_WMOSI                            => local_AXI_WriteMOSI(0),
+      F1_IO_WMISO                            => local_AXI_WriteMISO(0),
+      --AXI endpoint--                       
+      F1_IPBUS_RMOSI                         => ext_AXI_ReadMOSI, 
+      F1_IPBUS_RMISO                         => ext_AXI_ReadMISO, 
+      F1_IPBUS_WMOSI                         => ext_AXI_WriteMOSI,
+      F1_IPBUS_WMISO                         => ext_AXI_WriteMISO,
+                                             
+                                             
+                                             
+      CM1_PB_UART_rxd                        => pB_UART_tx,
+      CM1_PB_UART_txd                        => pB_UART_rx,
+                                             
+      F1_C2C_phy_Rx_rxn                      => n_mgt_sm_to_f(1 downto 1),
+      F1_C2C_phy_Rx_rxp                      => p_mgt_sm_to_f(1 downto 1),
+      F1_C2C_phy_Tx_txn                      => n_mgt_f_to_sm(1 downto 1),
+      F1_C2C_phy_Tx_txp                      => p_mgt_f_to_sm(1 downto 1),
+      F1_C2CB_phy_Rx_rxn                     => n_mgt_sm_to_f(2 downto 2),
+      F1_C2CB_phy_Rx_rxp                     => p_mgt_sm_to_f(2 downto 2),
+      F1_C2CB_phy_Tx_txn                     => n_mgt_f_to_sm(2 downto 2),
+      F1_C2CB_phy_Tx_txp                     => p_mgt_f_to_sm(2 downto 2),
+      F1_C2C_phy_refclk                      => c2c_refclk,
+      F1_C2CB_phy_refclk                     => c2c_refclk,
+                                             
+                                             
+                                             
+      F1_C2C_PHY_DEBUG_cplllock(0)           => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+      F1_C2C_PHY_DEBUG_dmonitorout           => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+      F1_C2C_PHY_DEBUG_eyescandataerror(0)   => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
+                                             
+      F1_C2C_PHY_DEBUG_eyescanreset(0)       => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_RESET,
+      F1_C2C_PHY_DEBUG_eyescantrigger(0)     => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_TRIGGER,
+      F1_C2C_PHY_DEBUG_pcsrsvdin             => C2C_Ctrl.C2C(1).DEBUG.PCS_RSV_DIN,
+      F1_C2C_PHY_DEBUG_qplllock(0)           =>  C2C_Mon.C2C(1).DEBUG.QPLL_LOCK,
+      F1_C2C_PHY_DEBUG_rxbufreset(0)         => C2C_Ctrl.C2C(1).DEBUG.RX.BUF_RESET,
+      F1_C2C_PHY_DEBUG_rxbufstatus           =>  C2C_Mon.C2C(1).DEBUG.RX.BUF_STATUS,
+      F1_C2C_PHY_DEBUG_rxcdrhold(0)          => C2C_Ctrl.C2C(1).DEBUG.RX.CDR_HOLD,
+      F1_C2C_PHY_DEBUG_rxdfelpmreset(0)      => C2C_Ctrl.C2C(1).DEBUG.RX.DFE_LPM_RESET,
+      F1_C2C_PHY_DEBUG_rxlpmen(0)            => C2C_Ctrl.C2C(1).DEBUG.RX.LPM_EN,
+      F1_C2C_PHY_DEBUG_rxpcsreset(0)         => C2C_Ctrl.C2C(1).DEBUG.RX.PCS_RESET,
+      F1_C2C_PHY_DEBUG_rxpmareset(0)         => C2C_Ctrl.C2C(1).DEBUG.RX.PMA_RESET,
+      F1_C2C_PHY_DEBUG_rxpmaresetdone(0)     =>  C2C_Mon.C2C(1).DEBUG.RX.PMA_RESET_DONE,
+      F1_C2C_PHY_DEBUG_rxprbscntreset(0)     => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_CNT_RST,
+      F1_C2C_PHY_DEBUG_rxprbserr(0)          =>  C2C_Mon.C2C(1).DEBUG.RX.PRBS_ERR,
+      F1_C2C_PHY_DEBUG_rxprbssel             => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_SEL,
+      F1_C2C_PHY_DEBUG_rxrate                => C2C_Ctrl.C2C(1).DEBUG.RX.RATE,
+      F1_C2C_PHY_DEBUG_rxresetdone(0)        =>  C2C_Mon.C2C(1).DEBUG.RX.RESET_DONE,
+      F1_C2C_PHY_DEBUG_txbufstatus           =>  C2C_Mon.C2C(1).DEBUG.TX.BUF_STATUS,
+      F1_C2C_PHY_DEBUG_txdiffctrl            => C2C_Ctrl.C2C(1).DEBUG.TX.DIFF_CTRL,
+      F1_C2C_PHY_DEBUG_txinhibit(0)          => C2C_Ctrl.C2C(1).DEBUG.TX.INHIBIT,
+      F1_C2C_PHY_DEBUG_txpcsreset(0)         => C2C_Ctrl.C2C(1).DEBUG.TX.PCS_RESET,
+      F1_C2C_PHY_DEBUG_txpmareset(0)         => C2C_Ctrl.C2C(1).DEBUG.TX.PMA_RESET,
+      F1_C2C_PHY_DEBUG_txpolarity(0)         => C2C_Ctrl.C2C(1).DEBUG.TX.POLARITY,
+      F1_C2C_PHY_DEBUG_txpostcursor          => C2C_Ctrl.C2C(1).DEBUG.TX.POST_CURSOR,
+      F1_C2C_PHY_DEBUG_txprbsforceerr(0)     => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_FORCE_ERR,
+      F1_C2C_PHY_DEBUG_txprbssel             => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_SEL,
+      F1_C2C_PHY_DEBUG_txprecursor           => C2C_Ctrl.C2C(1).DEBUG.TX.PRE_CURSOR,
+      F1_C2C_PHY_DEBUG_txresetdone(0)        =>  C2C_MON.C2C(1).DEBUG.TX.RESET_DONE,
+                                             
+      F1_C2C_PHY_channel_up                  => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+      F1_C2C_PHY_gt_pll_lock                 => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+      F1_C2C_PHY_hard_err                    => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+      F1_C2C_PHY_lane_up                     => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0),
+      F1_C2C_PHY_mmcm_not_locked_out         => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+      F1_C2C_PHY_soft_err                    => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+                                             
+      F1_C2C_aurora_do_cc                    =>  C2C_Mon.C2C(1).STATUS.DO_CC,
+      F1_C2C_aurora_pma_init_in              => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+      F1_C2C_axi_c2c_config_error_out        =>  C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+      F1_C2C_axi_c2c_link_status_out         =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
+      F1_C2C_axi_c2c_multi_bit_error_out     =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
+      F1_C2C_phy_power_down                  => '0',
+      F1_C2C_PHY_clk                         => clk_F1_C2C_PHY_user(1),
+      F1_C2C_PHY_DRP_daddr                   => C2C_Ctrl.C2C(1).DRP.address,
+      F1_C2C_PHY_DRP_den                     => C2C_Ctrl.C2C(1).DRP.enable,
+      F1_C2C_PHY_DRP_di                      => C2C_Ctrl.C2C(1).DRP.wr_data,
+      F1_C2C_PHY_DRP_do                      => C2C_MON.C2C(1).DRP.rd_data,
+      F1_C2C_PHY_DRP_drdy                    => C2C_MON.C2C(1).DRP.rd_data_valid,
+      F1_C2C_PHY_DRP_dwe                     => C2C_Ctrl.C2C(1).DRP.wr_enable,
 
-      F1_C2C_aurora_do_cc                =>  C2C_Mon.C2C(1).STATUS.DO_CC,
-      F1_C2C_aurora_pma_init_in          => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
-      F1_C2C_axi_c2c_config_error_out    =>  C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
-      F1_C2C_axi_c2c_link_status_out     =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
-      F1_C2C_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
-      F1_C2C_phy_power_down              => '0',
-      F1_C2C_PHY_clk                     => clk_F1_C2C_PHY_user(1),
-      F1_C2C_PHY_DRP_daddr               => C2C_Ctrl.C2C(1).DRP.address,
-      F1_C2C_PHY_DRP_den                 => C2C_Ctrl.C2C(1).DRP.enable,
-      F1_C2C_PHY_DRP_di                  => C2C_Ctrl.C2C(1).DRP.wr_data,
-      F1_C2C_PHY_DRP_do                  => C2C_MON.C2C(1).DRP.rd_data,
-      F1_C2C_PHY_DRP_drdy                => C2C_MON.C2C(1).DRP.rd_data_valid,
-      F1_C2C_PHY_DRP_dwe                 => C2C_Ctrl.C2C(1).DRP.wr_enable,
+      F1_C2CB_PHY_DEBUG_cplllock(0)          => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+      F1_C2CB_PHY_DEBUG_dmonitorout          => C2C_Mon.C2C(2).DEBUG.DMONITOR,
+      F1_C2CB_PHY_DEBUG_eyescandataerror(0)  => C2C_Mon.C2C(2).DEBUG.EYESCAN_DATA_ERROR,
+                                             
+      F1_C2CB_PHY_DEBUG_eyescanreset(0)      => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_RESET,
+      F1_C2CB_PHY_DEBUG_eyescantrigger(0)    => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_TRIGGER,
+      F1_C2CB_PHY_DEBUG_pcsrsvdin            => C2C_Ctrl.C2C(2).DEBUG.PCS_RSV_DIN,
+      F1_C2CB_PHY_DEBUG_qplllock(0)          =>  C2C_Mon.C2C(2).DEBUG.QPLL_LOCK,
+      F1_C2CB_PHY_DEBUG_rxbufreset(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.BUF_RESET,
+      F1_C2CB_PHY_DEBUG_rxbufstatus          =>  C2C_Mon.C2C(2).DEBUG.RX.BUF_STATUS,
+      F1_C2CB_PHY_DEBUG_rxcdrhold(0)         => C2C_Ctrl.C2C(2).DEBUG.RX.CDR_HOLD,
+      F1_C2CB_PHY_DEBUG_rxdfelpmreset(0)     => C2C_Ctrl.C2C(2).DEBUG.RX.DFE_LPM_RESET,
+      F1_C2CB_PHY_DEBUG_rxlpmen(0)           => C2C_Ctrl.C2C(2).DEBUG.RX.LPM_EN,
+      F1_C2CB_PHY_DEBUG_rxpcsreset(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.PCS_RESET,
+      F1_C2CB_PHY_DEBUG_rxpmareset(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.PMA_RESET,
+      F1_C2CB_PHY_DEBUG_rxpmaresetdone(0)    =>  C2C_Mon.C2C(2).DEBUG.RX.PMA_RESET_DONE,
+      F1_C2CB_PHY_DEBUG_rxprbscntreset(0)    => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_CNT_RST,
+      F1_C2CB_PHY_DEBUG_rxprbserr(0)         =>  C2C_Mon.C2C(2).DEBUG.RX.PRBS_ERR,
+      F1_C2CB_PHY_DEBUG_rxprbssel            => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_SEL,
+      F1_C2CB_PHY_DEBUG_rxrate               => C2C_Ctrl.C2C(2).DEBUG.RX.RATE,
+      F1_C2CB_PHY_DEBUG_rxresetdone(0)       =>  C2C_Mon.C2C(2).DEBUG.RX.RESET_DONE,
+      F1_C2CB_PHY_DEBUG_txbufstatus          =>  C2C_Mon.C2C(2).DEBUG.TX.BUF_STATUS,
+      F1_C2CB_PHY_DEBUG_txdiffctrl           => C2C_Ctrl.C2C(2).DEBUG.TX.DIFF_CTRL,
+      F1_C2CB_PHY_DEBUG_txinhibit(0)         => C2C_Ctrl.C2C(2).DEBUG.TX.INHIBIT,
+      F1_C2CB_PHY_DEBUG_txpcsreset(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.PCS_RESET,
+      F1_C2CB_PHY_DEBUG_txpmareset(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.PMA_RESET,
+      F1_C2CB_PHY_DEBUG_txpolarity(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.POLARITY,
+      F1_C2CB_PHY_DEBUG_txpostcursor         => C2C_Ctrl.C2C(2).DEBUG.TX.POST_CURSOR,
+      F1_C2CB_PHY_DEBUG_txprbsforceerr(0)    => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_FORCE_ERR,
+      F1_C2CB_PHY_DEBUG_txprbssel            => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_SEL,
+      F1_C2CB_PHY_DEBUG_txprecursor          => C2C_Ctrl.C2C(2).DEBUG.TX.PRE_CURSOR,
+      F1_C2CB_PHY_DEBUG_txresetdone(0)       =>  C2C_MON.C2C(2).DEBUG.TX.RESET_DONE,
 
-      F1_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
-      F1_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(2).DEBUG.DMONITOR,
-      F1_C2CB_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(2).DEBUG.EYESCAN_DATA_ERROR,
-      
-      F1_C2CB_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_RESET,
-      F1_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_TRIGGER,
-      F1_C2CB_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(2).DEBUG.PCS_RSV_DIN,
-      F1_C2CB_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(2).DEBUG.QPLL_LOCK,
-      F1_C2CB_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.BUF_RESET,
-      F1_C2CB_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(2).DEBUG.RX.BUF_STATUS,
-      F1_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.CDR_HOLD,
-      F1_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(2).DEBUG.RX.DFE_LPM_RESET,
-      F1_C2CB_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(2).DEBUG.RX.LPM_EN,
-      F1_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PCS_RESET,
-      F1_C2CB_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PMA_RESET,
-      F1_C2CB_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(2).DEBUG.RX.PMA_RESET_DONE,
-      F1_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_CNT_RST,
-      F1_C2CB_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(2).DEBUG.RX.PRBS_ERR,
-      F1_C2CB_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_SEL,
-      F1_C2CB_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(2).DEBUG.RX.RATE,
-      F1_C2CB_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(2).DEBUG.RX.RESET_DONE,
-      F1_C2CB_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(2).DEBUG.TX.BUF_STATUS,
-      F1_C2CB_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(2).DEBUG.TX.DIFF_CTRL,
-      F1_C2CB_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.INHIBIT,
-      F1_C2CB_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PCS_RESET,
-      F1_C2CB_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PMA_RESET,
-      F1_C2CB_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.POLARITY,
-      F1_C2CB_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(2).DEBUG.TX.POST_CURSOR,
-      F1_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_FORCE_ERR,
-      F1_C2CB_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_SEL,
-      F1_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(2).DEBUG.TX.PRE_CURSOR,
-      F1_C2CB_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(2).DEBUG.TX.RESET_DONE,
+      F1_C2CB_PHY_channel_up                 => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+      F1_C2CB_PHY_gt_pll_lock                => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+      F1_C2CB_PHY_hard_err                   => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+      F1_C2CB_PHY_lane_up                    => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
+--      F1_C2CB_PHY_mmcm_not_locked            => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      F1_C2CB_PHY_soft_err                   => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
 
-      F1_C2CB_PHY_channel_up         => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
-      F1_C2CB_PHY_gt_pll_lock        => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
-      F1_C2CB_PHY_hard_err           => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
-      F1_C2CB_PHY_lane_up            => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
---      F1_C2CB_PHY_mmcm_not_locked    => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
-      F1_C2CB_PHY_soft_err           => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
+      F1_C2CB_aurora_do_cc                   =>  C2C_Mon.C2C(2).STATUS.DO_CC,
+      F1_C2CB_aurora_pma_init_in             => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+      F1_C2CB_axi_c2c_config_error_out       =>  C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+      F1_C2CB_axi_c2c_link_status_out        =>  C2C_MON.C2C(2).STATUS.LINK_GOOD,
+      F1_C2CB_axi_c2c_multi_bit_error_out    =>  C2C_MON.C2C(2).STATUS.MB_ERROR,
+      F1_C2CB_phy_power_down                 => '0',
+--      F1_C2CB_PHY_user_clk_out               => clk_F1_C2CB_PHY_user,
+      F1_C2CB_PHY_DRP_daddr                  => C2C_Ctrl.C2C(2).DRP.address,
+      F1_C2CB_PHY_DRP_den                    => C2C_Ctrl.C2C(2).DRP.enable,
+      F1_C2CB_PHY_DRP_di                     => C2C_Ctrl.C2C(2).DRP.wr_data,
+      F1_C2CB_PHY_DRP_do                     => C2C_MON.C2C(2).DRP.rd_data,
+      F1_C2CB_PHY_DRP_drdy                   => C2C_MON.C2C(2).DRP.rd_data_valid,
+      F1_C2CB_PHY_DRP_dwe                    => C2C_Ctrl.C2C(2).DRP.wr_enable,
 
-      F1_C2CB_aurora_do_cc                =>  C2C_Mon.C2C(2).STATUS.DO_CC,
-      F1_C2CB_aurora_pma_init_in          => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
-      F1_C2CB_axi_c2c_config_error_out    =>  C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
-      F1_C2CB_axi_c2c_link_status_out     =>  C2C_MON.C2C(2).STATUS.LINK_GOOD,
-      F1_C2CB_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(2).STATUS.MB_ERROR,
-      F1_C2CB_phy_power_down              => '0',
---      F1_C2CB_PHY_user_clk_out            => clk_F1_C2CB_PHY_user,
-      F1_C2CB_PHY_DRP_daddr               => C2C_Ctrl.C2C(2).DRP.address,
-      F1_C2CB_PHY_DRP_den                 => C2C_Ctrl.C2C(2).DRP.enable,
-      F1_C2CB_PHY_DRP_di                  => C2C_Ctrl.C2C(2).DRP.wr_data,
-      F1_C2CB_PHY_DRP_do                  => C2C_MON.C2C(2).DRP.rd_data,
-      F1_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
-      F1_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable,
+      SYS_RESET_bus_rst_n(0)                 => i2c_AXI_MASTER_rst_n,
+                                             
+      F1_SYS_MGMT_sda                        =>i2c_sda_f_sysmon,
+      F1_SYS_MGMT_scl                        =>i2c_scl_f_sysmon
 
-      F1_SYS_MGMT_sda                   =>i2c_sda_f_sysmon,
-      F1_SYS_MGMT_scl                   =>i2c_scl_f_sysmon
+
+
+
 );
+  c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0) and
+            C2C_Mon.C2C(2).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0);
 
-    c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD;
+  i2cAXIMaster_1: entity work.i2cAXIMaster
+    generic map (
+      I2C_ADDRESS => "0100000"
+      )
+    port map (
+      clk_axi         => AXI_CLK,
+      reset_axi_n     => i2c_AXI_MASTER_rst_n,
+      readMOSI        => i2c_AXI_MASTER_readMOSI,
+      readMISO        => i2c_AXI_MASTER_readMISO,
+      writeMOSI       => i2c_AXI_MASTER_writeMOSI,
+      writeMISO       => i2c_AXI_MASTER_writeMISO,
+      SCL             => SCL,
+      SDA_in          => SDA_in,
+      SDA_out         => SDA_out,
+      SDA_en          => SDA_en);
+  sda_iobuf : iobuf
+    port map (
+      IO => SDA,
+      O => SDA_in,
+      I => SDA_out,
+      T => not SDA_en);
+
+  
 
   RGB_pwm_1: entity work.RGB_pwm
     generic map (
@@ -700,13 +800,13 @@ begin
       redcount   => led_red_local,
       greencount => led_green_local,
       bluecount  => led_blue_local,
-      LEDred     => led_f1_red,
-      LEDgreen   => led_f1_green,
-      LEDblue    => led_f1_blue);
+      LEDred     => led_red,
+      LEDgreen   => led_green,
+      LEDblue    => led_blue);
 
   rate_counter_1: entity work.rate_counter
     generic map (
-      CLK_A_1_SECOND => 2000000)
+      CLK_A_1_SECOND => 200000000)
     port map (
       clk_A         => clk_200,
       clk_B         => clk_F1_C2C_PHY_user(1),
@@ -715,7 +815,6 @@ begin
       rate          => C2C_Mon.C2C(1).USER_FREQ);
   C2C_Mon.C2C(2).USER_FREQ <= C2C_Mon.C2C(1).USER_FREQ;
 
-    
   F1_IO_interface_1: entity work.IO_map
     generic map(
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F1_IO)
@@ -728,6 +827,40 @@ begin
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
       Mon.CLK_200_LOCKED      => locked_clk200,
+      Mon.TEST_CONST          => X"BEEFBEEF",
+      Mon.CLOCKS.LF_X12_R0_CLK       => count_lf_x12_r0_clk,
+      Mon.CLOCKS.LF_X4_R0_CLK        => count_lf_x4_r0_clk,
+      Mon.CLOCKS.RT_X12_R0_CLK       => count_rt_x12_r0_clk,
+      Mon.CLOCKS.RT_X4_R0_CLK        => count_rt_x4_r0_clk,
+      Mon.CLOCKS.LF_R0_AB            => count_lf_r0_ab,
+      Mon.CLOCKS.LF_R1_AB            => count_lf_r1_ab,
+      Mon.CLOCKS.LF_R1_L             => count_lf_r1_l,
+      Mon.CLOCKS.TCDS40_CLK          => count_tcds40_clk,
+      Mon.CLOCKS.RT_R0_L             => count_rt_r0_l,
+      Mon.CLOCKS.LF_R0_AD            => count_lf_r0_ad,
+      Mon.CLOCKS.LF_R1_AD            => count_lf_r1_ad,
+      Mon.CLOCKS.LF_R0_AF            => count_lf_r0_af,
+      Mon.CLOCKS.LF_R1_AF            => count_lf_r0_af,
+      Mon.CLOCKS.LF_R0_U             => count_lf_r0_u,
+      Mon.CLOCKS.LF_R1_U             => count_lf_r1_u,
+      Mon.CLOCKS.LF_R0_R             => count_lf_r0_r,
+      Mon.CLOCKS.LF_R1_R             => count_lf_r1_r,
+      Mon.CLOCKS.LF_R0_Y             => count_lf_r0_y,
+      Mon.CLOCKS.LF_R1_Y             => count_lf_r1_y,
+      Mon.CLOCKS.LF_R0_V             => count_lf_r0_v,
+      Mon.CLOCKS.RT_R0_N             => count_rt_r0_n,
+      Mon.CLOCKS.RT_R1_N             => count_rt_r1_n,
+      Mon.CLOCKS.RT_R0_B             => count_rt_r0_b,
+      Mon.CLOCKS.RT_R1_B             => count_rt_r1_b,
+      Mon.CLOCKS.RT_R0_E             => count_rt_r0_e,
+      Mon.CLOCKS.RT_R1_E             => count_rt_r1_e,
+      Mon.CLOCKS.RT_R0_F             => count_rt_r0_f,
+      Mon.CLOCKS.RT_R0_G             => count_rt_r0_g,
+      Mon.CLOCKS.RT_R1_G             => count_rt_r1_g,
+      Mon.CLOCKS.RT_R0_P             => count_rt_r0_p,
+      Mon.CLOCKS.RT_R1_P             => count_rt_r1_p,
+      Mon.CLOCKS.RT_R0_I             => count_rt_r0_i,
+      Mon.CLOCKS.RT_R1_I             => count_rt_r1_i,
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
@@ -833,6 +966,9 @@ begin
       addrb => BRAM_ADDR,
       dinb  => BRAM_WR_DATA,
       doutb => BRAM_RD_DATA);
-    
+
+  C2C_Mon.C2C_REFCLK_FREQ <=  count_rt_r0_l;
+
+
 end architecture structure;
 

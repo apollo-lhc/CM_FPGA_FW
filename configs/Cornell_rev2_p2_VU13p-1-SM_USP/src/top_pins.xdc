@@ -32,6 +32,9 @@ set_property BITSTREAM.CONFIG.UNUSEDPIN PULLNONE [current_design]
 set_property BITSTREAM.CONFIG.OVERTEMPSHUTDOWN ENABLE [current_design]
 #-------------------------------------------------
 
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.Config.SPI_BUSWIDTH 4 [current_design]
+
 #-------------------------------------------------
 # Set internal reference voltages to 0.90 on banks with I/O signals.
 # This is required for the HSTL and DIFF_HSTL I/O standards (if used)
@@ -142,8 +145,10 @@ set_property PACKAGE_PIN	L35	[get_ports c2c_ok]
 set_property IOSTANDARD LVCMOS18 [get_ports i2c_s*]
 set_property PACKAGE_PIN	BB16 [get_ports i2c_scl_f_sysmon]
 set_property PACKAGE_PIN	BC16 [get_ports i2c_sda_f_sysmon]
-set_property PACKAGE_PIN	V36  [get_ports i2c_scl_f_generic]
-set_property PACKAGE_PIN	J32  [get_ports i2c_sda_f_generic]
+set_property IOSTANDARD LVCMOS18 [get_ports SCL]
+set_property IOSTANDARD LVCMOS18 [get_ports SDA]
+set_property PACKAGE_PIN	V36  [get_ports SCL]
+set_property PACKAGE_PIN	J32  [get_ports SDA]
 #-----------------------------------------------
 
 #-----------------------------------------------
@@ -260,18 +265,20 @@ set_property PACKAGE_PIN	BD12 [get_ports	n_rt_r0_l]
 # 'input' "SM_TO_F": links from the Zynq on the SM
 # 'output' "F_TO_SM": links to the Zynq on the SM
 # Quad L (VU13P=220, VU9P=219)
-# Port #0 receive
-set_property PACKAGE_PIN	BG20 [get_ports {p_mgt_sm_to_f[1]} ]
-set_property PACKAGE_PIN	BG19 [get_ports {n_mgt_sm_to_f[1]} ]
-# Port #0 transmit
-set_property PACKAGE_PIN	BH13 [get_ports {p_mgt_f_to_sm[1]} ]
-set_property PACKAGE_PIN	BH12 [get_ports {n_mgt_f_to_sm[1]} ]
+
 # Port #1 receive
 set_property PACKAGE_PIN	BF18 [get_ports {p_mgt_sm_to_f[2]} ]
 set_property PACKAGE_PIN	BF17 [get_ports {n_mgt_sm_to_f[2]} ]
 # Port #1 transmit
 set_property PACKAGE_PIN	BF13 [get_ports {p_mgt_f_to_sm[2]} ]
 set_property PACKAGE_PIN	BF12 [get_ports {n_mgt_f_to_sm[2]} ]
+
+# Port #0 receive
+set_property PACKAGE_PIN	BG20 [get_ports {p_mgt_sm_to_f[1]} ]
+set_property PACKAGE_PIN	BG19 [get_ports {n_mgt_sm_to_f[1]} ]
+# Port #0 transmit
+set_property PACKAGE_PIN	BH13 [get_ports {p_mgt_f_to_sm[1]} ]
+set_property PACKAGE_PIN	BH12 [get_ports {n_mgt_f_to_sm[1]} ]
 #-----------------------------------------------
 
 #-----------------------------------------------

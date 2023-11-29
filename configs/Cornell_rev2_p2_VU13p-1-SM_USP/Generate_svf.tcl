@@ -23,10 +23,11 @@ set DEVICE [create_hw_device -part ${FPGA_part}]
 set_property PROGRAM.FILE ${apollo_root_path}/bit/top_${build_name}.bit $DEVICE
 set_param xicom.config_chunk_size 0
 set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+set_property BITSTREAM.Config.SPI_BUSWIDTH 4 [current_design]
 
 
 program_hw_devices -force -svf_file ${apollo_root_path}/bit/top_${build_name}.svf ${DEVICE}
 
-write_cfgmem -force -loadbit "up 0 ${apollo_root_path}/bit/top_${build_name}.bit" -format mcs -size 128 -file "${apollo_root_path}/bit/top_${build_name}.mcs"
+write_cfgmem -force -interface spix4 -loadbit "up 0 ${apollo_root_path}/bit/top_${build_name}.bit" -format mcs -size 128 -file "${apollo_root_path}/bit/top_${build_name}.mcs"
 
 delete_hw_target -quiet [get_hw_targets -regexp .*/${SVF_TARGET}]

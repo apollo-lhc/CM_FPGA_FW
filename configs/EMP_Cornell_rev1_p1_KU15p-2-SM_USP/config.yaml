@@ -6,7 +6,7 @@ AXI_CONTROL_SETS:
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
 
 AXI_SLAVES:
-  K_IO:
+  F1_IO:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -15,11 +15,11 @@ AXI_SLAVES:
         range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/CM_IO.xml"
-    UHAL_BASE: 0x81000000
+    UHAL_BASE: 0x80100000
     HDL: 
       out_name: "IO"
       map_template: "axi_generic/template_map_withbram.vhd"
-  K_CM_FW_INFO:
+  F1_CM_FW_INFO:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -28,12 +28,12 @@ AXI_SLAVES:
         range:  "4K"
       remote_slave: "1"
     XML: "address_table/modules/FW_INFO.xml"
-    UHAL_BASE: 0x82000000
+    UHAL_BASE: 0x80200000
     HDL: 
       out_name: "CM_FW_INFO"
       map_template: "axi_generic/template_map.vhd"
 
-  KINTEX_IPBUS:
+  F1_IPBUS:
     TCL_CALL:
       command: AXI_PL_DEV_CONNECT 
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -44,9 +44,9 @@ AXI_SLAVES:
       data_width: "64"
       remote_slave: "1"
     XML: "address_table/modules/IPBUS.xml"
-    UHAL_BASE: 0x85000000    
+    UHAL_BASE: 0x80500000    
 
-  K_C2C_INTF:
+  F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXI_MASTER_CTRL}"
@@ -55,7 +55,7 @@ AXI_SLAVES:
         range:  "64K"
       remote_slave: "1"
     XML: "address_table/modules/C2C_INTFS.xml"
-    UHAL_BASE: 0x86000000
+    UHAL_BASE: 0x80600000
     HDL: 
       out_name: "C2C_INTF"
       map_template: "axi_generic/template_map_withbram.vhd"

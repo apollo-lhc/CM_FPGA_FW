@@ -1,0 +1,80 @@
+AXI_CONTROL_SETS:
+  INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM1_base.yaml
+  # override default axilite endpoint
+  AXILITE_ENDPOINT_CTRL:
+    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET/peripheral_aresetn"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    allocator:
+      starting_address: 0xB1000000
+      size: 0x00800000
+      block_size: 4K
+  LHC_MASTER_CTRL:
+    axi_interconnect: "${::LHC_INTERCONNECT}"
+    axi_clk: "${::LHC_CLK}"
+    axi_rstn: "/LHC_SYS_RESET/peripheral_aresetn"
+    axi_freq: "${::LHC_CLK_FREQ}"
+    allocator:
+      starting_address: 0xB1800000
+      size: 0x00800000
+      block_size: 4K
+    
+AXI_SLAVES:
+  BASE:
+    INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/Cornell_base.yaml
+    SUB_SLAVES:
+      C2C:
+        INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p1_C2C.yaml
+      F1_IPBUS:
+        TCL_CALL:
+          command: AXI_PL_DEV_CONNECT 
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          type: "AXI4"
+          addr:
+            offset: "-1"
+            range:  "16M"
+          data_width: "64"
+          remote_slave: "1"
+        XML: "address_table/modules/IPBUS.xml"
+        UHAL_BASE: "auto"
+      F1_SYS_MGMT:
+        TCL_CALL:
+          command: AXI_IP_SYS_MGMT
+          enable_i2c_pins: 1
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          addr:
+            offset: "-1"
+            range: "4K"
+          remote_slave: "1"
+        XML: "address_table/modules/KINTEX_SYS_MGMT.xml"
+        UHAL_BASE: "auto"
+      F1_IO:
+        TCL_CALL: 
+          command: AXI_PL_DEV_CONNECT
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          addr:
+            offset: "-1"
+            range: "4K"
+          remote_slave: "1"
+        XML: "address_table/modules/CM_IO_ITDTC.xml"
+        UHAL_BASE: "auto"
+        HDL: 
+          out_name: "IO"
+          map_template: "axi_generic/template_map_withbram.vhd"
+      F1_CM_FW_INFO:
+        TCL_CALL:
+          command: AXI_PL_DEV_CONNECT 
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          addr:
+            offset: "-1"
+            range: "4K"
+          remote_slave: "1"
+        XML: "address_table/modules/FW_INFO.xml"
+        UHAL_BASE: "auto"
+        HDL: 
+          out_name: "CM_FW_INFO"
+          map_template: "axi_generic/template_map.vhd"
+      ITDTC:
+        INCLUDE_FILE: ${::apollo_root_path}/configs/${::build_name}/it-dtc-fw/config.yaml
+
