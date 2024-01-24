@@ -7,10 +7,12 @@ import argparse
 
 parser = argparse.ArgumentParser(description='You can select which file to run over, and set the bit widths')
 parser.add_argument('--input',   '-i', default='TF_L1L2.txt',    help = 'Input file to process')
+parser.add_argument('--skip',    '-s', default='0',              help = 'Number of events to skip')
 parser.add_argument('--events',  '-n', default='1',              help = 'Number of events to write')
 args = parser.parse_args()
 
 indata = args.input
+nskip   = int(args.skip)
 nevents = int(args.events)
 outdata = indata.replace('txt', 'coe')
 inlines = []
@@ -31,14 +33,17 @@ if nevents > count:
 outlines.append('memory_initialization_radix=16;\n') # BX means new event
 outlines.append('memory_initialization_vector=')
 tmp = []
-nevt = 0
+nevt = 1
 lastbxnum = inlines[1].split()[2].strip()
 for line in inlines[1:]: # Read a line, skip the first
     bxnum = line.split()[2].strip()
     if bxnum not in lastbxnum:
         nevt = nevt + 1
-        if nevt == nevents: break # Wrote as many as requested
-    outlines.append('ADD300000000'+line.split()[-1].strip()[2:]+',')
+#    print(line.split()[0]," bxnum = ",bxnum," nevt = ",nevt)
+    if nevt > nskip: #Start Processing
+        if bxnum not in lastbxnum:
+            if nevt == nskip + nevents + 1: break # Wrote as many as requested
+        outlines.append('ADD300000000'+line.split()[-1].strip()[2:]+',')
     lastbxnum = bxnum
 if ',' in outlines[-1][-1]:
     outlines[-1] = outlines[-1][0:-1]

@@ -577,8 +577,8 @@ signal vio_clk_sel  : std_logic_vector(1 downto 0) := "00";
   signal TW_84_stream_A_write       : t_arr_TW_84_1b       := (others => '0');
     
   -- input memory address registers
-  type t_arr_DL_addrcnt  is array(enum_DL_39) of unsigned(10 downto 0);
-  type t_arr_DL_addr     is array(enum_DL_39) of std_logic_vector(10 downto 0);
+  type t_arr_DL_addrcnt  is array(enum_DL_39) of unsigned(11 downto 0);
+  type t_arr_DL_addr     is array(enum_DL_39) of std_logic_vector(11 downto 0);
   
   signal dl_addrcnt      : t_arr_DL_addrcnt;
   signal dl_addr         : t_arr_DL_addr;
