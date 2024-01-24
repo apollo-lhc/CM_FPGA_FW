@@ -16,3 +16,5 @@
 [submodule "configs/IT-DTC_p1_VU13p-1/it-dtc-fw"]
 	path = configs/IT-DTC_p1_VU13p-1/it-dtc-fw
 	url = https://gitlab.com/apollo-lhc/it-dtc/it-dtc-fw.git
+	url = https://github.com/bylsma/BU-EDF_fw-bits_build-scripts.git
+	branch = tt_top_mods
