@@ -19,4 +19,4 @@ set outputDir ./
 
 #set paths to track trigger sources
 set TT_LUT_PATH ../src/tt_skinny_chain/emData/LUTsReduced
-set TT_IP_REPO_PATH ../src/tt_skinny_chain/IntegrationTests/ReducedConfig/IRtoTB/script
+set TT_IP_REPO_PATH ../src/tt_skinny_chain/IntegrationTests/ReducedConfig/script

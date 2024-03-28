@@ -19,4 +19,4 @@ set outputDir ./
 
 #set paths to track trigger sources
 set TT_LUT_PATH ../src/tt_barrel_config/emData/LUTsBarrel
-set TT_IP_REPO_PATH ../src/tt_barrel_config/IntegrationTests/BarrelConfig/IRtoTB/script
+set TT_IP_REPO_PATH ../src/tt_barrel_config/IntegrationTests/ReducedCombinedConfig/script

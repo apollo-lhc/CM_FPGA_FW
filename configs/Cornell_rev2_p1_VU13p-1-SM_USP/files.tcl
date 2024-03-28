@@ -34,17 +34,15 @@ set vhdl_files "\
      src/C2C_INTF/picoblaze/uart_tx6.vhd \
      src/C2C_INTF/picoblaze/uC.vhd \
      src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
-     src/tt_master/IntegrationTests/BarrelConfig/IRtoTB/hdl/SectorProcessor.vhd \
-     src/tt_master/IntegrationTests/BarrelConfig/IRtoTB/hdl/memUtil_pkg.vhd \
-     src/tt_master/IntegrationTests/common/hdl/CreateStartSignal.vhd \
-     src/tt_master/IntegrationTests/common/hdl/tf_pkg.vhd \
+     src/tt_combined/IntegrationTests/ReducedCombinedConfig/hdl/SectorProcessor.vhd \
+     src/tt_combined/IntegrationTests/ReducedCombinedConfig/hdl/memUtil_pkg.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/CreateStartSignal.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_pkg.vhd \
      "
 set vhdl_2008_files "\
-     src/tt_master/IntegrationTests/common/hdl/tf_lut.vhd \
-     src/tt_master/IntegrationTests/common/hdl/tf_mem.vhd \
-     src/tt_master/IntegrationTests/common/hdl/tf_mem_bin.vhd \
-     src/tt_master/IntegrationTests/common/hdl/tf_mem_bin_cm4.vhd \
-     src/tt_master/IntegrationTests/common/hdl/tf_mem_bin_cm5.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_lut.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_mem.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_mem_bin.vhd \
      "
 
 set xdc_files "\
@@ -257,9 +255,77 @@ set xci_files "\
 set include_files "\
     		  src/i2cAXIMaster/files.tcl	\
 		  "		  
+              cores/AXI_BRAM/AXI_BRAM.xci \
+              cores/DP_BRAM/DP_BRAM.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_PS10G_1_A/IR_PS10G_1_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_PS10G_2_A/IR_PS10G_2_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_PS10G_3_A/IR_PS10G_3_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_PS_1_A/IR_PS_1_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_PS_2_A/IR_PS_2_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_2S_1_A/IR_2S_1_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_2S_2_A/IR_2S_2_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_2S_3_A/IR_2S_3_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/IR_2S_4_A/IR_2S_4_A.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/VMR_L1PHIB/VMR_L1PHIB.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/VMR_L2PHIA/VMR_L2PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/VMR_L3PHIA/VMR_L3PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/VMR_L4PHIA/VMR_L4PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/VMR_L5PHIA/VMR_L5PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/VMR_L6PHIA/VMR_L6PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/TP_L1L2C/TP_L1L2C.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/MP_L3PHIA/MP_L3PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/MP_L4PHIA/MP_L4PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/MP_L5PHIA/MP_L5PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/MP_L6PHIA/MP_L6PHIA.xci \
+              src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/FT_L1L2/FT_L1L2.xci \
+              cores/TC_BRAM/ROM_DL_2S_1_A_04/ROM_DL_2S_1_A_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_1_B_04/ROM_DL_2S_1_B_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_2_A_04/ROM_DL_2S_2_A_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_2_B_04/ROM_DL_2S_2_B_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_3_A_04/ROM_DL_2S_3_A_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_3_B_04/ROM_DL_2S_3_B_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_4_A_04/ROM_DL_2S_4_A_04.xci \
+              cores/TC_BRAM/ROM_DL_2S_4_B_04/ROM_DL_2S_4_B_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_1_A_04/ROM_DL_neg2S_1_A_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_1_B_04/ROM_DL_neg2S_1_B_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_2_A_04/ROM_DL_neg2S_2_A_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_2_B_04/ROM_DL_neg2S_2_B_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_3_A_04/ROM_DL_neg2S_3_A_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_3_B_04/ROM_DL_neg2S_3_B_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_4_A_04/ROM_DL_neg2S_4_A_04.xci \
+              cores/TC_BRAM/ROM_DL_neg2S_4_B_04/ROM_DL_neg2S_4_B_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS10G_1_A_04/ROM_DL_negPS10G_1_A_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS10G_1_B_04/ROM_DL_negPS10G_1_B_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS10G_2_A_04/ROM_DL_negPS10G_2_A_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS10G_2_B_04/ROM_DL_negPS10G_2_B_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS10G_3_A_04/ROM_DL_negPS10G_3_A_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS10G_3_B_04/ROM_DL_negPS10G_3_B_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS_1_A_04/ROM_DL_negPS_1_A_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS_1_B_04/ROM_DL_negPS_1_B_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS_2_A_04/ROM_DL_negPS_2_A_04.xci \
+              cores/TC_BRAM/ROM_DL_negPS_2_B_04/ROM_DL_negPS_2_B_04.xci \
+              cores/TC_BRAM/ROM_DL_PS10G_1_A_04/ROM_DL_PS10G_1_A_04.xci \
+              cores/TC_BRAM/ROM_DL_PS10G_1_B_04/ROM_DL_PS10G_1_B_04.xci \
+              cores/TC_BRAM/ROM_DL_PS10G_2_A_04/ROM_DL_PS10G_2_A_04.xci \
+              cores/TC_BRAM/ROM_DL_PS10G_2_B_04/ROM_DL_PS10G_2_B_04.xci \
+              cores/TC_BRAM/ROM_DL_PS10G_3_A_04/ROM_DL_PS10G_3_A_04.xci \
+              cores/TC_BRAM/ROM_DL_PS10G_3_B_04/ROM_DL_PS10G_3_B_04.xci \
+              cores/TC_BRAM/ROM_DL_PS_1_A_04/ROM_DL_PS_1_A_04.xci \
+              cores/TC_BRAM/ROM_DL_PS_1_B_04/ROM_DL_PS_1_B_04.xci \
+              cores/TC_BRAM/ROM_DL_PS_2_A_04/ROM_DL_PS_2_A_04.xci \
+              cores/TC_BRAM/ROM_DL_PS_2_B_04/ROM_DL_PS_2_B_04.xci \
+              cores/TC_BRAM/bar_only_vio_0/bar_only_vio_0.xci \
+              cores/TC_BRAM/baronly_no_comp_ila/baronly_no_comp_ila.xci \
+              cores/TC_BRAM/BarOnly_Mem_1/BarOnly_Mem_1.xci \
+              "
 #    	      cores/TC_BRAM/ROM_TF_L1L2/ROM_TF_L1L2.xci \
 #    	      cores/TC_BRAM/ROM_TF_L2L3/ROM_TF_L2L3.xci \
 #    	      cores/TC_BRAM/ROM_TF_L3L4/ROM_TF_L3L4.xci \
 #    	      cores/TC_BRAM/ROM_TF_L5L6/ROM_TF_L5L6.xci \
 #    	      cores/TC_BRAM/BarOnly_512_Mem/BarOnly_512_Mem.xci \
+#             cores/TC_BRAM/ROM_TF_L1L2/ROM_TF_L1L2.xci \
+#             cores/TC_BRAM/ROM_TF_L2L3/ROM_TF_L2L3.xci \
+#             cores/TC_BRAM/ROM_TF_L3L4/ROM_TF_L3L4.xci \
+#             cores/TC_BRAM/ROM_TF_L5L6/ROM_TF_L5L6.xci \
+#             cores/TC_BRAM/BarOnly_512_Mem/BarOnly_512_Mem.xci \
 
