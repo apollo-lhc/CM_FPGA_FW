@@ -13,6 +13,7 @@ use work.AXISlaveAddrPkg.all;
 
 use work.tf_pkg.all;
 use work.memUtil_pkg.all;
+use work.memUtil_aux_pkg.all;
 
 
 use work.Global_PKG.all;
@@ -389,13 +390,13 @@ signal clk_200_raw     : std_logic;
 
       
       signal C2C_Mon  : C2C_INTF_MON_t;
-      signal C2C_Ctrl : C2C_INTF_Ctrl_t;
+      signal C2C_Ctrl : C2C_INTF_CTRL_t;
 
-      signal clk_F1_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
-      signal BRAM_write : std_logic;
-      signal BRAM_addr  : std_logic_vector(14 downto 0);
-      signal BRAM_WR_data : std_logic_vector(31 downto 0);
-      signal BRAM_RD_data : std_logic_vector(31 downto 0);
+      signal clk_F1_C2C_PHY_user                  : std_logic_vector(1 downto 1);
+      signal BRAM_WRITE : std_logic;
+      signal BRAM_ADDR  : std_logic_vector(14 downto 0);
+      signal BRAM_WR_DATA : std_logic_vector(31 downto 0);
+      signal BRAM_RD_DATA : std_logic_vector(31 downto 0);
 
 --      signal bram_rst_a    : std_logic;
 --      signal bram_clk_a    : std_logic;
@@ -467,11 +468,11 @@ signal vio_clk_sel  : std_logic_vector(1 downto 0) := "00";
   signal TCRAM_RD_L5L6_L4 : std_logic_vector(31 downto 0);
   signal adra_rst         : std_logic;
 
-  type t_arr_TW_ena      is array(enum_TW_84) of std_logic;
-  type t_arr_TW_addrcnt  is array(enum_TW_84) of unsigned(9 downto 0);
-  type t_arr_TW_addr     is array(enum_TW_84) of std_logic_vector(9 downto 0);
-  type t_arr_TW_dout_FF  is array(enum_TW_84) of std_logic_vector(127 downto 0);
-  type t_arr_TW_AXI_Rd   is array(enum_TW_84) of std_logic_vector(31 downto 0);
+  type t_arr_TW_ena      is array(enum_TW_104) of std_logic;
+  type t_arr_TW_addrcnt  is array(enum_TW_104) of unsigned(9 downto 0);
+  type t_arr_TW_addr     is array(enum_TW_104) of std_logic_vector(9 downto 0);
+  type t_arr_TW_dout_FF  is array(enum_TW_104) of std_logic_vector(127 downto 0);
+  type t_arr_TW_AXI_Rd   is array(enum_TW_104) of std_logic_vector(31 downto 0);
   
   signal tw_ena          : t_arr_TW_ena;
   signal tw_enb          : t_arr_TW_ena;
@@ -501,12 +502,12 @@ signal vio_clk_sel  : std_logic_vector(1 downto 0) := "00";
 
   signal bw_rddata       : t_arr_BW_AXI_Rd;
 
-  type t_arr_TF_ena      is array(enum_TW_84) of std_logic;
-  type t_arr_TF_addrcnt  is array(enum_TW_84) of unsigned(13 downto 0);
-  type t_arr_TF_addr     is array(enum_TW_84) of std_logic_vector(13 downto 0);
-  type t_arr_TF_errcnt   is array(enum_TW_84) of unsigned(31 downto 0);
-  type t_arr_TF_errors   is array(enum_TW_84) of std_logic_vector(31 downto 0);
-  type t_arr_TF_dout_FF  is array(enum_TW_84) of std_logic_vector(511 downto 0);
+  type t_arr_TF_ena      is array(enum_TW_104) of std_logic;
+  type t_arr_TF_addrcnt  is array(enum_TW_104) of unsigned(13 downto 0);
+  type t_arr_TF_addr     is array(enum_TW_104) of std_logic_vector(13 downto 0);
+  type t_arr_TF_errcnt   is array(enum_TW_104) of unsigned(31 downto 0);
+  type t_arr_TF_errors   is array(enum_TW_104) of std_logic_vector(31 downto 0);
+  type t_arr_TF_dout_FF  is array(enum_TW_104) of std_logic_vector(511 downto 0);
 
   signal tf_ena          : t_arr_TW_ena;
   signal tf_enb          : t_arr_TW_ena;
@@ -527,11 +528,11 @@ signal vio_clk_sel  : std_logic_vector(1 downto 0) := "00";
 
 -- TF Simulatator signals
 
-  type t_arr_TF_sim_addrcnt  is array(enum_TW_84) of unsigned(7 downto 0);
-  type t_arr_TF_sim_addr     is array(enum_TW_84) of std_logic_vector(7 downto 0);
-  type t_arr_TF_sim_words    is array(enum_TW_84) of natural;
+  type t_arr_TF_sim_addrcnt  is array(enum_TW_104) of unsigned(7 downto 0);
+  type t_arr_TF_sim_addr     is array(enum_TW_104) of std_logic_vector(7 downto 0);
+  type t_arr_TF_sim_words    is array(enum_TW_104) of natural;
 
-    constant N_SIM_WORDS   : t_arr_TF_sim_words := (215,14,177,124);  --! Number of words in TF simulator memory
+    --constant N_SIM_WORDS   : t_arr_TF_sim_words := (215,14,177,124);  --! Number of words in TF simulator memory
 
   signal tf_sim_addrcnt    : t_arr_TF_sim_addrcnt;
   signal tf_sim_addr       : t_arr_TF_sim_addr;
@@ -570,11 +571,13 @@ signal vio_clk_sel  : std_logic_vector(1 downto 0) := "00";
   signal DL_39_link_empty_neg       : t_arr_DL_39_1b       := (others => '0');
   signal DL_39_link_AV_dout         : t_arr_DL_39_DATA     := (others => (others => '0'));
   signal BW_46_stream_AV_din        : t_arr_BW_46_DATA     := (others => (others => '0'));
+  signal BW_L1L2_L3_stream_AV_din   : t_BW_46_DATA         := (others => '0');
   signal BW_46_stream_A_full_neg    : t_arr_BW_46_1b       := (others => '1');
-  signal BW_46_stream_A_write       : t_arr_BW_46_1b       := (others => '0');
-  signal TW_84_stream_AV_din        : t_arr_TW_84_DATA     := (others => (others => '0'));
-  signal TW_84_stream_A_full_neg    : t_arr_TW_84_1b       := (others => '1');
-  signal TW_84_stream_A_write       : t_arr_TW_84_1b       := (others => '0');
+  signal BW_46_stream_A_write       : t_arr_BW_46_1b       := (others => '1');
+  signal BW_L1L2_L3_stream_A_write  : t_BW_46_1b           := '0';
+  signal TW_104_stream_AV_din        : t_arr_TW_104_DATA     := (others => (others => '0'));
+  signal TW_104_stream_A_full_neg    : t_arr_TW_104_1b       := (others => '1');
+  signal TW_104_stream_A_write       : t_arr_TW_104_1b       := (others => '0');
     
   -- input memory address registers
   type t_arr_DL_addrcnt  is array(enum_DL_39) of unsigned(11 downto 0);
@@ -1035,24 +1038,24 @@ begin
       Mon.BRAM.RD_DATA        => BRAM_RD_DATA,
       Mon.TCRAM.ADDR          => local_addr,
       Mon.TCRAM.RD_L1L2       => tw_rddata(L1L2),
-      Mon.TCRAM.RD_L2L3       => tw_rddata(L2L3),
-      Mon.TCRAM.RD_L3L4       => tw_rddata(L3L4),
-      Mon.TCRAM.RD_L5L6       => tw_rddata(L5L6),
+      Mon.TCRAM.RD_L2L3       => tw_rddata(L1L2),
+      Mon.TCRAM.RD_L3L4       => tw_rddata(L1L2),
+      Mon.TCRAM.RD_L5L6       => tw_rddata(L1L2),
       Mon.TCRAM.RD_L1L2_L3    => bw_rddata(L1L2_L3),
       Mon.TCRAM.RD_L1L2_L4    => bw_rddata(L1L2_L4),
       Mon.TCRAM.RD_L1L2_L5    => bw_rddata(L1L2_L5),
       Mon.TCRAM.RD_L1L2_L6    => bw_rddata(L1L2_L6),
-      Mon.TCRAM.RD_L2L3_L1    => bw_rddata(L2L3_L1),
-      Mon.TCRAM.RD_L2L3_L4    => bw_rddata(L2L3_L4),
-      Mon.TCRAM.RD_L2L3_L5    => bw_rddata(L2L3_L5),
-      Mon.TCRAM.RD_L3L4_L1    => bw_rddata(L3L4_L1),
-      Mon.TCRAM.RD_L3L4_L2    => bw_rddata(L3L4_L2),
-      Mon.TCRAM.RD_L3L4_L5    => bw_rddata(L3L4_L5),
-      Mon.TCRAM.RD_L3L4_L6    => bw_rddata(L3L4_L6),
-      Mon.TCRAM.RD_L5L6_L1    => bw_rddata(L5L6_L1),
-      Mon.TCRAM.RD_L5L6_L2    => bw_rddata(L5L6_L2),
-      Mon.TCRAM.RD_L5L6_L3    => bw_rddata(L5L6_L3),
-      Mon.TCRAM.RD_L5L6_L4    => bw_rddata(L5L6_L4),
+      Mon.TCRAM.RD_L2L3_L1    => bw_rddata(L1L2_L3),
+      Mon.TCRAM.RD_L2L3_L4    => bw_rddata(L1L2_L4),
+      Mon.TCRAM.RD_L2L3_L5    => bw_rddata(L1L2_L5),
+      Mon.TCRAM.RD_L3L4_L1    => bw_rddata(L1L2_L3),
+      Mon.TCRAM.RD_L3L4_L2    => bw_rddata(L1L2_L3),
+      Mon.TCRAM.RD_L3L4_L5    => bw_rddata(L1L2_L5),
+      Mon.TCRAM.RD_L3L4_L6    => bw_rddata(L1L2_L6),
+      Mon.TCRAM.RD_L5L6_L1    => bw_rddata(L1L2_L3),
+      Mon.TCRAM.RD_L5L6_L2    => bw_rddata(L1L2_L3),
+      Mon.TCRAM.RD_L5L6_L3    => bw_rddata(L1L2_L3),
+      Mon.TCRAM.RD_L5L6_L4    => bw_rddata(L1L2_L4),
       Ctrl.RGB.R              => led_red_local,
       Ctrl.RGB.G              => led_green_local,
       Ctrl.RGB.B              => led_blue_local,
@@ -1167,6 +1170,20 @@ begin
 
   C2C_Mon.C2C_REFCLK_FREQ <=  count_rt_r0_l;
 
+--  DP_BRAM_1: entity work.DP_BRAM
+--    port map (
+--      clka  => AXI_CLK,
+--      ena   => AXI_BRAM_EN,
+--      wea   => AXI_BRAM_we,
+--      addra => AXI_BRAM_addr(11 downto 2),
+--      dina  => AXI_BRAM_DATA_IN,
+--      douta => AXI_BRAM_DATA_OUT,
+--      clkb  => AXI_CLK,
+--      enb   => '1',
+--      web   => (others => BRAM_WRITE),
+--      addrb => BRAM_ADDR(10 downto 0),
+--      dinb  => BRAM_WR_DATA,
+--      doutb => BRAM_RD_DATA);
     
   
 -- Barrel Only Testing
@@ -1181,6 +1198,7 @@ begin
 --
 -- Data links, negative side
 
+/*
 ROM_DL_negPS10G_1_A_04_i : entity work.ROM_DL_negPS10G_1_A_04
   PORT MAP (
     clka => sc_clk,
@@ -1401,6 +1419,7 @@ ROM_DL_2S_4_B_04_i : entity work.ROM_DL_2S_4_B_04
     addra => dl_addr(twoS_4_B),
     douta => DL_39_link_AV_dout(twoS_4_B)
   );
+*/
 
 DL_ADDR_loop : for var in enum_dl_39 generate
   constant N_EVENTS  : natural := 18;  --! Number of events in data link input memory
@@ -1470,18 +1489,55 @@ SectorProcessor_1: entity work.SectorProcessor
     reset => sc_rst,
     ir_start => IR_START,
     IR_BX_IN => IR_BX_IN,
-    FT_BX_out => FT_BX_out,
-    FT_BX_OUT_VLD => FT_BX_OUT_VLD,
-    FT_DONE => FT_DONE,
-    DL_39_link_AV_dout       => DL_39_link_AV_dout,
-    DL_39_link_empty_neg     => DL_39_link_empty_neg,
-    DL_39_link_read          => DL_39_link_read,
-    TW_84_stream_AV_din      => TW_84_stream_AV_din,
-    TW_84_stream_A_full_neg  => TW_84_stream_A_full_neg,
-    TW_84_stream_A_write     => TW_84_stream_A_write,
-    BW_46_stream_AV_din      => BW_46_stream_AV_din,
-    BW_46_stream_A_full_neg  => BW_46_stream_A_full_neg,
-    BW_46_stream_A_write     => BW_46_stream_A_write
+    FT_bx_out_0 => FT_BX_out,
+    FT_bx_out_vld => FT_BX_OUT_VLD,
+    FT_done => FT_DONE,
+    --DL_39_link_AV_dout       => DL_39_link_AV_dout,
+    --DL_39_link_empty_neg     => DL_39_link_empty_neg,
+    --DL_39_link_read          => DL_39_link_read,
+    DL_PS10G_1_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_1_A),
+    DL_PS10G_1_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_1_A),
+    DL_PS10G_1_A_link_read          => DL_39_link_read(PS10G_1_A),
+    DL_PS10G_2_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_1_A),
+    DL_PS10G_2_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_1_A),
+    DL_PS10G_2_A_link_read          => DL_39_link_read(PS10G_1_A),
+    DL_PS10G_3_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_1_A),
+    DL_PS10G_3_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_1_A),
+    DL_PS10G_3_A_link_read          => DL_39_link_read(PS10G_1_A),
+    DL_PS_1_A_link_AV_dout       => DL_39_link_AV_dout(PS_1_A),
+    DL_PS_1_A_link_empty_neg     => DL_39_link_empty_neg(PS_1_A),
+    DL_PS_1_A_link_read          => DL_39_link_read(PS_1_A),
+    DL_PS_2_A_link_AV_dout       => DL_39_link_AV_dout(PS_1_A),
+    DL_PS_2_A_link_empty_neg     => DL_39_link_empty_neg(PS_1_A),
+    DL_PS_2_A_link_read          => DL_39_link_read(PS_1_A),
+    DL_twoS_1_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
+    DL_twoS_1_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
+    DL_twoS_1_A_link_read          => DL_39_link_read(twoS_1_A),
+    DL_twoS_2_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
+    DL_twoS_2_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
+    DL_twoS_2_A_link_read          => DL_39_link_read(twoS_1_A),
+    DL_twoS_3_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
+    DL_twoS_3_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
+    DL_twoS_3_A_link_read          => DL_39_link_read(twoS_1_A),
+    DL_twoS_4_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
+    DL_twoS_4_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
+    DL_twoS_4_A_link_read          => DL_39_link_read(twoS_1_A),
+    TW_L1L2_stream_AV_din      => TW_104_stream_AV_din(L1L2),
+    TW_L1L2_stream_A_full_neg  => TW_104_stream_A_full_neg(L1L2),
+    TW_L1L2_stream_A_write     => TW_104_stream_A_write(L1L2),
+    BW_L1L2_L3_stream_AV_din      => BW_46_stream_AV_din(L1L2_L3),
+    BW_L1L2_L3_stream_A_full_neg  => BW_46_stream_A_full_neg(L1L2_L3),
+    --BW_L1L2_L3_stream_A_write     => BW_L1L2_L3_stream_A_write,
+    BW_L1L2_L3_stream_A_write     => BW_46_stream_A_write(L1L2_L3),
+    BW_L1L2_L4_stream_AV_din     => BW_46_stream_AV_din(L1L2_L4),
+    BW_L1L2_L4_stream_A_full_neg     => BW_46_stream_A_full_neg(L1L2_L4),
+    BW_L1L2_L4_stream_A_write     => BW_46_stream_A_write(L1L2_L4),
+    BW_L1L2_L5_stream_AV_din     => BW_46_stream_AV_din(L1L2_L5),
+    BW_L1L2_L5_stream_A_full_neg     => BW_46_stream_A_full_neg(L1L2_L5),
+    BW_L1L2_L5_stream_A_write     => BW_46_stream_A_write(L1L2_L5),
+    BW_L1L2_L6_stream_AV_din     => BW_46_stream_AV_din(L1L2_L6),
+    BW_L1L2_L6_stream_A_full_neg     => BW_46_stream_A_full_neg(L1L2_L6),
+    BW_L1L2_L6_stream_A_write     => BW_46_stream_A_write(L1L2_L6)
   );
 
   incr_addr <= local_AXI_RdAck;
@@ -1507,7 +1563,7 @@ SectorProcessor_1: entity work.SectorProcessor
   axiwrdata2   <= x"00000000000000000000000000000000" & x"00000000000000000000000000000000" & x"00000000000000000000000000000000" & x"0000000000000000" & "00" & tf_addr(L1L2) & "000" & ir_start & "0" & IR_BX_IN & "0" & FT_BX_out & "00" & FT_BX_OUT_VLD & FT_DONE & TCRAM_WR_DATA;
 
 
-TW_84_loop : for var in enum_TW_84 generate
+TW_104_loop : for var in enum_TW_104 generate
 begin
 
   tw_ena(var) <= '1';
@@ -1520,7 +1576,7 @@ begin
         tw_not_full(var) <= '1';
         tw_enb(var)      <= '1';
       else
-        if TW_84_stream_A_write(var) = '1' then
+        if TW_104_stream_A_write(var) = '1' then
           tw_addrcnt(var) <= tw_addrcnt(var) + 4;
         end if;
         if tw_addrcnt(var) >= 1020 and tw_not_full(var) = '1' then
@@ -1534,16 +1590,16 @@ begin
   mem_full: process (tw_addrcnt(var)) is
   begin  -- process mem_full
 --      if tw_addrcnt(var) < 1020 then
---        TW_84_stream_A_full_neg(var) <= '1';
+--        TW_104_stream_A_full_neg(var) <= '1';
 --      else
---        TW_84_stream_A_full_neg(var) <= '0';
+--        TW_104_stream_A_full_neg(var) <= '0';
 --      end if;
-      TW_84_stream_A_full_neg(var) <= '1';
+      TW_104_stream_A_full_neg(var) <= '1';
 end process mem_full;
    
   tw_addr(var)      <= std_logic_vector(tw_addrcnt(var));
-  tw_wrdata(var)    <= x"ADD3" & x"0" & "00" & tw_addr(var)  & x"000" & TW_84_stream_AV_din(var);
-  tw_wrena(var)     <= TW_84_stream_A_write(var) and tw_not_full(var);
+  tw_wrdata(var)    <= "00" & tw_addr(var)  & x"000" & TW_104_stream_AV_din(var);
+  tw_wrena(var)     <= TW_104_stream_A_write(var) and tw_not_full(var);
   
 BarOnly_Mem_i : entity work.BarOnly_Mem_1
   PORT MAP (
@@ -1560,7 +1616,7 @@ BarOnly_Mem_i : entity work.BarOnly_Mem_1
     dinb   => tw_wrdata(var),
     doutb  => open
   );
-end generate TW_84_loop;
+end generate TW_104_loop;
 
 
 BW_46_loop : for var in enum_BW_46 generate
@@ -1576,6 +1632,7 @@ begin
         bw_not_full(var) <= '1';
         bw_enb(var)      <= '1';
       else
+        --if BW_L1L2_L3_stream_A_write = '1' then
         if BW_46_stream_A_write(var) = '1' then
           bw_addrcnt(var) <= bw_addrcnt(var) + 4;
         end if;
@@ -1599,7 +1656,8 @@ begin
    
   bw_addr(var)      <= std_logic_vector(bw_addrcnt(var));
   bw_wrdata(var)    <= x"ADD3" & x"0" & "00" & bw_addr(var) & x"00000000" & x"0000" & "00" & BW_46_stream_AV_din(var);
-  bw_wrena(var)     <= BW_46_stream_A_write(var) and bw_not_full(var);
+  bw_wrena(var)     <= BW_L1L2_L3_stream_A_write and bw_not_full(var);
+  --bw_wrena(var)     <= BW_46_stream_A_write(var) and bw_not_full(var);
   
 BarOnly_Mem_i : entity work.BarOnly_Mem_1
   PORT MAP (
@@ -1667,7 +1725,7 @@ end generate BW_46_loop;
 --end process mem_mux;
 
 
---TF_464_loop : for var in enum_TW_84 generate
+--TF_464_loop : for var in enum_TW_104 generate
 --begin
 
 --  tf_ena(var) <= TCRAM_ENA(5) OR vio_sc_ena(5);
@@ -1680,7 +1738,7 @@ end generate BW_46_loop;
 --        tf_addrcnt(var) <= (others => '0');
 --        tf_not_full(var) <= '1';
 --      else
---        if TW_84_stream_A_write(var) = '1' then
+--        if TW_104_stream_A_write(var) = '1' then
 --          tf_addrcnt(var) <= tf_addrcnt(var) + 16;
 --        end if;
 --      end if;
@@ -1695,9 +1753,9 @@ end generate BW_46_loop;
 --      if sc_rst = '1' then
 --        sim_wrd_cnt(var) <= (others => '0');
 --      else
---        if TW_84_stream_A_write(var) = '1' and sim_wrd_cnt(var) = N_SIM_WORDS(var)-1 then
+--        if TW_104_stream_A_write(var) = '1' and sim_wrd_cnt(var) = N_SIM_WORDS(var)-1 then
 --          sim_wrd_cnt(var) <= (others => '0');
---        elsif TW_84_stream_A_write(var) = '1' then
+--        elsif TW_104_stream_A_write(var) = '1' then
 --          sim_wrd_cnt(var) <= sim_wrd_cnt(var) + 1;
 --        end if;
 --      end if;
@@ -1707,20 +1765,20 @@ end generate BW_46_loop;
 ----  mem_full: process (tf_addrcnt(var)) is
 ----  begin  -- process mem_full
 ----          if tf_addrcnt(var) < 16368 then
-----            TW_84_stream_A_full_neg(var) <= '1';
+----            TW_104_stream_A_full_neg(var) <= '1';
 ----          else
-----            TW_84_stream_A_full_neg(var) <= '0';
+----            TW_104_stream_A_full_neg(var) <= '0';
 ----          end if;
 ----  end process mem_full;
    
 --  tf_addr(var)      <= std_logic_vector(tf_addrcnt(var));
 --  sim_wrd(var)      <= std_logic_vector(sim_wrd_cnt(var));
-----  tf_wrdata(var)    <= x"ADD3" & "00" & To_StdLogicVector(To_bitvector(tf_addr(var)) srl 4) & x"0000" & TW_84_stream_AV_din(var) & BW_46_stream_AV_din(L1L2_L3) & BW_46_stream_AV_din(L1L2_L4) & BW_46_stream_AV_din(L1L2_L5) & BW_46_stream_AV_din(L1L2_L6) & emptyDiskStub & emptyDiskStub & emptyDiskStub & emptyDiskStub;
---  tf_wrdata(var)    <= x"ADD3" & x"0" & "00" & sim_wrd(var) & x"0000" & TW_84_stream_AV_din(var) & BW_46_stream_AV_din(L1L2_L3) & BW_46_stream_AV_din(L1L2_L4) & BW_46_stream_AV_din(L1L2_L5) & BW_46_stream_AV_din(L1L2_L6) & emptyDiskStub & emptyDiskStub & emptyDiskStub & emptyDiskStub;
+----  tf_wrdata(var)    <= x"ADD3" & "00" & To_StdLogicVector(To_bitvector(tf_addr(var)) srl 4) & x"0000" & TW_104_stream_AV_din(var) & BW_46_stream_AV_din(L1L2_L3) & BW_46_stream_AV_din(L1L2_L4) & BW_46_stream_AV_din(L1L2_L5) & BW_46_stream_AV_din(L1L2_L6) & emptyDiskStub & emptyDiskStub & emptyDiskStub & emptyDiskStub;
+--  tf_wrdata(var)    <= x"ADD3" & x"0" & "00" & sim_wrd(var) & x"0000" & TW_104_stream_AV_din(var) & BW_46_stream_AV_din(L1L2_L3) & BW_46_stream_AV_din(L1L2_L4) & BW_46_stream_AV_din(L1L2_L5) & BW_46_stream_AV_din(L1L2_L6) & emptyDiskStub & emptyDiskStub & emptyDiskStub & emptyDiskStub;
 
 --  tf_mask <= x"FFFFFC00FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF";
   
---  tf_wrena(var)     <= TW_84_stream_A_write(var) and tf_not_full(var);
+--  tf_wrena(var)     <= TW_104_stream_A_write(var) and tf_not_full(var);
   
 --BarOnly_512_Mem_i : entity work.BarOnly_512_Mem
 --  PORT MAP (
@@ -1767,7 +1825,7 @@ end generate BW_46_loop;
 --    douta => tf_sim_rddata(L5L6)
 --  );
 
---TF_simulator_ADDR_loop : for var in enum_TW_84 generate
+--TF_simulator_ADDR_loop : for var in enum_TW_104 generate
 --begin
 --  rd_tf_sim_addr: process (sc_clk) is
 --  begin  -- process rd_tf_sim_addr
@@ -1775,9 +1833,9 @@ end generate BW_46_loop;
 --      if sc_rst = '1' then
 --        tf_sim_addrcnt(var) <= (others => '0');
 --      else
---        if TW_84_stream_A_write(var) = '1' and tf_sim_addrcnt(var) < (N_SIM_WORDS(var)-1) then
+--        if TW_104_stream_A_write(var) = '1' and tf_sim_addrcnt(var) < (N_SIM_WORDS(var)-1) then
 --          tf_sim_addrcnt(var) <= tf_sim_addrcnt(var) + 1;
---        elsif TW_84_stream_A_write(var) = '1' then
+--        elsif TW_104_stream_A_write(var) = '1' then
 --          tf_sim_addrcnt(var) <= (others => '0');
 --        else
 --          tf_sim_addrcnt(var) <= tf_sim_addrcnt(var);
@@ -1788,12 +1846,12 @@ end generate BW_46_loop;
 --  tf_sim_addr(var)   <= std_logic_vector(tf_sim_addrcnt(var));
 --end generate TF_simulator_ADDR_loop;
 
---TF_cv_loop : for var in enum_TW_84 generate
+--TF_cv_loop : for var in enum_TW_104 generate
 --begin
 --  cv_pipe:  process (sc_clk) is
 --    begin  -- process cv_pipe
 --    if sc_clk'event and sc_clk = '1' then  -- rising clock edge
---      pre_comp_valid_2(var) <= TW_84_stream_A_write(var);
+--      pre_comp_valid_2(var) <= TW_104_stream_A_write(var);
 --      pre_comp_valid_1(var) <= pre_comp_valid_2(var);
 --      comp_valid(var)       <= pre_comp_valid_1(var);
 --      comp_valid_1(var)     <= comp_valid(var);
@@ -1808,7 +1866,7 @@ end generate BW_46_loop;
 --end generate TF_cv_loop;
 
 
---TF_comp_err_loop : for var in enum_TW_84 generate
+--TF_comp_err_loop : for var in enum_TW_104 generate
 --begin
 --  err_regs: process (sc_clk) is
 --  begin  -- process err_regs
@@ -1846,13 +1904,19 @@ BarOnly_vio_0 : entity work.bar_only_vio_0
     probe_in4(0)  => tf_enb(L1L2),
     probe_in5(0)  => START_FIRST_LINK,
     probe_in6(0)  => error_flag(L1L2),
-    probe_in7(0)  => error_flag(L2L3),
-    probe_in8(0)  => error_flag(L3L4),
-    probe_in9(0)  => error_flag(L5L6),
+    probe_in7(0)  => error_flag(L1L2),
+    probe_in8(0)  => error_flag(L1L2),
+    probe_in9(0)  => error_flag(L1L2),
+    --probe_in7(0)  => error_flag(L2L3),
+    --probe_in8(0)  => error_flag(L3L4),
+    --probe_in9(0)  => error_flag(L5L6),
     probe_in10    => errors(L1L2),
-    probe_in11    => errors(L2L3),
-    probe_in12    => errors(L3L4),
-    probe_in13    => errors(L5L6),
+    probe_in11    => errors(L1L2),
+    probe_in12    => errors(L1L2),
+    probe_in13    => errors(L1L2),
+    --probe_in11    => errors(L2L3),
+    --probe_in12    => errors(L3L4),
+    --probe_in13    => errors(L5L6),
     probe_out0(0) => vio_sc_rst,
     probe_out1(0) => vio_sc_start,
     probe_out2    => vio_sc_ena,
@@ -1879,22 +1943,34 @@ PORT MAP (
     probe13     => FT_BX_out, 
 	probe14(0)  => FT_BX_OUT_VLD, 
 	probe15(0)  => FT_DONE, 
-    probe16(0)  => TW_84_stream_A_full_neg(L1L2),
-    probe17(0)  => TW_84_stream_A_write(L1L2),
+    probe16(0)  => TW_104_stream_A_full_neg(L1L2),
+    probe17(0)  => TW_104_stream_A_write(L1L2),
     probe18     => tw_addr(L1L2),
-    probe19     => TW_84_stream_AV_din(L1L2),
-    probe20(0)  => TW_84_stream_A_full_neg(L2L3),
-    probe21(0)  => TW_84_stream_A_write(L2L3),
-    probe22     => tw_addr(L2L3),
-    probe23     => TW_84_stream_AV_din(L2L3),
-    probe24(0)  => TW_84_stream_A_full_neg(L3L4),
-    probe25(0)  => TW_84_stream_A_write(L3L4),
-    probe26     => tw_addr(L3L4),
-    probe27     => TW_84_stream_AV_din(L3L4),
-    probe28(0)  => TW_84_stream_A_full_neg(L5L6),
-    probe29(0)  => TW_84_stream_A_write(L5L6),
-    probe30     => tw_addr(L5L6),
-    probe31     => TW_84_stream_AV_din(L5L6),
+    probe19     => TW_104_stream_AV_din(L1L2)(83 downto 0), --! hack to get 84 bits
+    probe20(0)  => TW_104_stream_A_full_neg(L1L2),
+    probe21(0)  => TW_104_stream_A_write(L1L2),
+    probe22     => tw_addr(L1L2),
+    probe23     => TW_104_stream_AV_din(L1L2)(83 downto 0),
+    probe24(0)  => TW_104_stream_A_full_neg(L1L2),
+    probe25(0)  => TW_104_stream_A_write(L1L2),
+    probe26     => tw_addr(L1L2),
+    probe27     => TW_104_stream_AV_din(L1L2)(83 downto 0),
+    probe28(0)  => TW_104_stream_A_full_neg(L1L2),
+    probe29(0)  => TW_104_stream_A_write(L1L2),
+    probe30     => tw_addr(L1L2),
+    probe31     => TW_104_stream_AV_din(L1L2)(83 downto 0),
+    --probe20(0)  => TW_104_stream_A_full_neg(L2L3),
+    --probe21(0)  => TW_104_stream_A_write(L2L3),
+    --probe22     => tw_addr(L2L3),
+    --probe23     => TW_104_stream_AV_din(L2L3),
+    --probe24(0)  => TW_104_stream_A_full_neg(L3L4),
+    --probe25(0)  => TW_104_stream_A_write(L3L4),
+    --probe26     => tw_addr(L3L4),
+    --probe27     => TW_104_stream_AV_din(L3L4),
+    --probe28(0)  => TW_104_stream_A_full_neg(L5L6),
+    --probe29(0)  => TW_104_stream_A_write(L5L6),
+    --probe30     => tw_addr(L5L6),
+    --probe31     => TW_104_stream_AV_din(L5L6),
     probe32(0)  => BW_46_stream_A_full_neg(L1L2_L3),
     probe33(0)  => BW_46_stream_A_write(L1L2_L3),
     probe34     => bw_addr(L1L2_L3),
@@ -1923,10 +1999,10 @@ PORT MAP (
 --	probe4     => FT_BX_out, 
 --	probe5(0)  => FT_BX_OUT_VLD, 
 --	probe6(0)  => FT_DONE, 
---	probe7(0)  => TW_84_stream_A_write(L1L2), 
---	probe8(0)  => TW_84_stream_A_write(L2L3), 
---	probe9(0)  => TW_84_stream_A_write(L3L4), 
---	probe10(0) => TW_84_stream_A_write(L5L6), 
+--	probe7(0)  => TW_104_stream_A_write(L1L2), 
+--	probe8(0)  => TW_104_stream_A_write(L2L3), 
+--	probe9(0)  => TW_104_stream_A_write(L3L4), 
+--	probe10(0) => TW_104_stream_A_write(L5L6), 
 --	probe11    => tf_addr(L1L2), 
 --	probe12    => tf_addr(L2L3), 
 --	probe13    => tf_addr(L3L4), 

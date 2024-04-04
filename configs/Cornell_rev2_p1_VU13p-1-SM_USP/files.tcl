@@ -42,7 +42,10 @@ set vhdl_files "\
 set vhdl_2008_files "\
      src/tt_combined/IntegrationTests/common/hdl/tf_lut.vhd \
      src/tt_combined/IntegrationTests/common/hdl/tf_mem.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_mem_format.vhd \
      src/tt_combined/IntegrationTests/common/hdl/tf_mem_bin.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_pipe_delay.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/emp/memUtil_aux_pkg.vhd \
      "
 
 set xdc_files "\
@@ -50,6 +53,8 @@ set xdc_files "\
     configs/${build_name}/src/top_timing.xdc	\
     configs/${build_name}/src/tt_placement.xdc	\
     "	    
+
+#add_files "/mnt/scratch1/byates/apollo/CM_FPGA_FW_apollo-lhc/src/tt_combined/IntegrationTests/ReducedCombinedConfig/script/Work/Work.srcs/sources_1/ip/*/*.vhdl"
 
 set xci_files "\
 	      cores/AXI_BRAM/AXI_BRAM.xci \
