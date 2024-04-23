@@ -4,7 +4,6 @@ array set bd_files [list {c2cSlave} {src/CM_yaml/CM_C2C/createC2CSlaveInterconne
 			]
 
 set vhdl_files "\
-     configs/${build_name}/src/top.vhd \
      src/misc/DC_data_CDC.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
@@ -34,12 +33,13 @@ set vhdl_files "\
      src/C2C_INTF/picoblaze/uart_tx6.vhd \
      src/C2C_INTF/picoblaze/uC.vhd \
      src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
-     src/tt_combined/IntegrationTests/ReducedCombinedConfig/hdl/SectorProcessor.vhd \
-     src/tt_combined/IntegrationTests/ReducedCombinedConfig/hdl/memUtil_pkg.vhd \
      src/tt_combined/IntegrationTests/common/hdl/CreateStartSignal.vhd \
-     src/tt_combined/IntegrationTests/common/hdl/tf_pkg.vhd \
      "
 set vhdl_2008_files "\
+     configs/${build_name}/src/top.vhd \
+     src/tt_combined/IntegrationTests/ReducedCombinedConfig/hdl/SectorProcessor.vhd \
+     src/tt_combined/IntegrationTests/ReducedCombinedConfig/hdl/memUtil_pkg.vhd \
+     src/tt_combined/IntegrationTests/common/hdl/tf_pkg.vhd \
      src/tt_combined/IntegrationTests/common/hdl/tf_lut.vhd \
      src/tt_combined/IntegrationTests/common/hdl/tf_mem.vhd \
      src/tt_combined/IntegrationTests/common/hdl/tf_mem_format.vhd \
