@@ -591,13 +591,13 @@ begin
     Local_Clocking_1: entity work.onboardclk
         port map (
             clk_200Mhz => clk_200,
-            clk_50Mhz  => clk_50,
-            clk_250Mhz => clk_250,
+            clk_50Mhz  => sc_clk,
+            --clk_250Mhz => clk_250,
             reset      => '0',
             locked     => locked_clk200,
             clk_in1_p  => p_clk_200,
             clk_in1_n  => n_clk_200);
-    AXI_CLK <= clk_50;
+    AXI_CLK <= sc_clk;
 
     --Fabric copies of refclks
     fabric_refclk(0).p <= p_lf_x12_r0_clk;
@@ -769,7 +769,7 @@ begin
     
  c2csslave_wrapper_1: entity work.c2cslave_sane_wrapper
    port map (
-      EXT_CLK                                => clk_50,
+      EXT_CLK                                => sc_clk,
       AXI_MASTER_CLK                         => AXI_CLK,      
       AXI_MASTER_RSTN                        => locked_clk200,
       sys_reset_rst_n(0)                     => AXI_RST_N,
@@ -1498,30 +1498,30 @@ SectorProcessor_1: entity work.SectorProcessor
     DL_PS10G_1_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_1_A),
     DL_PS10G_1_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_1_A),
     DL_PS10G_1_A_link_read          => DL_39_link_read(PS10G_1_A),
-    DL_PS10G_2_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_1_A),
-    DL_PS10G_2_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_1_A),
-    DL_PS10G_2_A_link_read          => DL_39_link_read(PS10G_1_A),
-    DL_PS10G_3_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_1_A),
-    DL_PS10G_3_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_1_A),
-    DL_PS10G_3_A_link_read          => DL_39_link_read(PS10G_1_A),
+    DL_PS10G_2_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_2_A),
+    DL_PS10G_2_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_2_A),
+    DL_PS10G_2_A_link_read          => DL_39_link_read(PS10G_2_A),
+    DL_PS10G_3_A_link_AV_dout       => DL_39_link_AV_dout(PS10G_3_A),
+    DL_PS10G_3_A_link_empty_neg     => DL_39_link_empty_neg(PS10G_3_A),
+    DL_PS10G_3_A_link_read          => DL_39_link_read(PS10G_3_A),
     DL_PS_1_A_link_AV_dout       => DL_39_link_AV_dout(PS_1_A),
     DL_PS_1_A_link_empty_neg     => DL_39_link_empty_neg(PS_1_A),
     DL_PS_1_A_link_read          => DL_39_link_read(PS_1_A),
-    DL_PS_2_A_link_AV_dout       => DL_39_link_AV_dout(PS_1_A),
-    DL_PS_2_A_link_empty_neg     => DL_39_link_empty_neg(PS_1_A),
-    DL_PS_2_A_link_read          => DL_39_link_read(PS_1_A),
+    DL_PS_2_A_link_AV_dout       => DL_39_link_AV_dout(PS_2_A),
+    DL_PS_2_A_link_empty_neg     => DL_39_link_empty_neg(PS_2_A),
+    DL_PS_2_A_link_read          => DL_39_link_read(PS_2_A),
     DL_twoS_1_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
     DL_twoS_1_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
     DL_twoS_1_A_link_read          => DL_39_link_read(twoS_1_A),
-    DL_twoS_2_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
-    DL_twoS_2_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
-    DL_twoS_2_A_link_read          => DL_39_link_read(twoS_1_A),
-    DL_twoS_3_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
-    DL_twoS_3_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
-    DL_twoS_3_A_link_read          => DL_39_link_read(twoS_1_A),
-    DL_twoS_4_A_link_AV_dout       => DL_39_link_AV_dout(twoS_1_A),
-    DL_twoS_4_A_link_empty_neg     => DL_39_link_empty_neg(twoS_1_A),
-    DL_twoS_4_A_link_read          => DL_39_link_read(twoS_1_A),
+    DL_twoS_2_A_link_AV_dout       => DL_39_link_AV_dout(twoS_2_A),
+    DL_twoS_2_A_link_empty_neg     => DL_39_link_empty_neg(twoS_2_A),
+    DL_twoS_2_A_link_read          => DL_39_link_read(twoS_2_A),
+    DL_twoS_3_A_link_AV_dout       => DL_39_link_AV_dout(twoS_3_A),
+    DL_twoS_3_A_link_empty_neg     => DL_39_link_empty_neg(twoS_3_A),
+    DL_twoS_3_A_link_read          => DL_39_link_read(twoS_3_A),
+    DL_twoS_4_A_link_AV_dout       => DL_39_link_AV_dout(twoS_4_A),
+    DL_twoS_4_A_link_empty_neg     => DL_39_link_empty_neg(twoS_4_A),
+    DL_twoS_4_A_link_read          => DL_39_link_read(twoS_4_A),
     TW_L1L2_stream_AV_din      => TW_104_stream_AV_din(L1L2),
     TW_L1L2_stream_A_full_neg  => TW_104_stream_A_full_neg(L1L2),
     TW_L1L2_stream_A_write     => TW_104_stream_A_write(L1L2),
@@ -1896,7 +1896,7 @@ end generate BW_46_loop;
 
 BarOnly_vio_0 : entity work.bar_only_vio_0
   PORT MAP (
-    clk => clk_50,
+    clk => sc_clk,
     probe_in0(0)  => sc_rst,
     probe_in1(0)  => IR_START,
     probe_in2(0)  => bw_enb(L1L2_L3),
