@@ -1,0 +1,16 @@
+<node id="DEBUG_8B10B_CHANNEL">
+  <node id="RX"             address="0x0">
+    <node id="DATA"         address="0x0" mask="0xFFFFFFFF" permission="r"/>
+    <node id="KDATA"        address="0x1" mask="0x0000000F" permission="r"/>
+    <node id="VALID"        address="0x1" mask="0x00000F00" permission="r"/>
+    <node id="COMMA"        address="0x1" mask="0x00010000" permission="r"/>
+    <node id="DISP_ERR"     address="0x1" mask="0x0F000000" permission="r"/>
+    <node id="ENABLE"       address="0x2" mask="0x00000001" permission="rw"/>
+    <node id="EN_COMMA_DET" address="0x2" mask="0x00000002" permission="rw"/>
+  </node>
+  <node id="TX"         address="0x3">
+    <node id="DATA"     address="0x0" mask="0xFFFFFFFF" permission="rw"/>
+    <node id="KDATA"    address="0x1" mask="0x0000000F" permission="rw"/>
+    <node id="ENABLE"   address="0x2" mask="0x00000001" permission="rw"/>
+  </node>  
+</node>

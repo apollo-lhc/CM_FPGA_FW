@@ -1,0 +1,21 @@
+<node id="CM_IO">
+  <node id="RESET_AXI_BUS"     address="0x00000000" mask="0x00000001" permission="w"/>
+  <node id="RESET_LHC_BUS"     address="0x00000000" mask="0x00000002" permission="w"/>
+  <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
+  <node id="TCDS_RST_N"        address="0x00000010" mask="0x00000002" permission="r"/>
+  <node id="LHC_RST_N"         address="0x00000010" mask="0x00000004" permission="r"/>  
+  
+  <node id="ITDTC_CLK_FREQ"    address="0x00000011" mask="0xFFFFFFFF" permission="r" parameters="Table=CLOCKING;Column=FREQ;Row=ITDTC_LHC;Status=3;Show=nz;Format=m_1_1_1000000_1_0_1"/>
+  
+  <node id="RGB"  address="0x00000200">
+    <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
+    <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>
+    <node id="B" mask="0xFF0000" permission="rw" parameters="default=0xFF"/>
+  </node>
+  <node id="BRAM"        address="0x00000300">
+    <node id="WRITE"     address="0x0" mask="0x1"        permission="w"  />
+    <node id="ADDR"      address="0x1" mask="0x7FFF"     permission="rw" />
+    <node id="WR_DATA"   address="0x2" mask="0xFFFFFFFF" permission="rw" />
+    <node id="RD_DATA"   address="0x3" mask="0xFFFFFFFF" permission="r" />
+  </node>
+</node>

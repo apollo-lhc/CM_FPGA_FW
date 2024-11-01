@@ -1,5 +1,9 @@
-<node id="CM_IO">  
+<node id="CM_IO">
   <node id="CLK_200_LOCKED"    address="0x00000010" mask="0x00000001" permission="r"/>
+  <!--<node id="CLK_LF_X12_R0_LOCKED"    address="0x00000010" mask="0x00000002" permission="r"/>-->
+  <node id="TEST_CONST"    address="0x00000011" mask="0xffffffff" permission="r"/>
+  <node id="CLOCKS"            address="0x00000100" module="file://CM_IO_CLOCKS.xml">
+  </node>
   <node id="RGB"  address="0x00000200">
     <node id="R" mask="0xFF"     permission="rw" parameters="default=0x00"/>
     <node id="G" mask="0xFF00"   permission="rw" parameters="default=0x00"/>

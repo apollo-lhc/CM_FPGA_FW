@@ -10,6 +10,8 @@ use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
 use work.AXISlaveAddrPkg.all;
 
+use work.Global_PKG.all;
+
 Library UNISIM;
 use UNISIM.vcomponents.all;
 
@@ -46,7 +48,7 @@ entity sub_module is
     led_blue : out std_logic;       -- assert to turn on
 
     --kh aug'22
-     c2c_ok : out std_logic    
+     c2c_ok : out std_logic
     );    
 end entity sub_module;
 
@@ -86,8 +88,12 @@ architecture structure of sub_module is
   signal C2CLink_phy_link_reset_out          : STD_LOGIC;
   signal C2CLink_phy_mmcm_not_locked_out     : STD_LOGIC;
   signal C2CLink_phy_soft_err                : STD_LOGIC;
-
-
+  
+  signal C2C_REFCLK_FREQ : slv_32_t;
+  signal c2c_refclk : std_logic;
+  signal c2c_refclk_odiv2     : std_logic;
+  signal buf_c2c_refclk_odiv2 : std_logic;
+  
   constant std_logic1 : std_logic := '1';
   constant std_logic0 : std_logic := '0';
 
@@ -104,244 +110,203 @@ begin  -- architecture structure
   clk_axi <= AXI_CLK;
   rst_n_axi <= AXI_RST_N;
 
-  -- kh aug'22 : add uart.  c2cb. V->F1
-  c2csslave_wrapper_1: entity work.c2cSlave_wrapper
+  --Capture the refclk and generate copies for MGTS and for the fabric clocking
+  IBUFDS_GTE4_INST : IBUFDS_GTE4
+    generic map (
+      REFCLK_EN_TX_PATH => '0',
+      REFCLK_HROW_CK_SEL => "00",
+      REFCLK_ICNTL_RX => "00")
     port map (
-      AXI_CLK                             => AXI_CLK,
-      AXI_RST_N(0)                        => AXI_RST_N,
-      CM1_PB_UART_rxd                     => pB_UART_tx,
-      CM1_PB_UART_txd                     => pB_UART_rx,
-      F1_C2C_phy_Rx_rxn                   => n_mgt_z2FPGA(1 downto 1),
-      F1_C2C_phy_Rx_rxp                   => p_mgt_z2FPGA(1 downto 1),
-      F1_C2C_phy_Tx_txn                   => n_mgt_FPGA2z(1 downto 1),
-      F1_C2C_phy_Tx_txp                   => p_mgt_FPGA2z(1 downto 1),
-      F1_C2CB_phy_Rx_rxn                  => n_mgt_z2FPGA(2 downto 2),
-      F1_C2CB_phy_Rx_rxp                  => p_mgt_z2FPGA(2 downto 2),
-      F1_C2CB_phy_Tx_txn                  => n_mgt_FPGA2z(2 downto 2),
-      F1_C2CB_phy_Tx_txp                  => p_mgt_FPGA2z(2 downto 2),      
-      F1_C2C_phy_refclk_clk_n             => n_util_clk,
-      F1_C2C_phy_refclk_clk_p             => p_util_clk,
-      clk50Mhz                            => clk_50,
-      
-      F1_IO_araddr                         => local_AXI_ReadMOSI(0).address,              
-      F1_IO_arprot                         => local_AXI_ReadMOSI(0).protection_type,      
-      F1_IO_arready(0)                     => local_AXI_ReadMISO(0).ready_for_address,    
-      F1_IO_arvalid(0)                     => local_AXI_ReadMOSI(0).address_valid,        
-      F1_IO_awaddr                         => local_AXI_WriteMOSI(0).address,             
-      F1_IO_awprot                         => local_AXI_WriteMOSI(0).protection_type,     
-      F1_IO_awready(0)                     => local_AXI_WriteMISO(0).ready_for_address,   
-      F1_IO_awvalid(0)                     => local_AXI_WriteMOSI(0).address_valid,       
-      F1_IO_bready(0)                      => local_AXI_WriteMOSI(0).ready_for_response,  
-      F1_IO_bresp                          => local_AXI_WriteMISO(0).response,            
-      F1_IO_bvalid(0)                      => local_AXI_WriteMISO(0).response_valid,      
-      F1_IO_rdata                          => local_AXI_ReadMISO(0).data,                 
-      F1_IO_rready(0)                      => local_AXI_ReadMOSI(0).ready_for_data,       
-      F1_IO_rresp                          => local_AXI_ReadMISO(0).response,             
-      F1_IO_rvalid(0)                      => local_AXI_ReadMISO(0).data_valid,           
-      F1_IO_wdata                          => local_AXI_WriteMOSI(0).data,                
-      F1_IO_wready(0)                      => local_AXI_WriteMISO(0).ready_for_data,       
-      F1_IO_wstrb                          => local_AXI_WriteMOSI(0).data_write_strobe,   
-      F1_IO_wvalid(0)                      => local_AXI_WriteMOSI(0).data_valid,          
+      O     => c2c_refclk,
+      ODIV2 => c2c_refclk_odiv2,
+      CEB   => '0',
+      I     => p_util_clk,
+      IB    => n_util_clk);
+  --place the second clock from the GTE4 onto the clock routing network
+  BUFG_GT_INST : BUFG_GT
+    port map (
+      O       => buf_c2c_refclk_odiv2,
+      CE      => '1',
+      CEMASK  => '1',
+      CLR     => '0',
+      CLRMASK => '1',
+      DIV     => "000",
+      I       => c2c_refclk_odiv2
+      );
+  -- monitor the fabric clock with the axi clock to get its freq
+  rate_counter_inst: entity work.rate_counter
+    generic map (
+      CLK_A_1_SECOND => AXI_MASTER_CLK_FREQ)
+    port map (
+      clk_A         => AXI_CLK,
+      clk_B         => buf_c2c_refclk_odiv2,
+      reset_A_async => AXI_RESET,
+      event_b       => '1',
+      rate          => C2C_REFCLK_FREQ);
+  C2C_Mon.C2C_REFCLK_FREQ <= C2C_REFCLK_FREQ;
 
-    -- kh aug'22
-      F1_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
-      F1_C2C_INTF_arprot                   => local_AXI_ReadMOSI(2).protection_type,      
-      F1_C2C_INTF_arready                  => local_AXI_ReadMISO(2).ready_for_address,    
-      F1_C2C_INTF_arvalid                  => local_AXI_ReadMOSI(2).address_valid,        
-      F1_C2C_INTF_awaddr                   => local_AXI_WriteMOSI(2).address,             
-      F1_C2C_INTF_awprot                   => local_AXI_WriteMOSI(2).protection_type,     
-      F1_C2C_INTF_awready                  => local_AXI_WriteMISO(2).ready_for_address,   
-      F1_C2C_INTF_awvalid                  => local_AXI_WriteMOSI(2).address_valid,       
-      F1_C2C_INTF_bready                   => local_AXI_WriteMOSI(2).ready_for_response,  
-      F1_C2C_INTF_bresp                    => local_AXI_WriteMISO(2).response,            
-      F1_C2C_INTF_bvalid                   => local_AXI_WriteMISO(2).response_valid,      
-      F1_C2C_INTF_rdata                    => local_AXI_ReadMISO(2).data,                 
-      F1_C2C_INTF_rready                   => local_AXI_ReadMOSI(2).ready_for_data,       
-      F1_C2C_INTF_rresp                    => local_AXI_ReadMISO(2).response,             
-      F1_C2C_INTF_rvalid                   => local_AXI_ReadMISO(2).data_valid,           
-      F1_C2C_INTF_wdata                    => local_AXI_WriteMOSI(2).data,                
-      F1_C2C_INTF_wready                   => local_AXI_WriteMISO(2).ready_for_data,       
-      F1_C2C_INTF_wstrb                    => local_AXI_WriteMOSI(2).data_write_strobe,   
-      F1_C2C_INTF_wvalid                   => local_AXI_WriteMOSI(2).data_valid,          
-    -- kh aug'22
-      
-      F1_CM_FW_INFO_araddr                    => local_AXI_ReadMOSI(1).address,              
-      F1_CM_FW_INFO_arprot                    => local_AXI_ReadMOSI(1).protection_type,      
-      F1_CM_FW_INFO_arready(0)                => local_AXI_ReadMISO(1).ready_for_address,    
-      F1_CM_FW_INFO_arvalid(0)                => local_AXI_ReadMOSI(1).address_valid,        
-      F1_CM_FW_INFO_awaddr                    => local_AXI_WriteMOSI(1).address,             
-      F1_CM_FW_INFO_awprot                    => local_AXI_WriteMOSI(1).protection_type,     
-      F1_CM_FW_INFO_awready(0)                => local_AXI_WriteMISO(1).ready_for_address,   
-      F1_CM_FW_INFO_awvalid(0)                => local_AXI_WriteMOSI(1).address_valid,       
-      F1_CM_FW_INFO_bready(0)                 => local_AXI_WriteMOSI(1).ready_for_response,  
-      F1_CM_FW_INFO_bresp                     => local_AXI_WriteMISO(1).response,            
-      F1_CM_FW_INFO_bvalid(0)                 => local_AXI_WriteMISO(1).response_valid,      
-      F1_CM_FW_INFO_rdata                     => local_AXI_ReadMISO(1).data,                 
-      F1_CM_FW_INFO_rready(0)                 => local_AXI_ReadMOSI(1).ready_for_data,       
-      F1_CM_FW_INFO_rresp                     => local_AXI_ReadMISO(1).response,             
-      F1_CM_FW_INFO_rvalid(0)                 => local_AXI_ReadMISO(1).data_valid,           
-      F1_CM_FW_INFO_wdata                     => local_AXI_WriteMOSI(1).data,                
-      F1_CM_FW_INFO_wready(0)                 => local_AXI_WriteMISO(1).ready_for_data,       
-      F1_CM_FW_INFO_wstrb                     => local_AXI_WriteMOSI(1).data_write_strobe,   
-      F1_CM_FW_INFO_wvalid(0)                 => local_AXI_WriteMOSI(1).data_valid,          
+  
+  -- kh aug'22 : add uart.  c2cb. V->F1
+  c2csslave_wrapper_1: entity work.c2cSlave_sane_wrapper
+    port map (
+      EXT_CLK                                => clk_50,
+      AXI_MASTER_CLK                         => AXI_CLK,      
+      AXI_MASTER_RSTN                        => locked_clk200,
+      sys_reset_rst_n(0)                     => AXI_RST_N,
+                                             
+      --AXI endpoint--                       
+      F1_C2C_INTF_RMOSI                      => local_AXI_ReadMOSI(2), 
+      F1_C2C_INTF_RMISO                      => local_AXI_ReadMISO(2), 
+      F1_C2C_INTF_WMOSI                      => local_AXI_WriteMOSI(2),
+      F1_C2C_INTF_WMISO                      => local_AXI_WriteMISO(2),
+      --AXI endpoint--                       
+      F1_CM_FW_INFO_RMOSI                    => local_AXI_ReadMOSI(1), 
+      F1_CM_FW_INFO_RMISO                    => local_AXI_ReadMISO(1), 
+      F1_CM_FW_INFO_WMOSI                    => local_AXI_WriteMOSI(1),
+      F1_CM_FW_INFO_WMISO                    => local_AXI_WriteMISO(1),
+      --AXI endpoint--                       
+      F1_IO_RMOSI                            => local_AXI_ReadMOSI(0), 
+      F1_IO_RMISO                            => local_AXI_ReadMISO(0), 
+      F1_IO_WMOSI                            => local_AXI_WriteMOSI(0),
+      F1_IO_WMISO                            => local_AXI_WriteMISO(0),
+      --AXI endpoint--                       
+      F1_IPBUS_RMOSI                         => ext_AXI_ReadMOSI, 
+      F1_IPBUS_RMISO                         => ext_AXI_ReadMISO, 
+      F1_IPBUS_WMOSI                         => ext_AXI_WriteMOSI,
+      F1_IPBUS_WMISO                         => ext_AXI_WriteMISO,
+                                             
+                                             
+                                             
+      CM1_PB_UART_rxd                        => pB_UART_tx,
+      CM1_PB_UART_txd                        => pB_UART_rx,
+                                             
+      F1_C2C_phy_Rx_rxn                      => n_mgt_z2FPGA(1 downto 1),
+      F1_C2C_phy_Rx_rxp                      => p_mgt_z2FPGA(1 downto 1),
+      F1_C2C_phy_Tx_txn                      => n_mgt_FPGA2z(1 downto 1),
+      F1_C2C_phy_Tx_txp                      => p_mgt_FPGA2z(1 downto 1),
+      F1_C2CB_phy_Rx_rxn                     => n_mgt_z2FPGA(2 downto 2),
+      F1_C2CB_phy_Rx_rxp                     => p_mgt_z2FPGA(2 downto 2),
+      F1_C2CB_phy_Tx_txn                     => n_mgt_FPGA2z(2 downto 2),
+      F1_C2CB_phy_Tx_txp                     => p_mgt_FPGA2z(2 downto 2),      
+      F1_C2C_phy_refclk                      => c2c_refclk,
+      F1_C2CB_phy_refclk                     => c2c_refclk,
+                                             
+                                             
+                                             
+      F1_C2C_PHY_DEBUG_cplllock(0)           => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
+      F1_C2C_PHY_DEBUG_dmonitorout           => C2C_Mon.C2C(1).DEBUG.DMONITOR,
+      F1_C2C_PHY_DEBUG_eyescandataerror(0)   => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
+                                             
+      F1_C2C_PHY_DEBUG_eyescanreset(0)       => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_RESET,
+      F1_C2C_PHY_DEBUG_eyescantrigger(0)     => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_TRIGGER,
+      F1_C2C_PHY_DEBUG_pcsrsvdin             => C2C_Ctrl.C2C(1).DEBUG.PCS_RSV_DIN,
+      F1_C2C_PHY_DEBUG_qplllock(0)           =>  C2C_Mon.C2C(1).DEBUG.QPLL_LOCK,
+      F1_C2C_PHY_DEBUG_rxbufreset(0)         => C2C_Ctrl.C2C(1).DEBUG.RX.BUF_RESET,
+      F1_C2C_PHY_DEBUG_rxbufstatus           =>  C2C_Mon.C2C(1).DEBUG.RX.BUF_STATUS,
+      F1_C2C_PHY_DEBUG_rxcdrhold(0)          => C2C_Ctrl.C2C(1).DEBUG.RX.CDR_HOLD,
+      F1_C2C_PHY_DEBUG_rxdfelpmreset(0)      => C2C_Ctrl.C2C(1).DEBUG.RX.DFE_LPM_RESET,
+      F1_C2C_PHY_DEBUG_rxlpmen(0)            => C2C_Ctrl.C2C(1).DEBUG.RX.LPM_EN,
+      F1_C2C_PHY_DEBUG_rxpcsreset(0)         => C2C_Ctrl.C2C(1).DEBUG.RX.PCS_RESET,
+      F1_C2C_PHY_DEBUG_rxpmareset(0)         => C2C_Ctrl.C2C(1).DEBUG.RX.PMA_RESET,
+      F1_C2C_PHY_DEBUG_rxpmaresetdone(0)     =>  C2C_Mon.C2C(1).DEBUG.RX.PMA_RESET_DONE,
+      F1_C2C_PHY_DEBUG_rxprbscntreset(0)     => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_CNT_RST,
+      F1_C2C_PHY_DEBUG_rxprbserr(0)          =>  C2C_Mon.C2C(1).DEBUG.RX.PRBS_ERR,
+      F1_C2C_PHY_DEBUG_rxprbssel             => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_SEL,
+      F1_C2C_PHY_DEBUG_rxrate                => C2C_Ctrl.C2C(1).DEBUG.RX.RATE,
+      F1_C2C_PHY_DEBUG_rxresetdone(0)        =>  C2C_Mon.C2C(1).DEBUG.RX.RESET_DONE,
+      F1_C2C_PHY_DEBUG_txbufstatus           =>  C2C_Mon.C2C(1).DEBUG.TX.BUF_STATUS,
+      F1_C2C_PHY_DEBUG_txdiffctrl            => C2C_Ctrl.C2C(1).DEBUG.TX.DIFF_CTRL,
+      F1_C2C_PHY_DEBUG_txinhibit(0)          => C2C_Ctrl.C2C(1).DEBUG.TX.INHIBIT,
+      F1_C2C_PHY_DEBUG_txpcsreset(0)         => C2C_Ctrl.C2C(1).DEBUG.TX.PCS_RESET,
+      F1_C2C_PHY_DEBUG_txpmareset(0)         => C2C_Ctrl.C2C(1).DEBUG.TX.PMA_RESET,
+      F1_C2C_PHY_DEBUG_txpolarity(0)         => C2C_Ctrl.C2C(1).DEBUG.TX.POLARITY,
+      F1_C2C_PHY_DEBUG_txpostcursor          => C2C_Ctrl.C2C(1).DEBUG.TX.POST_CURSOR,
+      F1_C2C_PHY_DEBUG_txprbsforceerr(0)     => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_FORCE_ERR,
+      F1_C2C_PHY_DEBUG_txprbssel             => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_SEL,
+      F1_C2C_PHY_DEBUG_txprecursor           => C2C_Ctrl.C2C(1).DEBUG.TX.PRE_CURSOR,
+      F1_C2C_PHY_DEBUG_txresetdone(0)        =>  C2C_MON.C2C(1).DEBUG.TX.RESET_DONE,
+                                             
+      F1_C2C_PHY_channel_up                  => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
+      F1_C2C_PHY_gt_pll_lock                 => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
+      F1_C2C_PHY_hard_err                    => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
+      F1_C2C_PHY_lane_up                     => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0),
+      F1_C2C_PHY_mmcm_not_locked_out         => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
+      F1_C2C_PHY_soft_err                    => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+                                             
+      F1_C2C_aurora_do_cc                    =>  C2C_Mon.C2C(1).STATUS.DO_CC,
+      F1_C2C_aurora_pma_init_in              => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
+      F1_C2C_axi_c2c_config_error_out        =>  C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
+      F1_C2C_axi_c2c_link_status_out         =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
+      F1_C2C_axi_c2c_multi_bit_error_out     =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
+      F1_C2C_phy_power_down                  => '0',
+      F1_C2C_PHY_clk                         => clk_F1_C2C_PHY_user(1),
+      F1_C2C_PHY_DRP_daddr                   => C2C_Ctrl.C2C(1).DRP.address,
+      F1_C2C_PHY_DRP_den                     => C2C_Ctrl.C2C(1).DRP.enable,
+      F1_C2C_PHY_DRP_di                      => C2C_Ctrl.C2C(1).DRP.wr_data,
+      F1_C2C_PHY_DRP_do                      => C2C_MON.C2C(1).DRP.rd_data,
+      F1_C2C_PHY_DRP_drdy                    => C2C_MON.C2C(1).DRP.rd_data_valid,
+      F1_C2C_PHY_DRP_dwe                     => C2C_Ctrl.C2C(1).DRP.wr_enable,
 
-      F1_IPBUS_araddr                 => ext_AXI_ReadMOSI.address,              
-      F1_IPBUS_arburst                => ext_AXI_ReadMOSI.burst_type,
-      F1_IPBUS_arcache                => ext_AXI_ReadMOSI.cache_type,
-      F1_IPBUS_arlen                  => ext_AXI_ReadMOSI.burst_length,
-      F1_IPBUS_arlock(0)              => ext_AXI_ReadMOSI.lock_type,
-      F1_IPBUS_arprot                 => ext_AXI_ReadMOSI.protection_type,      
-      F1_IPBUS_arqos                  => ext_AXI_ReadMOSI.qos,
-      F1_IPBUS_arready(0)             => ext_AXI_ReadMISO.ready_for_address,
-      F1_IPBUS_arregion               => ext_AXI_ReadMOSI.region,
-      F1_IPBUS_arsize                 => ext_AXI_ReadMOSI.burst_size,
-      F1_IPBUS_arvalid(0)             => ext_AXI_ReadMOSI.address_valid,        
-      F1_IPBUS_awaddr                 => ext_AXI_WriteMOSI.address,             
-      F1_IPBUS_awburst                => ext_AXI_WriteMOSI.burst_type,
-      F1_IPBUS_awcache                => ext_AXI_WriteMOSI.cache_type,
-      F1_IPBUS_awlen                  => ext_AXI_WriteMOSI.burst_length,
-      F1_IPBUS_awlock(0)              => ext_AXI_WriteMOSI.lock_type,
-      F1_IPBUS_awprot                 => ext_AXI_WriteMOSI.protection_type,
-      F1_IPBUS_awqos                  => ext_AXI_WriteMOSI.qos,
-      F1_IPBUS_awready(0)             => ext_AXI_WriteMISO.ready_for_address,   
-      F1_IPBUS_awregion               => ext_AXI_WriteMOSI.region,
-      F1_IPBUS_awsize                 => ext_AXI_WriteMOSI.burst_size,
-      F1_IPBUS_awvalid(0)             => ext_AXI_WriteMOSI.address_valid,       
-      F1_IPBUS_bready(0)              => ext_AXI_WriteMOSI.ready_for_response,  
-      F1_IPBUS_bresp                  => ext_AXI_WriteMISO.response,            
-      F1_IPBUS_bvalid(0)              => ext_AXI_WriteMISO.response_valid,      
-      F1_IPBUS_rdata                  => ext_AXI_ReadMISO.data,
-      F1_IPBUS_rlast(0)               => ext_AXI_ReadMISO.last,
-      F1_IPBUS_rready(0)              => ext_AXI_ReadMOSI.ready_for_data,       
-      F1_IPBUS_rresp                  => ext_AXI_ReadMISO.response,             
-      F1_IPBUS_rvalid(0)              => ext_AXI_ReadMISO.data_valid,           
-      F1_IPBUS_wdata                  => ext_AXI_WriteMOSI.data,
-      F1_IPBUS_wlast(0)               => ext_AXI_WriteMOSI.last,
-      F1_IPBUS_wready(0)              => ext_AXI_WriteMISO.ready_for_data,       
-      F1_IPBUS_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
-      F1_IPBUS_wvalid(0)              => ext_AXI_WriteMOSI.data_valid,
-     
-      reset_n                             => locked_clk200,--reset,
+      F1_C2CB_PHY_DEBUG_cplllock(0)          => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
+      F1_C2CB_PHY_DEBUG_dmonitorout          => C2C_Mon.C2C(2).DEBUG.DMONITOR,
+      F1_C2CB_PHY_DEBUG_eyescandataerror(0)  => C2C_Mon.C2C(2).DEBUG.EYESCAN_DATA_ERROR,
+                                             
+      F1_C2CB_PHY_DEBUG_eyescanreset(0)      => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_RESET,
+      F1_C2CB_PHY_DEBUG_eyescantrigger(0)    => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_TRIGGER,
+      F1_C2CB_PHY_DEBUG_pcsrsvdin            => C2C_Ctrl.C2C(2).DEBUG.PCS_RSV_DIN,
+      F1_C2CB_PHY_DEBUG_qplllock(0)          =>  C2C_Mon.C2C(2).DEBUG.QPLL_LOCK,
+      F1_C2CB_PHY_DEBUG_rxbufreset(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.BUF_RESET,
+      F1_C2CB_PHY_DEBUG_rxbufstatus          =>  C2C_Mon.C2C(2).DEBUG.RX.BUF_STATUS,
+      F1_C2CB_PHY_DEBUG_rxcdrhold(0)         => C2C_Ctrl.C2C(2).DEBUG.RX.CDR_HOLD,
+      F1_C2CB_PHY_DEBUG_rxdfelpmreset(0)     => C2C_Ctrl.C2C(2).DEBUG.RX.DFE_LPM_RESET,
+      F1_C2CB_PHY_DEBUG_rxlpmen(0)           => C2C_Ctrl.C2C(2).DEBUG.RX.LPM_EN,
+      F1_C2CB_PHY_DEBUG_rxpcsreset(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.PCS_RESET,
+      F1_C2CB_PHY_DEBUG_rxpmareset(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.PMA_RESET,
+      F1_C2CB_PHY_DEBUG_rxpmaresetdone(0)    =>  C2C_Mon.C2C(2).DEBUG.RX.PMA_RESET_DONE,
+      F1_C2CB_PHY_DEBUG_rxprbscntreset(0)    => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_CNT_RST,
+      F1_C2CB_PHY_DEBUG_rxprbserr(0)         =>  C2C_Mon.C2C(2).DEBUG.RX.PRBS_ERR,
+      F1_C2CB_PHY_DEBUG_rxprbssel            => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_SEL,
+      F1_C2CB_PHY_DEBUG_rxrate               => C2C_Ctrl.C2C(2).DEBUG.RX.RATE,
+      F1_C2CB_PHY_DEBUG_rxresetdone(0)       =>  C2C_Mon.C2C(2).DEBUG.RX.RESET_DONE,
+      F1_C2CB_PHY_DEBUG_txbufstatus          =>  C2C_Mon.C2C(2).DEBUG.TX.BUF_STATUS,
+      F1_C2CB_PHY_DEBUG_txdiffctrl           => C2C_Ctrl.C2C(2).DEBUG.TX.DIFF_CTRL,
+      F1_C2CB_PHY_DEBUG_txinhibit(0)         => C2C_Ctrl.C2C(2).DEBUG.TX.INHIBIT,
+      F1_C2CB_PHY_DEBUG_txpcsreset(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.PCS_RESET,
+      F1_C2CB_PHY_DEBUG_txpmareset(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.PMA_RESET,
+      F1_C2CB_PHY_DEBUG_txpolarity(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.POLARITY,
+      F1_C2CB_PHY_DEBUG_txpostcursor         => C2C_Ctrl.C2C(2).DEBUG.TX.POST_CURSOR,
+      F1_C2CB_PHY_DEBUG_txprbsforceerr(0)    => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_FORCE_ERR,
+      F1_C2CB_PHY_DEBUG_txprbssel            => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_SEL,
+      F1_C2CB_PHY_DEBUG_txprecursor          => C2C_Ctrl.C2C(2).DEBUG.TX.PRE_CURSOR,
+      F1_C2CB_PHY_DEBUG_txresetdone(0)       =>  C2C_MON.C2C(2).DEBUG.TX.RESET_DONE,
 
-    -- kh aug'22
-      F1_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
-      F1_C2C_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(1).DEBUG.DMONITOR,
-      F1_C2C_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(1).DEBUG.EYESCAN_DATA_ERROR,
-      
-      F1_C2C_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_RESET,
-      F1_C2C_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(1).DEBUG.EYESCAN_TRIGGER,
-      F1_C2C_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(1).DEBUG.PCS_RSV_DIN,
-      F1_C2C_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(1).DEBUG.QPLL_LOCK,
-      F1_C2C_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.BUF_RESET,
-      F1_C2C_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(1).DEBUG.RX.BUF_STATUS,
-      F1_C2C_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(1).DEBUG.RX.CDR_HOLD,
-      F1_C2C_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(1).DEBUG.RX.DFE_LPM_RESET,
-      F1_C2C_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(1).DEBUG.RX.LPM_EN,
-      F1_C2C_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PCS_RESET,
-      F1_C2C_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.RX.PMA_RESET,
-      F1_C2C_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(1).DEBUG.RX.PMA_RESET_DONE,
-      F1_C2C_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_CNT_RST,
-      F1_C2C_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(1).DEBUG.RX.PRBS_ERR,
-      F1_C2C_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(1).DEBUG.RX.PRBS_SEL,
-      F1_C2C_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(1).DEBUG.RX.RATE,
-      F1_C2C_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(1).DEBUG.RX.RESET_DONE,
-      F1_C2C_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(1).DEBUG.TX.BUF_STATUS,
-      F1_C2C_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(1).DEBUG.TX.DIFF_CTRL,
-      F1_C2C_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(1).DEBUG.TX.INHIBIT,
-      F1_C2C_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PCS_RESET,
-      F1_C2C_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.PMA_RESET,
-      F1_C2C_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(1).DEBUG.TX.POLARITY,
-      F1_C2C_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(1).DEBUG.TX.POST_CURSOR,
-      F1_C2C_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_FORCE_ERR,
-      F1_C2C_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(1).DEBUG.TX.PRBS_SEL,
-      F1_C2C_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(1).DEBUG.TX.PRE_CURSOR,
-      F1_C2C_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(1).DEBUG.TX.RESET_DONE,
+      F1_C2CB_PHY_channel_up                 => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
+      F1_C2CB_PHY_gt_pll_lock                => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
+      F1_C2CB_PHY_hard_err                   => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
+      F1_C2CB_PHY_lane_up                    => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
+--      F1_C2CB_PHY_mmcm_not_locked            => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      F1_C2CB_PHY_soft_err                   => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
 
-      F1_C2C_PHY_channel_up         => C2C_Mon.C2C(1).STATUS.CHANNEL_UP,      
-      F1_C2C_PHY_gt_pll_lock        => C2C_MON.C2C(1).STATUS.PHY_GT_PLL_LOCK,
-      F1_C2C_PHY_hard_err           => C2C_Mon.C2C(1).STATUS.PHY_HARD_ERR,
-      F1_C2C_PHY_lane_up            => C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0 downto 0),
-      F1_C2C_PHY_mmcm_not_locked_out    => C2C_Mon.C2C(1).STATUS.PHY_MMCM_LOL,
-      F1_C2C_PHY_soft_err           => C2C_Mon.C2C(1).STATUS.PHY_SOFT_ERR,
+      F1_C2CB_aurora_do_cc                   =>  C2C_Mon.C2C(2).STATUS.DO_CC,
+      F1_C2CB_aurora_pma_init_in             => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
+      F1_C2CB_axi_c2c_config_error_out       =>  C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
+      F1_C2CB_axi_c2c_link_status_out        =>  C2C_MON.C2C(2).STATUS.LINK_GOOD,
+      F1_C2CB_axi_c2c_multi_bit_error_out    =>  C2C_MON.C2C(2).STATUS.MB_ERROR,
+      F1_C2CB_phy_power_down                 => '0',
+--      F1_C2CB_PHY_user_clk_out               => clk_F1_C2CB_PHY_user,
+      F1_C2CB_PHY_DRP_daddr                  => C2C_Ctrl.C2C(2).DRP.address,
+      F1_C2CB_PHY_DRP_den                    => C2C_Ctrl.C2C(2).DRP.enable,
+      F1_C2CB_PHY_DRP_di                     => C2C_Ctrl.C2C(2).DRP.wr_data,
+      F1_C2CB_PHY_DRP_do                     => C2C_MON.C2C(2).DRP.rd_data,
+      F1_C2CB_PHY_DRP_drdy                   => C2C_MON.C2C(2).DRP.rd_data_valid,
+      F1_C2CB_PHY_DRP_dwe                    => C2C_Ctrl.C2C(2).DRP.wr_enable
 
-      F1_C2C_aurora_do_cc                =>  C2C_Mon.C2C(1).STATUS.DO_CC,
-      F1_C2C_aurora_pma_init_in          => C2C_Ctrl.C2C(1).STATUS.INITIALIZE,
-      F1_C2C_axi_c2c_config_error_out    =>  C2C_Mon.C2C(1).STATUS.CONFIG_ERROR,
-      F1_C2C_axi_c2c_link_status_out     =>  C2C_MON.C2C(1).STATUS.LINK_GOOD,
-      F1_C2C_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
-      --F1_C2C_phy_power_down              => '0',
-      F1_C2C_phy_power_down              => std_logic0,
-      F1_C2C_PHY_clk                     => clk_F1_C2C_PHY_user(1),
-      F1_C2C_PHY_DRP_daddr               => C2C_Ctrl.C2C(1).DRP.address,
-      F1_C2C_PHY_DRP_den                 => C2C_Ctrl.C2C(1).DRP.enable,
-      F1_C2C_PHY_DRP_di                  => C2C_Ctrl.C2C(1).DRP.wr_data,
-      F1_C2C_PHY_DRP_do                  => C2C_MON.C2C(1).DRP.rd_data,
-      F1_C2C_PHY_DRP_drdy                => C2C_MON.C2C(1).DRP.rd_data_valid,
-      F1_C2C_PHY_DRP_dwe                 => C2C_Ctrl.C2C(1).DRP.wr_enable,
 
-      F1_C2CB_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(2).DEBUG.CPLL_LOCK,
-      F1_C2CB_PHY_DEBUG_dmonitorout         => C2C_Mon.C2C(2).DEBUG.DMONITOR,
-      F1_C2CB_PHY_DEBUG_eyescandataerror(0) => C2C_Mon.C2C(2).DEBUG.EYESCAN_DATA_ERROR,
-      
-      F1_C2CB_PHY_DEBUG_eyescanreset(0)     => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_RESET,
-      F1_C2CB_PHY_DEBUG_eyescantrigger(0)   => C2C_Ctrl.C2C(2).DEBUG.EYESCAN_TRIGGER,
-      F1_C2CB_PHY_DEBUG_pcsrsvdin           => C2C_Ctrl.C2C(2).DEBUG.PCS_RSV_DIN,
-      F1_C2CB_PHY_DEBUG_qplllock(0)         =>  C2C_Mon.C2C(2).DEBUG.QPLL_LOCK,
-      F1_C2CB_PHY_DEBUG_rxbufreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.BUF_RESET,
-      F1_C2CB_PHY_DEBUG_rxbufstatus         =>  C2C_Mon.C2C(2).DEBUG.RX.BUF_STATUS,
-      F1_C2CB_PHY_DEBUG_rxcdrhold(0)        => C2C_Ctrl.C2C(2).DEBUG.RX.CDR_HOLD,
-      F1_C2CB_PHY_DEBUG_rxdfelpmreset(0)    => C2C_Ctrl.C2C(2).DEBUG.RX.DFE_LPM_RESET,
-      F1_C2CB_PHY_DEBUG_rxlpmen(0)          => C2C_Ctrl.C2C(2).DEBUG.RX.LPM_EN,
-      F1_C2CB_PHY_DEBUG_rxpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PCS_RESET,
-      F1_C2CB_PHY_DEBUG_rxpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.RX.PMA_RESET,
-      F1_C2CB_PHY_DEBUG_rxpmaresetdone(0)   =>  C2C_Mon.C2C(2).DEBUG.RX.PMA_RESET_DONE,
-      F1_C2CB_PHY_DEBUG_rxprbscntreset(0)   => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_CNT_RST,
-      F1_C2CB_PHY_DEBUG_rxprbserr(0)        =>  C2C_Mon.C2C(2).DEBUG.RX.PRBS_ERR,
-      F1_C2CB_PHY_DEBUG_rxprbssel           => C2C_Ctrl.C2C(2).DEBUG.RX.PRBS_SEL,
-      F1_C2CB_PHY_DEBUG_rxrate              => C2C_Ctrl.C2C(2).DEBUG.RX.RATE,
-      F1_C2CB_PHY_DEBUG_rxresetdone(0)      =>  C2C_Mon.C2C(2).DEBUG.RX.RESET_DONE,
-      F1_C2CB_PHY_DEBUG_txbufstatus         =>  C2C_Mon.C2C(2).DEBUG.TX.BUF_STATUS,
-      F1_C2CB_PHY_DEBUG_txdiffctrl          => C2C_Ctrl.C2C(2).DEBUG.TX.DIFF_CTRL,
-      F1_C2CB_PHY_DEBUG_txinhibit(0)        => C2C_Ctrl.C2C(2).DEBUG.TX.INHIBIT,
-      F1_C2CB_PHY_DEBUG_txpcsreset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PCS_RESET,
-      F1_C2CB_PHY_DEBUG_txpmareset(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.PMA_RESET,
-      F1_C2CB_PHY_DEBUG_txpolarity(0)       => C2C_Ctrl.C2C(2).DEBUG.TX.POLARITY,
-      F1_C2CB_PHY_DEBUG_txpostcursor        => C2C_Ctrl.C2C(2).DEBUG.TX.POST_CURSOR,
-      F1_C2CB_PHY_DEBUG_txprbsforceerr(0)   => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_FORCE_ERR,
-      F1_C2CB_PHY_DEBUG_txprbssel           => C2C_Ctrl.C2C(2).DEBUG.TX.PRBS_SEL,
-      F1_C2CB_PHY_DEBUG_txprecursor         => C2C_Ctrl.C2C(2).DEBUG.TX.PRE_CURSOR,
-      F1_C2CB_PHY_DEBUG_txresetdone(0)      =>  C2C_MON.C2C(2).DEBUG.TX.RESET_DONE,
-
-      F1_C2CB_PHY_channel_up         => C2C_Mon.C2C(2).STATUS.CHANNEL_UP,      
-      F1_C2CB_PHY_gt_pll_lock        => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
-      F1_C2CB_PHY_hard_err           => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
-      F1_C2CB_PHY_lane_up            => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
---      F1_C2CB_PHY_mmcm_not_locked    => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
-      F1_C2CB_PHY_soft_err           => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
-
-      F1_C2CB_aurora_do_cc                =>  C2C_Mon.C2C(2).STATUS.DO_CC,
-      F1_C2CB_aurora_pma_init_in          => C2C_Ctrl.C2C(2).STATUS.INITIALIZE,
-      F1_C2CB_axi_c2c_config_error_out    =>  C2C_Mon.C2C(2).STATUS.CONFIG_ERROR,
-      F1_C2CB_axi_c2c_link_status_out     =>  C2C_MON.C2C(2).STATUS.LINK_GOOD,
-      F1_C2CB_axi_c2c_multi_bit_error_out =>  C2C_MON.C2C(2).STATUS.MB_ERROR,
---      F1_C2CB_phy_power_down              => '0',
-      F1_C2CB_phy_power_down              => std_logic0,
---      F1_C2CB_PHY_user_clk_out            => clk_F1_C2CB_PHY_user,
-      F1_C2CB_PHY_DRP_daddr               => C2C_Ctrl.C2C(2).DRP.address,
-      F1_C2CB_PHY_DRP_den                 => C2C_Ctrl.C2C(2).DRP.enable,
-      F1_C2CB_PHY_DRP_di                  => C2C_Ctrl.C2C(2).DRP.wr_data,
-      F1_C2CB_PHY_DRP_do                  => C2C_MON.C2C(2).DRP.rd_data,
-      F1_C2CB_PHY_DRP_drdy                => C2C_MON.C2C(2).DRP.rd_data_valid,
-      F1_C2CB_PHY_DRP_dwe                 => C2C_Ctrl.C2C(2).DRP.wr_enable
-    -- kh aug'22
-
-      -- kh spe18'22 no sysmon for emp
-      --F1_SYS_MGMT_sda                 => fpga_i2c_sda,
-      --F1_SYS_MGMT_scl                 => fpga_i2c_scl
 );
-
-  -- kh aug'22
-  c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD;
+  c2c_ok <= C2C_Mon.C2C(1).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(1).STATUS.PHY_LANE_UP(0) and
+            C2C_Mon.C2C(2).STATUS.LINK_GOOD and
+            C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0);
 
 
   RGB_pwm_1: entity work.RGB_pwm
@@ -382,7 +347,6 @@ begin  -- architecture structure
   
 
 
---  V_IO_interface_1: entity work.V_IO_interface
   F1_IO_interface_1: entity work.IO_map
     generic map(
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F1_IO)
@@ -394,17 +358,6 @@ begin  -- architecture structure
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),
       slave_writeMISO => local_AXI_writeMISO(0),
-      -- kh aug'22 : now move out to c2c slave
-      --Mon.C2C.CONFIG_ERR      => C2CLink_axi_c2c_config_error_out,
-      --Mon.C2C.DO_CC           => C2CLink_aurora_do_cc,
-      --Mon.C2C.GT_PLL_LOCK     => C2CLink_phy_gt_pll_lock,
-      --Mon.C2C.HARD_ERR        => C2CLink_phy_hard_err,
-      --Mon.C2C.LANE_UP         => C2CLink_phy_lane_up(0),
-      --Mon.C2C.LINK_RESET      => C2CLink_phy_link_reset_out,
-      --Mon.C2C.LINK_STATUS     => C2CLink_axi_c2c_link_status_out,
-      --Mon.C2C.MMCM_NOT_LOCKED => C2CLink_phy_mmcm_not_locked_out,
-      --Mon.C2C.MULTIBIT_ERR    => C2CLink_axi_c2c_multi_bit_error_out,
-      --Mon.C2C.SOFT_ERR        => C2CLink_phy_soft_err,
       Mon.CLK_200_LOCKED      => locked_clk200,
       Mon.BRAM.RD_DATA        => (others => '0'),
       Ctrl.RGB.R              => led_red_local,

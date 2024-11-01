@@ -1,0 +1,12 @@
+<node id="DEBUG_8B10B_CLK">
+  <node id="RX" address="0x00">
+    <!-- <node id="SRCCLK_FREQ"  address="0x00" mask="0xFFFFFFFF" permission="r" parameters="Table=DEBUG__8B10B__CLOCKING;Column=___1___2;Row=___3;Status=3"/> -->
+    <node id="USRCLK_FREQ"  address="0x01" mask="0xFFFFFFFF" permission="r" parameters="Table=DEBUG__8B10B__CLOCKING;Column=___1___2;Row=___3;Status=3"/>
+    <node id="USRCLK2_FREQ" address="0x02" mask="0xFFFFFFFF" permission="r" parameters="Table=DEBUG__8B10B__CLOCKING;Column=___1___2;Row=___3;Status=3"/>
+  </node>
+  <node id="TX" address="0x03">
+    <!-- <node id="SRCCLK_FREQ"  address="0x00" mask="0xFFFFFFFF" permission="r" parameters="Table=DEBUG__8B10B__CLOCKING;Column=___1___2;Row=___3;Status=3"/> -->
+    <node id="USRCLK_FREQ"  address="0x01" mask="0xFFFFFFFF" permission="r" parameters="Table=DEBUG__8B10B__CLOCKING;Column=___1___2;Row=___3;Status=3"/>
+    <node id="USRCLK2_FREQ" address="0x02" mask="0xFFFFFFFF" permission="r" parameters="Table=DEBUG__8B10B__CLOCKING;Column=___1___2;Row=___3;Status=3"/>
+  </node>
+</node>

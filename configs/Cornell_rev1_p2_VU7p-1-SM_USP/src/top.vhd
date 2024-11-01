@@ -31,15 +31,6 @@ entity top is
     v_fpga_i2c_scl   : inout std_logic;
     v_fpga_i2c_sda   : inout std_logic;
 
-    --TCDS
-    p_clk0_chan0     : in std_logic; -- 200 MHz system clock
-    n_clk0_chan0     : in std_logic; 
-    p_clk1_chan0     : in std_logic; -- 312.195122 MHz synth clock
-    n_clk1_chan0     : in std_logic;
-    p_atca_tts_out   : out std_logic;
-    n_atca_tts_out   : out std_logic;
-    p_atca_ttc_in    : in  std_logic;
-    n_atca_ttc_in    : in  std_logic;
 
     -- tri-color LED
     led_red : out std_logic;
@@ -181,24 +172,6 @@ begin  -- architecture structure
       V_CM_FW_INFO_wvalid                      => local_AXI_WriteMOSI(1).data_valid,
 
 
-      V_TCDS_arprot                    => local_AXI_ReadMOSI(3).protection_type,      
-      V_TCDS_arready                => local_AXI_ReadMISO(3).ready_for_address,    
-      V_TCDS_arvalid                => local_AXI_ReadMOSI(3).address_valid,        
-      V_TCDS_awaddr                    => local_AXI_WriteMOSI(3).address,             
-      V_TCDS_awprot                    => local_AXI_WriteMOSI(3).protection_type,     
-      V_TCDS_awready                => local_AXI_WriteMISO(3).ready_for_address,   
-      V_TCDS_awvalid                => local_AXI_WriteMOSI(3).address_valid,       
-      V_TCDS_bready                 => local_AXI_WriteMOSI(3).ready_for_response,  
-      V_TCDS_bresp                     => local_AXI_WriteMISO(3).response,            
-      V_TCDS_bvalid                 => local_AXI_WriteMISO(3).response_valid,      
-      V_TCDS_rdata                     => local_AXI_ReadMISO(3).data,                 
-      V_TCDS_rready                 => local_AXI_ReadMOSI(3).ready_for_data,       
-      V_TCDS_rresp                     => local_AXI_ReadMISO(3).response,             
-      V_TCDS_rvalid                 => local_AXI_ReadMISO(3).data_valid,           
-      V_TCDS_wdata                     => local_AXI_WriteMOSI(3).data,                
-      V_TCDS_wready                 => local_AXI_WriteMISO(3).ready_for_data,       
-      V_TCDS_wstrb                     => local_AXI_WriteMOSI(3).data_write_strobe,   
-      V_TCDS_wvalid                 => local_AXI_WriteMOSI(3).data_valid,          
 
       
       V_C2C_INTF_araddr                   => local_AXI_ReadMOSI(2).address,              
@@ -386,9 +359,9 @@ begin  -- architecture structure
 
   rate_counter_1: entity work.rate_counter
     generic map (
-      CLK_A_1_SECOND => 2000000)
+      CLK_A_1_SECOND => 50000000)
     port map (
-      clk_A         => clk_200,
+      clk_A         => clk_50,
       clk_B         => clk_V_C2C_PHY_user(1),
       reset_A_async => AXI_RESET,
       event_b       => '1',
@@ -514,24 +487,6 @@ begin  -- architecture structure
       Mon              => C2C_Mon,
       Ctrl             => C2C_Ctrl);
 
-  TCDS_1: entity work.TCDS
-    generic map (
-      ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_V_TCDS)
-      )
-    port map (
-      clk_axi      => AXI_CLK,
-      clk_200      => clk_200,
-      reset_axi_n  => AXI_RST_n,
-      readMOSI     => local_AXI_readMOSI(3),
-      readMISO     => local_AXI_readMISO(3),
-      writeMOSI    => local_AXI_writeMOSI(3),
-      writeMISO    => local_AXI_writeMISO(3),
-      refclk1_p    => p_clk1_chan0,--refclk_i_p(3),
-      refclk1_n    => n_clk1_chan0,--refclk_i_n(3),
-      tx_p         => p_atca_tts_out,
-      tx_n         => n_atca_tts_out,
-      rx_p         => p_atca_ttc_in,
-      rx_n         => n_atca_ttc_in);
 
   
 end architecture structure;
