@@ -1,17 +1,17 @@
 set bd_path proj
 
-array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/Cornell_rev2_p2_VU13p-1-SM_USP_heaters_allQuads25G/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
      configs/${build_name}/src/top.vhd \
      configs/${build_name}/FPGA_heater/heater.vhd \
-     configs/${build_name}/FPGA_heater/lut_oscillator.vhd \
+     configs/${build_name}/FPGA_heater/lut_oscilator.vhd \
      configs/${build_name}/src/ibert_ultrascale_gty_l.vhd \
      configs/${build_name}/src/ibert_ultrascale_gty_r.vhd \
-     configs/${build_name}/src/VIRTEX_TCDS_map.vhd \
-     configs/${build_name}/src/VIRTEX_TCDS_PKG.vhd \
-     configs/${build_name}/src/TCDS.vhd \
+     configs/${build_name}/src/HEATER_map.vhd \
+     configs/${build_name}/src/HEATER_PKG.vhd \
+     configs/${build_name}/src/heater_control.vhd \
      src/misc/DC_data_CDC.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \

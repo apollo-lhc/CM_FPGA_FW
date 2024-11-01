@@ -384,7 +384,7 @@ entity top is
       signal C2C_Mon  : C2C_INTF_MON_t;
       signal C2C_Ctrl : C2C_INTF_Ctrl_t;
 
-      signal clk_F2_C2C_PHY_user                  : STD_logic;
+      signal clk_F2_C2C_PHY_user                  : STD_logic_vector(1 downto 1);
       signal BRAM_write : std_logic;
       signal BRAM_addr  : std_logic_vector(10 downto 0);
       signal BRAM_WR_data : std_logic_vector(31 downto 0);

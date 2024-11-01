@@ -29,8 +29,8 @@ architecture behavioral of heater_control is
   signal heater_select : std_logic_vector(31 downto 0);
   signal reset : std_logic;
 
-  signal Mon              :  VIRTEX_TCDS_Mon_t;
-  signal Ctrl             :  VIRTEX_TCDS_Ctrl_t;
+  signal Mon              :  VIRTEX_Mon_t;
+  signal Ctrl             :  VIRTEX_Ctrl_t;
   
 begin  -- architecture TCDS
   reset <= not reset_axi_n;

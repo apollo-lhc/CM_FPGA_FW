@@ -5,8 +5,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use work.AXIRegPkg.all;
 use work.types.all;
-use work.HEATER_Ctrl.all;
-entity heater_interface is
+use work.VIRTEX_TCDS_Ctrl.all;
+entity VIRTEX_TCDS_interface is
   port (
     clk_axi          : in  std_logic;
     reset_axi_n      : in  std_logic;
@@ -14,11 +14,11 @@ entity heater_interface is
     slave_readMISO   : out AXIReadMISO  := DefaultAXIReadMISO;
     slave_writeMOSI  : in  AXIWriteMOSI;
     slave_writeMISO  : out AXIWriteMISO := DefaultAXIWriteMISO;
-    Mon              : in  VIRTEX_Mon_t;
-    Ctrl             : out VIRTEX_Ctrl_t
+    Mon              : in  VIRTEX_TCDS_Mon_t;
+    Ctrl             : out VIRTEX_TCDS_Ctrl_t
     );
-end entity heater_interface;
-architecture behavioral of heater_interface is
+end entity VIRTEX_TCDS_interface;
+architecture behavioral of VIRTEX_TCDS_interface is
   signal localAddress       : slv_32_t;
   signal localRdData        : slv_32_t;
   signal localRdData_latch  : slv_32_t;

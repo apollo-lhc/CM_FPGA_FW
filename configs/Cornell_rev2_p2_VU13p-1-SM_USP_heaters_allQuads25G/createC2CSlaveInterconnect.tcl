@@ -105,7 +105,7 @@ read_vhdl "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"
 #  Configure SYS MGMT to have all SLRs enabled
 #=================================================
 
-set_property -dict [list CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE0_SSIT {true} CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE1_SSIT {true} CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE2_SSIT {true} CONFIG.Enable_Slave0 {true} CONFIG.Enable_Slave1 {true} CONFIG.Enable_Slave2 {true}] [get_bd_cells VIRTEX_SYS_MGMT]
+set_property -dict [list CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE0_SSIT {true} CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE1_SSIT {true} CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE2_SSIT {true} CONFIG.Enable_Slave0 {true} CONFIG.Enable_Slave1 {true} CONFIG.Enable_Slave2 {true}] [get_bd_cells F2_SYS_MGMT]
 
 #========================================
 #  Finish up

@@ -1,10 +1,17 @@
 set bd_path proj
 
-array set bd_files [list {c2cSlave} {src/c2cBD/createC2CSlaveInterconnect.tcl} \
+array set bd_files [list {c2cSlave} {configs/${build_name}/createC2CSlaveInterconnect.tcl} \
 			]
 
 set vhdl_files "\
      configs/${build_name}/src/top.vhd \
+     configs/${build_name}/FPGA_heater/heater.vhd \
+     configs/${build_name}/FPGA_heater/lut_oscillator.vhd \
+     configs/${build_name}/src/ibert_ultrascale_gty_l.vhd \
+     configs/${build_name}/src/ibert_ultrascale_gty_r.vhd \
+     configs/${build_name}/src/VIRTEX_TCDS_map.vhd \
+     configs/${build_name}/src/VIRTEX_TCDS_PKG.vhd \
+     configs/${build_name}/src/TCDS.vhd \
      src/misc/DC_data_CDC.vhd \
      src/misc/pacd.vhd \
      src/misc/types.vhd \
@@ -37,10 +44,17 @@ set vhdl_files "\
      "
 set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
-    configs/${build_name}/src/top_timing.xdc	\
+    configs/${build_name}/src/top_timing.xdc \
+    configs/${build_name}/src/top_heaters.xdc \
+    configs/${build_name}/src/ibert_ultrascale_gty_l.xdc \
+    configs/${build_name}/src/ibert_ultrascale_gty_l_clockgroups.xdc \
+    configs/${build_name}/src/ibert_ultrascale_gty_r.xdc \
+    configs/${build_name}/src/ibert_ultrascale_gty_r_clockgroups.xdc \
     "	    
 
 set xci_files "\
 	      cores/AXI_BRAM/AXI_BRAM.xci \
 	      cores/DP_BRAM/DP_BRAM.xci \
+              configs/${build_name}/src/ibert_ultrascale_gty_core_l/ibert_ultrascale_gty_core_l.xci \
+              configs/${build_name}/src/ibert_ultrascale_gty_core_r/ibert_ultrascale_gty_core_r.xci \
     	      "
