@@ -1,0 +1,46 @@
+setup ../../../../src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl
+setup -c emp-fwk:boards/apollo/common ../cfg/apollo_set_paths.tcl
+
+
+
+src ../../src/sub_module.vhd 
+
+
+src ../../../../src/misc/pacd.vhd 
+src ../../../../src/misc/types.vhd 
+src ../../../../src/misc/capture_CDC.vhd 
+src ../../../../src/misc/rate_counter.vhd 
+src ../../../../src/misc/counter.vhd 
+src ../../../../src/misc/capture_CDC.vhd 
+src ../../../../src/misc/uart.vhd 
+
+src ../../../../src/RGB_PWM.vhd 
+src ../../../../src/LED_PWM.vhd   
+
+src ../../../../regmap_helper/axiReg/axiRegWidthPkg_32.vhd
+src ../../../../regmap_helper/axiReg/axiRegPkg_d64.vhd 
+src ../../../../regmap_helper/axiReg/axiRegPkg.vhd 
+src ../../../../regmap_helper/axiReg/axiReg.vhd 
+src ../../../../regmap_helper/axiReg/axiRegBlocking.vhd
+src ../../../../regmap_helper/axiReg/bramPortPkg.vhd
+
+src ../../../../src/C2C_INTF/CM_phy_lane_control.vhd
+src ../../../../src/C2C_INTF/picoblaze/uC.vhd
+src ../../../../src/C2C_INTF/picoblaze/kcpsm6.vhd
+src ../../../../src/C2C_INTF/picoblaze/uart_tx6.vhd
+src ../../../../src/C2C_INTF/picoblaze/uart_rx6.vhd
+src ../../../../src/C2C_INTF/picoblaze/picoblaze/cli.vhd
+src ../../../../src/C2C_INTF/C2C_Intf.vhd
+
+src ../../../../src/CM_FW_info/CM_FW_info.vhd
+
+src ../../autogen/CM_FW_INFO/CM_FW_INFO_PKG.vhd
+src ../../autogen/CM_FW_INFO/CM_FW_INFO_map.vhd
+src ../../autogen/C2C_INTF/C2C_INTF_map.vhd
+src ../../autogen/C2C_INTF/C2C_INTF_PKG.vhd
+src ../../autogen/IO/IO_map.vhd
+src ../../autogen/IO/IO_PKG.vhd
+
+
+
+
