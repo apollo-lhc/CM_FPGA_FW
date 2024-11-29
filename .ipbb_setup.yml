@@ -1,11 +1,18 @@
 init:
   - make init
-  - make list 
-  - make prebuild_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
-  - make address_table_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
-  - make prebuild_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
-  - make address_table_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
-
+  - make list
+  # - make prebuild_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
+  # - make address_table_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
+  # - make prebuild_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
+  # - make address_table_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
+  # - make prebuild_EMP_Cornell_rev3_p1_VU13p-1-SM_USP
+  # - make address_table_EMP_Cornell_rev3_p1_VU13p-1-SM_USP
+  # - make prebuild_EMP_Cornell_rev3_p2_VU13p-1-SM_USP
+  # - make address_table_EMP_Cornell_rev3_p2_VU13p-1-SM_USP
+# JRF to speed things up, these targets should be generated dymanically by ipbb
+# and then the build would take 1/4 of the time to build.
+# For now I have moved these to the CI script so that it can build the precise
+# Targets
 
 reset:
   - git submodule deinit -f .
