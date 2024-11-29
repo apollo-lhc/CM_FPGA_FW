@@ -1,11 +1,7 @@
 init:
   - make init
-  - make list 
-  - make prebuild_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
-  - make address_table_EMP_Cornell_rev2_p1_VU13p-1-SM_USP
-  - make prebuild_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
-  - make address_table_EMP_Cornell_rev2_p2_VU13p-1-SM_USP
-
+  - make list
+  - bash ./build_targets.sh
 
 reset:
   - git submodule deinit -f .
