@@ -163,8 +163,8 @@ set mRST [list ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN} ${AXI_MASTER_RSTN}]
 #  Configure and add AXI slaves
 #================================================================================
 #source ../configs/${build_name}/autogen/AddSlaves_${build_name}.tcl
-source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
-yaml_to_bd "${apollo_root_path}/configs/${build_name}/slaves.yaml"
+source ${apollo_root_path}/bd/utils/add_slaves_from_yaml.tcl
+yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
 
 set_property -dict [list CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE0_SSIT {true} CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE1_SSIT {true} CONFIG.CHANNEL_ENABLE_VUSER0_SLAVE2_SSIT {true} CONFIG.Enable_Slave0 {true} CONFIG.Enable_Slave1 {true} CONFIG.Enable_Slave2 {true}] [get_bd_cells VIRTEX_SYS_MGMT]
 
