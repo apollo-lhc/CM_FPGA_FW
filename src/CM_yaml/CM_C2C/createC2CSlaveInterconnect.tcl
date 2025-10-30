@@ -15,7 +15,6 @@ create_bd_design -dir ./ ${bd_design_name}
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source ${apollo_root_path}/bd/utils/add_slaves_from_yaml.tcl
 yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
 
 GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_addrs.h"                                                                                                 
