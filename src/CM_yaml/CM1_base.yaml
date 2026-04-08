@@ -1,4 +1,13 @@
 AXI_CONTROL_SETS:
+  # NOTE: The names below are historical.
+  # - These blocks primarily define: clock/reset wiring + an address allocator window (buddy allocator).
+  # - They do NOT force a slave to be AXI4-Lite vs full AXI4; that is determined by the IP/core being instantiated
+  #   (e.g. AXI_BRAME_CTRL uses a full AXI S_AXI even if its address is allocated from AXILITE_ENDPOINT_CTRL).
+  #
+  # Address map convention:
+  # - AXI_ENDPOINT_CTRL allocates in the 0xB0000000..0xB0FFFFFF region (16 MiB).
+  # - AXILITE_ENDPOINT_CTRL allocates in the 0xB1000000..0xB1FFFFFF region (16 MiB).
+  #   Some configs override the AXILITE window size, but it typically lives immediately above AXI_ENDPOINT_CTRL.
   AXI_ENDPOINT_CTRL:
     axi_interconnect: "${::CM_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"

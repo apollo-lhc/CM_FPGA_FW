@@ -61,7 +61,10 @@ AXI_SLAVES:
       F1_SCRATCH_RAM:
         TCL_CALL:
           command: AXI_IP_BRAM
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          # Use the AXILITE allocator window to avoid address-space exhaustion in AXI_ENDPOINT_CTRL
+          # (F1_IPBUS consumes the full AXI_ENDPOINT_CTRL region).
+          # Note: This does not make the endpoint AXI4-Lite; AXI_IP_BRAM instantiates a full AXI slave.
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
           addr:
             offset: "-1"
             range: "1M"
