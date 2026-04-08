@@ -14,6 +14,7 @@ src ../../../../src/misc/counter.vhd
 src ../../../../src/misc/counter_clock.vhd 
 src ../../../../regmap_helper/axiReg/axiRegWidthPkg_32.vhd
 src ../../../../regmap_helper/axiReg/axiRegPkg_d64.vhd 
+src ../../../../regmap_helper/axiReg/axiRegPkg_d128.vhd
 src ../../../../regmap_helper/axiReg/axiRegPkg.vhd 
 src ../../../../regmap_helper/axiReg/axiReg.vhd 
 src ../../../../src/K_IO/K_IO_PKG.vhd 

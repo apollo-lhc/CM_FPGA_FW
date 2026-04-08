@@ -1,0 +1,112 @@
+# Add late-applied XDC overrides for the F2 C2C GT placement.
+#
+# This is used from the EMP *.dep flow via a `setup` directive.
+# We add the XDC to constrs_1 with PROCESSING_ORDER=LATE so it overrides
+# IP-generated *_gt.xdc constraints.
+
+set this_dir [file dirname [info script]]
+set xdc_path [file normalize [file join $this_dir "f2_c2c_gt_override.xdc"]]
+
+if {![file exists $xdc_path]} {
+	puts "WARNING: f2_c2c_gt_override.tcl: XDC not found: $xdc_path"
+	return
+}
+
+# Add to project constraints; do not read immediately.
+add_files -fileset constrs_1 $xdc_path
+
+# Ensure it is applied late.
+set xdc_file_obj [get_files $xdc_path]
+if {[llength $xdc_file_obj] > 0} {
+	set_property PROCESSING_ORDER LATE $xdc_file_obj
+	set_property USED_IN_SYNTHESIS 1 $xdc_file_obj
+	set_property USED_IN_IMPLEMENTATION 1 $xdc_file_obj
+}
+
+puts "INFO: Added F2 C2C GT override constraints (LATE): $xdc_path"
+
+# Force GT LOCs immediately before placement.
+#
+# Motivation:
+# - In some flows, IP-generated *_gt.xdc constraints are read late enough that
+#   they can still win or at least emit critical warnings about conflicting
+#   hard-LOCs.
+# - The pre-place hook runs with the design open, so setting LOC here becomes
+#   the final word before the placer runs.
+set preplace_tcl [file normalize [file join $this_dir "f2_c2c_gt_preplace.tcl"]]
+set disable_gt_xdc_tcl [file normalize [file join $this_dir "f2_c2c_disable_ip_gt_xdc.tcl"]]
+if {![file exists $preplace_tcl]} {
+	puts "WARNING: f2_c2c_gt_override.tcl: preplace script not found: $preplace_tcl"
+} else {
+	# Make sure hook scripts are part of the project archive.
+	# If they are not added to a fileset (e.g. utils_1), Vivado warns:
+	#   [Runs 36-537] File ... is not part of fileset utils_1 ...
+	# and the script may be missing in downstream CI stages that consume an
+	# archived project.
+	if {[file exists $disable_gt_xdc_tcl]} {
+		if {[llength [get_files -quiet $disable_gt_xdc_tcl]] == 0} {
+			if {[catch {add_files -fileset utils_1 $disable_gt_xdc_tcl} _add_err]} {
+				puts "WARNING: f2_c2c_gt_override.tcl: failed to add to utils_1: $disable_gt_xdc_tcl"
+			}
+		}
+	}
+	if {[llength [get_files -quiet $preplace_tcl]] == 0} {
+		if {[catch {add_files -fileset utils_1 $preplace_tcl} _add_err]} {
+			puts "WARNING: f2_c2c_gt_override.tcl: failed to add to utils_1: $preplace_tcl"
+		}
+	}
+
+	set impl_run [get_runs -quiet impl_1]
+	if {[llength $impl_run] == 0} {
+		puts "WARNING: f2_c2c_gt_override.tcl: run impl_1 not found; cannot attach pre-place hook"
+	} else {
+		# Disable IP *_gt.xdc before constraints are read.
+		if {![file exists $disable_gt_xdc_tcl]} {
+			puts "WARNING: f2_c2c_gt_override.tcl: disable-gt-xdc script not found: $disable_gt_xdc_tcl"
+		} else {
+			set cur_init_pre [get_property STEPS.INIT_DESIGN.TCL.PRE $impl_run]
+			if {[string length $cur_init_pre] > 0} {
+				set_property STEPS.INIT_DESIGN.TCL.PRE [concat $cur_init_pre $disable_gt_xdc_tcl] $impl_run
+			} else {
+				set_property STEPS.INIT_DESIGN.TCL.PRE $disable_gt_xdc_tcl $impl_run
+			}
+			puts "INFO: Attached init-design disable GT XDC hook: $disable_gt_xdc_tcl"
+		}
+
+		# Force final GT LOCs immediately before placement.
+		set cur_place_pre [get_property STEPS.PLACE_DESIGN.TCL.PRE $impl_run]
+		if {[string length $cur_place_pre] > 0} {
+			set_property STEPS.PLACE_DESIGN.TCL.PRE [concat $cur_place_pre $preplace_tcl] $impl_run
+		} else {
+			set_property STEPS.PLACE_DESIGN.TCL.PRE $preplace_tcl $impl_run
+		}
+		puts "INFO: Attached pre-place GT LOC hook: $preplace_tcl"
+	}
+}
+
+# Disable IP-generated GT Wizard hard-LOC constraints for these two PHYs.
+#
+# Rationale:
+# - The Aurora/GT Wizard emits per-IP *_gt.xdc files that hard-pin GT sites.
+# - With two C2C links, those generated LOCs can collide or force an illegal
+#   COMMON<->CHANNEL pairing.
+# - We instead rely on the deterministic late-applied overrides above.
+set gt_xdc_patterns [list \
+	"*c2cSlave_F2_C2C_PHY_0_gt.xdc" \
+	"*c2cSlave_F2_C2CB_PHY_0_gt.xdc" \
+]
+
+foreach pat $gt_xdc_patterns {
+	set gt_files [get_files -all -quiet $pat]
+	if {[llength $gt_files] == 0} {
+		puts "WARNING: f2_c2c_gt_override.tcl: no GT XDC files matched pattern: $pat"
+		continue
+	}
+
+	foreach f $gt_files {
+		# Ensure these constraints are not used for this build.
+		set_property USED_IN_SYNTHESIS 0 $f
+		set_property USED_IN_IMPLEMENTATION 0 $f
+	}
+	puts "INFO: Disabled IP GT constraint file(s): $gt_files"
+}

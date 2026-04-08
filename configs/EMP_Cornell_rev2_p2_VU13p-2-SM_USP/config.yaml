@@ -1,0 +1,76 @@
+AXI_CONTROL_SETS:
+  INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM2_base.yaml
+  # override default axilite endpoint
+  AXILITE_ENDPOINT_CTRL:
+    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET/peripheral_aresetn"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    allocator:
+      starting_address: 0xB3000000
+      size: 0x00800000
+      block_size: 4K
+
+
+AXI_SLAVES:
+  BASE:
+    INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/EMP_base.yaml
+    SUB_SLAVES:
+      C2C:
+        INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p2_C2C_10g.yaml
+      F2_IPBUS:
+        TCL_CALL:
+          command: AXI_PL_DEV_CONNECT 
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          type: "AXI4"
+          addr:
+            offset: "-1"
+            range:  "8M"
+          data_width: "64"
+          remote_slave: "1"
+        XML: "address_table/modules/IPBUS.xml"
+        UHAL_BASE: "auto"
+      F2_IO:
+        TCL_CALL: 
+          command: AXI_PL_DEV_CONNECT
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          addr:
+            offset: "-1"
+            range: "4K"
+          remote_slave: "1"
+        XML: "address_table/modules/CM_IO_EMP.xml"
+        UHAL_BASE: "auto"
+        HDL: 
+          out_name: "IO"
+          map_template: "axi_generic/template_map_withbram.vhd"
+      F2_CM_FW_INFO:
+        TCL_CALL:
+          command: AXI_PL_DEV_CONNECT 
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          addr:
+            offset: "-1"
+            range: "4K"
+          remote_slave: "1"
+        XML: "address_table/modules/FW_INFO.xml"
+        UHAL_BASE: "auto"
+        HDL: 
+          out_name: "CM_FW_INFO"
+          map_template: "axi_generic/template_map.vhd"
+
+      # BRAM-backed scratch window for raw AXI + DMA-over-C2C testing
+      # Exposed to Linux as /dev/uio_F2_SCRATCH_RAM (via linux,uio-name)
+      F2_SCRATCH_RAM:
+        TCL_CALL:
+          command: AXI_IP_BRAM
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          type: "AXI4"
+          addr:
+            offset: "-1"
+            range: "1M"
+          remote_slave: "1"
+          externalBport: false
+          configure_bram: 1
+          width: 64
+        XML: "address_table/modules/BRAM.xml"
+        UHAL_BASE: "auto"
+
