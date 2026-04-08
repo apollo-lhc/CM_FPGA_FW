@@ -1,6 +1,6 @@
 [submodule "bd"]
 	path = bd
-	url = http://github.com/dgastler/BU_BUILD.git
+	url = https://gitlab.com/BU-EDF/BUTool/bu_build.git
 	branch = develop
 
 [submodule "regmap_helper"]
