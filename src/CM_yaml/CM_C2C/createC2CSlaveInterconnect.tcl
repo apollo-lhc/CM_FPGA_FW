@@ -1,8 +1,34 @@
-foreach required_var {apollo_root_path build_name autogen_path BD_PATH} {
-	if {![info exists ::$required_var]} {
-		error "Required global variable '$required_var' is not set before running [info script]. Ensure apollo_set_paths.tcl has run and exports it."
-	}
+###
+# EMP/ipbb note:
+# In CI the emp-fwk "setup -c ... apollo_set_paths.tcl" step can run *after* this script,
+# so we must be able to derive the key path globals ourselves when they are not set yet.
+###
+
+if {![info exists ::apollo_root_path]} {
+	# This file lives at: <repo>/src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl
+	# Go up 3 levels from CM_C2C/ to reach the repo root.
+	set ::apollo_root_path [file normalize [file join [file dirname [info script]] .. .. ..]]
 }
+
+if {![info exists ::BD_PATH]} {
+	set ::BD_PATH "${::apollo_root_path}/bd"
+}
+
+if {![info exists ::build_name]} {
+	# EMP builds normally set this in the board cfg (e.g. v2_p1.tcl). If not, fall back to cwd name.
+	set ::build_name [file tail [pwd]]
+}
+
+if {![info exists ::autogen_path]} {
+	set ::autogen_path "configs/${::build_name}/autogen"
+}
+
+# Ensure autogen output directory exists for package generation.
+file mkdir "${::apollo_root_path}/configs/${::build_name}/autogen"
+
+puts "[info script]: apollo_root_path=${::apollo_root_path}"
+puts "[info script]: build_name=${::build_name}"
+puts "[info script]: autogen_path=${::autogen_path}"
 
 source ${apollo_root_path}/bd/axi_helpers.tcl
 source ${apollo_root_path}/bd/AXI_Cores/Xilinx_AXI_Endpoints.tcl 
@@ -26,7 +52,17 @@ yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
 
 GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_addrs.h"                                                                                                 
 GENERATE_AXI_ADDR_MAP_VHDL "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"                                                                                              
-read_vhdl "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"      
+set axi_slave_pkg_vhd "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"
+if {![file exists $axi_slave_pkg_vhd]} {
+	error "AXI slave package VHDL was not generated: $axi_slave_pkg_vhd"
+}
+read_vhdl $axi_slave_pkg_vhd
+
+# Some emp-fwk flows may source this script in a context where read_vhdl doesn't persist into sources_1.
+# Ensure the generated package is present in the project sources.
+if {![llength [get_files -quiet $axi_slave_pkg_vhd]]} {
+	add_files -fileset sources_1 -norecurse $axi_slave_pkg_vhd
+}
 
 #========================================
 #  Finish up
@@ -53,3 +89,12 @@ close_bd_design ${bd_design_name}
 
 
 Generate_Global_package
+
+set global_pkg_vhd "${apollo_root_path}/${autogen_path}/Global_PKG.vhd"
+if {![file exists $global_pkg_vhd]} {
+	error "Global package VHDL was not generated: $global_pkg_vhd (autogen_path=${autogen_path})"
+}
+if {![llength [get_files -quiet $global_pkg_vhd]]} {
+	# Force-add to sources_1 for synthesis.
+	add_files -fileset sources_1 -norecurse $global_pkg_vhd
+}
