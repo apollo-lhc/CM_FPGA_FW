@@ -13,7 +13,7 @@
 
 [submodule "build-scripts"]
 	path = build-scripts
-	url = git@gitlab.com:BU-EDF/fw-bits/build-scripts.git
+	url = https://gitlab.com/BU-EDF/fw-bits/build-scripts.git
 	branch = develop
 
 [submodule "configs/Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G/FPGA_heater"]
