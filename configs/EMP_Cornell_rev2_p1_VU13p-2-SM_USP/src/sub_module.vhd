@@ -5,7 +5,6 @@ use ieee.std_logic_misc.all;
 
 use work.axiRegPkg.all;
 use work.axiRegPkg_d64.all;
-use work.axiRegPkg_d128.all;
 use work.types.all;
 use work.IO_Ctrl.all;
 use work.C2C_INTF_CTRL.all;
@@ -38,10 +37,10 @@ entity sub_module is
 
     clk_axi           : out std_logic;
     rst_n_axi         : out std_logic;
-    ext_AXI_ReadMOSI  : out AXIReadMOSI_d128  := DefaultAXIReadMOSI_d128;
-    ext_AXI_ReadMISO  : in  AXIReadMISO_d128  := DefaultAXIReadMISO_d128;
-    ext_AXI_WriteMOSI : out AXIWriteMOSI_d128 := DefaultAXIWriteMOSI_d128;
-    ext_AXI_WriteMISO : in  AXIWriteMISO_d128 := DefaultAXIWriteMISO_d128;
+    ext_AXI_ReadMOSI  : out AXIReadMOSI_d64  := DefaultAXIReadMOSI_d64;
+    ext_AXI_ReadMISO  : in  AXIReadMISO_d64  := DefaultAXIReadMISO_d64;
+    ext_AXI_WriteMOSI : out AXIWriteMOSI_d64 := DefaultAXIWriteMOSI_d64;
+    ext_AXI_WriteMISO : in  AXIWriteMISO_d64 := DefaultAXIWriteMISO_d64;
     
     -- tri-color LED
     led_red : out std_logic;
