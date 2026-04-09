@@ -14,6 +14,7 @@ set vhdl_files "\
      src/misc/rate_counter.vhd \
      regmap_helper/axiReg/axiRegWidthPkg_32.vhd \
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
+    regmap_helper/axiReg/axiRegPkg_d128.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
      regmap_helper/axiReg/axiReg.vhd \

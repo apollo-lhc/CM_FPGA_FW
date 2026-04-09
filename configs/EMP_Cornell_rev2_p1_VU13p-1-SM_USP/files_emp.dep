@@ -19,6 +19,7 @@ src ../../../../src/LED_PWM.vhd
 
 src ../../../../regmap_helper/axiReg/axiRegWidthPkg_32.vhd
 src ../../../../regmap_helper/axiReg/axiRegPkg_d64.vhd 
+src ../../../../regmap_helper/axiReg/axiRegPkg_d128.vhd
 src ../../../../regmap_helper/axiReg/axiRegPkg.vhd 
 src ../../../../regmap_helper/axiReg/axiReg.vhd 
 src ../../../../regmap_helper/axiReg/axiRegBlocking.vhd

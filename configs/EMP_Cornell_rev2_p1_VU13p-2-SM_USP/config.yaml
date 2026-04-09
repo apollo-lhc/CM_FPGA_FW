@@ -25,7 +25,7 @@ AXI_SLAVES:
           addr:
             offset: "-1"
             range:  "16M"
-          data_width: "64"
+          data_width: "128"
           remote_slave: "1"
         XML: "address_table/modules/IPBUS.xml"
         UHAL_BASE: "auto"
@@ -56,18 +56,19 @@ AXI_SLAVES:
           out_name: "CM_FW_INFO"
           map_template: "axi_generic/template_map.vhd"
 
-      # # BRAM-backed scratch window for raw AXI + DMA-over-C2C testing
-      # # Exposed to Linux as /dev/uio_F1_SCRATCH_RAM (via linux,uio-name)
-      # F1_SCRATCH_RAM:
-      #   TCL_CALL:
-      #     command: AXI_IP_BRAM
-      #     axi_control: "${::AXI_ENDPOINT_CTRL}"
-      #     addr:
-      #       offset: "-1"
-      #       range: "1M"
-      #     remote_slave: "1"
-      #     externalBport: false
-      #     configure_bram: 1
-      #     width: 128
-      #   XML: "address_table/modules/BRAM.xml"
-      #   UHAL_BASE: "auto"
+      # BRAM-backed scratch window for raw AXI + DMA-over-C2C testing
+      # Exposed to Linux as /dev/uio_F1_SCRATCH_RAM (via linux,uio-name)
+      F1_SCRATCH_RAM:
+        TCL_CALL:
+          command: AXI_IP_BRAM
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          type: "AXI4"
+          addr:
+            offset: "-1"
+            range: "1M"
+          remote_slave: "1"
+          externalBport: false
+          configure_bram: 1
+          width: 128
+        XML: "address_table/modules/BRAM.xml"
+        UHAL_BASE: "auto"

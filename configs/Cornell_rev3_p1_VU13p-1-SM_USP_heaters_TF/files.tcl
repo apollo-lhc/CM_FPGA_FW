@@ -21,6 +21,7 @@ set vhdl_files "\
      src/misc/asym_dualport_ram.vhd \
      regmap_helper/axiReg/axiRegWidthPkg_32.vhd \
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
+    regmap_helper/axiReg/axiRegPkg_d128.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
      configs/Cornell_rev3_p1_VU13p-1-SM_USP_heaters_TF/autogen/CM_IO/V_IO_PKG.vhd \
