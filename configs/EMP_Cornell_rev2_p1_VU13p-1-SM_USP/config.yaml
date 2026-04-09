@@ -24,7 +24,7 @@ AXI_SLAVES:
           type: "AXI4"
           addr:
             offset: "-1"
-            range:  "16M"
+            range:  "15M"
           data_width: "64"
           remote_slave: "1"
         XML: "address_table/modules/IPBUS.xml"
@@ -61,10 +61,9 @@ AXI_SLAVES:
       F1_SCRATCH_RAM:
         TCL_CALL:
           command: AXI_IP_BRAM
-          # Use the AXILITE allocator window to avoid address-space exhaustion in AXI_ENDPOINT_CTRL
-          # (F1_IPBUS consumes the full AXI_ENDPOINT_CTRL region).
-          # Note: This does not make the endpoint AXI4-Lite; AXI_IP_BRAM instantiates a full AXI slave.
-          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          # Keep scratch in the full AXI address window (0xB0...) so it routes via the full-AXI C2C link,
+          # not the AXI-Lite "B" link.
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
             offset: "-1"
