@@ -65,6 +65,30 @@ puts "[info script]: CM_FPGA_FW git=${_git_rev}"
 
 puts "[info script]: starting BD helper sourcing"
 
+proc _safe_source {path} {
+	puts "[info script]: source $path"
+	if {[catch {uplevel 1 [list source $path]} err opts]} {
+		puts "[info script]: ERROR sourcing $path: $err"
+		if {[dict exists $opts -errorinfo]} {
+			puts "[info script]: errorinfo: [dict get $opts -errorinfo]"
+		}
+		error $err
+	}
+	puts "[info script]: sourced $path"
+}
+
+proc _safe_call {label script_body} {
+	puts "[info script]: begin $label"
+	if {[catch {uplevel 1 $script_body} err opts]} {
+		puts "[info script]: ERROR in $label: $err"
+		if {[dict exists $opts -errorinfo]} {
+			puts "[info script]: errorinfo: [dict get $opts -errorinfo]"
+		}
+		error $err
+	}
+	puts "[info script]: end $label"
+}
+
 proc _get_target_vhdl_lib {} {
 	# In Vivado, VHDL 'work' resolves to the project's default library.
 	# Keep generated packages in that same library so 'use work.*' succeeds.
@@ -96,34 +120,34 @@ proc _ensure_vhdl_in_sources_1 {vhd_path} {
 	catch {update_compile_order -fileset sources_1}
 }
 
-source ${apollo_root_path}/bd/axi_helpers.tcl
-source ${apollo_root_path}/bd/AXI_Cores/Xilinx_AXI_Endpoints.tcl 
-source ${apollo_root_path}/bd/Cores/Xilinx_Cores.tcl
-source ${apollo_root_path}/bd/HAL/HAL.tcl
-source ${apollo_root_path}/bd/utils/add_slaves_from_yaml.tcl
-source ${apollo_root_path}/bd/utils/Global_Constants.tcl
+_safe_source ${apollo_root_path}/bd/axi_helpers.tcl
+_safe_source ${apollo_root_path}/bd/AXI_Cores/Xilinx_AXI_Endpoints.tcl
+_safe_source ${apollo_root_path}/bd/Cores/Xilinx_Cores.tcl
+_safe_source ${apollo_root_path}/bd/HAL/HAL.tcl
+_safe_source ${apollo_root_path}/bd/utils/add_slaves_from_yaml.tcl
+_safe_source ${apollo_root_path}/bd/utils/Global_Constants.tcl
 
 
 #create a block design called "c2cSlave"
 #directory and name must be the same
 set bd_design_name "c2cSlave"
-create_bd_design -dir ./ ${bd_design_name}
+_safe_call "create_bd_design ${bd_design_name}" [list create_bd_design -dir ./ ${bd_design_name}]
 
 
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
-yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
+_safe_call "source add_slaves_from_yaml.tcl" [list source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl]
+_safe_call "yaml_to_bd config.yaml" [list yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"]
 
 puts "[info script]: generating AXI slave address-map packages"
-GENERATE_AXI_ADDR_MAP_C "${::autogen_dir}/AXI_slave_addrs.h"                                                                                                 
-GENERATE_AXI_ADDR_MAP_VHDL "${::autogen_dir}/AXI_slave_pkg.vhd"                                                                                              
+_safe_call "GENERATE_AXI_ADDR_MAP_C" [list GENERATE_AXI_ADDR_MAP_C "${::autogen_dir}/AXI_slave_addrs.h"]
+_safe_call "GENERATE_AXI_ADDR_MAP_VHDL" [list GENERATE_AXI_ADDR_MAP_VHDL "${::autogen_dir}/AXI_slave_pkg.vhd"]
 set axi_slave_pkg_vhd "${::autogen_dir}/AXI_slave_pkg.vhd"
 if {![file exists $axi_slave_pkg_vhd]} {
 	error "AXI slave package VHDL was not generated: $axi_slave_pkg_vhd"
 }
-read_vhdl -library [_get_target_vhdl_lib] $axi_slave_pkg_vhd
+_safe_call "read_vhdl AXI_slave_pkg" [list read_vhdl -library [_get_target_vhdl_lib] $axi_slave_pkg_vhd]
 _ensure_vhdl_in_sources_1 $axi_slave_pkg_vhd
 
 #========================================
@@ -131,9 +155,9 @@ _ensure_vhdl_in_sources_1 $axi_slave_pkg_vhd
 #========================================
 
 
-validate_bd_design
+_safe_call "validate_bd_design" {validate_bd_design}
 
-make_wrapper -files [get_files ${bd_design_name}.bd] -top -import -force
+_safe_call "make_wrapper import" [list make_wrapper -files [get_files ${bd_design_name}.bd] -top -import -force]
 set wrapper_file [make_wrapper -files [get_files $bd_design_name.bd] -top -force]
 set wrapper_file_sane [string map {_wrapper.vhd _sane_wrapper.vhd} $wrapper_file]
 puts "Modifying ${bd_design_name} wrapper file ${wrapper_file}"
@@ -143,21 +167,20 @@ read_vhdl $wrapper_file_sane
 
 
 
-save_bd_design
-
-close_bd_design ${bd_design_name}
+_safe_call "save_bd_design" {save_bd_design}
+_safe_call "close_bd_design" [list close_bd_design ${bd_design_name}]
 
 
 
 
 puts "[info script]: generating Global_PKG"
-Generate_Global_package
+_safe_call "Generate_Global_package" {Generate_Global_package}
 
 set global_pkg_vhd "${::autogen_dir}/Global_PKG.vhd"
 if {![file exists $global_pkg_vhd]} {
 	error "Global package VHDL was not generated: $global_pkg_vhd (autogen_path=${autogen_path})"
 }
-read_vhdl -library [_get_target_vhdl_lib] $global_pkg_vhd
+_safe_call "read_vhdl Global_PKG" [list read_vhdl -library [_get_target_vhdl_lib] $global_pkg_vhd]
 _ensure_vhdl_in_sources_1 $global_pkg_vhd
 
 # Ensure the updated sources list is persisted for later synth steps.
