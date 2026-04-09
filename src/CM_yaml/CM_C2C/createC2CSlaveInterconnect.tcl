@@ -23,6 +23,17 @@ if {![info exists ::autogen_path]} {
 	set ::autogen_path "configs/${::build_name}/autogen"
 }
 
+# emp-fwk's apollo_set_paths.tcl may set autogen_path to an absolute path.
+# Some CM BD helper scripts assume autogen_path is repo-relative and build paths as
+# "${apollo_root_path}/${autogen_path}". Normalize back to repo-relative when possible.
+if {[file pathtype $::autogen_path] eq "absolute"} {
+	set _prefix "[file normalize ${::apollo_root_path}]/"
+	set _auto_norm [file normalize $::autogen_path]
+	if {[string first $_prefix $_auto_norm] == 0} {
+		set ::autogen_path [string range $_auto_norm [string length $_prefix] end]
+	}
+}
+
 proc _abs_path {path_in} {
 	# Accept either an absolute path, or a repo-relative path.
 	# emp-fwk's apollo_set_paths.tcl sets autogen_path to an absolute path.
@@ -39,6 +50,9 @@ file mkdir $::autogen_dir
 puts "[info script]: apollo_root_path=${::apollo_root_path}"
 puts "[info script]: build_name=${::build_name}"
 puts "[info script]: autogen_path=${::autogen_path}"
+puts "[info script]: autogen_dir=${::autogen_dir}"
+
+puts "[info script]: starting BD helper sourcing"
 
 proc _ensure_vhdl_in_sources_1 {vhd_path} {
 	set vhd_path [file normalize $vhd_path]
