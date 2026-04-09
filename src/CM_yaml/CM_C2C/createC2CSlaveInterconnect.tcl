@@ -1,3 +1,9 @@
+foreach required_var {apollo_root_path build_name autogen_path BD_PATH} {
+	if {![info exists ::$required_var]} {
+		error "Required global variable '$required_var' is not set before running [info script]. Ensure apollo_set_paths.tcl has run and exports it."
+	}
+}
+
 source ${apollo_root_path}/bd/axi_helpers.tcl
 source ${apollo_root_path}/bd/AXI_Cores/Xilinx_AXI_Endpoints.tcl 
 source ${apollo_root_path}/bd/Cores/Xilinx_Cores.tcl
