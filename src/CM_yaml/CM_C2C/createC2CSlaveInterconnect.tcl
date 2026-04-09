@@ -52,7 +52,30 @@ puts "[info script]: build_name=${::build_name}"
 puts "[info script]: autogen_path=${::autogen_path}"
 puts "[info script]: autogen_dir=${::autogen_dir}"
 
+# Print git revision for debugging CI picking the right CM_FPGA_FW commit.
+set _git_rev "unknown"
+catch {
+	set _repo_dir [file normalize $::apollo_root_path]
+	set _pwd_save [pwd]
+	cd $_repo_dir
+	set _git_rev [string trim [exec git rev-parse --short HEAD]]
+	cd $_pwd_save
+}
+puts "[info script]: CM_FPGA_FW git=${_git_rev}"
+
 puts "[info script]: starting BD helper sourcing"
+
+proc _get_target_vhdl_lib {} {
+	# In Vivado, VHDL 'work' resolves to the project's default library.
+	# Keep generated packages in that same library so 'use work.*' succeeds.
+	set lib ""
+	if {![catch {set lib [get_property default_lib [current_project]]}]} {
+		if {$lib ne ""} {
+			return $lib
+		}
+	}
+	return "xil_defaultlib"
+}
 
 proc _ensure_vhdl_in_sources_1 {vhd_path} {
 	set vhd_path [file normalize $vhd_path]
@@ -65,10 +88,9 @@ proc _ensure_vhdl_in_sources_1 {vhd_path} {
 		add_files -fileset sources_1 -norecurse $vhd_path
 	}
 
-	# Ensure the file is compiled into the library expected by the HDL.
-	# This project uses 'use work.<pkg>.all;' in VHDL.
-	catch {set_property library work [get_files $vhd_path]}
-	puts "[info script]: ensured source: ${vhd_path} (in_project=[llength [get_files -quiet $vhd_path]] lib=work)"
+	set target_lib [_get_target_vhdl_lib]
+	catch {set_property library $target_lib [get_files $vhd_path]}
+	puts "[info script]: ensured source: ${vhd_path} (in_project=[llength [get_files -quiet $vhd_path]] lib=${target_lib})"
 
 	# Refresh compile order so packages are compiled before dependent VHDL.
 	catch {update_compile_order -fileset sources_1}
@@ -101,7 +123,7 @@ set axi_slave_pkg_vhd "${::autogen_dir}/AXI_slave_pkg.vhd"
 if {![file exists $axi_slave_pkg_vhd]} {
 	error "AXI slave package VHDL was not generated: $axi_slave_pkg_vhd"
 }
-read_vhdl -library work $axi_slave_pkg_vhd
+read_vhdl -library [_get_target_vhdl_lib] $axi_slave_pkg_vhd
 _ensure_vhdl_in_sources_1 $axi_slave_pkg_vhd
 
 #========================================
@@ -135,7 +157,7 @@ set global_pkg_vhd "${::autogen_dir}/Global_PKG.vhd"
 if {![file exists $global_pkg_vhd]} {
 	error "Global package VHDL was not generated: $global_pkg_vhd (autogen_path=${autogen_path})"
 }
-read_vhdl -library work $global_pkg_vhd
+read_vhdl -library [_get_target_vhdl_lib] $global_pkg_vhd
 _ensure_vhdl_in_sources_1 $global_pkg_vhd
 
 # Ensure the updated sources list is persisted for later synth steps.
