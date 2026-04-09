@@ -24,11 +24,36 @@ if {![info exists ::autogen_path]} {
 }
 
 # Ensure autogen output directory exists for package generation.
-file mkdir "${::apollo_root_path}/configs/${::build_name}/autogen"
+file mkdir "${::apollo_root_path}/${::autogen_path}"
 
 puts "[info script]: apollo_root_path=${::apollo_root_path}"
 puts "[info script]: build_name=${::build_name}"
 puts "[info script]: autogen_path=${::autogen_path}"
+
+proc _ensure_vhdl_in_sources_1 {vhd_path} {
+	set vhd_path [file normalize $vhd_path]
+	if {![file exists $vhd_path]} {
+		error "VHDL file does not exist: $vhd_path"
+	}
+
+	# Ensure file is part of the synthesis sources fileset.
+	if {![llength [get_files -quiet $vhd_path]]} {
+		add_files -fileset sources_1 -norecurse $vhd_path
+	}
+
+	# Try to align the file's library with the project's default library.
+	# (In some flows, mismatched libraries can prevent 'use work.*' from resolving.)
+	set default_lib ""
+	if {![catch {set default_lib [get_property default_lib [current_project]]}]} {
+		if {$default_lib ne ""} {
+			catch {set_property library $default_lib [get_files $vhd_path]}
+		}
+	}
+	puts "[info script]: ensured source: ${vhd_path} (in_project=[llength [get_files -quiet $vhd_path]] default_lib=${default_lib})"
+
+	# Refresh compile order so packages are compiled before dependent VHDL.
+	catch {update_compile_order -fileset sources_1}
+}
 
 source ${apollo_root_path}/bd/axi_helpers.tcl
 source ${apollo_root_path}/bd/AXI_Cores/Xilinx_AXI_Endpoints.tcl 
@@ -50,19 +75,15 @@ create_bd_design -dir ./ ${bd_design_name}
 source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl
 yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"
 
-GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_addrs.h"                                                                                                 
-GENERATE_AXI_ADDR_MAP_VHDL "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"                                                                                              
-set axi_slave_pkg_vhd "${apollo_root_path}/configs/${build_name}/autogen/AXI_slave_pkg.vhd"
+puts "[info script]: generating AXI slave address-map packages"
+GENERATE_AXI_ADDR_MAP_C "${apollo_root_path}/${autogen_path}/AXI_slave_addrs.h"                                                                                                 
+GENERATE_AXI_ADDR_MAP_VHDL "${apollo_root_path}/${autogen_path}/AXI_slave_pkg.vhd"                                                                                              
+set axi_slave_pkg_vhd "${apollo_root_path}/${autogen_path}/AXI_slave_pkg.vhd"
 if {![file exists $axi_slave_pkg_vhd]} {
 	error "AXI slave package VHDL was not generated: $axi_slave_pkg_vhd"
 }
 read_vhdl $axi_slave_pkg_vhd
-
-# Some emp-fwk flows may source this script in a context where read_vhdl doesn't persist into sources_1.
-# Ensure the generated package is present in the project sources.
-if {![llength [get_files -quiet $axi_slave_pkg_vhd]]} {
-	add_files -fileset sources_1 -norecurse $axi_slave_pkg_vhd
-}
+_ensure_vhdl_in_sources_1 $axi_slave_pkg_vhd
 
 #========================================
 #  Finish up
@@ -88,13 +109,14 @@ close_bd_design ${bd_design_name}
 
 
 
+puts "[info script]: generating Global_PKG"
 Generate_Global_package
 
 set global_pkg_vhd "${apollo_root_path}/${autogen_path}/Global_PKG.vhd"
 if {![file exists $global_pkg_vhd]} {
 	error "Global package VHDL was not generated: $global_pkg_vhd (autogen_path=${autogen_path})"
 }
-if {![llength [get_files -quiet $global_pkg_vhd]]} {
-	# Force-add to sources_1 for synthesis.
-	add_files -fileset sources_1 -norecurse $global_pkg_vhd
-}
+_ensure_vhdl_in_sources_1 $global_pkg_vhd
+
+# Ensure the updated sources list is persisted for later synth steps.
+catch {save_project}
