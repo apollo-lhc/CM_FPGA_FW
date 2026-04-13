@@ -3,6 +3,7 @@ AXI_SLAVES:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
+      axi_data_width: 128
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
       refclk_freq: 200
@@ -14,6 +15,7 @@ AXI_SLAVES:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
+      axi_data_width: 32
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
       refclk_freq: 200
