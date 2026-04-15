@@ -3,7 +3,7 @@ AXI_SLAVES:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
-      axi_data_width: 128
+      axi_data_width: 64
       aurora_lanes: 1
       force_axis_tlast: 1
       force_axis_tkeep: 1

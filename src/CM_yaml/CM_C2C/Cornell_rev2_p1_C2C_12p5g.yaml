@@ -5,6 +5,7 @@ AXI_SLAVES:
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 64
       aurora_lanes: 1
+      enforce_aurora_width_match: 0
       force_axis_tlast: 1
       force_axis_tkeep: 1
       primary_serdes: 1
