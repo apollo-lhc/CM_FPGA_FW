@@ -16,7 +16,7 @@ AXI_SLAVES:
     INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/Cornell_base.yaml
     SUB_SLAVES:
       C2C:
-        INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p1_C2C_12p5g.yaml
+        INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p1_C2C.yaml
       F1_IPBUS:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
