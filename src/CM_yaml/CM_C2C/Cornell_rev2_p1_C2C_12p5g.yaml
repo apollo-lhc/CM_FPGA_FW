@@ -1,31 +1,33 @@
 AXI_SLAVES:
-  F2_C2C:
+  F1_C2C:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 128
+      aurora_lanes: 1
       force_axis_tlast: 1
       force_axis_tkeep: 1
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
       refclk_freq: 200
       c2c_master: false
-      speed: 5
+      speed: 12.5
       singleend_refclk: True
       addr: ${::AXI_BUS_CTRL}
-  F2_C2CB:
+  F1_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 32
+      aurora_lanes: 1
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
       refclk_freq: 200
       c2c_master: false
-      speed: 5
+      speed: 12.5
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
-  F2_C2C_INTF:
+  F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
       axi_control: "${::AXILITE_ENDPOINT_CTRL}"
@@ -45,7 +47,7 @@ AXI_SLAVES:
           addr:
             offset: "-1"
             range: "4K"
-          irq_port: "F2_C2CB/axi_c2c_s2m_intr_in"
+          irq_port: "F1_C2CB/axi_c2c_s2m_intr_in"
           baud_rate: "115200"  
           axi_control: "${::AXILITE_ENDPOINT_CTRL}"
           manual_load_dtsi: "1"
