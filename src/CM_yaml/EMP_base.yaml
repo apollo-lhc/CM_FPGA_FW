@@ -11,7 +11,7 @@ AXI_SLAVES:
         TCL_CALL:
           command: ADD_PL_CLK
           name: AXI_MASTER
-          freq: 50000000
+          freq: 100000000
           global_signal: true
           add_rst_n: true
         SUB_SLAVES:
