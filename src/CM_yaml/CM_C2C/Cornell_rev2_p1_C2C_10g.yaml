@@ -22,7 +22,9 @@ AXI_SLAVES:
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 32
       aurora_lanes: 1
-      primary_serdes: 1
+      # F1_C2CB sits in the same GT quad/clock region as F1_C2C (X1Y1 vs X1Y0),
+      # so it must reuse the primary serdes resources (GT common/QPLL, user clock).
+      primary_serdes: F1_C2C_PHY
       init_clk: ${::EXT_CLK}
       refclk_freq: 200
       c2c_master: false
