@@ -25,7 +25,7 @@ AXI_SLAVES:
           type: "AXI4"
           addr:
             offset: "-1"
-            range:  "16M"
+            range:  "8M"
           data_width: "64"
           remote_slave: "1"
         XML: "address_table/modules/IPBUS.xml"
