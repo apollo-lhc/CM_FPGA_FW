@@ -33,6 +33,9 @@ AXI_SLAVES:
       c2c_master: false
       speed: 10
       gt_steering_mode: minimal_non_primary
+      # Explicitly steer to the other channel in the quad. If left to auto-select,
+      # Vivado can pick X1Y0 again and emit a conflicting *_gt.xdc LOC constraint.
+      gt_channel_enable: "X1Y1"
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
 
