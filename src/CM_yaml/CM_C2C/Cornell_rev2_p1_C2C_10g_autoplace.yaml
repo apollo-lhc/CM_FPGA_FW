@@ -31,7 +31,6 @@ AXI_SLAVES:
       refclk_freq: 200
       c2c_master: false
       speed: 10
-      gt_channel_enable: "X1Y1"
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
 
