@@ -41,7 +41,8 @@ set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
     configs/${build_name}/src/top_pins_TCDS.xdc \
     configs/${build_name}/src/top_timing.xdc	\
-    configs/${build_name}/it-dtc-fw/src/top_timing.xdc
+    configs/${build_name}/it-dtc-fw/src/top_timing.xdc \
+    configs/${build_name}/src/c2c_gty_channel_locs.xdc
     "	    
 
 set xci_files "\
