@@ -6,14 +6,15 @@ AXI_SLAVES:
       axi_data_width: 64
       aurora_lanes: 1
       enforce_aurora_width_match: 0
-      # Auto-place topology: make each link a primary serdes (no shared QPLL/userclk).
-      # This matches the older working 5G approach, but at 10G.
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
       # CM uses a 200 MHz refclk.
       refclk_freq: 200
       c2c_master: false
       speed: 10
+      # Explicitly steer GT channel placement to avoid Aurora cores auto-selecting
+      # the same channel and emitting conflicting LOC constraints.
+      gt_channel_enable: "X1Y0"
       singleend_refclk: True
       addr: ${::AXI_BUS_CTRL}
 
@@ -23,12 +24,14 @@ AXI_SLAVES:
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 32
       aurora_lanes: 1
-      # Keep this link primary too (Vivado chooses GT sites).
-      primary_serdes: 1
+      # F1_C2CB sits in the same GT quad/clock region as F1_C2C (X1Y1 vs X1Y0),
+      # so it must reuse the primary serdes resources (GT common/QPLL, user clock).
+      primary_serdes: F1_C2C_PHY
       init_clk: ${::EXT_CLK}
       refclk_freq: 200
       c2c_master: false
       speed: 10
+      gt_channel_enable: "X1Y1"
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
 
