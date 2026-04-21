@@ -13,8 +13,14 @@ AXI_SLAVES:
       #   gt_pll: auto|cpll|qpll|qpll0|qpll1
       #   gt_qpll_index: 0|1
       #   gt_locate_common: auto|core|example_design
-      # 10G generally implies QPLL usage on GTYE4. Prefer QPLL0 to match the relay's
-      # proven configuration (QPLL0 enabled, QPLL1 powered down).
+      #
+      # IMPORTANT (P2): The TTC/TCDS2 relay also uses GTY resources in this quad and
+      # instantiates the GTYE4_COMMON. To avoid a second GTYE4_COMMON competing for the
+      # same quad common site (which can trigger [Place 30-738]), request CPLL for C2C.
+      gt_pll: cpll
+      # If you later need to fall back to QPLL mode, prefer QPLL0 to match the relay's
+      # proven configuration (QPLL0 enabled, QPLL1 powered down) and to avoid accidental
+      # QPLL1 selection.
       # Explicit GT channel placement is required here:
       # Aurora may emit fixed LOC constraints in its generated *_gt.xdc, and without steering
       # multiple links can default to the same channel causing impl-time BEL conflicts.
@@ -40,6 +46,7 @@ AXI_SLAVES:
       #   gt_pll: auto|cpll|qpll|qpll0|qpll1
       #   gt_qpll_index: 0|1
       #   gt_locate_common: auto|core|example_design
+      gt_pll: cpll
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
   F2_C2C_INTF:

@@ -20,7 +20,6 @@ set_property LOC GTYE4_CHANNEL_X1Y0 \
 set_property LOC GTYE4_CHANNEL_X1Y1 \
   [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
 
-# Pin the common/QPLL for the primary link into the matching quad.
-# (The secondary link is expected to share this common/QPLL.)
-set_property LOC GTYE4_COMMON_X1Y0 \
-  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_COMMON" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_COMMON_PRIM_INST"}]
+# NOTE (P2): Do not force a C2C GTYE4_COMMON LOC here.
+# The TTC/TCDS2 relay owns the quad common in this build, and C2C is configured to
+# request CPLL to avoid instantiating/placing a competing GTYE4_COMMON.
