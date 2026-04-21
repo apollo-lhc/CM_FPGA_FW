@@ -1,4 +1,5 @@
 setup ../../../../src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl
+setup src/f2_c2c_gt_override.tcl
 setup -c emp-fwk:boards/apollo/common ../cfg/apollo_set_paths.tcl
 
 src ../../src/sub_module.vhd 
