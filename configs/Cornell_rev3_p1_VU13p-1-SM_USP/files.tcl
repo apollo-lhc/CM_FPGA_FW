@@ -39,6 +39,7 @@ set vhdl_files "\
 set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
     configs/${build_name}/src/top_timing.xdc	\
+    configs/${build_name}/src/gt_quad_l_override.xdc \
     "	    
 
 set xci_files "\
