@@ -38,6 +38,24 @@ set disable_gt_xdc_tcl [file normalize [file join $this_dir "f2_c2c_disable_ip_g
 if {![file exists $preplace_tcl]} {
 	puts "WARNING: f2_c2c_gt_override.tcl: preplace script not found: $preplace_tcl"
 } else {
+	# Make sure hook scripts are part of the project archive.
+	# If they are not added to a fileset (e.g. utils_1), Vivado warns:
+	#   [Runs 36-537] File ... is not part of fileset utils_1 ...
+	# and the script may be missing in downstream CI stages that consume an
+	# archived project.
+	if {[file exists $disable_gt_xdc_tcl]} {
+		if {[llength [get_files -quiet $disable_gt_xdc_tcl]] == 0} {
+			if {[catch {add_files -fileset utils_1 $disable_gt_xdc_tcl} _add_err]} {
+				puts "WARNING: f2_c2c_gt_override.tcl: failed to add to utils_1: $disable_gt_xdc_tcl"
+			}
+		}
+	}
+	if {[llength [get_files -quiet $preplace_tcl]] == 0} {
+		if {[catch {add_files -fileset utils_1 $preplace_tcl} _add_err]} {
+			puts "WARNING: f2_c2c_gt_override.tcl: failed to add to utils_1: $preplace_tcl"
+		}
+	}
+
 	set impl_run [get_runs -quiet impl_1]
 	if {[llength $impl_run] == 0} {
 		puts "WARNING: f2_c2c_gt_override.tcl: run impl_1 not found; cannot attach pre-place hook"
