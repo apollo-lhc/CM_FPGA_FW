@@ -11,12 +11,17 @@
 #   control-flow is rejected.
 
 # Primary C2C GT channel (F2_C2C_PHY) -> GTYE4_CHANNEL_X1Y0
+#
+# We intentionally constrain only the enabled channel instance used by this
+# link (seen in impl logs as gen_channel_container[24]). This avoids
+# accidentally matching multiple GT channel primitives if the wizard contains
+# multiple lanes/containers.
 set_property LOC GTYE4_CHANNEL_X1Y0 \
-  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_CHANNEL_PRIM_INST"}]
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*gen_channel_container\[24\]*GTYE4_CHANNEL_PRIM_INST"}]
 
 # Secondary C2C GT channel (F2_C2CB_PHY) -> GTYE4_CHANNEL_X1Y1
 set_property LOC GTYE4_CHANNEL_X1Y1 \
-  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*GTYE4_CHANNEL_PRIM_INST"}]
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*gen_channel_container\[24\]*GTYE4_CHANNEL_PRIM_INST"}]
 
 # Pin the common/QPLL for the primary link into the matching quad.
 # (The secondary link is expected to share this common/QPLL.)
