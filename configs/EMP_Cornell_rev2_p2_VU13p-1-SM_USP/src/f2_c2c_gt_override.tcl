@@ -34,6 +34,7 @@ puts "INFO: Added F2 C2C GT override constraints (LATE): $xdc_path"
 # - The pre-place hook runs with the design open, so setting LOC here becomes
 #   the final word before the placer runs.
 set preplace_tcl [file normalize [file join $this_dir "f2_c2c_gt_preplace.tcl"]]
+set disable_gt_xdc_tcl [file normalize [file join $this_dir "f2_c2c_disable_ip_gt_xdc.tcl"]]
 if {![file exists $preplace_tcl]} {
 	puts "WARNING: f2_c2c_gt_override.tcl: preplace script not found: $preplace_tcl"
 } else {
@@ -41,7 +42,26 @@ if {![file exists $preplace_tcl]} {
 	if {[llength $impl_run] == 0} {
 		puts "WARNING: f2_c2c_gt_override.tcl: run impl_1 not found; cannot attach pre-place hook"
 	} else {
-		set_property STEPS.PLACE_DESIGN.TCL.PRE $preplace_tcl $impl_run
+		# Disable IP *_gt.xdc before constraints are read.
+		if {![file exists $disable_gt_xdc_tcl]} {
+			puts "WARNING: f2_c2c_gt_override.tcl: disable-gt-xdc script not found: $disable_gt_xdc_tcl"
+		} else {
+			set cur_init_pre [get_property STEPS.INIT_DESIGN.TCL.PRE $impl_run]
+			if {[string length $cur_init_pre] > 0} {
+				set_property STEPS.INIT_DESIGN.TCL.PRE [concat $cur_init_pre $disable_gt_xdc_tcl] $impl_run
+			} else {
+				set_property STEPS.INIT_DESIGN.TCL.PRE $disable_gt_xdc_tcl $impl_run
+			}
+			puts "INFO: Attached init-design disable GT XDC hook: $disable_gt_xdc_tcl"
+		}
+
+		# Force final GT LOCs immediately before placement.
+		set cur_place_pre [get_property STEPS.PLACE_DESIGN.TCL.PRE $impl_run]
+		if {[string length $cur_place_pre] > 0} {
+			set_property STEPS.PLACE_DESIGN.TCL.PRE [concat $cur_place_pre $preplace_tcl] $impl_run
+		} else {
+			set_property STEPS.PLACE_DESIGN.TCL.PRE $preplace_tcl $impl_run
+		}
 		puts "INFO: Attached pre-place GT LOC hook: $preplace_tcl"
 	}
 }
