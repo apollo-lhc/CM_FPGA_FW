@@ -25,6 +25,27 @@ if {[llength $xdc_file_obj] > 0} {
 
 puts "INFO: Added F2 C2C GT override constraints (LATE): $xdc_path"
 
+# Force GT LOCs immediately before placement.
+#
+# Motivation:
+# - In some flows, IP-generated *_gt.xdc constraints are read late enough that
+#   they can still win or at least emit critical warnings about conflicting
+#   hard-LOCs.
+# - The pre-place hook runs with the design open, so setting LOC here becomes
+#   the final word before the placer runs.
+set preplace_tcl [file normalize [file join $this_dir "f2_c2c_gt_preplace.tcl"]]
+if {![file exists $preplace_tcl]} {
+	puts "WARNING: f2_c2c_gt_override.tcl: preplace script not found: $preplace_tcl"
+} else {
+	set impl_run [get_runs -quiet impl_1]
+	if {[llength $impl_run] == 0} {
+		puts "WARNING: f2_c2c_gt_override.tcl: run impl_1 not found; cannot attach pre-place hook"
+	} else {
+		set_property STEPS.PLACE_DESIGN.TCL.PRE $preplace_tcl $impl_run
+		puts "INFO: Attached pre-place GT LOC hook: $preplace_tcl"
+	}
+}
+
 # Disable IP-generated GT Wizard hard-LOC constraints for these two PHYs.
 #
 # Rationale:
