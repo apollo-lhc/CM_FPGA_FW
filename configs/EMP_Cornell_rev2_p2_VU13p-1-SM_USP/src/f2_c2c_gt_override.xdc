@@ -11,19 +11,20 @@
 #   control-flow is rejected.
 
 # Primary C2C GT channel (F2_C2C_PHY) -> GTYE4_CHANNEL_X1Y0
+reset_property LOC \
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_CHANNEL_PRIM_INST"}]
 set_property LOC GTYE4_CHANNEL_X1Y0 \
   [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_CHANNEL_PRIM_INST"}]
 
 # Secondary C2C GT channel (F2_C2CB_PHY) -> GTYE4_CHANNEL_X1Y1
+reset_property LOC \
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*GTYE4_CHANNEL_PRIM_INST"}]
 set_property LOC GTYE4_CHANNEL_X1Y1 \
   [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*GTYE4_CHANNEL_PRIM_INST"}]
 
 # Pin the common/QPLL for the primary link into the matching quad.
 # (The secondary link is expected to share this common/QPLL.)
+reset_property LOC \
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_COMMON" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_COMMON_PRIM_INST"}]
 set_property LOC GTYE4_COMMON_X1Y0 \
   [get_cells -hierarchical -filter {REF_NAME == "GTYE4_COMMON" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_COMMON_PRIM_INST"}]
-
-# Some Aurora/GT Wizard configurations may still instantiate a GT common under the
-# secondary PHY wrapper. If present, force it into the same quad common site.
-set_property LOC GTYE4_COMMON_X1Y0 \
-  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_COMMON" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*GTYE4_COMMON_PRIM_INST"}]
