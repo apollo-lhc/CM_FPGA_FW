@@ -194,6 +194,12 @@ proc _report_gt_qpll_pairs_global {} {
 			lassign [_cell_loc_cr $c] c_loc c_cr
 			set c_pb [_cell_pblocks $c]
 
+			# If neither side has a LOC yet, this is fully unplaced/unconstrained and
+			# will be decided by the placer. Reporting these in CI produces too much noise.
+			if {$ch_loc eq "" && $c_loc eq ""} {
+				continue
+			}
+
 			set reason ""
 			if {$ch_loc eq ""} {
 				append reason "channel_LOC_missing;"
