@@ -13,7 +13,7 @@ proc _set_loc_if_found {ref_name name_glob loc} {
 		puts "WARNING: f2_c2c_gt_preplace.tcl: no cells matched (REF_NAME=$ref_name, NAME~= $name_glob)"
 		return
 	}
-	puts "INFO: f2_c2c_gt_preplace.tcl: setting LOC=$loc on [llength $cells] cell(s) (REF_NAME=$ref_name, NAME~= $name_glob)"
+	puts "WARNING: f2_c2c_gt_preplace.tcl: setting LOC=$loc on [llength $cells] cell(s) (REF_NAME=$ref_name, NAME~= $name_glob)"
 	set_property LOC $loc $cells
 }
 
