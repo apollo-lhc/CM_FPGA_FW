@@ -46,34 +46,43 @@ proc _report_gt_qpll_pairs {} {
 	# does not print the offending instance names in CI logs.
 	_warn "GT QPLL connectivity diagnostic: scanning GTYE4_CHANNEL QPLL nets"
 
-	set channels [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL"}]
+	# Restrict to the two C2C GT channels to keep logs short and relevant.
+	set channels [list]
+	set ch_a [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
+	set ch_b [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
+	set channels [concat $ch_a $ch_b]
 	if {[llength $channels] == 0} {
 		_warn "GT QPLL connectivity diagnostic: no GTYE4_CHANNEL cells found"
 		return
 	}
 
 	foreach ch $channels {
-		set qpll_pins [get_pins -quiet -of_objects $ch -filter {NAME =~ "*/QPLL*CLK" || NAME =~ "*/QPLL*REFCLK"}]
+		# Pin NAME can vary with hierarchy; REF_PIN_NAME is stable.
+		set qpll_pins [get_pins -quiet -of_objects $ch -filter {REF_PIN_NAME =~ "QPLL*CLK" || REF_PIN_NAME =~ "QPLL*REFCLK"}]
 		if {[llength $qpll_pins] == 0} {
+			set maybe [get_pins -quiet -of_objects $ch -filter {REF_PIN_NAME =~ "QPLL*"}]
+			_warn "GT QPLL diagnostic: channel=$ch has no QPLL*CLK/QPLL*REFCLK pins (QPLL* pins found: [llength $maybe])"
 			continue
 		}
 
 		foreach p $qpll_pins {
 			set n [get_nets -quiet -of_objects $p]
 			if {[llength $n] == 0} {
+				_warn "GT QPLL diagnostic: channel=$ch pin=[_safe_get_property REF_PIN_NAME $p] has no net"
 				continue
 			}
 			# Find any GTYE4_COMMON cells on this net.
 			set net_pins [get_pins -quiet -of_objects $n]
 			set commons [get_cells -quiet -of_objects $net_pins -filter {REF_NAME == "GTYE4_COMMON"}]
 			if {[llength $commons] == 0} {
+				_warn "GT QPLL diagnostic: channel=$ch pin=[_safe_get_property REF_PIN_NAME $p] net=[_safe_get_property NAME $n] has no GTYE4_COMMON on-net (pins=[llength $net_pins])"
 				continue
 			}
 
 			foreach c $commons {
 				lassign [_cell_loc_cr $c] c_loc c_cr
 				lassign [_cell_loc_cr $ch] ch_loc ch_cr
-				set pin_name [_safe_get_property NAME $p]
+				set pin_name [_safe_get_property REF_PIN_NAME $p]
 				set net_name [_safe_get_property NAME $n]
 				_warn "GT QPLL net=$net_name pin=$pin_name COMMON=$c LOC=$c_loc CR=$c_cr -> CHANNEL=$ch LOC=$ch_loc CR=$ch_cr"
 			}
