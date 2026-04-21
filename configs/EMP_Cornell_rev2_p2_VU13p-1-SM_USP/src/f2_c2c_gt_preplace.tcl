@@ -66,25 +66,41 @@ proc _report_gt_qpll_pairs {} {
 		}
 
 		foreach p $qpll_pins {
-			set n [get_nets -quiet -of_objects $p]
-			if {[llength $n] == 0} {
-				_warn "GT QPLL diagnostic: channel=$ch pin=[_safe_get_property REF_PIN_NAME $p] has no net"
-				continue
+			set pin_name [_safe_get_property REF_PIN_NAME $p]
+
+			# First try: walk up the logic cone so we can cross hierarchy ports.
+			set commons [list]
+			set startpts [list]
+			catch {set startpts [all_fanin -to $p -flat -startpoints_only -quiet]}
+			if {[llength $startpts] > 0} {
+				catch {set commons [get_cells -quiet -of_objects $startpts -filter {REF_NAME == "GTYE4_COMMON"}]}
 			}
-			# Find any GTYE4_COMMON cells on this net.
-			set net_pins [get_pins -quiet -of_objects $n]
-			set commons [get_cells -quiet -of_objects $net_pins -filter {REF_NAME == "GTYE4_COMMON"}]
+
+			# Fallback: look at the immediate net (may miss COMMON if it connects via ports).
+			set n [get_nets -quiet -of_objects $p]
+			set net_name ""
+			set net_pins [list]
+			if {[llength $n] > 0} {
+				set net_name [_safe_get_property NAME $n]
+				set net_pins [get_pins -quiet -of_objects $n]
+				if {[llength $commons] == 0} {
+					catch {set commons [get_cells -quiet -of_objects $net_pins -filter {REF_NAME == "GTYE4_COMMON"}]}
+				}
+			}
+
 			if {[llength $commons] == 0} {
-				_warn "GT QPLL diagnostic: channel=$ch pin=[_safe_get_property REF_PIN_NAME $p] net=[_safe_get_property NAME $n] has no GTYE4_COMMON on-net (pins=[llength $net_pins])"
+				if {$net_name eq ""} {
+					_warn "GT QPLL diagnostic: channel=$ch pin=$pin_name has no net and no COMMON found via all_fanin"
+				} else {
+					_warn "GT QPLL diagnostic: channel=$ch pin=$pin_name net=$net_name has no GTYE4_COMMON (all_fanin_startpts=[llength $startpts], net_pins=[llength $net_pins])"
+				}
 				continue
 			}
 
 			foreach c $commons {
 				lassign [_cell_loc_cr $c] c_loc c_cr
 				lassign [_cell_loc_cr $ch] ch_loc ch_cr
-				set pin_name [_safe_get_property REF_PIN_NAME $p]
-				set net_name [_safe_get_property NAME $n]
-				_warn "GT QPLL net=$net_name pin=$pin_name COMMON=$c LOC=$c_loc CR=$c_cr -> CHANNEL=$ch LOC=$ch_loc CR=$ch_cr"
+				_warn "GT QPLL pin=$pin_name net=$net_name COMMON=$c LOC=$c_loc CR=$c_cr -> CHANNEL=$ch LOC=$ch_loc CR=$ch_cr"
 			}
 		}
 	}
