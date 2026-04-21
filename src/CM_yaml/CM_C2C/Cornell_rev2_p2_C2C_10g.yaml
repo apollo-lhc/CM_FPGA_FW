@@ -9,9 +9,24 @@ AXI_SLAVES:
       refclk_freq: 200
       c2c_master: false
       speed: 10
-      # NOTE: GT steering via gt_channel_enable is disabled here because it can
-      # trigger Aurora GT sub-core validation failures (TX_REFCLK_SOURCE ... not enabled).
-      # Reference placement from a 5G implemented design: F2_C2C_PHY -> GTYE4_CHANNEL_X1Y0
+      # Optional transceiver PLL/common selection (Vivado/IP dependent; best-effort):
+      #   gt_pll: auto|cpll|qpll|qpll0|qpll1
+      #   gt_qpll_index: 0|1
+      #   gt_locate_common: auto|core|example_design
+      # 10G generally implies QPLL usage on GTYE4. Prefer QPLL0 to match the relay's
+      # proven configuration (QPLL0 enabled, QPLL1 powered down).
+      gt_pll: qpll0
+      gt_qpll_index: 0
+      gt_locate_common: auto
+      # Explicit GT channel placement is required here:
+      # Aurora may emit fixed LOC constraints in its generated *_gt.xdc, and without steering
+      # multiple links can default to the same channel causing impl-time BEL conflicts.
+      #
+      # NOTE: Some Vivado/IP combinations reject steering during validation with
+      # "TX/RX_REFCLK_SOURCE ... not enabled". The BD Tcl wrapper will automatically retry
+      # without steering in that case, so keeping these hints here is safe.
+      gt_channel_enable: X1Y0
+      gt_steering_mode: minimal_non_primary
       singleend_refclk: True
       addr: ${::AXI_BUS_CTRL}
   F2_C2CB:
@@ -26,9 +41,15 @@ AXI_SLAVES:
       refclk_freq: 200
       c2c_master: false
       speed: 10
-      # NOTE: GT steering via gt_channel_enable is disabled here because it can
-      # trigger Aurora GT sub-core validation failures (TX_REFCLK_SOURCE ... not enabled).
-      # Reference placement from a 5G implemented design: F2_C2CB_PHY -> GTYE4_CHANNEL_X1Y1
+      # Optional transceiver PLL/common selection (Vivado/IP dependent; best-effort):
+      #   gt_pll: auto|cpll|qpll|qpll0|qpll1
+      #   gt_qpll_index: 0|1
+      #   gt_locate_common: auto|core|example_design
+      gt_pll: qpll0
+      gt_qpll_index: 0
+      gt_locate_common: auto
+      gt_channel_enable: X1Y1
+      gt_steering_mode: minimal_non_primary
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
   F2_C2C_INTF:

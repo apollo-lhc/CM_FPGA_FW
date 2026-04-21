@@ -11,9 +11,26 @@ AXI_SLAVES:
       refclk_freq: 200
       c2c_master: false
       speed: 10
-      # NOTE: GT steering via gt_channel_enable is intentionally disabled here.
-      # On some Vivado/IP combinations it can trigger Aurora GT sub-core validation failures
-      # (e.g. TX/RX_REFCLK_SOURCE "not enabled") and lead to unstable steering behavior.
+      # Optional transceiver PLL/common selection (Vivado/IP dependent; best-effort):
+      #   gt_pll: auto|cpll|qpll|qpll0|qpll1
+      #   gt_qpll_index: 0|1
+      #   gt_locate_common: auto|core|example_design
+      #
+      # NOTE: If TCDS2 already instantiates the GTYE4_COMMON in this quad, setting
+      # gt_locate_common: core on C2C may conflict. Use these knobs carefully.
+      # 10G generally implies QPLL usage on GTYE4. We also proved the TCDS2 relay in this
+      # quad has QPLL0 enabled and QPLL1 powered down, so prefer QPLL0 for C2C to avoid
+      # any accidental QPLL1 selection.
+      gt_pll: qpll0
+      gt_qpll_index: 0
+      gt_locate_common: auto
+
+      # Explicit GT channel placement is required here:
+      # Aurora may emit fixed LOC constraints in its generated *_gt.xdc, and without steering
+      # multiple links can default to the same channel (e.g. X1Y0) causing an impl-time BEL
+      # constraint conflict.
+      gt_channel_enable: X1Y0
+      gt_steering_mode: minimal_non_primary
       singleend_refclk: True
       addr: ${::AXI_BUS_CTRL}
   F1_C2CB:
@@ -29,8 +46,18 @@ AXI_SLAVES:
       refclk_freq: 200
       c2c_master: false
       speed: 10
-      # NOTE: GT steering via gt_channel_enable is intentionally disabled here.
-      # This link shares the primary SERDES resources via primary_serdes: F1_C2C_PHY.
+      # Optional transceiver PLL/common selection (Vivado/IP dependent; best-effort):
+      #   gt_pll: auto|cpll|qpll|qpll0|qpll1
+      #   gt_qpll_index: 0|1
+      #   gt_locate_common: auto|core|example_design
+      gt_pll: qpll0
+      gt_qpll_index: 0
+      gt_locate_common: auto
+
+      # This link shares the primary SERDES resources via primary_serdes: F1_C2C_PHY,
+      # but must still select a distinct GT channel within the quad.
+      gt_channel_enable: X1Y1
+      gt_steering_mode: minimal_non_primary
       singleend_refclk: True
       addr_lite: ${::AXI_BUS_CTRL}
   F1_C2C_INTF:
