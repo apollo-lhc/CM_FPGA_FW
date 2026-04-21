@@ -18,10 +18,11 @@ proc _set_loc_if_found {ref_name name_glob loc} {
 }
 
 # Primary C2C GT channel (F2_C2C_PHY)
-_set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2C_PHY*gen_channel_container\[24\]*GTYE4_CHANNEL_PRIM_INST} GTYE4_CHANNEL_X1Y0
+# Anchor on 'gen_enabled_channel' to avoid matching disabled lanes.
+_set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2C_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST} GTYE4_CHANNEL_X1Y0
 
 # Secondary C2C GT channel (F2_C2CB_PHY)
-_set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2CB_PHY*gen_channel_container\[24\]*GTYE4_CHANNEL_PRIM_INST} GTYE4_CHANNEL_X1Y1
+_set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST} GTYE4_CHANNEL_X1Y1
 
 # Common/QPLL for the quad
 _set_loc_if_found GTYE4_COMMON *c2cSlave_i*F2_C2C_PHY*GTYE4_COMMON_PRIM_INST GTYE4_COMMON_X1Y0
