@@ -295,7 +295,7 @@ begin  -- architecture structure
       F2_C2CB_PHY_gt_pll_lock                => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
       F2_C2CB_PHY_hard_err                   => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
       F2_C2CB_PHY_lane_up                    => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
---      F2_C2CB_PHY_mmcm_not_locked            => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      F2_C2CB_PHY_mmcm_not_locked_out        => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
       F2_C2CB_PHY_soft_err                   => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
 
       F2_C2CB_aurora_do_cc                   =>  C2C_Mon.C2C(2).STATUS.DO_CC,
@@ -405,7 +405,7 @@ begin  -- architecture structure
       writeMOSI        => local_AXI_writeMOSI(2),
       writeMISO        => local_AXI_writeMISO(2),
       clk_C2C(1)       => clk_F2_C2C_PHY_user(1),
-      clk_C2C(2)       => clk_F2_C2C_PHY_user(1),
+      clk_C2C(2)       => clk_F2_C2CB_PHY_user(1),
       UART_Rx          => pb_UART_Rx,
       UART_Tx          => pb_UART_Tx,
       Mon              => C2C_Mon,
