@@ -73,6 +73,58 @@ proc _net_name_of_pin {pin} {
 	return [_safe_get_property NAME $n]
 }
 
+proc _report_c2c_refclk_summary {} {
+	# Emit a short summary tying together:
+	#  - where IBUFDS_GTE4 refclks are constrained/placed (LOC + CLOCK_REGION)
+	#  - which GTREFCLK/QPLL pins are actually connected for the two C2C channels
+	# This helps rule out missing/misplaced refclk buffering as a cause of [Place 30-738].
+	_warn "C2C refclk summary: IBUFDS_GTE4 + C2C channel refclk pins"
+
+	set ibufs [get_cells -hierarchical -quiet -filter {REF_NAME == "IBUFDS_GTE4"}]
+	foreach c $ibufs {
+		lassign [_cell_loc_cr $c] loc cr
+		set i_net ""
+		set ib_net ""
+		set o_net ""
+		set odiv2_net ""
+		set i_pin [get_pins -quiet -of_objects $c -filter {REF_PIN_NAME == "I"}]
+		set ib_pin [get_pins -quiet -of_objects $c -filter {REF_PIN_NAME == "IB"}]
+		set o_pin [get_pins -quiet -of_objects $c -filter {REF_PIN_NAME == "O"}]
+		set odiv2_pin [get_pins -quiet -of_objects $c -filter {REF_PIN_NAME == "ODIV2"}]
+		if {[llength $i_pin] > 0} { set i_net [_net_name_of_pin [lindex $i_pin 0]] }
+		if {[llength $ib_pin] > 0} { set ib_net [_net_name_of_pin [lindex $ib_pin 0]] }
+		if {[llength $o_pin] > 0} { set o_net [_net_name_of_pin [lindex $o_pin 0]] }
+		if {[llength $odiv2_pin] > 0} { set odiv2_net [_net_name_of_pin [lindex $odiv2_pin 0]] }
+		_warn "IBUFDS_GTE4 cell=$c LOC=$loc CR=$cr I=$i_net IB=$ib_net O=$o_net ODIV2=$odiv2_net"
+	}
+
+	set channels [list]
+	set ch_a [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
+	set ch_b [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
+	set channels [concat $ch_a $ch_b]
+	if {[llength $channels] == 0} {
+		_warn "C2C refclk summary: no C2C GTYE4_CHANNEL cells found"
+		return
+	}
+
+	foreach ch $channels {
+		lassign [_cell_loc_cr $ch] ch_loc ch_cr
+		set pins [get_pins -quiet -of_objects $ch -filter {
+			REF_PIN_NAME == "GTREFCLK0" ||
+			REF_PIN_NAME == "GTREFCLK1" ||
+			REF_PIN_NAME == "QPLL0CLK" ||
+			REF_PIN_NAME == "QPLL0REFCLK" ||
+			REF_PIN_NAME == "QPLL1CLK" ||
+			REF_PIN_NAME == "QPLL1REFCLK"
+		}]
+		foreach p $pins {
+			set rp [_safe_get_property REF_PIN_NAME $p]
+			set nn [_net_name_of_pin $p]
+			_warn "C2C refclk summary: CHANNEL=$ch LOC=$ch_loc CR=$ch_cr pin=$rp net=$nn"
+		}
+	}
+}
+
 proc _report_gt_qpll_pairs {} {
 	# Print COMMON<->CHANNEL pairings implied by QPLL nets, with LOC + CLOCK_REGION.
 	# This helps pinpoint exactly which pair triggers [Place 30-738] when Vivado
@@ -239,10 +291,52 @@ _set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTY
 # Anchor on 'gen_enabled_channel' to avoid matching disabled lanes.
 _set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2C_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST} GTYE4_CHANNEL_X1Y0
 
-# NOTE (P2): Do not force a C2C GTYE4_COMMON here.
-# The TTC/TCDS2 relay uses the quad common; C2C requests CPLL to avoid a second common.
+# Shared C2C GT COMMON (under F2_C2C_PHY) must be in the same quad as the channels.
+# Enforce this late so it reliably overrides any IP-generated *_gt.xdc constraints.
+_set_loc_if_found GTYE4_COMMON {*c2cSlave_i*F2_C2C_PHY*GTYE4_COMMON_PRIM_INST} GTYE4_COMMON_X1Y0
+
+# TTC/TCDS2 relay GT COMMON must match the (PBLOCK-forced) TTC channel quad.
+# See impl log evidence: ttc/.../tcds2_interface_mgt_common/.../GTYE4_COMMON_PRIM_INST had blank LOC
+# while the TTC channel was forced to GTYE4_CHANNEL_X1Y3 in PBLOCK quad_R0.
+_set_loc_if_found GTYE4_COMMON {*ttc/gen_master_tcds2.if_tcds2_interface_lw.tcds2_interface_mgt_common*common_inst/gtye4_common_gen.GTYE4_COMMON_PRIM_INST} GTYE4_COMMON_X1Y0
+
+# Optional last-resort experiment:
+# Allow the QPLL clock nets feeding the C2C channel(s) to use non-dedicated routing.
+# This can sometimes let the placer move the C2C COMMON to a different quad (freeing
+# the TTC-owned quad common), at the cost of timing/jitter risk.
+#
+# Enable by setting an environment variable before running Vivado:
+#   export CM_RELAX_C2C_QPLL_DEDICATED_ROUTE=1
+if {[info exists ::env(CM_RELAX_C2C_QPLL_DEDICATED_ROUTE)] && $::env(CM_RELAX_C2C_QPLL_DEDICATED_ROUTE) ne "" && $::env(CM_RELAX_C2C_QPLL_DEDICATED_ROUTE) ne "0"} {
+	_warn "CM_RELAX_C2C_QPLL_DEDICATED_ROUTE is set: relaxing CLOCK_DEDICATED_ROUTE on C2C QPLL nets (EXPERIMENTAL)"
+	set c2c_channels [list]
+	set ch_a [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
+	set ch_b [get_cells -hierarchical -quiet -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
+	set c2c_channels [concat $ch_a $ch_b]
+	set qpll_nets [list]
+	foreach ch $c2c_channels {
+		set qpll_pins [get_pins -quiet -of_objects $ch -filter {REF_PIN_NAME =~ "QPLL*CLK" || REF_PIN_NAME =~ "QPLL*REFCLK"}]
+		foreach p $qpll_pins {
+			set n [get_nets -quiet -of_objects $p]
+			if {[llength $n] > 0} {
+				set qpll_nets [concat $qpll_nets $n]
+			}
+		}
+	}
+	set qpll_nets [lsort -unique $qpll_nets]
+	if {[llength $qpll_nets] == 0} {
+		_warn "CM_RELAX_C2C_QPLL_DEDICATED_ROUTE: no QPLL nets found on C2C channels"
+	} else {
+		set_property -quiet CLOCK_DEDICATED_ROUTE FALSE $qpll_nets
+		_warn "CM_RELAX_C2C_QPLL_DEDICATED_ROUTE: set CLOCK_DEDICATED_ROUTE=FALSE on [llength $qpll_nets] net(s)"
+		foreach n $qpll_nets {
+			_warn "  relaxed: [_safe_get_property NAME $n]"
+		}
+	}
+}
 
 # Emit COMMON<->CHANNEL mapping so the CI log tells us which pair is illegal.
+_report_c2c_refclk_summary
 _report_gt_qpll_pairs
 
 # Also scan the rest of the design; [Place 30-738] may be triggered by a
