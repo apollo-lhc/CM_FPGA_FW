@@ -3,12 +3,28 @@
 # This runs with the design open, after IP-generated constraints have been read,
 # so it reliably overrides hard-LOCs from GT wizard *_gt.xdc.
 
-# NOTE: Some CI log captures only show WARNING/ERROR lines. Emit a single
-# WARNING banner so we can confirm this hook executed.
-puts "WARNING: f2_c2c_gt_preplace.tcl: running pre-place GT LOC enforcement"
+# This script is intentionally gated off by default.
+#
+# Rationale: hard LOC overrides can strongly perturb placement/timing in other
+# logic sharing the same quad/clock-region. Keep the machinery available for
+# experiments/debug, but do not apply constraints unless explicitly requested.
+#
+# Enable by exporting an env var before invoking the build:
+#   export CM_ENABLE_F2_C2C_GT_PREPLACE=1
 
 proc _warn {msg} {
 	puts "WARNING: f2_c2c_gt_preplace.tcl: $msg"
+}
+
+proc _enabled {} {
+	if {![info exists ::env(CM_ENABLE_F2_C2C_GT_PREPLACE)]} {
+		return 0
+	}
+	set v $::env(CM_ENABLE_F2_C2C_GT_PREPLACE)
+	if {$v eq "" || $v eq "0"} {
+		return 0
+	}
+	return 1
 }
 
 proc _safe_get_property {prop obj} {
@@ -284,6 +300,11 @@ proc _set_loc_if_found {ref_name name_glob loc} {
 	set_property LOC $loc $cells
 }
 
+if {[_enabled]} {
+	# NOTE: Some CI log captures only show WARNING/ERROR lines. Emit a single
+	# WARNING banner so we can confirm this hook executed when enabled.
+	puts "WARNING: f2_c2c_gt_preplace.tcl: running pre-place GT LOC enforcement"
+
 # Secondary C2C GT channel (F2_C2CB_PHY)
 _set_loc_if_found GTYE4_CHANNEL {*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST} GTYE4_CHANNEL_X1Y1
 
@@ -342,3 +363,4 @@ _report_gt_qpll_pairs
 # Also scan the rest of the design; [Place 30-738] may be triggered by a
 # different GT pair than the two C2C lanes.
 _report_gt_qpll_pairs_global
+}
