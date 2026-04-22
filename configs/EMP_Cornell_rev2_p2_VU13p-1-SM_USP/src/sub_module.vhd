@@ -75,6 +75,7 @@ architecture structure of sub_module is
   signal C2C_Mon  : C2C_INTF_MON_t;
   signal C2C_Ctrl : C2C_INTF_Ctrl_t;
   signal clk_F2_C2C_PHY_user                  : STD_logic_vector(1 downto 1);  
+    signal clk_F2_C2CB_PHY_user                 : STD_logic_vector(1 downto 1);
   signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
@@ -198,6 +199,7 @@ begin  -- architecture structure
       F2_C2CB_phy_Tx_txn                     => n_mgt_FPGA2z(2 downto 2),
       F2_C2CB_phy_Tx_txp                     => p_mgt_FPGA2z(2 downto 2),      
       F2_C2C_phy_refclk                      => c2c_refclk,
+        F2_C2CB_phy_refclk                     => c2c_refclk,
                                              
                                              
                                              
@@ -248,6 +250,7 @@ begin  -- architecture structure
       F2_C2C_axi_c2c_multi_bit_error_out     =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
       F2_C2C_phy_power_down                  => '0',
       F2_C2C_PHY_clk                         => clk_F2_C2C_PHY_user(1),
+        F2_C2CB_PHY_clk                         => clk_F2_C2CB_PHY_user(1),
       F2_C2C_PHY_DRP_daddr                   => C2C_Ctrl.C2C(1).DRP.address,
       F2_C2C_PHY_DRP_den                     => C2C_Ctrl.C2C(1).DRP.enable,
       F2_C2C_PHY_DRP_di                      => C2C_Ctrl.C2C(1).DRP.wr_data,

@@ -20,6 +20,24 @@ set_property LOC GTYE4_CHANNEL_X1Y0 \
 set_property LOC GTYE4_CHANNEL_X1Y1 \
   [get_cells -hierarchical -filter {REF_NAME == "GTYE4_CHANNEL" && NAME =~ "*c2cSlave_i*F2_C2CB_PHY*gen_enabled_channel*GTYE4_CHANNEL_PRIM_INST"}]
 
-# NOTE (P2): Do not force a C2C GTYE4_COMMON LOC here.
-# The TTC/TCDS2 relay owns the quad common in this build, and C2C is configured to
-# request CPLL to avoid instantiating/placing a competing GTYE4_COMMON.
+# Shared C2C GTYE4_COMMON -> GTYE4_COMMON_X1Y0
+#
+# Rationale:
+# - Both C2C channels above are pinned to Quad L (X1Y0/X1Y1).
+# - The channels are fed by a shared GTYE4_COMMON instantiated under F2_C2C_PHY
+#   (see pre-place hook diagnostics in CI logs).
+# - For dedicated QPLL clocking, the COMMON must be in the *same quad* as the channels;
+#   otherwise Vivado fails with [Place 30-738].
+set_property LOC GTYE4_COMMON_X1Y0 \
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_COMMON" && NAME =~ "*c2cSlave_i*F2_C2C_PHY*GTYE4_COMMON_PRIM_INST"}]
+
+# TTC/TCDS2 relay: constrain the GTYE4_COMMON that feeds the TTC GTY channel(s).
+#
+# Context:
+# - The TTC channel is forced into PBLOCK quad_R0 (e.g. GTYE4_CHANNEL_X1Y3).
+# - If the paired COMMON floats, Vivado can place it in a different clock region,
+#   triggering [Place 30-738] rule_gtycommon_gtychannel.
+#
+# For GTYE4 channels X1Y0..X1Y3, the matching COMMON is GTYE4_COMMON_X1Y0.
+set_property LOC GTYE4_COMMON_X1Y0 \
+  [get_cells -hierarchical -filter {REF_NAME == "GTYE4_COMMON" && NAME =~ "*ttc/gen_master_tcds2.if_tcds2_interface_lw.tcds2_interface_mgt_common*common_inst/gtye4_common_gen.GTYE4_COMMON_PRIM_INST"}]
