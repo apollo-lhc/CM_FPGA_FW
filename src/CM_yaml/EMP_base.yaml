@@ -29,7 +29,7 @@ AXI_SLAVES:
                 SUB_SLAVES:
                   CM_INTERCONNECT:
                     TCL_CALL:
-                      command: BUILD_CHILD_AXI_INTERCONNECT
+                      command: BUILD_ROOT_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
                       strategy: 2
@@ -44,12 +44,6 @@ AXI_SLAVES:
                       mi_has_regslice_map:
                         M02: 1
                         M05: 1
-                      parent:
-                        - JTAG_AXI_MASTER/M_AXI
-                      master_clk:
-                        - ${::AXI_MASTER_CLK}
-                      master_rstn:
-                        - "/SYS_RESET/interconnect_aresetn"
                     SUB_SLAVES:
                       CM_AXILITE_INTERCONNECT:
                         TCL_CALL:
@@ -60,9 +54,12 @@ AXI_SLAVES:
                           xbar_data_width: 64
                           parent:
                             - CM_INTERCONNECT
+                            - JTAG_AXI_MASTER/M_AXI
                           master_clk:
                             - ${::AXI_MASTER_CLK}
+                            - ${::AXI_MASTER_CLK}
                           master_rstn:
+                            - "/SYS_RESET/peripheral_aresetn"
                             - "/SYS_RESET/peripheral_aresetn"
 
 CORES:
