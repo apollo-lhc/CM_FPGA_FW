@@ -2,7 +2,7 @@ AXI_CONTROL_SETS:
   INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM2_base.yaml
   # override default axilite endpoint
   AXILITE_ENDPOINT_CTRL:
-    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_interconnect: "CM_AXILITE_INTERCONNECT"
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET/peripheral_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
