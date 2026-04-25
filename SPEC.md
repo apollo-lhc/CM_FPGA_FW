@@ -1,6 +1,6 @@
 # SPEC
 
-## Current status (c2c_dma_jrf_128_to_64)
+## Current status (baseline inherited from c2c_dma_jrf_128_to_64)
 
 This branch is the known-good 8 Gb/s C2C bandwidth-test branch for the EMP Cornell Rev2 CM builds. It keeps the full AXI C2C datapath at 64-bit width, moves the shared EMP AXI master clock to 100 MHz, and uses one Aurora lane per C2C link with per-channel CPLL clocking.
 
@@ -23,22 +23,28 @@ Primary branch wiring:
 - F1/F2 scratch RAM windows are 1 MiB, 64-bit BRAM-backed AXI4 endpoints for raw AXI and DMA-over-C2C testing.
 
 ## Work items
-1. [x] CM_FPGA_FW: Establish 64-bit AXI @ 100 MHz with 8 Gb/s C2C PHY for Rev2 EMP bandwidth tests
+1. [ ] CM_FPGA_FW: Align AXI4 datapath with SM_ZYNQ_FW (8 Gbps PHY, AXI-C2C @ 200 MHz)
 
    - [ ] Baseline
      - [ ] Current far-end FPGA (CM_FPGA_FW):
-       - AXI fabric @ 50 MHz
-       - AXI data width = 64-bit
-       - Aurora link configured for ~5 Gbps operation
+       - Aurora link configured for 8 Gbps operation (200 MHz refclk)
        - C2C1 / C2C2 operating in Compact 2-1 mode
-     - [ ] Designed to match previous 64-bit @ 50 MHz system
+       - AXI fabric clock observed at 100 MHz
+       - CM_INTERCONNECT:
+         - Advanced options disabled
+         - XBAR width = 32-bit
+       - AXI4 data width = 64-bit (current)
+       - AXI-Lite path exists (C2C1B / C2C2B)
 
    - [ ] Objective
-     - [ ] Upgrade far-end design to match new near-end gearbox architecture:
-       - Maintain 64-bit AXI width on the full AXI C2C path
-       - Increase AXI clock to 100 MHz for EMP builds
-       - Use 8 Gb/s Aurora with CPLL to avoid GTYE4_COMMON/QPLL placement coupling
-       - Preserve a separate 32-bit AXI-Lite C2CB path
+     - [ ] Upgrade far-end design to match the near-end gearbox approach (AXI4 only):
+       - Keep Aurora PHY at 8 Gbps (200 MHz refclk)
+       - Run AXI-C2C (AXI4) at 64-bit @ 200 MHz
+       - Convert AXI4 from 200 MHz to 100 MHz for the local fabric via AXI Clock Converter
+       - Widen AXI4 local fabric to 128-bit @ 100 MHz via AXI Data Width Converter
+       - Set CM_INTERCONNECT XBAR width to 128-bit @ 100 MHz
+       - Update F1_SCRATCH_RAM and F2_SCRATCH_RAM to 128-bit @ 100 MHz (initial throughput test)
+       - Keep AXI-Lite path unchanged (clocking, width, and topology)
 
    - [x] Aurora PHY Upgrade
      - [x] Reconfigure Aurora cores to:
@@ -48,76 +54,82 @@ Primary branch wiring:
        - Maintain Compact 2-1 mode
      - [x] Use 200 MHz reference clock in the C2C YAML.
      - [x] Add P2 GT placement/pre-place handling for the C2C channel.
+     - [ ] Verify:
+       - GT configuration matches near-end FPGA
+       - Lane configuration consistent with near-end (1 or 2 lanes as required)
 
-   - [x] AXI Clock Upgrade (Global)
-     - [x] Replace 50 MHz AXI clock with 100 MHz across EMP base AXI infrastructure:
-       - AXI Interconnect
-       - All AXI slaves
-       - C2C1 / C2C2 interfaces
-       - AXI Protocol Firewalls
-     - [x] Set `AXI_MASTER` to 100000000 in `src/CM_yaml/EMP_base.yaml`.
+   - [ ] Clocking (AXI4 split domains)
+     - [ ] Add Clocking Wizard to generate AXI-C2C clock:
+       - Output: 200 MHz (AXI-C2C AXI4 clock)
+       - Use `locked` for reset sequencing
+     - [ ] Keep existing AXI fabric clock at 100 MHz for local AXI4 interconnect and slaves
+     - [ ] Ensure AXI4-only clock domain crossings are explicit (AXI Clock Converter)
 
-   - [ ] Reset Strategy (100 MHz domain)
-     - [ ] Add Processor System Reset:
-       - `slowest_sync_clk` → 100 MHz
+   - [ ] Reset Strategy (AXI4 domains)
+     - [ ] Add/reset a Processor System Reset for 200 MHz AXI-C2C domain:
+       - `slowest_sync_clk` → 200 MHz
        - `ext_reset_in` → existing external reset
        - `dcm_locked` → Clocking Wizard `locked`
-     - [ ] Use `peripheral_aresetn` for all AXI logic
+       - Use `peripheral_aresetn` for AXI-C2C + converters in the 200 MHz domain
+     - [ ] Keep/confirm reset generation for 100 MHz AXI fabric domain
 
-   - [x] AXI Infrastructure Update
-     - [ ] Ensure all AXI paths remain:
-       - 64-bit width
-       - 100 MHz capable
-     - [ ] Validate:
-       - AXI Interconnect timing at 100 MHz
-       - No implicit 50 MHz constraints remain
-     - [x] Add 8 MiB IPbus windows and 1 MiB scratch BRAM endpoints for Rev2 EMP p1/p2 testing.
+   - [ ] AXI4 Infrastructure Update
+     - [ ] AXI-C2C (AXI4) domain @ 200 MHz:
+       - 64-bit AXI width
+       - C2C1 / C2C2 AXI4 clocked from 200 MHz
+     - [ ] AXI4 fabric domain @ 100 MHz:
+       - 128-bit AXI width on CM_INTERCONNECT and scratch RAM endpoints
+       - Insert AXI Data Width Converter (64 → 128) on the 100 MHz side
+       - Insert AXI Clock Converter (200 → 100) between C2C and CM_INTERCONNECT
+     - [ ] CM_INTERCONNECT tuning (match SM_ZYNQ_FW tactics as applicable):
+       - Enable Advanced Configuration Options
+       - Set XBAR width to 128-bit
+       - Apply data FIFO / register slice placement on the AXI4 ports carrying bulk traffic
 
-   - [x] Endpoint Throughput Validation
-     - [x] Verify bandwidth against scratch BRAM / native AXI test path:
-       - IPbus-to-BRAM: ~380 Mbps
-       - Native AXI writes: ~700 Mbps
+   - [ ] Endpoint Throughput Validation (initial)
+     - [ ] Verify the scratch RAM endpoints can sustain:
+       - 128-bit @ 100 MHz
      - [ ] Check:
        - BRAM / URAM interfaces
-       - DMA endpoints (if present)
        - Register blocks (ensure no unintended throttling)
      - [ ] Identify any slow peripherals and isolate if needed
 
-   - [x] C2C Interface Alignment
-     - [x] Ensure C2C1 / C2C2 full AXI path:
-       - AXI clock = 100 MHz
+   - [ ] C2C Interface Alignment
+     - [ ] Ensure C2C1 / C2C2 (AXI4):
+       - AXI clock = 200 MHz
        - AXI width = 64-bit
-       - Aurora line rate = 8 Gb/s
-       - CPLL selected
-     - [x] Keep AXI-Lite links (C2C1B / C2C2B) at 32-bit width.
+       - Configuration matches near-end FPGA
+     - [ ] Do NOT modify:
+       - AXI-Lite links (C2C1B / C2C2B)
 
    - [ ] Clock Domain Consistency
-     - [ ] Ensure:
-       - Single AXI clock domain at 100 MHz
-       - No unintended crossings back to 50 MHz
-     - [ ] Remove or update legacy 50 MHz AXI domains
+     - [ ] Ensure AXI4 uses exactly two explicit domains:
+       - 200 MHz for AXI-C2C AXI4
+       - 100 MHz for local AXI4 fabric
+     - [ ] Ensure there are no unintended implicit crossings (Vivado auto-inserted converters)
 
    - [ ] Validation
      - [ ] Verify clocks:
-       - 100 MHz present and stable
+       - 200 MHz AXI-C2C present and stable
+       - 100 MHz AXI fabric present and stable
      - [ ] Verify AXI:
        - No protocol violations
        - No timing failures
-     - [x] Verify Aurora:
-       - Link up at 8 Gb/s
-       - 1-lane CPLL configuration
+     - [ ] Verify Aurora:
+       - Link up at 8 Gbps
+       - No lane mismatch with near-end
      - [ ] End-to-end:
        - Sustained throughput matches expected bandwidth
 
    - [ ] Do NOT Modify
-     - [ ] AXI data width (must remain 64-bit)
+     - [ ] AXI-Lite topology, clocks, and widths
+     - [ ] C2C protocol-level behavior (Compact 2-1, link handler)
      - [ ] Functional behavior of endpoints
-     - [ ] Protocol-level behavior of C2C
 
    - [ ] Intent
-     - [ ] Align far-end FPGA with near-end gearbox architecture
-     - [ ] Remove bandwidth bottleneck caused by 50 MHz AXI domain
-     - [x] Move to the stable 8 Gb/s CPLL configuration used for the best measured bandwidth build
+     - [ ] Align far-end FPGA with near-end gearbox architecture (AXI4 path)
+     - [ ] Remove bandwidth bottlenecks from narrow/slow local interconnect configuration
+     - [ ] Enable higher utilization of the 8 Gbps Aurora link
 
    - [ ] Deliverables
      - [x] Updated YAML block design description
