@@ -70,6 +70,6 @@ AXI_SLAVES:
             range: "1M"
           remote_slave: "1"
           externalBport: false
-          width: 64
+          width: 128
         XML: "address_table/modules/BRAM.xml"
         UHAL_BASE: "auto"

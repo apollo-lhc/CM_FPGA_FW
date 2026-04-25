@@ -130,7 +130,7 @@ begin
 
     rate_counter_C2C_USER: entity work.rate_counter
       generic map (
-        CLK_A_1_SECOND => 50000000)
+        CLK_A_1_SECOND => CLKFREQ)
       port map (
         clk_A         => clk_axi,
         clk_B         => clk_C2C(iLane),
