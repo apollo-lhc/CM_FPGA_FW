@@ -22,7 +22,7 @@ AXI_SLAVES:
   F2_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
-      axi_control: ${::AXILITE_ENDPOINT_CTRL}
+      axi_control: ${::AXILITE_ENDPOINT_BUS_CTRL}
       axi_data_width: 32
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
@@ -30,7 +30,7 @@ AXI_SLAVES:
       c2c_master: false
       speed: 5
       singleend_refclk: True
-      addr_lite: ${::AXILITE_ENDPOINT_CTRL}
+      addr_lite: ${::AXILITE_ENDPOINT_BUS_CTRL}
   F2_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT

@@ -44,7 +44,7 @@ AXI_SLAVES:
   F1_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
-      axi_control: ${::AXILITE_ENDPOINT_CTRL}
+      axi_control: ${::AXILITE_ENDPOINT_BUS_CTRL}
       axi_data_width: 32
       aurora_lanes: 1
       # F1_C2CB sits in the same GT quad/clock region as F1_C2C (X1Y1 vs X1Y0),
@@ -67,7 +67,7 @@ AXI_SLAVES:
       gt_channel_enable: X1Y1
       gt_steering_mode: minimal_non_primary
       singleend_refclk: True
-      addr_lite: ${::AXILITE_ENDPOINT_CTRL}
+      addr_lite: ${::AXILITE_ENDPOINT_BUS_CTRL}
   F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT

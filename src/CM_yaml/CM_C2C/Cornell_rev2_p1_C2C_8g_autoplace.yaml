@@ -18,7 +18,7 @@ AXI_SLAVES:
   F1_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
-      axi_control: ${::AXILITE_ENDPOINT_CTRL}
+      axi_control: ${::AXILITE_ENDPOINT_BUS_CTRL}
       axi_data_width: 32
       aurora_lanes: 1
       # At 8 Gbps we want each link to be its own primary SERDES so it has its own CPLL.
@@ -29,7 +29,7 @@ AXI_SLAVES:
       speed: 8
       gt_pll: cpll
       singleend_refclk: True
-      addr_lite: ${::AXILITE_ENDPOINT_CTRL}
+      addr_lite: ${::AXILITE_ENDPOINT_BUS_CTRL}
   F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
