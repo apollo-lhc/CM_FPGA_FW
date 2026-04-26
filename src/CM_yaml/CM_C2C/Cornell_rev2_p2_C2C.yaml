@@ -4,6 +4,14 @@ AXI_SLAVES:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 64
+      gearbox_enable: 1
+      # CM fabric side (SI): 128-bit @ 100MHz
+      # C2C side (MI): 64-bit @ 200MHz
+      gearbox_si_data_width: 128
+      gearbox_mi_data_width: 64
+      gearbox_clkout_mhz: 200.0
+      gearbox_clk_wiz_name: c2c_clk_wiz_100to200
+      gearbox_rst_name: c2c_sys_resetter_200
       primary_serdes: 1
       init_clk: ${::EXT_CLK}
       refclk_freq: 200

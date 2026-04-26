@@ -32,6 +32,9 @@ AXI_SLAVES:
                       command: BUILD_ROOT_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                      mi_issuance_map:
+                        M02: 1
+                        M05: 1
                     SUB_SLAVES:
                       CM_AXILITE_INTERCONNECT:
                         TCL_CALL:

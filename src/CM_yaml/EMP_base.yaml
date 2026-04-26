@@ -41,6 +41,9 @@ AXI_SLAVES:
                       mi_has_data_fifo_map:
                         M02: 1
                         M05: 1
+                      mi_issuance_map:
+                        M02: 1
+                        M05: 1
                       mi_has_regslice_map:
                         M02: 1
                         M05: 1
