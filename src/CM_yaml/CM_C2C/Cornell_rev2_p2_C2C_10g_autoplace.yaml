@@ -41,7 +41,7 @@ AXI_SLAVES:
   F2_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
-      axi_control: ${::AXILITE_ENDPOINT_CTRL}
+      axi_control: ${::AXILITE_ENDPOINT_BUS_CTRL}
       axi_data_width: 32
       # F2_C2CB sits in the same GT quad/clock region as F2_C2C (X1Y1 vs X1Y0),
       # so it must reuse the primary serdes resources (GT common/QPLL, user clock).
@@ -56,7 +56,7 @@ AXI_SLAVES:
       #   gt_locate_common: auto|core|example_design
       gt_pll: cpll
       singleend_refclk: True
-      addr_lite: ${::AXILITE_ENDPOINT_CTRL}
+      addr_lite: ${::AXILITE_ENDPOINT_BUS_CTRL}
   F2_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
