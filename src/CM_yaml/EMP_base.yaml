@@ -39,14 +39,14 @@ AXI_SLAVES:
                       si_has_regslice_map:
                         S01: 1
                       mi_has_data_fifo_map:
-                        M02: 1
-                        M05: 1
+                        M01: 512
+                        M02: 512
                       mi_issuance_map:
+                        M01: 1
                         M02: 1
-                        M05: 1
                       mi_has_regslice_map:
+                        M01: 1
                         M02: 1
-                        M05: 1
                     SUB_SLAVES:
                       CM_AXILITE_INTERCONNECT:
                         TCL_CALL:
