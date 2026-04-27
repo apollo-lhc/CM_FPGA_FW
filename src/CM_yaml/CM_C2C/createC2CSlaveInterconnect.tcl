@@ -115,9 +115,6 @@ proc _ensure_vhdl_in_sources_1 {vhd_path} {
 	set target_lib [_get_target_vhdl_lib]
 	catch {set_property library $target_lib [get_files $vhd_path]}
 	puts "[info script]: ensured source: ${vhd_path} (in_project=[llength [get_files -quiet $vhd_path]] lib=${target_lib})"
-
-	# Refresh compile order so packages are compiled before dependent VHDL.
-	catch {update_compile_order -fileset sources_1}
 }
 
 _safe_source ${apollo_root_path}/bd/axi_helpers.tcl
@@ -164,6 +161,7 @@ puts "Modifying ${bd_design_name} wrapper file ${wrapper_file}"
 set output_text [exec ${apollo_root_path}/build-scripts/update_bd_wrapper.py -i $wrapper_file -o $wrapper_file_sane]
 puts "Adding ${wrapper_file_sane}"
 read_vhdl $wrapper_file_sane
+_ensure_vhdl_in_sources_1 $wrapper_file_sane
 
 
 
@@ -182,6 +180,10 @@ if {![file exists $global_pkg_vhd]} {
 }
 _safe_call "read_vhdl Global_PKG" [list read_vhdl -library [_get_target_vhdl_lib] $global_pkg_vhd]
 _ensure_vhdl_in_sources_1 $global_pkg_vhd
+
+# Refresh compile order once a top module exists in sources_1.
+# Doing this earlier (before wrapper import) can trigger filemgmt 20-730.
+catch {update_compile_order -fileset sources_1}
 
 # Ensure the updated sources list is persisted for later synth steps.
 catch {save_project}

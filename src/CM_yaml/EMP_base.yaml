@@ -34,19 +34,23 @@ AXI_SLAVES:
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
                       strategy: 2
                       xbar_data_width: 64
-                      si_has_data_fifo_map:
-                        S01: 1
-                      si_has_regslice_map:
-                        S01: 1
-                      mi_has_data_fifo_map:
-                        M01: 512
-                        M02: 512
-                      mi_issuance_map:
-                        M01: 1
-                        M02: 1
-                      mi_has_regslice_map:
-                        M01: 1
-                        M02: 1
+                      # SI tuning targets masters *into* this interconnect.
+                      # Apply only to the AXI4 C2C master (F1_C2C), not AXI4-Lite (F1_C2CB).
+                      si_has_data_fifo_by_master_map:
+                        F1_C2C: 1
+                      si_has_regslice_by_master_map:
+                        F1_C2C: 1
+                      # Do not key performance tuning off M0x indices (ordering changes across builds).
+                      # Enable FIFO/issuance only for the known AXI4 throughput endpoints.
+                      mi_has_data_fifo_by_device_map:
+                        F1_IPBUS: 512
+                        F1_SCRATCH_RAM: 512
+                      mi_issuance_by_device_map:
+                        F1_IPBUS: 1
+                        F1_SCRATCH_RAM: 1
+                      mi_has_regslice_by_device_map:
+                        F1_IPBUS: 1
+                        F1_SCRATCH_RAM: 1
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
                       master_clk:

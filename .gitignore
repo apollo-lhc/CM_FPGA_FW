@@ -1,6 +1,7 @@
 #tempfiles
 *~
 make_log.txt
+log_build_*.txt
 *.tar.gz
 
 # local dev env
