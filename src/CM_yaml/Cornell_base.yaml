@@ -40,23 +40,6 @@ AXI_SLAVES:
                         M01: 1
                         M02: 1
                     SUB_SLAVES:
-                      CM_AXILITE_INTERCONNECT:
-                        TCL_CALL:
-                          command: BUILD_CHILD_AXI_INTERCONNECT
-                          axi_clk: ${::AXI_MASTER_CLK}
-                          axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
-                          enable_advanced_options: 0
-                          strategy: 1
-                          xbar_data_width: 32
-                          parent:
-                            - CM_INTERCONNECT
-                            - JTAG_AXI_MASTER/M_AXI
-                          master_clk:
-                            - ${::AXI_MASTER_CLK}
-                            - ${::AXI_MASTER_CLK}
-                          master_rstn:
-                            - "/SYS_RESET_BUS_RST_N/Res"
-                            - "/SYS_RESET_BUS_RST_N/Res"
                       I2C_MASTER:
                         TCL_CALL:
                           command: GENERATE_PL_MASTER_FOR_INTERCONNECT

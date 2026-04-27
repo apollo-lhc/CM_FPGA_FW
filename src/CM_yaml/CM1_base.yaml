@@ -18,7 +18,7 @@ AXI_CONTROL_SETS:
       size: 0x01000000
       block_size: 4K
   AXILITE_ENDPOINT_CTRL:
-    axi_interconnect: "CM_AXILITE_INTERCONNECT"
+    axi_interconnect: "${::CM_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET/peripheral_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
@@ -29,7 +29,7 @@ AXI_CONTROL_SETS:
   # AXI-Lite endpoints in the B1 window, but released by the BUS reset.
   # This reuses AXILITE_ENDPOINT_CTRL's allocator tree to avoid overlapping allocations.
   AXILITE_ENDPOINT_BUS_CTRL:
-    axi_interconnect: "CM_AXILITE_INTERCONNECT"
+    axi_interconnect: "${::CM_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
