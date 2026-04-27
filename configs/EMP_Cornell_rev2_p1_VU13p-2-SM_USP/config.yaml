@@ -32,7 +32,7 @@ AXI_SLAVES:
       F1_IO:
         TCL_CALL: 
           command: AXI_PL_DEV_CONNECT
-          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          axi_control: "${::AXILITE_ENDPOINT_BUS_CTRL}"
           addr:
             offset: "-1"
             range: "4K"
@@ -45,7 +45,7 @@ AXI_SLAVES:
       F1_CM_FW_INFO:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
-          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          axi_control: "${::AXILITE_ENDPOINT_BUS_CTRL}"
           addr:
             offset: "-1"
             range: "4K"
