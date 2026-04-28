@@ -9,6 +9,7 @@ AXI_SLAVES:
       # C2C side (MI): 64-bit @ 200MHz
       gearbox_si_data_width: 128
       gearbox_mi_data_width: 64
+      gearbox_m_axi_dwidth_first: 1
       gearbox_clkout_mhz: 200.0
       gearbox_clk_wiz_name: c2c_clk_wiz_100to200
       gearbox_rst_name: c2c_sys_resetter_200
