@@ -32,15 +32,18 @@ AXI_SLAVES:
                       command: BUILD_CHILD_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                      enable_advanced_options: 0
+                      strategy: 0
+                      xbar_data_width: 32
                       mi_has_data_fifo_map:
-                        M01: 512
-                        M02: 512
+                        M01: 0
+                        M02: 0
                       mi_issuance_map:
-                        M01: 1
-                        M02: 1
+                        M01: 0
+                        M02: 0
                       mi_has_regslice_map:
-                        M01: 1
-                        M02: 1
+                        M01: 0
+                        M02: 0
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
                       master_clk:
