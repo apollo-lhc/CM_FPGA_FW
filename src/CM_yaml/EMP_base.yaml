@@ -33,7 +33,7 @@ AXI_SLAVES:
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
                       enable_advanced_options: 0
-                      strategy: 0
+                      strategy: 1
                       xbar_data_width: 32
                       # SI tuning targets masters *into* this interconnect.
                       # Apply only to the AXI4 C2C master (F1_C2C), not AXI4-Lite (F1_C2CB).
