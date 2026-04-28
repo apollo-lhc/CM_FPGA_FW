@@ -15,49 +15,65 @@ AXI_SLAVES:
           global_signal: true
           add_rst_n: true
         SUB_SLAVES:
-          SYS_RESET:
+          AXI_CLK_WIZ:
             TCL_CALL:
-              command: IP_SYS_RESET
-              external_reset_n: ${::AXI_MASTER_RSTN}
-              slowest_clk: ${::AXI_MASTER_CLK}
+              # Single source of truth for AXI fabric clocks:
+              # - External 100 MHz is used ONLY as clk_wiz input
+              # - clk_out1 provides the 100 MHz domain
+              # - clk_out2 provides the 200 MHz domain
+              # - locked is used to gate proc_sys_reset deassertion
+              command: ADD_CLK_WIZ_DUAL_OUT
+              device_name: c2c_clk_wiz_100to200
+              in_clk: ${::AXI_MASTER_CLK}
+              out1_mhz: 100.0
+              out2_mhz: 200.0
+              global_clk1_var: AXI_MASTER_CLK
+              global_clk2_var: AXI_MASTER_CLK_200
             SUB_SLAVES:
-              JTAG_AXI_MASTER:
+              SYS_RESET:
                 TCL_CALL:
-                  command: BUILD_JTAG_AXI_MASTER
-                  axi_clk: ${::AXI_MASTER_CLK}
-                  axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+                  command: IP_SYS_RESET
+                  external_reset_n: ${::AXI_MASTER_RSTN}
+                  slowest_clk: c2c_clk_wiz_100to200/clk_out1
+                  dcm_locked: c2c_clk_wiz_100to200/locked
                 SUB_SLAVES:
-                  CM_INTERCONNECT:
+                  JTAG_AXI_MASTER:
                     TCL_CALL:
-                      command: BUILD_CHILD_AXI_INTERCONNECT
+                      command: BUILD_JTAG_AXI_MASTER
                       axi_clk: ${::AXI_MASTER_CLK}
-                      axi_rstn: "/SYS_RESET/interconnect_aresetn"
-                      enable_advanced_options: 0
-                      strategy: 1
-                      xbar_data_width: 32
-                      # SI tuning targets masters *into* this interconnect.
-                      # Apply only to the AXI4 C2C master (F1_C2C), not AXI4-Lite (F1_C2CB).
-                      si_has_data_fifo_by_master_map:
-                        F1_C2C: 0
-                      si_has_regslice_by_master_map:
-                        F1_C2C: 0
-                      # Do not key performance tuning off M0x indices (ordering changes across builds).
-                      # Enable FIFO/issuance only for the known AXI4 throughput endpoints.
-                      mi_has_data_fifo_by_device_map:
-                        F1_IPBUS: 0
-                        F1_SCRATCH_RAM: 0
-                      mi_issuance_by_device_map:
-                        F1_IPBUS: 0
-                        F1_SCRATCH_RAM: 0
-                      mi_has_regslice_by_device_map:
-                        F1_IPBUS: 0
-                        F1_SCRATCH_RAM: 0
-                      parent:
-                        - JTAG_AXI_MASTER/M_AXI
-                      master_clk:
-                        - ${::AXI_MASTER_CLK}
-                      master_rstn:
-                        - "/SYS_RESET/interconnect_aresetn"
+                      axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+                    SUB_SLAVES:
+                      CM_INTERCONNECT:
+                        TCL_CALL:
+                          command: BUILD_CHILD_AXI_INTERCONNECT
+                          axi_clk: ${::AXI_MASTER_CLK}
+                          axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                          enable_advanced_options: 0
+                          strategy: 1
+                          xbar_data_width: 32
+                          # SI tuning targets masters *into* this interconnect.
+                          # Apply only to the AXI4 C2C master (F1_C2C), not AXI4-Lite (F1_C2CB).
+                          si_has_data_fifo_by_master_map:
+                            F1_C2C: 0
+                          si_has_regslice_by_master_map:
+                            F1_C2C: 0
+                          # Do not key performance tuning off M0x indices (ordering changes across builds).
+                          # Enable FIFO/issuance only for the known AXI4 throughput endpoints.
+                          mi_has_data_fifo_by_device_map:
+                            F1_IPBUS: 0
+                            F1_SCRATCH_RAM: 0
+                          mi_issuance_by_device_map:
+                            F1_IPBUS: 0
+                            F1_SCRATCH_RAM: 0
+                          mi_has_regslice_by_device_map:
+                            F1_IPBUS: 0
+                            F1_SCRATCH_RAM: 0
+                          parent:
+                            - JTAG_AXI_MASTER/M_AXI
+                          master_clk:
+                            - ${::AXI_MASTER_CLK}
+                          master_rstn:
+                            - "/SYS_RESET/interconnect_aresetn"
 
 CORES:
   onboardclk:
