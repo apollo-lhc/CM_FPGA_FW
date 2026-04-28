@@ -12,6 +12,7 @@ AXI_SLAVES:
       gearbox_clkout_mhz: 200.0
       gearbox_clk_wiz_name: c2c_clk_wiz_100to200
       gearbox_rst_name: c2c_sys_resetter_200
+      gearbox_external_reset_n: ${::AXI_MASTER_RSTN}
       aurora_lanes: 1
       enforce_aurora_width_match: 0
       primary_serdes: 1
