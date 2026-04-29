@@ -137,6 +137,45 @@ _safe_call "create_bd_design ${bd_design_name}" [list create_bd_design -dir ./ $
 _safe_call "source add_slaves_from_yaml.tcl" [list source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl]
 _safe_call "yaml_to_bd config.yaml" [list yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"]
 
+#================================================================================
+#  Export internal fabric clock for external AXI ports
+#================================================================================
+# After moving the AXI fabric clock behind a clk_wiz (e.g. c2c_clk_wiz_100to200/clk_out1),
+# Vivado validate_bd_design expects an *external clock port* with CONFIG.ASSOCIATED_BUSIF
+# listing any external AXI interface ports (e.g. /F1_IPBUS, /F1_IO, ...).
+#
+# Export clk_out1 as an output port and associate all AXI* interface ports to it.
+_safe_call "export AXI fabric clock port" {
+	set _clk_wiz_name "c2c_clk_wiz_100to200"
+	set _clk_pin [get_bd_pins -quiet ${_clk_wiz_name}/clk_out1]
+	if {[llength $_clk_pin] == 0} {
+		puts "[info script]: INFO: no ${_clk_wiz_name}/clk_out1 pin found; skipping export"
+	} else {
+		set _clk_port_name "AXI_MASTER_CLK_OUT"
+		if {![llength [get_bd_ports -quiet $_clk_port_name]]} {
+			make_bd_pins_external -name $_clk_port_name $_clk_pin
+		}
+
+		# Build ASSOCIATED_BUSIF list from all top-level AXI* interface ports.
+		set _busifs [list]
+		foreach _p [get_bd_intf_ports -quiet] {
+			set _prot [get_property -quiet CONFIG.PROTOCOL $_p]
+			if {$_prot eq ""} { continue }
+			if {[string match "AXI*" $_prot]} {
+				lappend _busifs [get_property NAME $_p]
+			}
+		}
+		if {[llength $_busifs] > 0} {
+			set _assoc [join $_busifs ":"]
+			set _clk_port [get_bd_ports $_clk_port_name]
+			set_property CONFIG.ASSOCIATED_BUSIF $_assoc $_clk_port
+			puts "[info script]: exported $_clk_port_name and set ASSOCIATED_BUSIF=$_assoc"
+		} else {
+			puts "[info script]: INFO: no AXI* bd interface ports found; skipping ASSOCIATED_BUSIF"
+		}
+	}
+}
+
 puts "[info script]: generating AXI slave address-map packages"
 _safe_call "GENERATE_AXI_ADDR_MAP_C" [list GENERATE_AXI_ADDR_MAP_C "${::autogen_dir}/AXI_slave_addrs.h"]
 _safe_call "GENERATE_AXI_ADDR_MAP_VHDL" [list GENERATE_AXI_ADDR_MAP_VHDL "${::autogen_dir}/AXI_slave_pkg.vhd"]
