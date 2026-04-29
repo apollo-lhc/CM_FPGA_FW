@@ -355,8 +355,17 @@ begin  -- architecture structure
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F2_IO)
       )
     port map (
-      clk_axi         => AXI_CLK,
-      reset_axi_n     => AXI_RST_N,
+        -- AXI fabric clock: run at 200 MHz (use EMP clk_200 via BUFGCE_DIV)
+        AXI_CLK_BUFGCE_DIV_200_TO_200 : BUFGCE_DIV
+          generic map (
+            BUFGCE_DIVIDE => 1
+          )
+          port map (
+            I   => clk_200,
+            CE  => '1',
+            CLR => '0',
+            O   => AXI_CLK
+          );
       slave_readMOSI  => local_AXI_readMOSI(0),
       slave_readMISO  => local_AXI_readMISO(0),
       slave_writeMOSI => local_AXI_writeMOSI(0),

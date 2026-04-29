@@ -104,8 +104,17 @@ begin  -- architecture structure
 
 
                    
-  -- AXI fabric clock: run at 200 MHz (use EMP clk_200 directly)
-  AXI_CLK <= clk_200;
+  -- AXI fabric clock: run at 200 MHz (use EMP clk_200 via BUFGCE_DIV)
+  AXI_CLK_BUFGCE_DIV_200_TO_200 : BUFGCE_DIV
+    generic map (
+      BUFGCE_DIVIDE => 1
+    )
+    port map (
+      I   => clk_200,
+      CE  => '1',
+      CLR => '0',
+      O   => AXI_CLK
+    );
 
   --export the axi clock and reset to emp
   clk_axi <= AXI_CLK;
