@@ -1,0 +1,55 @@
+# EMP base block design definition (200 MHz AXI fabric clock)
+#
+# This is a variant of EMP_base.yaml intended for EMP_Cornell_rev2_* builds that
+# want the entire AXI fabric to run at 200 MHz (single clock domain).
+
+AXI_SLAVES:
+  EXT_CLK:
+    TCL_CALL:
+      command: ADD_PL_CLK
+      name: EXT
+      freq: 50000000
+      global_signal: true
+      #add_rst_n: true
+    SUB_SLAVES:
+      AXI_CLK:
+        TCL_CALL:
+          command: ADD_PL_CLK
+          name: AXI_MASTER
+          freq: 200000000
+          global_signal: true
+          add_rst_n: true
+        SUB_SLAVES:
+          SYS_RESET:
+            TCL_CALL:
+              command: IP_SYS_RESET
+              external_reset_n: ${::AXI_MASTER_RSTN}
+              slowest_clk: ${::AXI_MASTER_CLK}
+            SUB_SLAVES:
+              JTAG_AXI_MASTER:
+                TCL_CALL:
+                  command: BUILD_JTAG_AXI_MASTER
+                  axi_clk: ${::AXI_MASTER_CLK}
+                  axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+                SUB_SLAVES:
+                  CM_INTERCONNECT:
+                    TCL_CALL:
+                      command: BUILD_CHILD_AXI_INTERCONNECT
+                      axi_clk: ${::AXI_MASTER_CLK}
+                      axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                      parent:
+                        - JTAG_AXI_MASTER/M_AXI
+                      master_clk:
+                        - ${::AXI_MASTER_CLK}
+                      master_rstn:
+                        - "/SYS_RESET/interconnect_aresetn"
+
+CORES:
+  onboardclk:
+    TCL_CALL:
+      command: IP_CORE_ClockWizard
+      in_clk_type: Differential_clock_capable_pin
+      in_clk_freq_MHZ: 200.000
+      out_clks:
+        1: 200.000
+        2: 50.000

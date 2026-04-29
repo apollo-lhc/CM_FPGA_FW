@@ -103,17 +103,8 @@ architecture structure of sub_module is
   
 begin  -- architecture structure
                    
-  -- AXI fabric clock: 100 MHz derived from the 200 MHz EMP clock
-  AXI_CLK_BUFGCE_DIV_200_TO_100 : BUFGCE_DIV
-    generic map (
-      BUFGCE_DIVIDE => 2
-    )
-    port map (
-      I   => clk_200,
-      CE  => '1',
-      CLR => '0',
-      O   => AXI_CLK
-    );
+  -- AXI fabric clock: run at 200 MHz (use EMP clk_200 directly)
+  AXI_CLK <= clk_200;
 
   --export the axi clock and reset to emp
   clk_axi <= AXI_CLK;
