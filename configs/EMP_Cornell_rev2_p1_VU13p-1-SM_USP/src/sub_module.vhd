@@ -68,14 +68,8 @@ architecture structure of sub_module is
   signal local_AXI_WriteMOSI : AXIWriteMOSI_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMOSI);
   signal local_AXI_WriteMISO : AXIWriteMISO_array_t(0 to localAXISlaves-1) := ( others => DefaultAXIWriteMISO);
   signal AXI_CLK             : std_logic;
-  signal AXI_CLK_250_UNBUF    : std_logic;
   signal AXI_RST_N           : std_logic;
   signal AXI_RESET           : std_logic;
-
-  signal AXI_MMCM_FBOUT       : std_logic;
-  signal AXI_MMCM_FBIN        : std_logic;
-  signal AXI_MMCM_LOCKED      : std_logic;
-  signal AXI_MASTER_RSTN_INT  : std_logic;
 
   -- kh aug'22
   signal C2C_Mon  : C2C_INTF_MON_t;
@@ -110,52 +104,8 @@ begin  -- architecture structure
 
 
                    
-  -- AXI fabric clock: 125 MHz derived from the 200 MHz EMP clock.
-  -- Generate 250 MHz with an MMCM, then divide by 2 using BUFGCE_DIV.
-  AXI_MMCM_FB_BUFG : BUFG
-    port map (
-      I => AXI_MMCM_FBOUT,
-      O => AXI_MMCM_FBIN
-      );
-
-  AXI_MMCM_200_TO_250 : MMCME4_BASE
-    generic map (
-      CLKIN1_PERIOD      => 5.0,
-      DIVCLK_DIVIDE      => 1,
-      CLKFBOUT_MULT_F    => 5.0,
-      CLKOUT0_DIVIDE_F   => 4.0,
-      CLKOUT0_PHASE      => 0.0,
-      CLKOUT0_DUTY_CYCLE => 0.5,
-      STARTUP_WAIT       => "FALSE"
-      )
-    port map (
-      CLKIN1   => clk_200,
-      CLKFBIN  => AXI_MMCM_FBIN,
-      RST      => not locked_clk200,
-      PWRDWN   => '0',
-      CLKFBOUT => AXI_MMCM_FBOUT,
-      CLKOUT0  => AXI_CLK_250_UNBUF,
-      CLKOUT1  => open,
-      CLKOUT2  => open,
-      CLKOUT3  => open,
-      CLKOUT4  => open,
-      CLKOUT5  => open,
-      CLKOUT6  => open,
-      LOCKED   => AXI_MMCM_LOCKED
-      );
-
-  AXI_CLK_BUFGCE_DIV_250_TO_125 : BUFGCE_DIV
-    generic map (
-      BUFGCE_DIVIDE => 2
-    )
-    port map (
-      I   => AXI_CLK_250_UNBUF,
-      CE  => '1',
-      CLR => '0',
-      O   => AXI_CLK
-    );
-
-  AXI_MASTER_RSTN_INT <= locked_clk200 and AXI_MMCM_LOCKED;
+  -- AXI fabric clock: run at 200 MHz (use EMP clk_200 directly)
+  AXI_CLK <= clk_200;
 
   --export the axi clock and reset to emp
   clk_axi <= AXI_CLK;
@@ -202,7 +152,7 @@ begin  -- architecture structure
     port map (
       EXT_CLK                                => clk_50,
       AXI_MASTER_CLK                         => AXI_CLK,      
-      AXI_MASTER_RSTN                        => AXI_MASTER_RSTN_INT,
+      AXI_MASTER_RSTN                        => locked_clk200,
       sys_reset_rst_n(0)                     => AXI_RST_N,
                                              
       --AXI endpoint--                       
