@@ -152,26 +152,36 @@ _safe_call "export AXI fabric clock port" {
 		puts "[info script]: INFO: no ${_clk_wiz_name}/clk_out1 pin found; skipping export"
 	} else {
 		set _clk_port_name "AXI_MASTER_CLK_OUT"
-		if {![llength [get_bd_ports -quiet $_clk_port_name]]} {
-			make_bd_pins_external -name $_clk_port_name $_clk_pin
+		set _clk_port [get_bd_ports -quiet $_clk_port_name]
+		if {![llength $_clk_port]} {
+			# make_bd_pins_external returns the created external port(s). Capture the handle
+			# so we don't rely on name-based lookup (which can fail if Vivado adjusts names).
+			set _created_ports [make_bd_pins_external -name $_clk_port_name $_clk_pin]
+			set _clk_port [lindex $_created_ports 0]
 		}
-
-		# Build ASSOCIATED_BUSIF list from all top-level AXI* interface ports.
-		set _busifs [list]
-		foreach _p [get_bd_intf_ports -quiet] {
-			set _prot [get_property -quiet CONFIG.PROTOCOL $_p]
-			if {$_prot eq ""} { continue }
-			if {[string match "AXI*" $_prot]} {
-				lappend _busifs [get_property NAME $_p]
-			}
-		}
-		if {[llength $_busifs] > 0} {
-			set _assoc [join $_busifs ":"]
-			set _clk_port [get_bd_ports $_clk_port_name]
-			set_property CONFIG.ASSOCIATED_BUSIF $_assoc $_clk_port
-			puts "[info script]: exported $_clk_port_name and set ASSOCIATED_BUSIF=$_assoc"
+		if {![llength $_clk_port]} {
+			puts "[info script]: WARNING: failed to export fabric clock port ${_clk_port_name}; skipping ASSOCIATED_BUSIF"
 		} else {
-			puts "[info script]: INFO: no AXI* bd interface ports found; skipping ASSOCIATED_BUSIF"
+
+			# Build ASSOCIATED_BUSIF list from all top-level AXI* interface ports.
+			set _busifs [list]
+			foreach _p [get_bd_intf_ports -quiet] {
+				set _prot [get_property -quiet CONFIG.PROTOCOL $_p]
+				if {$_prot eq ""} { continue }
+				if {[string match "AXI*" $_prot]} {
+					lappend _busifs [get_property NAME $_p]
+				}
+			}
+			if {[llength $_busifs] > 0} {
+				set _assoc [join $_busifs ":"]
+				if {[catch {set_property CONFIG.ASSOCIATED_BUSIF $_assoc $_clk_port} _err]} {
+					puts "[info script]: WARNING: could not set ASSOCIATED_BUSIF on ${_clk_port_name}: ${_err}"
+				} else {
+					puts "[info script]: exported $_clk_port_name and set ASSOCIATED_BUSIF=$_assoc"
+				}
+			} else {
+				puts "[info script]: INFO: no AXI* bd interface ports found; skipping ASSOCIATED_BUSIF"
+			}
 		}
 	}
 }
