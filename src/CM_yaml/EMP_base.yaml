@@ -34,7 +34,7 @@ AXI_SLAVES:
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
                       enable_advanced_options: 1
                       strategy: 2
-                      xbar_data_width: 128
+                      xbar_data_width: 64
                       si_has_data_fifo_map:
                         S01: 1
                       si_has_regslice_map:
