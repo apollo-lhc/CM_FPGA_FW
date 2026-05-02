@@ -18,7 +18,7 @@ AXI_SLAVES:
   F2_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
-      axi_control: ${::AXI_BUS_CTRL}
+      axi_control: ${::AXI_BUS_LITE_CTRL}
       axi_data_width: 32
       # At 8 Gbps we want each link to be its own primary SERDES so it has its own CPLL.
       primary_serdes: 1
@@ -28,7 +28,7 @@ AXI_SLAVES:
       speed: 8
       gt_pll: cpll
       singleend_refclk: True
-      addr_lite: ${::AXI_BUS_CTRL}
+      addr_lite: ${::AXI_BUS_LITE_CTRL}
   F2_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
