@@ -1,8 +1,9 @@
 AXI_CONTROL_SETS:
   INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM1_base.yaml
-  # override default axilite endpoint
+
+  # Route AXI-Lite endpoints via a separate AXI-Lite-only interconnect domain.
   AXILITE_ENDPOINT_CTRL:
-    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET/peripheral_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
@@ -10,6 +11,14 @@ AXI_CONTROL_SETS:
       starting_address: 0xB1000000
       size: 0x00800000
       block_size: 4K
+
+  # Ensure the AXI-Lite C2C master (F1_C2CB) drives the AXI-Lite-only interconnect.
+  AXI_BUS_LITE_CTRL:
+    axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_base: 0xB0000000
 
 AXI_SLAVES:
   BASE:

@@ -21,21 +21,31 @@ AXI_SLAVES:
               external_reset_n: ${::AXI_MASTER_RSTN}
               slowest_clk: ${::AXI_MASTER_CLK}
             SUB_SLAVES:
+              # AXI4 domain interconnect (NOT connected to JTAG).
+              # Driven by the full AXI4 C2C master (F1_C2C) via AXI_BUS_CTRL.
+              CM_INTERCONNECT:
+                TCL_CALL:
+                  command: BUILD_ROOT_AXI_INTERCONNECT
+                  axi_clk: ${::AXI_MASTER_CLK}
+                  axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                  # Interconnect optimization strategy (Vivado enum):
+                  # 1=min area (legacy default), 2=max performance/bandwidth
+                  enable_advanced_options: 1
+                  strategy: 2
+
               JTAG_AXI_MASTER:
                 TCL_CALL:
                   command: BUILD_JTAG_AXI_MASTER
                   axi_clk: ${::AXI_MASTER_CLK}
                   axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
                 SUB_SLAVES:
-                  CM_INTERCONNECT:
+                  # AXI-Lite domain interconnect.
+                  # For now, connect the JTAG master here (and keep it separate from CM_INTERCONNECT).
+                  CM_AXI_LITE_INTERCONNECT:
                     TCL_CALL:
                       command: BUILD_CHILD_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
-                      # Interconnect optimization strategy (Vivado enum):
-                      # 1=min area (legacy default), 2=max performance/bandwidth
-                      enable_advanced_options: 1
-                      strategy: 2
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
                       master_clk:

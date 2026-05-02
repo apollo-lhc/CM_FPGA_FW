@@ -38,3 +38,13 @@ AXI_CONTROL_SETS:
     axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     axi_base: 0xB0000000
+
+  # AXI bus control for AXI-Lite C2C masters.
+  # Default keeps historical behavior (shares CM_INTERCONNECT).
+  # Specific configs can override this to point at a separate AXI-Lite interconnect.
+  AXI_BUS_LITE_CTRL:
+    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_base: 0xB0000000

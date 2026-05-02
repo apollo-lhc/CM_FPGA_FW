@@ -20,7 +20,7 @@ AXI_SLAVES:
   F1_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
-      axi_control: ${::AXI_BUS_CTRL}
+      axi_control: ${::AXI_BUS_LITE_CTRL}
       axi_data_width: 32
       aurora_lanes: 1
       # At 8 Gbps we want each link to be its own primary SERDES so it has its own CPLL.
@@ -31,7 +31,7 @@ AXI_SLAVES:
       speed: 8
       gt_pll: cpll
       singleend_refclk: True
-      addr_lite: ${::AXI_BUS_CTRL}
+      addr_lite: ${::AXI_BUS_LITE_CTRL}
   F1_C2C_INTF:
     TCL_CALL: 
       command: AXI_PL_DEV_CONNECT
@@ -57,4 +57,4 @@ AXI_SLAVES:
           axi_control: "${::AXILITE_ENDPOINT_CTRL}"
           manual_load_dtsi: "1"
           remote_slave: "1"
-          dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"49.9995\";xlnx,use-parity = <0x0>;"
+          dt_data: "compatible = \"xlnx,axi-uartlite-2.0\", \"xlnx,xps-uartlite-1.00.a\";current-speed = <115200>;clock-frequency = <100000000>;device_type = \"serial\";interrupt-names = \"interrupt\";interrupt-parent = <&IRQ0_INTR_CTRL>;interrupts = <4 0>;port-number = <101>;xlnx,baudrate = <0x1c200>;xlnx,data-bits = <0x8>;xlnx,odd-parity = <0x0>;xlnx,s-axi-aclk-freq-hz-d = \"100.0000\";xlnx,use-parity = <0x0>;"

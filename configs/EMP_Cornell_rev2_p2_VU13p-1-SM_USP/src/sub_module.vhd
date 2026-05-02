@@ -394,6 +394,7 @@ begin  -- architecture structure
  -- kh aug'22
   C2C_INTF_1: entity work.C2C_INTF
     generic map (
+        CLKFREQ => AXI_MASTER_CLK_FREQ,
       ERROR_WAIT_TIME => 90000000,
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F2_C2C_INTF)
       )
