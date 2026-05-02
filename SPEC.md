@@ -116,3 +116,18 @@ Measured on blade with the 64-bit AXI build:
        - reset generation
        - AXI reconnection
        - design validation
+
+2. [ ] TODO (parked): Re-validate UART endpoint + device-tree clock metadata
+
+   Context / hypothesis to revisit:
+   - The C2C UART endpoint (e.g. `CM1_PB_UART`) carries YAML-provided `dt_data` that includes a hard-coded AXI clock frequency (seen as ~50 MHz, e.g. `xlnx,s-axi-aclk-freq-hz-d = "49.9995"`).
+   - Our current intent for EMP builds is AXI fabric @ 100 MHz; the DT metadata may be stale/misleading and could affect Linux-side UART behavior (driver baud/divisor assumptions), even if the HDL clocking is correct.
+
+   Guardrails for upcoming debugging:
+   - [ ] First get back to a baseline build that works again (no functional/BD refactors).
+   - [ ] Then make surgical changes one-at-a-time, validating each step.
+
+   Re-validation checklist (when we return to this item):
+   - [ ] Generate DTSI/DTBO artifacts for the target EMP config and locate the UART node/overlay under `kernel/hw/<build_name>/`.
+   - [ ] Confirm which clock frequency properties are emitted for the UART endpoint and whether they match the actual AXI clock domain used.
+   - [ ] Confirm the UART endpoint still works end-to-end (Linux-visible + functional I/O) after the baseline is restored.
