@@ -30,9 +30,9 @@ AXI_SLAVES:
                   axi_rstn: "/SYS_RESET/interconnect_aresetn"
                   # Interconnect optimization strategy (Vivado enum):
                   # 1=min area (legacy default), 2=max performance/bandwidth
-                  enable_advanced_options: 1
-                  xbar_data_width: 64
-                  # strategy: 2
+                  enable_advanced_options: 0
+                  # xbar_data_width: 64
+                  strategy: 2
 
               JTAG_AXI_MASTER:
                 TCL_CALL:
@@ -47,6 +47,7 @@ AXI_SLAVES:
                       command: BUILD_CHILD_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                      strategy: 0
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
                       master_clk:
