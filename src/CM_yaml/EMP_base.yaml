@@ -31,7 +31,7 @@ AXI_SLAVES:
                   # Interconnect optimization strategy (Vivado enum):
                   # 1=min area (legacy default), 2=max performance/bandwidth
                   enable_advanced_options: 1
-                  strategy: 2
+                  # strategy: 2
 
               JTAG_AXI_MASTER:
                 TCL_CALL:
