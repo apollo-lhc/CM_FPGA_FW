@@ -47,7 +47,7 @@ AXI_SLAVES:
                       command: BUILD_CHILD_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
-                      strategy: 0
+                      strategy: 1
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
                       master_clk:
