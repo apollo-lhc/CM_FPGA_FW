@@ -23,6 +23,14 @@ if {![info exists ::autogen_path]} {
 	set ::autogen_path "configs/${::build_name}/autogen"
 }
 
+# Some builds intentionally omit the AXI4-domain CM_INTERCONNECT. However, base YAMLs may
+# still contain "${::CM_INTERCONNECT}" placeholders and yaml_to_bd will "subst" them.
+# Ensure the variable exists so substitution does not error; an empty value means
+# no interconnect instance is referenced.
+if {![info exists ::CM_INTERCONNECT]} {
+	set ::CM_INTERCONNECT ""
+}
+
 # emp-fwk's apollo_set_paths.tcl may set autogen_path to an absolute path.
 # Some CM BD helper scripts assume autogen_path is repo-relative and build paths as
 # "${apollo_root_path}/${autogen_path}". Normalize back to repo-relative when possible.
