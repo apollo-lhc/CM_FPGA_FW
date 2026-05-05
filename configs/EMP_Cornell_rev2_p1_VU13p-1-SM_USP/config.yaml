@@ -27,20 +27,19 @@ AXI_SLAVES:
       C2C:
         INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/CM_C2C/Cornell_rev2_p1_C2C_8g_bypass_axi4_interconnect.yaml
 
-      # AXI4 interconnect-bypass experiment:
-      # Comment out IPBUS so the AXI4 master (F1_C2C) is not required to drive CM_INTERCONNECT.
-      #F1_IPBUS:
-      #  TCL_CALL:
-      #    command: AXI_PL_DEV_CONNECT
-      #    axi_control: "${::AXI_ENDPOINT_CTRL}"
-      #    type: "AXI4"
-      #    addr:
-      #      offset: "-1"
-      #      range:  "8M"
-      #    data_width: "64"
-      #    remote_slave: "1"
-      #  XML: "address_table/modules/IPBUS.xml"
-      #  UHAL_BASE: "auto"
+      F1_IPBUS:
+        TCL_CALL:
+          command: AXI_PL_DEV_DIRECT_CONNECT
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          axi_master_intf: "F1_C2C/M_AXI"
+          type: "AXI4"
+          addr:
+            offset: "-1"
+            range:  "8M"
+          data_width: "64"
+          remote_slave: "1"
+        XML: "address_table/modules/IPBUS.xml"
+        UHAL_BASE: "auto"
       F1_IO:
         TCL_CALL: 
           command: AXI_PL_DEV_CONNECT
@@ -67,25 +66,3 @@ AXI_SLAVES:
         HDL: 
           out_name: "CM_FW_INFO"
           map_template: "axi_generic/template_map.vhd"
-
-      # BRAM-backed scratch window for raw AXI + DMA-over-C2C testing
-      # Exposed to Linux as /dev/uio_F1_SCRATCH_RAM (via linux,uio-name)
-      F1_SCRATCH_RAM:
-        TCL_CALL:
-          # Direct-connect to the AXI4 C2C master interface (bypasses CM_INTERCONNECT).
-          command: AXI_IP_BRAM_DIRECT
-          axi_master_intf: "F1_C2C/M_AXI"
-
-          # Keep scratch in the full AXI address window (0xB0...) so it routes via the full-AXI C2C link,
-          # not the AXI-Lite "B" link.
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
-          addr:
-            # NOTE: addr.offset is an absolute address in this flow (not relative).
-            # Historically, with F1_IPBUS taking 8M starting at 0xB0000000, scratch landed at 0xB0800000.
-            offset: "0xB0800000"
-            range: "1M"
-          remote_slave: "1"
-          externalBport: false
-          width: 64
-        XML: "address_table/modules/BRAM.xml"
-        UHAL_BASE: "auto"
