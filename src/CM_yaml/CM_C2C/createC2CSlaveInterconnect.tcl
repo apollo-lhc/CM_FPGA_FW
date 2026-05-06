@@ -145,7 +145,7 @@ _safe_call "create_bd_design ${bd_design_name}" [list create_bd_design -dir ./ $
 #================================================================================
 #  Configure and add AXI slaves
 #================================================================================
-_safe_call "source add_slaves_from_yaml.tcl" [list source -quiet ${apollo_root_path}/bd/add_slaves_from_yaml.tcl]
+_safe_call "source add_slaves_from_yaml.tcl" [list source -quiet ${apollo_root_path}/bd/utils/add_slaves_from_yaml.tcl]
 _safe_call "yaml_to_bd config.yaml" [list yaml_to_bd "${apollo_root_path}/configs/${build_name}/config.yaml"]
 
 puts "[info script]: generating AXI slave address-map packages"
