@@ -31,7 +31,7 @@ AXI_SLAVES:
         TCL_CALL:
           command: AXI_PL_DEV_DIRECT_CONNECT
           axi_control: "${::AXI_ENDPOINT_CTRL}"
-          axi_master_intf: "F1_C2C/M_AXI"
+          axi_master_intf: "F1_C2C/m_axi"
           type: "AXI4"
           addr:
             offset: "-1"
