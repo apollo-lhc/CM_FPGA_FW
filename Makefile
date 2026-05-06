@@ -56,6 +56,7 @@ BD_GEN_DEPS= \
 	${MAKE_PATH}/bd/utils/add_slaves_from_yaml.tcl \
 	${MAKE_PATH}/bd/utils/Global_Constants.tcl \
 	${MAKE_PATH}/bd/axi_helpers/connections.tcl \
+	${MAKE_PATH}/bd/axi_helpers/connections_clk.tcl \
 	${MAKE_PATH}/bd/axi_helpers/connections_addressing.tcl \
 	${MAKE_PATH}/build-scripts/update_bd_wrapper.py \
 	${BUILD_SCRIPTS_PATH}/Setup.tcl \
