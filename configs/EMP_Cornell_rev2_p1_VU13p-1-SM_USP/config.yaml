@@ -1,6 +1,18 @@
 AXI_CONTROL_SETS:
   INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM1_base.yaml
 
+  # When bypassing the AXI4 interconnect and hanging an external slave directly off
+  # a C2C M_AXI, keep the endpoint reset aligned with the C2C bus reset. Otherwise
+  # the C2C master/link handler can start transactions while the slave is still held
+  # in peripheral reset, leading to stalls/timeouts.
+  AXI_ENDPOINT_BUSRST_CTRL:
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    allocator:
+      # Reuse the allocator created by AXI_ENDPOINT_CTRL from CM1_base.yaml.
+      BT_name: "AXI_ENDPOINT_CTRL_BT"
+
   # Route AXI-Lite endpoints via a separate AXI-Lite-only interconnect domain.
   AXILITE_ENDPOINT_CTRL:
     axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
@@ -30,7 +42,7 @@ AXI_SLAVES:
       F1_IPBUS:
         TCL_CALL:
           command: AXI_PL_DEV_DIRECT_CONNECT
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          axi_control: "${::AXI_ENDPOINT_BUSRST_CTRL}"
           axi_master_intf: "F1_C2C/m_axi"
           type: "AXI4"
           addr:
