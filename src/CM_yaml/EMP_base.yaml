@@ -20,6 +20,9 @@ AXI_SLAVES:
               command: IP_SYS_RESET
               external_reset_n: ${::AXI_MASTER_RSTN}
               slowest_clk: ${::AXI_MASTER_CLK}
+              # Experiment: do not gate reset deassertion on a clock-wizard lock.
+              # Tie proc_sys_reset/dcm_locked high.
+              dcm_locked: "1"
             SUB_SLAVES:
               # AXI4 domain interconnect (NOT connected to JTAG).
               # Driven by the full AXI4 C2C master (F1_C2C) via AXI_BUS_CTRL.

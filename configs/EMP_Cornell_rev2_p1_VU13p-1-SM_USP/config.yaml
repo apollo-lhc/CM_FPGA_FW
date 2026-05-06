@@ -16,7 +16,7 @@ AXI_CONTROL_SETS:
   AXI_BUS_LITE_CTRL:
     axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
-    axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+    axi_rstn: "/SYS_RESET/peripheral_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     axi_base: 0xB0000000
 
