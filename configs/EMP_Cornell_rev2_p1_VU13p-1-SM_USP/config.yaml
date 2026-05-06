@@ -20,6 +20,15 @@ AXI_CONTROL_SETS:
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     axi_base: 0xB0000000
 
+  # Ensure full-AXI masters (e.g. F1_C2C) reset with the peripheral reset domain.
+  # This avoids using the BUS reset inverter output for AXI master aresetn.
+  AXI_BUS_CTRL:
+    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    axi_rstn: "/SYS_RESET/peripheral_aresetn"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_base: 0xB0000000
+
 AXI_SLAVES:
   BASE:
     INCLUDE_FILE: ${::apollo_root_path}/src/CM_yaml/EMP_base.yaml

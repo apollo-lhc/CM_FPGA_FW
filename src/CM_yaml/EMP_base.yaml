@@ -51,7 +51,8 @@ AXI_SLAVES:
                 TCL_CALL:
                   command: BUILD_JTAG_AXI_MASTER
                   axi_clk: ${::AXI_MASTER_CLK}
-                  axi_rstn: "/SYS_RESET_BUS_RST_N/Res"
+                  # Keep JTAG master reset aligned to the peripheral reset domain.
+                  axi_rstn: "/SYS_RESET/peripheral_aresetn"
                 SUB_SLAVES:
                   # AXI-Lite domain interconnect.
                   # For now, connect the JTAG master here (and keep it separate from CM_INTERCONNECT).
@@ -60,6 +61,9 @@ AXI_SLAVES:
                       command: BUILD_CHILD_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                      # Experiment: drive CM_AXI_LITE_INTERCONNECT/{ARESETN,Sxx_ARESETN,Mxx_ARESETN}
+                      # from interconnect_aresetn (avoid mixing peripheral resets into Mxx_ARESETN).
+                      force_all_aresetn: 1
                       strategy: 1
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
