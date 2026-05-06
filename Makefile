@@ -48,6 +48,20 @@ endef
 #################################################################################
 BIT_BASE=${MAKE_PATH}/bit/top_
 
+# When BD/YAML-to-BD scripts change, we must regenerate the BD and wrapper.
+# Without these dependencies, CI/local builds can incorrectly reuse cached/generated
+# artifacts (e.g. c2cSlave_sane_wrapper.vhd) and fail later in synth.
+BD_GEN_DEPS= \
+	${MAKE_PATH}/src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl \
+	${MAKE_PATH}/bd/utils/add_slaves_from_yaml.tcl \
+	${MAKE_PATH}/bd/utils/Global_Constants.tcl \
+	${MAKE_PATH}/bd/axi_helpers/connections.tcl \
+	${MAKE_PATH}/bd/axi_helpers/connections_addressing.tcl \
+	${MAKE_PATH}/build-scripts/update_bd_wrapper.py \
+	${BUILD_SCRIPTS_PATH}/Setup.tcl \
+	${BUILD_SCRIPTS_PATH}/Build.tcl \
+	${BUILD_SCRIPTS_PATH}/SetupAndBuild.tcl
+
 #################################################################################
 # Paths
 #################################################################################
@@ -157,7 +171,7 @@ interactive :
 	vivado -mode tcl
 
 
-$(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
+$(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml $(BD_GEN_DEPS)
 	source $(BUILD_VIVADO_SHELL) &&\
 	mkdir -p ${MAKE_PATH}/kernel/hw &&\
 	mkdir -p ${MAKE_PATH}/proj &&\
