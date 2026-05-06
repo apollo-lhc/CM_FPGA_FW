@@ -31,6 +31,9 @@ AXI_SLAVES:
                   command: BUILD_ROOT_AXI_INTERCONNECT
                   axi_clk: ${::AXI_MASTER_CLK}
                   axi_rstn: "/SYS_RESET/interconnect_aresetn"
+                  # Experiment: drive CM_INTERCONNECT/{ARESETN,Sxx_ARESETN,Mxx_ARESETN} from interconnect_aresetn
+                  # (instead of mixing bus/interconnect/peripheral resets per port).
+                  force_all_aresetn: 1
                   # Interconnect optimization strategy (Vivado enum):
                   # 1=min area (legacy default), 2=max performance/bandwidth
                   enable_advanced_options: 0
