@@ -9,7 +9,7 @@ AXI_CONTROL_SETS:
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     allocator:
       starting_address: 0xB1000000
-      size: 0x00800000
+      size: 0x01000000
       block_size: 4K
 
   # Ensure the AXI-Lite C2C master (F1_C2CB) drives the AXI-Lite-only interconnect.
