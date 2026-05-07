@@ -40,7 +40,7 @@ AXI_SLAVES:
       F1_IPBUS:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
             offset: "-1"
@@ -86,7 +86,7 @@ AXI_SLAVES:
           axi_control: "${::AXI_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
-            offset: "-1"
+            offset: "0xB0800000"
             range: "1M"
           remote_slave: "1"
           externalBport: false
