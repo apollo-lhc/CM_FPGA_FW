@@ -41,7 +41,7 @@ AXI_SLAVES:
                   # Optimization experiment: widen internal crossbar datapath.
                   xbar_data_width: 64
                   # Keep strategy explicit/deterministic; avoid STRATEGY=2 which broke link bring-up.
-                  strategy: 1
+                  strategy: 2
 
                   # Add small buffering on the first master ports (low-risk step).
                   # NOTE: If scratch RAM does not sit on M00/M01 in your build, we can retarget
