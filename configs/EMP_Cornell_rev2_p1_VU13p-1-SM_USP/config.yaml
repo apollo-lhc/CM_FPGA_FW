@@ -16,16 +16,18 @@ AXI_CONTROL_SETS:
   AXI_BUS_LITE_CTRL:
     axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
-    axi_rstn: "/SYS_RESET/peripheral_aresetn"
+    # Experiment: align C2C master reset deassertion with interconnect.
+    axi_rstn: "/SYS_RESET/interconnect_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     axi_base: 0xB0000000
 
-  # Ensure full-AXI masters (e.g. F1_C2C) reset with the peripheral reset domain.
+  # Ensure full-AXI masters (e.g. F1_C2C) reset with the interconnect reset domain.
   # This avoids using the BUS reset inverter output for AXI master aresetn.
   AXI_BUS_CTRL:
     axi_interconnect: "${::CM_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
-    axi_rstn: "/SYS_RESET/peripheral_aresetn"
+    # Experiment: align C2C master reset deassertion with interconnect.
+    axi_rstn: "/SYS_RESET/interconnect_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     axi_base: 0xB0000000
 
