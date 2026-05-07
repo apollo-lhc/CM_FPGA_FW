@@ -36,7 +36,10 @@ AXI_SLAVES:
                   force_all_aresetn: 1
                   # Interconnect optimization strategy (Vivado enum):
                   # 1=min area (legacy default), 2=max performance/bandwidth
-                  enable_advanced_options: 0
+                  # Required for non-default XBAR widths.
+                  enable_advanced_options: 1
+                  # Optimization experiment: widen internal crossbar datapath.
+                  xbar_data_width: 64
                   # Keep strategy explicit/deterministic; avoid STRATEGY=2 which broke link bring-up.
                   strategy: 1
 
