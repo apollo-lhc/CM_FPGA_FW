@@ -31,9 +31,12 @@ AXI_SLAVES:
                   command: BUILD_ROOT_AXI_INTERCONNECT
                   axi_clk: ${::AXI_MASTER_CLK}
                   axi_rstn: "/SYS_RESET/interconnect_aresetn"
-                  # Experiment: drive CM_INTERCONNECT/{ARESETN,Sxx_ARESETN,Mxx_ARESETN} from interconnect_aresetn
-                  # (instead of mixing bus/interconnect/peripheral resets per port).
-                  force_all_aresetn: 1
+                  # Reset experiment:
+                  # - Keep interconnect core + Sxx_ARESETN aligned to interconnect_aresetn
+                  # - Drive Mxx_ARESETN from each slave's reset (peripheral_aresetn for peripherals)
+                  force_all_aresetn: 0
+                  force_s_aresetn: 1
+                  force_m_aresetn: 0
                   # Interconnect optimization strategy (Vivado enum):
                   # 1=min area (legacy default), 2=max performance/bandwidth
                   # Required for non-default XBAR widths.
@@ -64,9 +67,12 @@ AXI_SLAVES:
                       command: BUILD_CHILD_AXI_INTERCONNECT
                       axi_clk: ${::AXI_MASTER_CLK}
                       axi_rstn: "/SYS_RESET/interconnect_aresetn"
-                      # Experiment: drive CM_AXI_LITE_INTERCONNECT/{ARESETN,Sxx_ARESETN,Mxx_ARESETN}
-                      # from interconnect_aresetn (avoid mixing peripheral resets into Mxx_ARESETN).
-                      force_all_aresetn: 1
+                      # Reset experiment:
+                      # - Keep interconnect core + Sxx_ARESETN aligned to interconnect_aresetn
+                      # - Drive Mxx_ARESETN from each slave's reset (peripheral_aresetn for peripherals)
+                      force_all_aresetn: 0
+                      force_s_aresetn: 1
+                      force_m_aresetn: 0
                       strategy: 1
                       parent:
                         - JTAG_AXI_MASTER/M_AXI
