@@ -43,15 +43,37 @@ AXI_SLAVES:
                   enable_advanced_options: 1
                   # Optimization experiment: widen internal crossbar datapath.
                   xbar_data_width: 64
+
+                  # Workaround: in some Vivado/IP-integrator builds, a 1x1
+                  # axi_interconnect can keep default (32-bit) SI/MI widths even
+                  # when connected to 64-bit endpoints, which then forces the
+                  # internally-generated per-SI data FIFO to 32-bit.
+                  # Explicitly request 64-bit port widths.
+                  si_data_width_map:
+                    S00: 64
+                  mi_data_width_map:
+                    M00: 64
                   # Keep strategy explicit/deterministic; avoid STRATEGY=2 which broke link bring-up.
                   strategy: 2
 
-                  # Add small buffering on the first master ports (low-risk step).
-                  # NOTE: If scratch RAM does not sit on M00/M01 in your build, we can retarget
-                  # the FIFO to the actual Mxx port once identified in Vivado.
-                  # mi_has_data_fifo_map:
-                  #   M00: 2
-                  #   M01: 2
+                  # Deep FIFO experiment (best-effort, Vivado-version dependent):
+                  # - Enables per-port data FIFOs and requests a deeper FIFO depth when supported.
+                  # - If a given port/property doesn't exist, the Tcl layer applies this best-effort
+                  #   (caught/ignored) so it's safe across varying interconnect sizes.
+                  #
+                  # NOTE: Keys are interconnect interface names (M00, M01, ... / S00, S01, ...).
+                  # Current test design only exposes M00 on CM_INTERCONNECT.
+                  si_has_data_fifo_map:
+                    # Note: on axi_interconnect:2.1, HAS_DATA_FIFO is often an enum (0/1/2)
+                    # where >1 selects "deeper" FIFO modes (e.g. 512 deep packet mode).
+                    # If Vivado rejects the enum on this build, the Tcl layer will fall back to 1.
+                    S00: 2
+                  mi_has_data_fifo_map:
+                    # In a 1x1 interconnect (NUM_SI=1, NUM_MI=1), some Vivado builds appear to
+                    # disable/ignore certain M00 interface options (GUI hides the Master Interfaces
+                    # tab; Tcl set_property may be ignored). Keep this set so it takes effect if/when
+                    # the parameter is enabled, but rely primarily on the S00 FIFO in this topology.
+                    M00: 2
 
               JTAG_AXI_MASTER:
                 TCL_CALL:
