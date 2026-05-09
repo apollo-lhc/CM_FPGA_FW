@@ -3,6 +3,7 @@ AXI_SLAVES:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
+      axi_rstn_override: "/SYS_RESET/peripheral_aresetn"
       axi_data_width: 64
       aurora_lanes: 1
       enforce_aurora_width_match: 0
@@ -37,6 +38,7 @@ AXI_SLAVES:
     TCL_CALL:
       command: AXI_IP_C2C
       axi_control: ${::AXI_BUS_CTRL}
+      axi_rstn_override: "/SYS_RESET/peripheral_aresetn"
       axi_data_width: 32
       aurora_lanes: 1
       # F1_C2CB sits in the same GT quad/clock region as F1_C2C (X1Y1 vs X1Y0),
