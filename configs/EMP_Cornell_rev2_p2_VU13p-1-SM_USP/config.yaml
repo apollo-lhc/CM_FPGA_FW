@@ -1,15 +1,34 @@
 AXI_CONTROL_SETS:
   INCLUDE_FILE:  ${::apollo_root_path}/src/CM_yaml/CM2_base.yaml
-  # override default axilite endpoint
+
+  # Route AXI-Lite endpoints via the AXI-Lite-only interconnect domain.
   AXILITE_ENDPOINT_CTRL:
-    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
     axi_clk: "${::AXI_MASTER_CLK}"
     axi_rstn: "/SYS_RESET/peripheral_aresetn"
     axi_freq: "${::AXI_MASTER_CLK_FREQ}"
     allocator:
       starting_address: 0xB3000000
-      size: 0x00800000
+      size: 0x01000000
       block_size: 4K
+
+  # Ensure the AXI-Lite C2C master drives the AXI-Lite-only interconnect.
+  AXI_BUS_LITE_CTRL:
+    axi_interconnect: "${::CM_AXI_LITE_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    # Align C2C reset deassertion with interconnect.
+    axi_rstn: "/SYS_RESET/interconnect_aresetn"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_base: 0xB2000000
+
+  # Ensure full-AXI masters reset with the interconnect reset domain.
+  AXI_BUS_CTRL:
+    axi_interconnect: "${::CM_INTERCONNECT}"
+    axi_clk: "${::AXI_MASTER_CLK}"
+    # Align C2C reset deassertion with interconnect.
+    axi_rstn: "/SYS_RESET/interconnect_aresetn"
+    axi_freq: "${::AXI_MASTER_CLK_FREQ}"
+    axi_base: 0xB2000000
 
 
 AXI_SLAVES:
@@ -21,7 +40,7 @@ AXI_SLAVES:
       F2_IPBUS:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
-          axi_control: "${::AXI_ENDPOINT_CTRL}"
+          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
             offset: "-1"
@@ -65,7 +84,9 @@ AXI_SLAVES:
           axi_control: "${::AXI_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
-            offset: "-1"
+            # Keep scratch in the full AXI address window (0xB2...) so it routes via the full-AXI C2C link,
+            # not the AXI-Lite "B" link.
+            offset: "0xB2800000"
             range: "1M"
           remote_slave: "1"
           externalBport: false

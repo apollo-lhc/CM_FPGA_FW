@@ -2,6 +2,7 @@ AXI_SLAVES:
   F2_C2C:
     TCL_CALL:
       command: AXI_IP_C2C
+      axi_rstn_override: "/SYS_RESET/peripheral_aresetn"
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 64
       primary_serdes: 1
@@ -16,6 +17,7 @@ AXI_SLAVES:
   F2_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C
+      axi_rstn_override: "/SYS_RESET/peripheral_aresetn"
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 32
       # At 8 Gbps we want each link to be its own primary SERDES so it has its own CPLL.
