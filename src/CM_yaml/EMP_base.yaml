@@ -42,9 +42,8 @@ AXI_SLAVES:
                   # Required for non-default XBAR widths.
                   enable_advanced_options: 1
                   # Optimization experiment: widen internal crossbar datapath.
-                  # NOTE: Forcing xbar_data_width=128 was observed to break C2C link bring-up.
-                  # Set to 0 to leave the Vivado/IP default behavior.
-                  xbar_data_width: 0
+                  # This is being forced for debugging/bring-up testing.
+                  xbar_data_width: 128
 
                   # Workaround: in some Vivado/IP-integrator builds, a 1x1
                   # axi_interconnect can keep default (32-bit) SI/MI widths even
