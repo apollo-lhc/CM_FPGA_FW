@@ -5,6 +5,10 @@ AXI_SLAVES:
       axi_rstn_override: "/SYS_RESET/peripheral_aresetn"
       axi_control: ${::AXI_BUS_CTRL}
       axi_data_width: 64
+      # Experiment: widen the *local* fabric datapath after C2C (no upclock).
+      # Inserts axi_dwidth_converter: 64b (C2C) -> 128b (CM interconnect/scratch)
+      post_c2c_dwidth_enable: 1
+      post_c2c_dwidth_mi_data_width: 128
       aurora_lanes: 1
       enforce_aurora_width_match: 0
       primary_serdes: 1

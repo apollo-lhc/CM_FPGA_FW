@@ -42,7 +42,7 @@ AXI_SLAVES:
                   # Required for non-default XBAR widths.
                   enable_advanced_options: 1
                   # Optimization experiment: widen internal crossbar datapath.
-                  xbar_data_width: 64
+                  xbar_data_width: 128
 
                   # Workaround: in some Vivado/IP-integrator builds, a 1x1
                   # axi_interconnect can keep default (32-bit) SI/MI widths even
@@ -50,9 +50,9 @@ AXI_SLAVES:
                   # internally-generated per-SI data FIFO to 32-bit.
                   # Explicitly request 64-bit port widths.
                   si_data_width_map:
-                    S00: 64
+                    S00: 128
                   mi_data_width_map:
-                    M00: 64
+                    M00: 128
                   # Keep strategy explicit/deterministic; avoid STRATEGY=2 which broke link bring-up.
                   strategy: 2
 
