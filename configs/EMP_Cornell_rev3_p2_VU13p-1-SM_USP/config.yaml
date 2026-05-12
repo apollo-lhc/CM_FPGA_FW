@@ -45,7 +45,7 @@ AXI_SLAVES:
           addr:
             offset: "-1"
             range:  "16M"
-          data_width: "128"
+          data_width: "64"
           remote_slave: "1"
         XML: "address_table/modules/IPBUS.xml"
         UHAL_BASE: "auto"
