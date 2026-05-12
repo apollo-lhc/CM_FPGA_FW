@@ -40,12 +40,12 @@ AXI_SLAVES:
       F2_IPBUS:
         TCL_CALL:
           command: AXI_PL_DEV_CONNECT 
-          axi_control: "${::AXILITE_ENDPOINT_CTRL}"
+          axi_control: "${::AXI_ENDPOINT_CTRL}"
           type: "AXI4"
           addr:
             offset: "-1"
             range:  "8M"
-          data_width: "64"
+          data_width: "128"
           remote_slave: "1"
         XML: "address_table/modules/IPBUS.xml"
         UHAL_BASE: "auto"
