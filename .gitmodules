@@ -20,7 +20,3 @@
 	path = configs/Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G/FPGA_heater
 	url = https://github.com/apollo-lhc/FPGA_heater.git
 
-[submodule "configs/IT-DTC_p1_VU13p-1/it-dtc-fw"]
-	path = configs/IT-DTC_p1_VU13p-1/it-dtc-fw
-	url = https://gitlab.com/apollo-lhc/archive/it-dtc/it-dtc-fw.git
-

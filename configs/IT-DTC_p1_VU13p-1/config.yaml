@@ -75,6 +75,4 @@ AXI_SLAVES:
         HDL: 
           out_name: "CM_FW_INFO"
           map_template: "axi_generic/template_map.vhd"
-      ITDTC:
-        INCLUDE_FILE: ${::apollo_root_path}/configs/${::build_name}/it-dtc-fw/config.yaml
 

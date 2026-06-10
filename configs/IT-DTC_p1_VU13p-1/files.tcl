@@ -32,16 +32,14 @@ set vhdl_files "\
      ${autogen_path}/CM_FW_INFO/CM_FW_INFO_map.vhd \
      src/C2C_INTF/picoblaze/picoblaze/kcpsm6.vhd \
      src/C2C_INTF/picoblaze/uart_rx6.vhd \
-     src/C2C_INTF/picoblaze/uart_tx6.vhd \
-     src/C2C_INTF/picoblaze/uC.vhd \
-     src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
-     configs/${build_name}/it-dtc-fw/src/TCDS/FAKE_TCDS.vhd \
+    src/C2C_INTF/picoblaze/uart_tx6.vhd \
+    src/C2C_INTF/picoblaze/uC.vhd \
+    src/C2C_INTF/picoblaze/picoblaze/cli.vhd \
      "
 set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
     configs/${build_name}/src/top_pins_TCDS.xdc \
-    configs/${build_name}/src/top_timing.xdc	\
-    configs/${build_name}/it-dtc-fw/src/top_timing.xdc
+    configs/${build_name}/src/top_timing.xdc
     "	    
 
 set xci_files "\
@@ -51,6 +49,5 @@ set xci_files "\
 
 
 set include_files "\
-    		  configs/${build_name}/it-dtc-fw/files.tcl	\
-    		  src/i2cAXIMaster/files.tcl	\
+          src/i2cAXIMaster/files.tcl	\
 		  "		  
