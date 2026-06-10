@@ -22,5 +22,5 @@
 
 [submodule "configs/IT-DTC_p1_VU13p-1/it-dtc-fw"]
 	path = configs/IT-DTC_p1_VU13p-1/it-dtc-fw
-	url = https://gitlab.com/apollo-lhc/it-dtc/it-dtc-fw.git
+	url = https://gitlab.com/apollo-lhc/archive/it-dtc/it-dtc-fw.git
 
