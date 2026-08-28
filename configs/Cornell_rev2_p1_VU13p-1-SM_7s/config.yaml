@@ -54,11 +54,25 @@ AXI_SLAVES:
       type: "AXI4"
       addr:
         offset: "0x80000000"
-        range:  "16M"
+        range:  "8M"
       data_width: "64"
       remote_slave: "1"
     XML: "address_table/modules/IPBUS.xml"
     UHAL_BASE: 0x85000000    
+
+  F1_SCRATCH_RAM:
+    TCL_CALL:
+      command: AXI_IP_BRAM
+      axi_control: "${::AXI_MASTER_CTRL}"
+      type: "AXI4"
+      addr:
+        offset: "0x80800000"
+        range: "1M"
+      remote_slave: "1"
+      externalBport: false
+      width: 64
+    XML: "address_table/modules/BRAM.xml"
+    UHAL_BASE: "auto"
 
   V_C2C_INTF:
     TCL_CALL: 
