@@ -2,7 +2,7 @@
 
 ## Current status (baseline inherited from c2c_dma_jrf_128_to_64)
 
-This branch is the known-good 8 Gb/s C2C bandwidth-test branch for the EMP Cornell Rev2 CM builds. It keeps the full AXI C2C datapath at 64-bit width, moves the shared EMP AXI master clock to 100 MHz, and uses one Aurora lane per C2C link with per-channel CPLL clocking.
+This branch derives from the known-good 8 Gb/s C2C bandwidth-test baseline for the EMP Cornell Rev2 CM builds. It keeps the full AXI C2C datapath at 64-bit width, moves the shared EMP AXI master clock to 100 MHz, and uses one Aurora lane per C2C link with per-channel CPLL clocking. The production endpoint layout now omits scratch RAM and requires fresh build and hardware validation; see README.md for the preserved diagnostic baseline.
 
 C2C / AXI-C2C datapath (`axi_chip2chip` + external `aurora_64b66b`):
 - 1-lane AXI4 C2C links use `speed: 8`, `gt_pll: cpll`, `refclk_freq: 200`, and `primary_serdes: 1`.
@@ -11,18 +11,22 @@ C2C / AXI-C2C datapath (`axi_chip2chip` + external `aurora_64b66b`):
 - Known-good configuration uses Compact 2-1 mode from the generated AXI C2C IP; `CONFIG.C_AURORA_WIDTH` is derived/locked.
 - Link handler enabled (`CONFIG.C_EN_AXI_LINK_HNDLR = true`).
 
-Measured on blade with the 64-bit AXI build from this branch:
+Historical measurements on the scratch-enabled 64-bit AXI baseline (not validation of the scratch-removal change):
 - IPbus-to-BRAM sustained throughput: ~380 Mbps (previously ~160 Mbps write-only).
 - Native AXI write sustained throughput: ~700 Mbps.
 
 Primary branch wiring:
 - `EMP_Cornell_rev2_p1_VU13p-1-SM_USP` includes `src/CM_yaml/CM_C2C/Cornell_rev2_p1_C2C_8g.yaml`.
-- `EMP_Cornell_rev2_p2_VU13p-1-SM_USP` includes `src/CM_yaml/CM_C2C/Cornell_rev2_p2_C2C_8g_autoplace.yaml`.
+- `EMP_Cornell_rev2_p2_VU13p-1-SM_USP` includes `src/CM_yaml/CM_C2C/Cornell_rev2_p2_C2C_8g.yaml`.
 - The EMP base AXI master clock is 100 MHz.
-- F1/F2 IPbus windows are 8 MiB on the full AXI endpoint path.
-- F1/F2 scratch RAM windows are 1 MiB, 64-bit BRAM-backed AXI4 endpoints for raw AXI and DMA-over-C2C testing.
+- F1/F2 IPbus address windows are 16 MiB on the full AXI endpoint path; this does not specify transport buffer depth.
+- F1/F2 scratch RAM endpoints are omitted in production. Their former 1 MiB, 64-bit BRAM-backed implementation is preserved on `backup/c2c-8g-scratch-before-release-20261007` for future native-AXI development.
 
 ## Work items
+
+The scratch-dependent work below is future development, not part of this release.
+Reintroducing scratch requires restoring a non-overlapping address layout first.
+
 1. [ ] CM_FPGA_FW: Align AXI4 datapath with SM_ZYNQ_FW (8 Gbps PHY, AXI-C2C @ 200 MHz)
 
    - [ ] Baseline
