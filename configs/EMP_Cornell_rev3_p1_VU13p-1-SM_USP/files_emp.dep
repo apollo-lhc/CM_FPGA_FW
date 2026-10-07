@@ -1,10 +1,7 @@
 setup ../../../../src/CM_yaml/CM_C2C/createC2CSlaveInterconnect.tcl
 setup -c emp-fwk:boards/apollo/common ../cfg/apollo_set_paths.tcl
 
-
-
 src ../../src/sub_module.vhd 
-
 
 src ../../../../src/misc/pacd.vhd 
 src ../../../../src/misc/types.vhd 
@@ -19,6 +16,7 @@ src ../../../../src/LED_PWM.vhd
 
 src ../../../../regmap_helper/axiReg/axiRegWidthPkg_32.vhd
 src ../../../../regmap_helper/axiReg/axiRegPkg_d64.vhd 
+src ../../../../regmap_helper/axiReg/axiRegPkg_d128.vhd
 src ../../../../regmap_helper/axiReg/axiRegPkg.vhd 
 src ../../../../regmap_helper/axiReg/axiReg.vhd 
 src ../../../../regmap_helper/axiReg/axiRegBlocking.vhd
@@ -40,7 +38,6 @@ src ../../autogen/C2C_INTF/C2C_INTF_map.vhd
 src ../../autogen/C2C_INTF/C2C_INTF_PKG.vhd
 src ../../autogen/IO/IO_map.vhd
 src ../../autogen/IO/IO_PKG.vhd
-#src ../../autogen/Global_PKG.vhd
 
 
 

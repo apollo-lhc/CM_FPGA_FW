@@ -75,6 +75,7 @@ architecture structure of sub_module is
   signal C2C_Mon  : C2C_INTF_MON_t;
   signal C2C_Ctrl : C2C_INTF_Ctrl_t;
   signal clk_F2_C2C_PHY_user                  : STD_logic_vector(1 downto 1);  
+    signal clk_F2_C2CB_PHY_user                 : STD_logic_vector(1 downto 1);
   signal pB_UART_tx : std_logic;
   signal pB_UART_rx : std_logic;
 
@@ -103,7 +104,17 @@ architecture structure of sub_module is
   
 begin  -- architecture structure
                    
-  AXI_CLK <= clk_50;  -- for now we just use the 50 MHz from emp for axi
+  -- AXI fabric clock: 100 MHz derived from the 200 MHz EMP clock
+  AXI_CLK_BUFGCE_DIV_200_TO_100 : BUFGCE_DIV
+    generic map (
+      BUFGCE_DIVIDE => 2
+    )
+    port map (
+      I   => clk_200,
+      CE  => '1',
+      CLR => '0',
+      O   => AXI_CLK
+    );
 
   --export the axi clock and reset to emp
   clk_axi <= AXI_CLK;
@@ -239,6 +250,7 @@ begin  -- architecture structure
       F2_C2C_axi_c2c_multi_bit_error_out     =>  C2C_MON.C2C(1).STATUS.MB_ERROR,
       F2_C2C_phy_power_down                  => '0',
       F2_C2C_PHY_clk                         => clk_F2_C2C_PHY_user(1),
+        F2_C2CB_PHY_clk                         => clk_F2_C2CB_PHY_user(1),
       F2_C2C_PHY_DRP_daddr                   => C2C_Ctrl.C2C(1).DRP.address,
       F2_C2C_PHY_DRP_den                     => C2C_Ctrl.C2C(1).DRP.enable,
       F2_C2C_PHY_DRP_di                      => C2C_Ctrl.C2C(1).DRP.wr_data,
@@ -283,7 +295,7 @@ begin  -- architecture structure
       F2_C2CB_PHY_gt_pll_lock                => C2C_MON.C2C(2).STATUS.PHY_GT_PLL_LOCK,
       F2_C2CB_PHY_hard_err                   => C2C_Mon.C2C(2).STATUS.PHY_HARD_ERR,
       F2_C2CB_PHY_lane_up                    => C2C_Mon.C2C(2).STATUS.PHY_LANE_UP(0 downto 0),
---      F2_C2CB_PHY_mmcm_not_locked            => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
+      F2_C2CB_PHY_mmcm_not_locked_out        => C2C_Mon.C2C(2).STATUS.PHY_MMCM_LOL,
       F2_C2CB_PHY_soft_err                   => C2C_Mon.C2C(2).STATUS.PHY_SOFT_ERR,
 
       F2_C2CB_aurora_do_cc                   =>  C2C_Mon.C2C(2).STATUS.DO_CC,
@@ -393,7 +405,7 @@ begin  -- architecture structure
       writeMOSI        => local_AXI_writeMOSI(2),
       writeMISO        => local_AXI_writeMISO(2),
       clk_C2C(1)       => clk_F2_C2C_PHY_user(1),
-      clk_C2C(2)       => clk_F2_C2C_PHY_user(1),
+      clk_C2C(2)       => clk_F2_C2CB_PHY_user(1),
       UART_Rx          => pb_UART_Rx,
       UART_Tx          => pb_UART_Tx,
       Mon              => C2C_Mon,

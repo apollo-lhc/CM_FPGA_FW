@@ -13,6 +13,7 @@ set vhdl_files "\
      src/misc/counter_CDC.vhd \
      regmap_helper/axiReg/axiRegWidthPkg_32.vhd \
      regmap_helper/axiReg/axiRegPkg_d64.vhd \
+    regmap_helper/axiReg/axiRegPkg_d128.vhd \
      regmap_helper/axiReg/axiRegPkg.vhd \
      regmap_helper/axiReg/axiReg.vhd \
      regmap_helper/axiReg/bramPortPkg.vhd \
@@ -38,6 +39,7 @@ set vhdl_files "\
 set xdc_files "\
     configs/${build_name}/src/top_pins.xdc \
     configs/${build_name}/src/top_timing.xdc	\
+    configs/${build_name}/src/gt_quad_l_override.xdc \
     "	    
 
 set xci_files "\

@@ -204,7 +204,6 @@ begin  -- architecture structure
       F1_C2CB_phy_Tx_txn                  => n_mgt_k2z(2 downto 2),
       F1_C2CB_phy_Tx_txp                  => p_mgt_k2z(2 downto 2),
       F1_C2C_phy_refclk                   => c2c_refclk,
-      F1_C2CB_phy_refclk                   => c2c_refclk,
       --clk50Mhz                            => clk_50,
       F1_IO_araddr                         => local_AXI_ReadMOSI(0).address,              
       F1_IO_arprot                         => local_AXI_ReadMOSI(0).protection_type,      

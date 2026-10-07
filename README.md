@@ -1,5 +1,28 @@
 # APOLLO Command Module firmware
 
+## Release endpoint layout
+
+The production configurations omit the diagnostic `F1_SCRATCH_RAM` and
+`F2_SCRATCH_RAM` endpoints and restore their IPbus AXI address windows to `16M`
+(16 MiB). This is an address-map allocation, not the physical EMP/IPbus transport
+buffer depth; it does not by itself increase throughput. SM C2C routing windows
+and the AXI-Lite endpoints are unchanged.
+
+The scratch-enabled baseline is preserved on
+`backup/c2c-8g-scratch-before-release-20261007` at
+`82111142207941396e76b95179c314c98fd8178a`. The separate scratch-removal commit can
+be reverted on a future development branch to restore the diagnostic endpoints.
+Restore the smaller IPbus windows at the same time to avoid overlapping mappings.
+This is groundwork for a future native-AXI IT-DTC data interface, not an
+implementation of its buffering or synchronisation protocol.
+
+Raw AXI/DMA tests targeting the CM scratch endpoints are unavailable in this
+release; IPbus-over-DMA tests remain applicable. Regenerate the address tables and
+device-tree overlays with the firmware, and do not reuse scratch-enabled mappings.
+Before release, rebuild and validate FPGA1 and FPGA2, including programming,
+C2C recovery and IPbus-over-DMA access. The scratch-removal change has not yet
+been validated in Vivado or on hardware.
+
 ## Github branching policy:
 We are going to try to follow: https://nvie.com/posts/a-successful-git-branching-model/
 The default branch is develop and you should branch off of that.
