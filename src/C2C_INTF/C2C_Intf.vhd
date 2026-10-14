@@ -91,6 +91,9 @@ begin
       Mon             => Mon_local,
       Ctrl            => Ctrl_local);
 
+  -- reference clock rate measured in the top level
+  Mon_local.C2C_REFCLK_FREQ <= Mon.C2C_REFCLK_FREQ;
+
 
   -------------------------------------------------------------------------------
   -- AXI 
