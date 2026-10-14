@@ -15,7 +15,7 @@ use UNISIM.vcomponents.all;
 entity C2C_INTF is
   generic (
     SM_LANES         : std_logic_vector(2 downto 1) := "01"; -- active links on
-    CLKFREQ          : integer := 50000000;       --clk frequency in Hz
+    CLKFREQ          : integer := 50000000;       --clk_axi frequency in Hz
     ERROR_WAIT_TIME  : integer := 50000000;       --Wait time for error checking states
     ALLOCATED_MEMORY_RANGE : integer);            --AXI memory range for this endpoint
   port (
@@ -104,7 +104,8 @@ begin
   end process rd_dv;
   uC_1: entity work.uC
     generic map(
-      LINK_COUNT => 2)
+      LINK_COUNT => 2,
+      CLKFREQ    => CLKFREQ)
     port map (
       clk                   => clk_axi,
       reset                 => reset,
@@ -130,7 +131,7 @@ begin
 
     rate_counter_C2C_USER: entity work.rate_counter
       generic map (
-        CLK_A_1_SECOND => 50000000)
+        CLK_A_1_SECOND => CLKFREQ)
       port map (
         clk_A         => clk_axi,
         clk_B         => clk_C2C(iLane),
