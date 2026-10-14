@@ -7,7 +7,7 @@ This branch derives from the known-good 8 Gb/s C2C bandwidth-test baseline for t
 C2C / AXI-C2C datapath (`axi_chip2chip` + external `aurora_64b66b`):
 - 1-lane AXI4 C2C links use `speed: 8`, `gt_pll: cpll`, `refclk_freq: 200`, and `primary_serdes: 1`.
 - Full AXI C2C links use `axi_data_width: 64`.
-- AXI-Lite C2CB links use `axi_data_width: 32` and remain separate from the full AXI path.
+- AXI-Lite C2CB links use `axi_data_width: 32` and remain separate from the full AXI path. On `feature/c2c_axilite_lane_merge`, each FPGA's register traffic moves onto the AXI4-Lite channel of its full AXI link (`F1_C2C`/`F2_C2C`; work item 3, stage 1); the C2CB links stay instantiated and connected.
 - Known-good configuration uses Compact 2-1 mode from the generated AXI C2C IP; `CONFIG.C_AURORA_WIDTH` is derived/locked.
 - Link handler enabled (`CONFIG.C_EN_AXI_LINK_HNDLR = true`).
 
@@ -58,15 +58,19 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
        - Maintain Compact 2-1 mode
      - [x] Use 200 MHz reference clock in the C2C YAML.
      - [x] Add P2 GT placement/pre-place handling for the C2C channel.
-     - [ ] Verify:
+     - [x] Verify:
        - GT configuration matches near-end FPGA
        - Lane configuration consistent with near-end (1 or 2 lanes as required)
+       (On hardware, the F1 and F2 links come up at 8 Gb/s with one lane each:
+       cmsapollo3022 on 2026-09-19, and apollo212-1 FPGA1 on 2026-10-11 to 13.)
 
    - [ ] Clocking (AXI4 split domains)
      - [ ] Add Clocking Wizard to generate AXI-C2C clock:
        - Output: 200 MHz (AXI-C2C AXI4 clock)
        - Use `locked` for reset sequencing
-     - [ ] Keep existing AXI fabric clock at 100 MHz for local AXI4 interconnect and slaves
+     - [x] Keep existing AXI fabric clock at 100 MHz for local AXI4 interconnect and slaves
+       (`clk_200` divided by `BUFGCE_DIV` in the EMP `sub_module.vhd`; `AXI_MASTER`
+       is 100 MHz in `EMP_base.yaml`.)
      - [ ] Ensure AXI4-only clock domain crossings are explicit (AXI Clock Converter)
 
    - [ ] Reset Strategy (AXI4 domains)
@@ -75,7 +79,9 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
        - `ext_reset_in` → existing external reset
        - `dcm_locked` → Clocking Wizard `locked`
        - Use `peripheral_aresetn` for AXI-C2C + converters in the 200 MHz domain
-     - [ ] Keep/confirm reset generation for 100 MHz AXI fabric domain
+     - [x] Keep/confirm reset generation for 100 MHz AXI fabric domain
+       (`SYS_RESET`, a `proc_sys_reset` on the 100 MHz `AXI_MASTER_CLK`, released
+       by the 200 MHz MMCM lock; checked 2026-10-14.)
 
    - [ ] AXI4 Infrastructure Update
      - [ ] AXI-C2C (AXI4) domain @ 200 MHz:
@@ -119,9 +125,10 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
      - [ ] Verify AXI:
        - No protocol violations
        - No timing failures
-     - [ ] Verify Aurora:
+     - [x] Verify Aurora:
        - Link up at 8 Gbps
        - No lane mismatch with near-end
+       (Same hardware evidence as the Aurora PHY check above.)
      - [ ] End-to-end:
        - Sustained throughput matches expected bandwidth
 
@@ -158,3 +165,65 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
    - [ ] Generate DTSI/DTBO artifacts for the target EMP config and locate the UART node/overlay under `kernel/hw/<build_name>/`.
    - [ ] Confirm which clock frequency properties are emitted for the UART endpoint and whether they match the actual AXI clock domain used.
    - [ ] Confirm the UART endpoint still works end-to-end (Linux-visible + functional I/O) after the baseline is restored.
+
+3. [ ] AXI-Lite on the AXI4 C2C lane (one C2C lane per FPGA)
+
+   The full rationale, the SM side, the compatibility table and the soak/recovery
+   plan are in `SM_ZYNQ_FW` `SPEC.md`, "Independent workstream: AXI-Lite on the
+   AXI4 C2C lane". Decided on 2026-10-14:
+   - Carry each FPGA's register traffic on the Chip2Chip AXI4-Lite channel of its
+     AXI4 lane (`F1_C2C`/`F2_C2C`) instead of the separate AXI-Lite lane
+     (`F1_C2CB`/`F2_C2CB`).
+   - Recover a broken link with the protected reprogramming procedure.
+   - Change both FPGAs together in stage 1 (this replaces an FPGA1-first plan),
+     then free lane B in stage 2.
+
+   Facts:
+   - `bd/AXI_Cores/AXI_IP_C2C/AXI_IP_C2C.tcl` sets `C_INCLUDE_AXILITE = 2` on
+     every CM core, so `F1_C2C/m_axi_lite` and `F2_C2C/m_axi_lite` already exist,
+     clocked but unconnected. Adding `addr_lite` connects them to
+     `CM_INTERCONNECT` through `CONNECT_AXI_MASTER_TO_INTERCONNECT` (type
+     `AXI4Lite`), exactly as for `F1_C2CB`/`F2_C2CB` today, without changing the
+     core configuration.
+   - In the EMP builds every CM AXI reset, including both slave cores, comes from
+     `SYS_RESET`, whose only input is `locked_clk200` (the emp-fwk `c2c_infra`
+     MMCM, whose reset is tied low). Reconfiguring the FPGA is the only reset of
+     the slave core.
+
+   - [ ] Stage 1 (both FPGAs)
+     - [x] `src/CM_yaml/CM_C2C/Cornell_rev2_p1_C2C_8g.yaml`: add
+       `addr_lite: ${::AXI_BUS_CTRL}` to `F1_C2C`. The file is included by
+       `Cornell_rev2_p1_VU13p-1-SM_USP`, `EMP_Cornell_rev2_p1_VU13p-1-SM_USP`,
+       `EMP_Cornell_rev2_p1_VU13p-2-SM_USP` and `EMP_Cornell_rev3_p1_VU13p-1-SM_USP`.
+     - [x] `src/CM_yaml/CM_C2C/Cornell_rev2_p2_C2C_8g.yaml`: add
+       `addr_lite: ${::AXI_BUS_CTRL}` to `F2_C2C`. The file is included by
+       `Cornell_rev2_p2_VU13p-1-SM_USP`, `EMP_Cornell_rev2_p2_VU13p-1-SM_USP`,
+       `EMP_Cornell_rev2_p2_VU13p-2-SM_USP` and `EMP_Cornell_rev3_p2_VU13p-1-SM_USP`.
+     - [x] Keep `F1_C2CB` and `F2_C2CB` connected, so these images also work with
+       SM images that still use lane B; they carry no traffic once the SM moves the
+       windows. Keep each FPGA's PicoBlaze UART interrupt (both YAMLs name the UART
+       `CM1_PB_UART`) on its `F*_C2CB/axi_c2c_s2m_intr_in`, so the interrupt index
+       on the SM is unchanged.
+     - [x] No HDL change: the new connections are inside the block design, so the
+       wrapper ports, `sub_module.vhd` and `top.vhd` are unchanged.
+     - [ ] Build: the block designs validate; `CM_INTERCONNECT` gains one
+       AXI4-Lite slave port (in the EMP builds its masters become JTAG-to-AXI,
+       `F*_C2C` AXI4, `F*_C2C` AXI4-Lite and `F*_C2CB` AXI4-Lite); the `F*_C2C`
+       and `F*_C2CB` configuration summaries are unchanged; timing passes.
+     - [ ] Point the EMP build's CM_FPGA_FW checkout (ipbb, through emp-fwk
+       `cm.dep`) at this branch for the test images.
+     - [ ] Deploy these CM images on both FPGAs before the stage-1 SM image. Check
+       register access first with the old SM image (lane B), then with the
+       stage-1 SM image (lane A). Then run the SM SPEC bring-up, soak and recovery
+       checks.
+   - [ ] Stage 2 (free lane B, once it has a new use)
+     - [ ] Remove `F1_C2CB`/`F2_C2CB`. Move each PicoBlaze UART interrupt to
+       `F1_C2C`/`F2_C2C` (`axi_c2c_s2m_intr_in`) and set the `interrupts` value in
+       its `dt_data` to the new SM interrupt index.
+     - [ ] `sub_module.vhd`/`top.vhd`: remove the `F*_C2CB_*` port maps, tie off
+       `C2C_Mon.C2C(2)`, and retire `C2C_INTF` lane 2 (PicoBlaze link 2) or reuse
+       it for the new lane.
+     - [ ] The lane-2 transceiver pins are top-level ports in emp-fwk
+       (`c2c_infra.vhd`) and cannot be left unconnected: connect the lane's new
+       user in the same change, or remove the ports and constraints in emp-fwk.
+     - [ ] Update the address tables and status tables for lane 2.
