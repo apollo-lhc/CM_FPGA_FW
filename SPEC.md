@@ -22,6 +22,50 @@ Primary branch wiring:
 - F1/F2 IPbus address windows are 16 MiB on the full AXI endpoint path; this does not specify transport buffer depth.
 - F1/F2 scratch RAM endpoints are omitted in production. Their former 1 MiB, 64-bit BRAM-backed implementation is preserved on `backup/c2c-8g-scratch-before-release-20261007` for future native-AXI development.
 
+## Release candidate v4.1.0 (in preparation, 2026-10-22)
+
+Not merged or tagged. SM_ZYNQ_FW v2.3.0 needs it: that SM sends the register windows over lane A (work item 3).
+
+Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`):
+
+| Commit | Change | Tested |
+|---|---|---|
+| `6e3fb88` | `C2C_INTF` and its PicoBlaze at the configured AXI clock, in the six EMP VU13P configs (work item 4) | on hardware, in the experimental images |
+| `945951f` | Stage 1 of the lane merge: AXI-Lite on the AXI4 lane, in the 8 Gb/s configs (work item 3) | on hardware, in the experimental images |
+| `81dc76a` | `C2C_REFCLK_FREQ` reported in the register map (cherry-picked from `7a57422`; work item 4) | NVC analysis only |
+| `a401d51` | The `6e3fb88` fix for the configs it missed (work item 4) | none: those configs do not build from this tree |
+| this record | `SPEC.md` | |
+
+Two kinds of image:
+- **Experimental images, tested.**
+  - Built from `945951f` (`GIT_HASH_1` `0x0C8FC832`), with emp-fwk's 62.5 MHz
+    IPbus-clock experiment.
+  - Not release images, and without `81dc76a`.
+  - Results: work item 3, stage 1.
+- **Release candidates, still to build.** The IT-DTC EMP build of this branch's
+  tip, with the standard emp-fwk, for both FPGAs.
+
+Release-candidate checks, on each FPGA, with the SM_ZYNQ_FW v2.3.0 image (programming needs the developer's approval):
+- [ ] **Identity:** `F*_CM_FW_INFO` reports the candidate build, and the build used this branch's tip.
+- [ ] **Register access through lane A:** `F*_CM_FW_INFO`, `F*_IO` and `F*_C2C_INTF` read correctly through the SM's lane-A
+  windows (`0xB1000000`, `0xB3000000`).
+- [ ] **PicoBlaze console:** readable at 115200 Bd.
+- [ ] **Clock readings:**
+  - `F*_C2C_INTF` `USER_FREQ` and `USER_CLK_FREQ` are steady, and not a hundredth of the rate. The Aurora 64B/66B
+    user clock at 8 Gb/s should be 8 Gb/s ÷ 64.
+  - `C2C_REFCLK_FREQ` (0x810) is no longer 0. It reads the reference clock as measured, about 200 MHz or 100 MHz,
+    depending on the ODIV2 setting in emp-fwk.
+- [ ] **A short verified DMA test** (data checked) on both FPGAs, with the monitoring service running.
+- [ ] **An older SM image over lane B:** v4.1.0 claims this by design only. It stays untested unless it is run here.
+
+Known limitations of v4.1.0:
+- No multi-day soak.
+- Register access while an AXI4 transfer is stalled is untested.
+- Of the configs that include the 8 Gb/s YAMLs, only the EMP rev2 builds are tested. The `Cornell_rev2_p*` non-EMP
+  configs, the `-2` speed grade and `EMP_Cornell_rev3_*` are not built.
+- `a401d51` is unbuilt.
+- Many historical configs do not build from this tree (work item 4, last note). That is recorded, not repaired.
+
 ## Work items
 
 The scratch-dependent work below is future development, not part of this release.
@@ -206,16 +250,55 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
        on the SM is unchanged.
      - [x] No HDL change: the new connections are inside the block design, so the
        wrapper ports, `sub_module.vhd` and `top.vhd` are unchanged.
-     - [ ] Build: the block designs validate; `CM_INTERCONNECT` gains one
-       AXI4-Lite slave port (in the EMP builds its masters become JTAG-to-AXI,
-       `F*_C2C` AXI4, `F*_C2C` AXI4-Lite and `F*_C2CB` AXI4-Lite); the `F*_C2C`
-       and `F*_C2CB` configuration summaries are unchanged; timing passes.
-     - [ ] Point the EMP build's CM_FPGA_FW checkout (ipbb, through emp-fwk
-       `cm.dep`) at this branch for the test images.
-     - [ ] Deploy these CM images on both FPGAs before the stage-1 SM image. Check
-       register access first with the old SM image (lane B), then with the
-       stage-1 SM image (lane A). Then run the SM SPEC bring-up, soak and recovery
-       checks.
+     - [x] Experimental test images, not the release build:
+       - EMP builds for the Cornell rev2 CM, both FPGAs, from `945951f` (`GIT_HASH_1`
+         `0x0C8FC832` on each), through the EMP build's CM_FPGA_FW checkout (ipbb,
+         through emp-fwk `cm.dep`);
+       - they also carry the 62.5 MHz IPbus clock from emp-fwk's IPbus-clock
+         experiment branch, which is outside this repository;
+       - they predate `81dc76a` and `a401d51`.
+     - [x] Deployed with the stage-1 SM image, on apollo212-1:
+       - 2026-10-15, FPGA1 (SM_ZYNQ_FW `75f66d4`):
+         - register access over lane A, the PicoBlaze console and the protected
+           programming procedure work;
+         - throughput is unchanged (speedtest
+           `results/2026-10-15_apollo212-1_lane-merge/`).
+       - 2026-10-19, both FPGAs (SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`):
+         - IPbus data integrity on each FPGA;
+         - traffic on both at once;
+         - a one-hour soak with the monitoring service (about 475 GB, 0 errors);
+         - link loss under traffic: each FPGA reprogrammed while both carried
+           traffic.
+       - 2026-10-21: the SM_ZYNQ_FW v2.3.0 release tests, both FPGAs.
+     - [ ] Register access with an old SM image (lane B): not tested. It holds by
+       design, since lane B stays connected. It stays untested unless the
+       release-candidate checks run it.
+     - [ ] Not yet tested:
+       - a multi-day soak;
+       - register access while an AXI4 transfer is stalled;
+       - the standard-EMP release candidates ("Release candidate v4.1.0");
+       - the other configs that include the 8 Gb/s YAMLs (`Cornell_rev2_p*`,
+         the `-2` speed grade, `EMP_Cornell_rev3_*`).
+
+   Which configs the lane merge applies to (audit, 2026-10-22):
+   - **Where the SM moves the register windows to lane A.** In SM_ZYNQ_FW that is
+     only the 8 Gb/s gearbox C2C config (`config_c2c_usp_8g_gearbox.yaml`, from
+     v2.3.0). Its 5, 10, 12.5 and 15 Gb/s and 7-series C2C configs keep lane B.
+   - **Every CM config on those 8 Gb/s links has it:** the eight that include
+     `Cornell_rev2_p{1,2}_C2C_8g.yaml` (listed above).
+   - **Not applicable to the others:**
+     - the Tcl-built configs at other link rates (5 Gb/s where stated) or for a
+       7-series SM (`Cornell_rev1_*`, `Cornell_rev2_*_SM_7s`,
+       `Cornell_rev2_*_heaters_allQuads25G`, `MPI_rev1_*`, `EMP_Cornell_rev1_p2_*`)
+       pair with SM configs that still use lane B;
+     - `Cornell_rev3_*_heaters_TF` and `EMP_Cornell_rev1_p1_*` already connect
+       their single link's `m_axi_lite`;
+     - `Cornell_rev3_p{1,2}_VU13p-1-SM_USP` hold file lists and constraints only,
+       with no top or YAML;
+     - `IT-DTC_p1_VU13p-1` holds only a constraints override
+       (`src/gt_quad_l_override.xdc`), not a config of its own.
+   - **Scope:** this release keeps the lane merge to the 8 Gb/s configs; it is not
+     extended to other link configurations.
    - [ ] Stage 2 (free lane B, once it has a new use)
      - [ ] Remove `F1_C2CB`/`F2_C2CB`. Move each PicoBlaze UART interrupt to
        `F1_C2C`/`F2_C2C` (`axi_c2c_s2m_intr_in`) and set the `interrupts` value in
@@ -227,3 +310,80 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
        (`c2c_infra.vhd`) and cannot be left unconnected: connect the lane's new
        user in the same change, or remove the ports and constraints in emp-fwk.
      - [ ] Update the address tables and status tables for lane 2.
+
+4. [ ] `C2C_INTF` at the configured AXI clock (PicoBlaze UART, C2C clock monitoring)
+
+   The problem:
+   - `abca14a` (2026-04-08) moved the EMP AXI master clock to 100 MHz, but
+     `C2C_INTF` and its PicoBlaze (`uC`) assumed 50 MHz.
+     - The PicoBlaze UART ran at about 231 kBd against the UART Lite's 115200, so
+       its console was garbled.
+     - The clock monitors inside `C2C_INTF` counted over the wrong window.
+   - Separately, several tops measure the C2C user clock against the 200 MHz clock
+     with a 2 000 000-cycle window, so `USER_FREQ` read a hundredth of the rate.
+
+   - [x] `6e3fb88`:
+     - `uC` takes `CLKFREQ` and `UART_BAUD_RATE`, and computes its baud divider;
+     - `C2C_INTF` passes `CLKFREQ` to it, and uses it for `USER_CLK_FREQ`;
+     - the six EMP rev2/rev3 VU13P `sub_module.vhd` pass
+       `CLKFREQ => AXI_MASTER_CLK_FREQ`, and use a 200 000 000-cycle window.
+
+     On hardware (2026-10-15, the FPGA1 image from `945951f`) the PicoBlaze console
+     is readable.
+   - [x] The other configs (audit, 2026-10-22):
+
+     | Config | AXI clock of `C2C_INTF` | `CLKFREQ` | C2C user-clock window |
+     |---|---|---|---|
+     | `EMP_Cornell_rev2_p{1,2}_VU13p-{1,2}-SM_USP`, `EMP_Cornell_rev3_p{1,2}_VU13p-1-SM_USP` | 100 MHz | `AXI_MASTER_CLK_FREQ` (`6e3fb88`) | 200 MHz (`6e3fb88`) |
+     | `EMP_Cornell_rev1_p2_VU7p-1-SM_USP`, and its `_SM_7s`, whose `src` links to it | 100 MHz (`BUFGCE_DIV` of `clk_200`) | `100000000` (`a401d51`) | 200 MHz (`a401d51`) |
+     | `Cornell_rev2_p{1,2}_VU13p-1-SM_USP_heaters_allQuads25G` | 50 MHz | the default, 50 MHz: correct | 200 MHz (`a401d51`) |
+     | `Cornell_rev3_p{1,2}_VU13p-1-SM_USP_heaters_TF` | no `C2C_INTF` | | 200 MHz (`a401d51`, `top.vhd`; the unused `top_v0.vhd`/`top_1.vhd` are unchanged) |
+     | `Cornell_rev2_p{1,2}_VU13p-1-SM_USP` | 50 MHz (`Cornell_base.yaml`) | the default: correct | 200 MHz, already |
+     | `Cornell_rev1_*`, `Cornell_rev2_*_SM_7s`, `MPI_rev1_*` | 50 MHz | the default: correct | 50 MHz clock, 50 000 000 cycles, already (`MPI_rev1_*`: none) |
+
+   - [ ] `a401d51` is unbuilt and untested. None of the configs it changes builds
+     from this tree as it stands (the note below). It is kept, as a separate
+     commit, for consistency.
+   - [x] `81dc76a` (cherry-picked from `7a57422`): `C2C_INTF` copies the top
+     level's `C2C_REFCLK_FREQ` into its register record.
+     - **The defect:** before it, only the per-lane fields were copied, so
+       `F*_C2C_INTF.C2C_REFCLK_FREQ` (0x810) read 0 in every config, although nine
+       tops measure the reference clock.
+     - **Not covered by `6e3fb88`,** which fixed `uC`'s clock and the per-lane
+       `USER_CLK_FREQ` window.
+     - **Every config that builds** uses `C2C_INTFS_CornellRev2.xml`, whose record
+       has the field. The configs that name `C2C_INTFS.xml` do not build anyway
+       (the note below).
+     - **Checked:**
+       - `C2C_Intf.vhd` analyses (NVC) against the generated `C2C_INTF_PKG` of
+         `EMP_Cornell_rev2_p1_VU13p-1-SM_USP`, before and after the change;
+       - the check used entity-only stubs for `uC` and the register map;
+       - a misspelled field fails, as it should.
+     - [ ] On hardware: the release-candidate checks.
+
+   Note: configs that do not build from this tree as they stand. They are recorded
+   here, not repaired. Whether anyone still builds them elsewhere was not checked.
+   - **`src/c2cBD/createC2CSlaveInterconnect.tcl`,** removed in `61b9c92`
+     (2023-09-05), is named by `Cornell_rev1_*`, `Cornell_rev2_*_SM_7s`,
+     `EMP_Cornell_rev1_p2_*` and `MPI_rev1_*`.
+   - **The register map `address_table/modules/C2C_INTFS.xml`,** deleted in
+     `f59487f` (2023-08-17), is named by:
+     - `Cornell_rev1_p1_KU15p-2-SM_USP`, `Cornell_rev1_p2_VU7p-1-SM_USP`;
+     - `Cornell_rev2_p2_VU13p-1-SM_7s`;
+     - both `Cornell_rev2_*_heaters_allQuads25G`;
+     - `EMP_Cornell_rev1_p1_KU15p-2-SM_USP`, `EMP_Cornell_rev1_p2_VU7p-1-SM_USP`;
+     - `MPI_rev1_p1_KU15p-2-SM_USP`;
+     - the variants that share their files.
+
+     `Cornell_rev2_p1_VU13p-1-SM_USP_heaters_allQuads25G` also has no
+     `createC2CSlaveInterconnect.tcl` of its own, which its `files.tcl` expects.
+   - **`Cornell_rev3_p{1,2}_VU13p-1-SM_USP_heaters_TF`:** their `files.tcl` name
+     files that were removed or never existed:
+     - removed in 2022: `src/CM_FW_info/CM_V_info.vhd` (`0158c72`) and
+       `cores/Local_Clocking/Local_Clocking.tcl` (`7ce7b65`);
+     - never in this repository: `src/heater/heater.vhd`.
+
+     `p1` also names
+     `configs/Cornell_rev2_p1_VU13p-1-SM_7s_IBERT_lpGBT/src/c2cBD/createC2CSlaveInterconnect.tcl`,
+     which was never in this repository. `p2` keeps its own
+     `src/c2cBD/createC2CSlaveInterconnect.tcl`.
