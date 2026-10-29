@@ -22,11 +22,24 @@ Primary branch wiring:
 - F1/F2 IPbus address windows are 16 MiB on the full AXI endpoint path; this does not specify transport buffer depth.
 - F1/F2 scratch RAM endpoints are omitted in production. Their former 1 MiB, 64-bit BRAM-backed implementation is preserved on `backup/c2c-8g-scratch-before-release-20261007` for future native-AXI development.
 
-## Release candidate v4.1.0 (in preparation, 2026-10-22)
+## Release candidate v4.1.0 (in preparation; updated 2026-10-29)
 
-Not merged or tagged. SM_ZYNQ_FW v2.3.0 needs it: that SM sends the register windows over lane A (work item 3).
+Not merged or tagged. Nothing in this section is a hardware result for the release candidates: they are not built yet.
 
-Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`):
+### Compatibility reference: SM_ZYNQ_FW v2.3.0
+
+- **SM_ZYNQ_FW v2.3.0** = `1b3cc542804546bc200244af22f44a1ab73a3216` (2026-10-21, on `develop` and `master`; the
+  newest SM tag). Its pins: `bd` `db9af5f`, `build-scripts` `b4c8d4d`, `regmap_helper` `83c6f4b`.
+- It moves each FPGA's register windows to lane A (`0xB1000000`, `0xB3000000`) in its 8 Gb/s gearbox C2C config,
+  so it needs this release (work item 3).
+- **CM v4.0.0 with SM v2.3.0 is incompatible.** Register access over lane A times out and the AXI-Lite firewall
+  latches. This is predicted by the compatibility table (SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`,
+  section 6), not tested directly.
+- No SM change is needed for this release, and none was found to be required.
+
+### Scope, version and candidate commit
+
+Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`, `f74b935`):
 
 | Commit | Change | Tested |
 |---|---|---|
@@ -34,37 +47,153 @@ Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`):
 | `945951f` | Stage 1 of the lane merge: AXI-Lite on the AXI4 lane, in the 8 Gb/s configs (work item 3) | on hardware, in the experimental images |
 | `81dc76a` | `C2C_REFCLK_FREQ` reported in the register map (cherry-picked from `7a57422`; work item 4) | NVC analysis only |
 | `a401d51` | The `6e3fb88` fix for the configs it missed (work item 4) | none: those configs do not build from this tree |
-| this record | `SPEC.md` | |
+| `2c3ba36` | `SPEC.md` record | |
 
-Two kinds of image:
-- **Experimental images, tested.**
-  - Built from `945951f` (`GIT_HASH_1` `0x0C8FC832`), with emp-fwk's 62.5 MHz
-    IPbus-clock experiment.
-  - Not release images, and without `81dc76a`.
-  - Results: work item 3, stage 1.
-- **Release candidates, still to build.** The IT-DTC EMP build of this branch's
-  tip, with the standard emp-fwk, for both FPGAs.
+- **Version: v4.1.0 stands.**
+  - The release adds a compatible feature: lane A carries the register traffic, and lane B stays connected for
+    older SM images.
+  - It also fixes the `C2C_INTF` clock and makes `C2C_REFCLK_FREQ` read a measured value.
+  - The register map gains no node (`C2C_REFCLK_FREQ` was already in `C2C_INTFS_CornellRev2.xml`).
+  - No dependency pin changed since v4.0.0.
+- **The candidate is `2c3ba3648f93b6330922f36e21f94ed93937e363`** (pushed), so the images' `F*_CM_FW_INFO.GIT_HASH_1`
+  reads `0x3937E363`.
+  - Tag `v4.1.0` on this exact commit, the one the images are built from, so that the identity names the tag.
+  - Later `SPEC.md` commits, such as this record, change no firmware and go on top of it.
 
-Release-candidate checks, on each FPGA, with the SM_ZYNQ_FW v2.3.0 image (programming needs the developer's approval):
-- [ ] **Identity:** `F*_CM_FW_INFO` reports the candidate build, and the build used this branch's tip.
-- [ ] **Register access through lane A:** `F*_CM_FW_INFO`, `F*_IO` and `F*_C2C_INTF` read correctly through the SM's lane-A
-  windows (`0xB1000000`, `0xB3000000`).
-- [ ] **PicoBlaze console:** readable at 115200 Bd.
-- [ ] **Clock readings:**
-  - `F*_C2C_INTF` `USER_FREQ` and `USER_CLK_FREQ` are steady, and not a hundredth of the rate. The Aurora 64B/66B
-    user clock at 8 Gb/s should be 8 Gb/s ÷ 64.
-  - `C2C_REFCLK_FREQ` (0x810) is no longer 0. It reads the reference clock as measured, about 200 MHz or 100 MHz,
-    depending on the ODIV2 setting in emp-fwk.
-- [ ] **A short verified DMA test** (data checked) on both FPGAs, with the monitoring service running.
-- [ ] **An older SM image over lane B:** v4.1.0 claims this by design only. It stays untested unless it is run here.
+### The deployable images: EMP application builds
 
-Known limitations of v4.1.0:
+CM_FPGA_FW is the infrastructure; a deployable image is an EMP application build. For this release the
+acceptance images are the IT-DTC block-RAM IPbus test builds for the **Cornell rev2 CM** (apollo212-1's CM,
+SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
+
+| FPGA | IT-DTC CI config | dep file | CM_FPGA_FW target |
+|---|---|---|---|
+| 1 | `v2-fpga-1-bram-test` | `top_v2_p1_bramtest.dep` | `EMP_Cornell_rev2_p1_VU13p-1-SM_USP` |
+| 2 | `v2-fpga-2-bram-test` | `top_v2_p2_bramtest.dep` | `EMP_Cornell_rev2_p2_VU13p-1-SM_USP` |
+
+- **Confirm the CM revision before building.** The validation record says Cornell rev2. But a note from the
+  experimental build (2026-10-12) names `top_v3_p1_bramtest.dep` (IT-DTC `8a141c65`) for the FPGA1 test image, so
+  which dep that image used is unresolved. The release images must use the board's own revision: the `v3` deps and
+  `EMP_Cornell_rev3_*` targets if it is rev3, and those have no CI config yet.
+- **The build branch:** IT-DTC `feature/new_block_ram_jrf_temp`, `e390e4b9` (pushed). It already pins CM_FPGA_FW
+  `2c3ba36`, so it needs no change for this release.
+- **The build:** IT-DTC CI on emp-pipeline, Vivado 2023.2, part `xcvu13p-flga2577-1-e`. Both configs are manual jobs.
+- **The IPbus clock is not part of this release.** CM_FPGA_FW sets no IPbus clock; it uses the one emp-fwk
+  provides. Each application chooses its emp-fwk, and with it the clock. The test builds use the emp-fwk their
+  application pins (`dc9e6763`, as the experimental images did); record it with the results as part of the test
+  configuration. IPbus throughput follows that choice and is not an acceptance criterion for CM_FPGA_FW.
+- **Production payloads** (the DTC application builds) are not part of this release. Each is rebuilt against
+  v4.1.0 by its own release.
+
+### Experimental images (tested) and release candidates (not yet built)
+
+| | Experimental images | Release candidates |
+|---|---|---|
+| CM_FPGA_FW | `945951f` (`GIT_HASH_1` `0x0C8FC832`), without `81dc76a` and `a401d51` | `2c3ba36` (`0x3937E363`) |
+| emp-fwk (the application's pin) | `dc9e6763` | `dc9e6763` (IT-DTC `e390e4b9`) |
+| Packages | FPGA1: `it_dtc_bram_8G_IPBUS_CLOCK_62_5_MHz_FIX_CLK_MON_MERGE.tgz`; FPGA2: its stage-1 counterpart | to be built (above) |
+| Hardware | 2026-10-15 to 21 with SM_ZYNQ_FW `75f66d4` to v2.3.0: lane-A register access, console, IPbus integrity on both FPGAs, a one-hour soak, link loss under traffic, the v2.3.0 release tests (work item 3) | none yet |
+
+The experimental results show that the design works. They do not validate the release images.
+
+### Dependencies (audit, 2026-10-29)
+
+| Dependency | CM v4.1.0 pin | SM v2.3.0 pin | Where the pinned commits are | Open MR |
+|---|---|---|---|---|
+| `bd` (bu_build) | `da8c683` (v3.0.0-100) | `db9af5f` (v3.0.0-106) | Feature branches only. `feature/axi_dma_upgrade` (tip `db9af5f`) holds both; `develop` (`2a12a67`, 2023) is an ancestor of both | !1 (draft): `feature/c2c-soft-reset` → `develop`, three of the six commits after `da8c683` |
+| `build-scripts` | `b4c8d4d` (v1.1.0-18) | `b4c8d4d` | Only `c2c_dma_jrf_buildscripts_Unified` (its tip). Fast-forward from both `master` and `develop` | !19: that branch → `master` |
+| `regmap_helper` (uhal_axi_regmap) | `aa6ec79` (v3.0.0-7) | `83c6f4b` (master) | CM's pin only on `128_bit_dma_jrf`; `develop`, the default, has 16 commits it lacks | none |
+| `regmap_helper/axiReg` (axi-vhdl-package, nested) | `3b5c5d3` (v1.0.0-2) | | Only `128_bit_dma_jrf`; `develop` has 7 commits it lacks | none |
+| `src/misc` (misc-vhdl) | `60eb0d0` (v1.0.0-2) | | Only `128_bit_dma_jrf`; `develop` has 10 commits it lacks | none |
+| `bd/utils/buddyallocation` (nested) | `d3ea718` | | `develop` | |
+| `FPGA_heater` | `04e423d` | | `master` | |
+
+- **A clean recursive clone reproduces the tree.** `git clone` of `2c3ba36` from the public remotes, then
+  `git submodule update --init --recursive` (what `make init` runs), resolves every submodule, nested ones
+  included, with no local-only commit (2026-10-29).
+- **But it depends on five feature branches staying,** so merging or tagging them is recommended. SM_ZYNQ_FW
+  v2.3.0 has the same dependence through `bd` and `build-scripts`.
+- **The CM's pins are not changed to match the SM's.** They are the pins of v4.0.0 and of the tested images.
+
+Recommended dependency releases, independent of the CM tag:
+
+| Repository | Action | Proposed tag | Why this version |
+|---|---|---|---|
+| bu_build | Fast-forward `develop` to `db9af5f` (`feature/axi_dma_upgrade`); close or supersede draft !1, which is a subset | `v3.1.0` on `db9af5f` | 106 commits after v3.0.0. They are additive YAML options (128-bit C2C/BRAM, AXIS width converter, interconnect knobs that default to the previous behaviour, `93f88d4`, gearbox aux reset, C2C recovery helpers, the SM DMA implementor). One behavioural change for C2C users, `b4e19fc` (no extra Aurora reset), is validated in both releases. Its other users should know of it, or call it v4.0.0 if they treat it as breaking. The tag is SM v2.3.0's pin exactly, and the CM's pin is in its history |
+| build-scripts | Merge !19 as a fast-forward of `master` and `develop` to `b4c8d4d` | `v1.2.0` on `b4c8d4d` | 18 commits after v1.1.0, the build changes for the wide AXI/C2C work. It is both releases' pin exactly |
+| uhal_axi_regmap, axi-vhdl-package, misc-vhdl | MRs `128_bit_dma_jrf` → `develop` (merge commits), or protect those branches | optional, minor, on the merges | They make the CM's pins reachable from the default branch without moving the pins. A tag would not name the pinned commit itself |
+
+### Release-candidate checks (with SM_ZYNQ_FW v2.3.0; programming needs the developer's approval)
+
+Prerequisites:
+- apollo212-1 with the SM v2.3.0 image;
+- a SoC OS with the corrected UIODaemon window allocation (SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`,
+  section 6), since both FPGAs will be loaded;
+- the two candidate packages;
+- the monitoring services stopped for programming.
+
+The steps for FPGA1 (FPGA2: `-fpga 2`, `F2_*`, `C2C2`, window `0xB3000000`, `-f 2`):
+
+| # | Check | Command (BUTool unless shown) | Expected |
+|---|---|---|---|
+| 1 | Programming | shell: `uio_send.py program-fpga -fpga 1 -f <FPGA1 candidate package>` | success; `read CM.C2C1_PROGRAM.STATUS` `0x3C01` |
+| 2 | Identity | `read F1_CM_FW_INFO.GIT_HASH_1` | `0x3937E363`; the package's address table is from the same build |
+| 3 | Register access over lane A | `status 2 C2C`; `read F1_IO.CLK_200_LOCKED` | the reads answer (through `0xB1000000`); `1` |
+| 4 | PicoBlaze console | shell: `python3 ~/pbuart.py send version` | answered, readable at 115200 Bd |
+| 5 | Clocks | `read F1_C2C_INTF.C2C_1.USER_FREQ`; `read F1_C2C_INTF.C2C_REFCLK_FREQ` | about 125,000,000 (8 Gb/s ÷ 64); about 200,000,000, steady |
+| 6 | Verified DMA | shell: `c2c-pages-test resync 1`; `test_stand -c 21 -f 1 -n 0x83000000 -k 1024 -l 0 --verify --duration 60` | 0 words wrong, no timeout or desync |
+
+Then, with both FPGAs loaded:
+
+| # | Check | How | Expected |
+|---|---|---|---|
+| 7 | Both at once, with monitoring | `BUMonitor` running; step 6 on both FPGAs together for 10 minutes | 0 words wrong on each |
+| 8 | Register windows | `read CM.C2C1_PROGRAM.STATUS` and `CM.C2C2_PROGRAM.STATUS` | `0x3C01`: they match the hardware, so there is no window overlap |
+| 9 | Older SM (lane B), optional | SM v2.2.0 image, steps 2-5 | Holds by design. Untested unless run, and recorded so |
+
+Afterwards:
+- Record each candidate's timing (WNS, WHS, routing complete) from the CI jobs, with the package names and SHA-256.
+- Results go in this section.
+
+### Release order
+
+1. **Run the two manual jobs** on IT-DTC `feature/new_block_ram_jrf_temp` (`e390e4b9`, already pushed).
+2. **Check timing and routing.** Record the packages and checksums.
+3. **The hardware checks above.** Programming needs approval.
+4. **If they pass:**
+   - tag `v4.1.0` (annotated) on `2c3ba36`;
+   - open a PR from `feature/c2c_axilite_lane_merge` to `master`, carrying the `SPEC.md` record commits, and merge
+     it with a merge commit, so the tagged commit is in `master`'s history.
+5. **Dependencies:** the bu_build and build-scripts tags; the three `128_bit_dma_jrf` MRs or branch protection.
+   Recommended before the combined Apollo release documentation, but not a condition of the CM tag.
+6. **SM_ZYNQ_FW:** no change. v2.3.0 is the reference, and step 5 makes it reproducible from the dependencies'
+   main branches as well.
+
+### Compatibility set and rollback
+
+| SM_ZYNQ_FW | CM images | Status |
+|---|---|---|
+| v2.3.0 | v4.1.0 candidates (`2c3ba36`) | the release pair: to test |
+| v2.3.0 | experimental (`945951f`) | tested 2026-10-15 to 21: the rollback images for v2.3.0 |
+| v2.2.0 (lane B) | v4.0.0 | the previous release pair: the rollback for the SM |
+| v2.2.0 (lane B) | v4.1.0 | by design only; untested |
+| v2.3.0 | v4.0.0 | incompatible (above) |
+
+Keep for rollback:
+- the experimental FPGA1 and FPGA2 packages;
+- the v4.0.0 packages;
+- the SM v2.2.0 image.
+
+### Known limitations of v4.1.0
+
 - No multi-day soak.
 - Register access while an AXI4 transfer is stalled is untested.
-- Of the configs that include the 8 Gb/s YAMLs, only the EMP rev2 builds are tested. The `Cornell_rev2_p*` non-EMP
-  configs, the `-2` speed grade and `EMP_Cornell_rev3_*` are not built.
+- Of the configs that include the 8 Gb/s YAMLs, only the EMP rev2 builds are built and tested. The `Cornell_rev2_p*`
+  non-EMP configs, the `-2` speed grade and `EMP_Cornell_rev3_*` are not built.
 - `a401d51` is unbuilt.
 - Many historical configs do not build from this tree (work item 4, last note). That is recorded, not repaired.
+- Built and tested only in the IT-DTC test application, with the emp-fwk it pins (`dc9e6763`). Other
+  applications choose their own emp-fwk and IPbus clock; those combinations are not built here.
 
 ## Work items
 
