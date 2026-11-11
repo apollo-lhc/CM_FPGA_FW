@@ -22,14 +22,15 @@ Primary branch wiring:
 - F1/F2 IPbus address windows are 16 MiB on the full AXI endpoint path; this does not specify transport buffer depth.
 - F1/F2 scratch RAM endpoints are omitted in production. Their former 1 MiB, 64-bit BRAM-backed implementation is preserved on `backup/c2c-8g-scratch-before-release-20261007` for future native-AXI development.
 
-## Release candidate v4.1.0 (in preparation; updated 2026-10-29)
+## Release candidate v4.1.0 (in preparation; updated 2026-11-11)
 
 Not merged or tagged. Nothing in this section is a hardware result for the release candidates: they are not built yet.
 
 ### Compatibility reference: SM_ZYNQ_FW v2.3.0
 
 - **SM_ZYNQ_FW v2.3.0** = `1b3cc542804546bc200244af22f44a1ab73a3216` (2026-10-21, on `develop` and `master`; the
-  newest SM tag). Its pins: `bd` `db9af5f`, `build-scripts` `b4c8d4d`, `regmap_helper` `83c6f4b`.
+  newest SM tag). Its pins: `bd` `db9af5f`, `build-scripts` `b4c8d4d`, `regmap_helper` `83c6f4b` (with `axiReg`
+  `eaa6c5b`), `src/misc` `47e307e`. Since `473b251` the CM pins the same commits.
 - It moves each FPGA's register windows to lane A (`0xB1000000`, `0xB3000000`) in its 8 Gb/s gearbox C2C config,
   so it needs this release (work item 3).
 - **CM v4.0.0 with SM v2.3.0 is incompatible.** Register access over lane A times out and the AXI-Lite firewall
@@ -47,16 +48,19 @@ Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`, `f74b935`)
 | `945951f` | Stage 1 of the lane merge: AXI-Lite on the AXI4 lane, in the 8 Gb/s configs (work item 3) | on hardware, in the experimental images |
 | `81dc76a` | `C2C_REFCLK_FREQ` reported in the register map (cherry-picked from `7a57422`; work item 4) | NVC analysis only |
 | `a401d51` | The `6e3fb88` fix for the configs it missed (work item 4) | none: those configs do not build from this tree |
-| `2c3ba36` | `SPEC.md` record | |
+| `2c3ba36` | `SPEC.md` record (the previous candidate) | |
+| `a7b5988` | `SPEC.md` record | |
+| `473b251` | `bd`, `regmap_helper` (with `axiReg`) and `src/misc` moved to SM_ZYNQ_FW v2.3.0's pins | to build (below) |
 
 - **Version: v4.1.0 stands.**
   - The release adds a compatible feature: lane A carries the register traffic, and lane B stays connected for
     older SM images.
   - It also fixes the `C2C_INTF` clock and makes `C2C_REFCLK_FREQ` read a measured value.
   - The register map gains no node (`C2C_REFCLK_FREQ` was already in `C2C_INTFS_CornellRev2.xml`).
-  - No dependency pin changed since v4.0.0.
-- **The candidate is `2c3ba3648f93b6330922f36e21f94ed93937e363`** (pushed), so the images' `F*_CM_FW_INFO.GIT_HASH_1`
-  reads `0x3937E363`.
+  - The shared dependency pins move to SM v2.3.0's (`473b251`, below). No firmware change is expected from that.
+- **The candidate is `473b251f40136a68bbc3d12166fc17c9131332ac`** (pushed), so the images' `F*_CM_FW_INFO.GIT_HASH_1`
+  reads `0x131332AC`.
+  - It replaces `2c3ba36` (`0x3937E363`), so that both repositories are built against the same dependencies.
   - Tag `v4.1.0` on this exact commit, the one the images are built from, so that the identity names the tag.
   - Later `SPEC.md` commits, such as this record, change no firmware and go on top of it.
 
@@ -75,8 +79,8 @@ SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
   experimental build (2026-10-12) names `top_v3_p1_bramtest.dep` (IT-DTC `8a141c65`) for the FPGA1 test image, so
   which dep that image used is unresolved. The release images must use the board's own revision: the `v3` deps and
   `EMP_Cornell_rev3_*` targets if it is rev3, and those have no CI config yet.
-- **The build branch:** IT-DTC `feature/new_block_ram_jrf_temp`, `e390e4b9` (pushed). It already pins CM_FPGA_FW
-  `2c3ba36`, so it needs no change for this release.
+- **The build branch:** IT-DTC `feature/new_block_ram_jrf_temp`, `8f748e1c` (pushed). It pins CM_FPGA_FW
+  `473b251`; its parent `e390e4b9` pinned `2c3ba36`.
 - **The build:** IT-DTC CI on emp-pipeline, Vivado 2023.2, part `xcvu13p-flga2577-1-e`. Both configs are manual jobs.
 - **The IPbus clock is not part of this release.** CM_FPGA_FW sets no IPbus clock; it uses the one emp-fwk
   provides. Each application chooses its emp-fwk, and with it the clock. The test builds use the emp-fwk their
@@ -89,31 +93,42 @@ SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
 
 | | Experimental images | Release candidates |
 |---|---|---|
-| CM_FPGA_FW | `945951f` (`GIT_HASH_1` `0x0C8FC832`), without `81dc76a` and `a401d51` | `2c3ba36` (`0x3937E363`) |
-| emp-fwk (the application's pin) | `dc9e6763` | `dc9e6763` (IT-DTC `e390e4b9`) |
+| CM_FPGA_FW | `945951f` (`GIT_HASH_1` `0x0C8FC832`), without `81dc76a` and `a401d51` | `473b251` (`0x131332AC`) |
+| emp-fwk (the application's pin) | `dc9e6763` | `dc9e6763` (IT-DTC `8f748e1c`) |
 | Packages | FPGA1: `it_dtc_bram_8G_IPBUS_CLOCK_62_5_MHz_FIX_CLK_MON_MERGE.tgz`; FPGA2: its stage-1 counterpart | to be built (above) |
 | Hardware | 2026-10-15 to 21 with SM_ZYNQ_FW `75f66d4` to v2.3.0: lane-A register access, console, IPbus integrity on both FPGAs, a one-hour soak, link loss under traffic, the v2.3.0 release tests (work item 3) | none yet |
 
 The experimental results show that the design works. They do not validate the release images.
 
-### Dependencies (audit, 2026-10-29)
+### Dependencies (audit 2026-10-29; pins aligned with SM v2.3.0 in `473b251`, 2026-11-11)
 
-| Dependency | CM v4.1.0 pin | SM v2.3.0 pin | Where the pinned commits are | Open MR |
-|---|---|---|---|---|
-| `bd` (bu_build) | `da8c683` (v3.0.0-100) | `db9af5f` (v3.0.0-106) | Feature branches only. `feature/axi_dma_upgrade` (tip `db9af5f`) holds both; `develop` (`2a12a67`, 2023) is an ancestor of both | !1 (draft): `feature/c2c-soft-reset` → `develop`, three of the six commits after `da8c683` |
-| `build-scripts` | `b4c8d4d` (v1.1.0-18) | `b4c8d4d` | Only `c2c_dma_jrf_buildscripts_Unified` (its tip). Fast-forward from both `master` and `develop` | !19: that branch → `master` |
-| `regmap_helper` (uhal_axi_regmap) | `aa6ec79` (v3.0.0-7) | `83c6f4b` (master) | CM's pin only on `128_bit_dma_jrf`; `develop`, the default, has 16 commits it lacks | none |
-| `regmap_helper/axiReg` (axi-vhdl-package, nested) | `3b5c5d3` (v1.0.0-2) | | Only `128_bit_dma_jrf`; `develop` has 7 commits it lacks | none |
-| `src/misc` (misc-vhdl) | `60eb0d0` (v1.0.0-2) | | Only `128_bit_dma_jrf`; `develop` has 10 commits it lacks | none |
-| `bd/utils/buddyallocation` (nested) | `d3ea718` | | `develop` | |
-| `FPGA_heater` | `04e423d` | | `master` | |
+| Dependency | CM v4.1.0 pin (`473b251`) | SM v2.3.0 pin | CM v4.0.0 and `2c3ba36` pin | Where the v4.1.0 pin is | Open MR |
+|---|---|---|---|---|---|
+| `bd` (bu_build) | `db9af5f` (v3.0.0-106) | `db9af5f` | `da8c683` (v3.0.0-100) | Only `feature/axi_dma_upgrade` (its tip). `develop` (`2a12a67`, 2023, the default) is an ancestor, 90 commits behind | !1 (draft): `feature/c2c-soft-reset` → `develop`, three of the six commits after `da8c683` |
+| `build-scripts` | `b4c8d4d` (v1.1.0-18) | `b4c8d4d` | `b4c8d4d` | Only `c2c_dma_jrf_buildscripts_Unified` (its tip). Fast-forward from both `master` and `develop` | !19: that branch → `master` |
+| `regmap_helper` (uhal_axi_regmap) | `83c6f4b` (v3.0.0-1) | `83c6f4b` | `aa6ec79` (v3.0.0-7) | `master` (its tip). The GitLab default branch is `L0MDT_2024_11_27` (tip `48262eb`, 2023), which does not hold it; `develop` lacks 1 commit of it | none |
+| `regmap_helper/axiReg` (axi-vhdl-package, nested) | `eaa6c5b` (v1.0.0-1) | `eaa6c5b` | `3b5c5d3` (v1.0.0-2) | `master` (its tip). `develop`, the default, lacks 1 commit of it | none |
+| `src/misc` (misc-vhdl) | `47e307e` (v1.0.0-11) | `47e307e` | `60eb0d0` (v1.0.0-2) | `develop` (its tip, the default) | none |
+| `bd/utils/buddyallocation` (nested) | `d3ea718` | `d3ea718` | `d3ea718` | `develop` | |
+| `FPGA_heater` | `04e423d` | | `04e423d` | `master` | |
 
-- **A clean recursive clone reproduces the tree.** `git clone` of `2c3ba36` from the public remotes, then
-  `git submodule update --init --recursive` (what `make init` runs), resolves every submodule, nested ones
-  included, with no local-only commit (2026-10-29).
-- **But it depends on five feature branches staying,** so merging or tagging them is recommended. SM_ZYNQ_FW
-  v2.3.0 has the same dependence through `bd` and `build-scripts`.
-- **The CM's pins are not changed to match the SM's.** They are the pins of v4.0.0 and of the tested images.
+- **What `473b251` changes, and why no firmware change is expected:**
+  - `bd` gains six commits made for the SM: an optional `gearbox_aux_reset` (the default keeps the old path), the
+    C2C recovery and program-control IP helpers, the C2C AXI DMA implementor, and a CI fix. They add procs only,
+    and the CM's YAML calls none of them.
+  - `regmap_helper` and `axiReg` drop the `128_bit_dma_jrf` extras: node-span tracking (never written to the
+    output), `"auto"` addresses, and an `INCLUDE_ILA` option (default false; only debug-state decoding and an ILA).
+    The CM uses none of them, and the 128-bit AXI content is the same.
+  - `src/misc`: both pins carry the same `slv_128_t`. `47e307e` adds files and types the CM does not name, and a
+    `rate_update` output on `rate_counter`, which the existing instances leave open.
+  - Checked by reading the code and searching the tree, not by a build: the release build is the test.
+- **Every pin is on a public remote branch** (checked 2026-11-11 against the fetched remotes). The 2026-10-29
+  clean recursive clone was of `2c3ba36`. Builds resolve submodules with `git submodule update --init --recursive`
+  (`make init`; `ipbb add git -r` in the IT-DTC CI), so the `.gitmodules` branch fields do not affect them.
+- **`bd` and `build-scripts` still depend on feature branches staying,** for both repositories, until the
+  dependency releases below.
+- **CM v4.0.0 still pins the `128_bit_dma_jrf` commits** of uhal_axi_regmap, axi-vhdl-package and misc-vhdl. Those
+  branches must stay.
 
 Recommended dependency releases, independent of the CM tag:
 
@@ -121,7 +136,7 @@ Recommended dependency releases, independent of the CM tag:
 |---|---|---|---|
 | bu_build | Fast-forward `develop` to `db9af5f` (`feature/axi_dma_upgrade`); close or supersede draft !1, which is a subset | `v3.1.0` on `db9af5f` | 106 commits after v3.0.0. They are additive YAML options (128-bit C2C/BRAM, AXIS width converter, interconnect knobs that default to the previous behaviour, `93f88d4`, gearbox aux reset, C2C recovery helpers, the SM DMA implementor). One behavioural change for C2C users, `b4e19fc` (no extra Aurora reset), is validated in both releases. Its other users should know of it, or call it v4.0.0 if they treat it as breaking. The tag is SM v2.3.0's pin exactly, and the CM's pin is in its history |
 | build-scripts | Merge !19 as a fast-forward of `master` and `develop` to `b4c8d4d` | `v1.2.0` on `b4c8d4d` | 18 commits after v1.1.0, the build changes for the wide AXI/C2C work. It is both releases' pin exactly |
-| uhal_axi_regmap, axi-vhdl-package, misc-vhdl | MRs `128_bit_dma_jrf` → `develop` (merge commits), or protect those branches | optional, minor, on the merges | They make the CM's pins reachable from the default branch without moving the pins. A tag would not name the pinned commit itself |
+| uhal_axi_regmap, axi-vhdl-package, misc-vhdl | Protect (or tag) the `128_bit_dma_jrf` branches, which CM v4.0.0 pins. v4.1.0's pins are already on `master`, `master` and `develop` | optional: tags on `83c6f4b` and `eaa6c5b`, which are on `master` but not on the default branch | So that v4.0.0 and v4.1.0 both stay reproducible |
 
 ### Release-candidate checks (with SM_ZYNQ_FW v2.3.0; programming needs the developer's approval)
 
@@ -137,7 +152,7 @@ The steps for FPGA1 (FPGA2: `-fpga 2`, `F2_*`, `C2C2`, window `0xB3000000`, `-f 
 | # | Check | Command (BUTool unless shown) | Expected |
 |---|---|---|---|
 | 1 | Programming | shell: `uio_send.py program-fpga -fpga 1 -f <FPGA1 candidate package>` | success; `read CM.C2C1_PROGRAM.STATUS` `0x3C01` |
-| 2 | Identity | `read F1_CM_FW_INFO.GIT_HASH_1` | `0x3937E363`; the package's address table is from the same build |
+| 2 | Identity | `read F1_CM_FW_INFO.GIT_HASH_1` | `0x131332AC`; the package's address table is from the same build |
 | 3 | Register access over lane A | `status 2 C2C`; `read F1_IO.CLK_200_LOCKED` | the reads answer (through `0xB1000000`); `1` |
 | 4 | PicoBlaze console | shell: `python3 ~/pbuart.py send version` | answered, readable at 115200 Bd |
 | 5 | Clocks | `read F1_C2C_INTF.C2C_1.USER_FREQ`; `read F1_C2C_INTF.C2C_REFCLK_FREQ` | about 125,000,000 (8 Gb/s ÷ 64); about 200,000,000, steady |
@@ -157,23 +172,23 @@ Afterwards:
 
 ### Release order
 
-1. **Run the two manual jobs** on IT-DTC `feature/new_block_ram_jrf_temp` (`e390e4b9`, already pushed).
+1. **Run the two manual jobs** on IT-DTC `feature/new_block_ram_jrf_temp` (`8f748e1c`, already pushed).
 2. **Check timing and routing.** Record the packages and checksums.
 3. **The hardware checks above.** Programming needs approval.
 4. **If they pass:**
-   - tag `v4.1.0` (annotated) on `2c3ba36`;
+   - tag `v4.1.0` (annotated) on `473b251`;
    - open a PR from `feature/c2c_axilite_lane_merge` to `master`, carrying the `SPEC.md` record commits, and merge
      it with a merge commit, so the tagged commit is in `master`'s history.
-5. **Dependencies:** the bu_build and build-scripts tags; the three `128_bit_dma_jrf` MRs or branch protection.
+5. **Dependencies:** the bu_build and build-scripts tags; protection of the three `128_bit_dma_jrf` branches.
    Recommended before the combined Apollo release documentation, but not a condition of the CM tag.
-6. **SM_ZYNQ_FW:** no change. v2.3.0 is the reference, and step 5 makes it reproducible from the dependencies'
-   main branches as well.
+6. **SM_ZYNQ_FW:** no change. v2.3.0 is the reference, and step 5 makes it, and v4.1.0, reproducible from the
+   dependencies' main branches as well.
 
 ### Compatibility set and rollback
 
 | SM_ZYNQ_FW | CM images | Status |
 |---|---|---|
-| v2.3.0 | v4.1.0 candidates (`2c3ba36`) | the release pair: to test |
+| v2.3.0 | v4.1.0 candidates (`473b251`) | the release pair: to test |
 | v2.3.0 | experimental (`945951f`) | tested 2026-10-15 to 21: the rollback images for v2.3.0 |
 | v2.2.0 (lane B) | v4.0.0 | the previous release pair: the rollback for the SM |
 | v2.2.0 (lane B) | v4.1.0 | by design only; untested |
