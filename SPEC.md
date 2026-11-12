@@ -22,9 +22,10 @@ Primary branch wiring:
 - F1/F2 IPbus address windows are 16 MiB on the full AXI endpoint path; this does not specify transport buffer depth.
 - F1/F2 scratch RAM endpoints are omitted in production. Their former 1 MiB, 64-bit BRAM-backed implementation is preserved on `backup/c2c-8g-scratch-before-release-20261007` for future native-AXI development.
 
-## Release candidate v4.1.0 (in preparation; updated 2026-11-11)
+## Release candidate v4.1.0 (in preparation; updated 2026-11-12)
 
-Not merged or tagged. Nothing in this section is a hardware result for the release candidates: they are not built yet.
+Not merged or tagged. The release candidate (`09436ad`) was built and passed its hardware checks on apollo212-1 on
+2026-11-12 ("Release-candidate results", below). The package checksums and the CI timing are still to record.
 
 ### Compatibility reference: SM_ZYNQ_FW v2.3.0
 
@@ -50,7 +51,8 @@ Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`, `f74b935`)
 | `a401d51` | The `6e3fb88` fix for the configs it missed (work item 4) | none: those configs do not build from this tree |
 | `2c3ba36` | `SPEC.md` record (the previous candidate) | |
 | `a7b5988` | `SPEC.md` record | |
-| `473b251` | `bd`, `regmap_helper` (with `axiReg`) and `src/misc` moved to SM_ZYNQ_FW v2.3.0's pins | to build (below) |
+| `473b251` | `bd`, `regmap_helper` (with `axiReg`) and `src/misc` moved to SM_ZYNQ_FW v2.3.0's pins | on hardware, as `09436ad` |
+| `09436ad` | `SPEC.md` record. **The built candidate**: the firmware of `473b251` | on hardware, 2026-11-12 (below) |
 
 - **Version: v4.1.0 stands.**
   - The release adds a compatible feature: lane A carries the register traffic, and lane B stays connected for
@@ -58,11 +60,14 @@ Commits on `feature/c2c_axilite_lane_merge` since `master` (`v4.0.0`, `f74b935`)
   - It also fixes the `C2C_INTF` clock and makes `C2C_REFCLK_FREQ` read a measured value.
   - The register map gains no node (`C2C_REFCLK_FREQ` was already in `C2C_INTFS_CornellRev2.xml`).
   - The shared dependency pins move to SM v2.3.0's (`473b251`, below). No firmware change is expected from that.
-- **The candidate is `473b251f40136a68bbc3d12166fc17c9131332ac`** (pushed), so the images' `F*_CM_FW_INFO.GIT_HASH_1`
-  reads `0x131332AC`.
+- **The candidate is `09436ad4beabbbb639849a89cff7521d1c41a96f`** (pushed), so the images'
+  `F*_CM_FW_INFO.GIT_HASH_1` reads `0x1C41A96F` (read on both FPGAs).
+  - The images were built from the branch tip `09436ad`, not from `473b251` (`0x131332AC`). The two differ only in
+    `SPEC.md`, so the firmware is that of `473b251`.
   - It replaces `2c3ba36` (`0x3937E363`), so that both repositories are built against the same dependencies.
-  - Tag `v4.1.0` on this exact commit, the one the images are built from, so that the identity names the tag.
-  - Later `SPEC.md` commits, such as this record, change no firmware and go on top of it.
+  - Tag `v4.1.0` on `09436ad`, the commit the images are built from, so that the identity names the tag.
+  - Later `SPEC.md` commits, such as this record, change no firmware and go on top of it. Builds must keep
+    pinning `09436ad`.
 
 ### The deployable images: EMP application builds
 
@@ -79,8 +84,8 @@ SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
   experimental build (2026-10-12) names `top_v3_p1_bramtest.dep` (IT-DTC `8a141c65`) for the FPGA1 test image, so
   which dep that image used is unresolved. The release images must use the board's own revision: the `v3` deps and
   `EMP_Cornell_rev3_*` targets if it is rev3, and those have no CI config yet.
-- **The build branch:** IT-DTC `feature/new_block_ram_jrf_temp`, `8f748e1c` (pushed). It pins CM_FPGA_FW
-  `473b251`; its parent `e390e4b9` pinned `2c3ba36`.
+- **The build branch:** IT-DTC `feature/new_block_ram_jrf_temp`, `b6368cb9` (pushed). It pins CM_FPGA_FW
+  `09436ad` and changes nothing else; its parents pinned `473b251` (`8f748e1c`) and `2c3ba36` (`e390e4b9`).
 - **The build:** IT-DTC CI on emp-pipeline, Vivado 2023.2, part `xcvu13p-flga2577-1-e`. Both configs are manual jobs.
 - **The IPbus clock is not part of this release.** CM_FPGA_FW sets no IPbus clock; it uses the one emp-fwk
   provides. Each application chooses its emp-fwk, and with it the clock. The test builds use the emp-fwk their
@@ -89,16 +94,16 @@ SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
 - **Production payloads** (the DTC application builds) are not part of this release. Each is rebuilt against
   v4.1.0 by its own release.
 
-### Experimental images (tested) and release candidates (not yet built)
+### Experimental images and release candidates (both tested)
 
 | | Experimental images | Release candidates |
 |---|---|---|
-| CM_FPGA_FW | `945951f` (`GIT_HASH_1` `0x0C8FC832`), without `81dc76a` and `a401d51` | `473b251` (`0x131332AC`) |
-| emp-fwk (the application's pin) | `dc9e6763` | `dc9e6763` (IT-DTC `8f748e1c`) |
-| Packages | FPGA1: `it_dtc_bram_8G_IPBUS_CLOCK_62_5_MHz_FIX_CLK_MON_MERGE.tgz`; FPGA2: its stage-1 counterpart | to be built (above) |
-| Hardware | 2026-10-15 to 21 with SM_ZYNQ_FW `75f66d4` to v2.3.0: lane-A register access, console, IPbus integrity on both FPGAs, a one-hour soak, link loss under traffic, the v2.3.0 release tests (work item 3) | none yet |
+| CM_FPGA_FW | `945951f` (`GIT_HASH_1` `0x0C8FC832`), without `81dc76a` and `a401d51` | `09436ad` (`0x1C41A96F`) |
+| emp-fwk (the application's pin) | `dc9e6763` | `dc9e6763` (IT-DTC `b6368cb9`); its IPbus clock is 62.5 MHz |
+| Packages | FPGA1: `it_dtc_bram_8G_IPBUS_CLOCK_62_5_MHz_FIX_CLK_MON_MERGE.tgz`; FPGA2: its stage-1 counterpart | FPGA2: `it_dtc_f2_bram_8G_IPBUS_CLOCK_62_5_MHz_V4_1_0.tgz`; FPGA1: its counterpart (name and SHA-256 to record) |
+| Hardware | 2026-10-15 to 21 with SM_ZYNQ_FW `75f66d4` to v2.3.0: lane-A register access, console, IPbus integrity on both FPGAs, a one-hour soak, link loss under traffic, the v2.3.0 release tests (work item 3) | 2026-11-12 with SM_ZYNQ_FW v2.3.0: the release-candidate checks, all passed (below) |
 
-The experimental results show that the design works. They do not validate the release images.
+The experimental results show that the design works. The release-candidate results validate the release images.
 
 ### Dependencies (audit 2026-10-29; pins aligned with SM v2.3.0 in `473b251`, 2026-11-11)
 
@@ -152,7 +157,7 @@ The steps for FPGA1 (FPGA2: `-fpga 2`, `F2_*`, `C2C2`, window `0xB3000000`, `-f 
 | # | Check | Command (BUTool unless shown) | Expected |
 |---|---|---|---|
 | 1 | Programming | shell: `uio_send.py program-fpga -fpga 1 -f <FPGA1 candidate package>` | success; `read CM.C2C1_PROGRAM.STATUS` `0x3C01` |
-| 2 | Identity | `read F1_CM_FW_INFO.GIT_HASH_1` | `0x131332AC`; the package's address table is from the same build |
+| 2 | Identity | `read F1_CM_FW_INFO.GIT_HASH_1` | `0x1C41A96F`; the package's address table is from the same build |
 | 3 | Register access over lane A | `status 2 C2C`; `read F1_IO.CLK_200_LOCKED` | the reads answer (through `0xB1000000`); `1` |
 | 4 | PicoBlaze console | shell: `python3 ~/pbuart.py send version` | answered, readable at 115200 Bd |
 | 5 | Clocks | `read F1_C2C_INTF.C2C_1.USER_FREQ`; `read F1_C2C_INTF.C2C_REFCLK_FREQ` | about 125,000,000 (8 Gb/s ÷ 64); about 200,000,000, steady |
@@ -170,13 +175,42 @@ Afterwards:
 - Record each candidate's timing (WNS, WHS, routing complete) from the CI jobs, with the package names and SHA-256.
 - Results go in this section.
 
+### Release-candidate results (apollo212-1, 2026-11-12): passed
+
+Setup:
+- The SM image reports C2C DMA engine v1.0, release line 1 (SM_ZYNQ_FW v2.3.0).
+- FPGA1 and then FPGA2 programmed with `uio_send.py program-fpga` from the `09436ad` packages.
+- Then the release driver was loaded by hand, as the SM release notes say: `insmod /fw/SM/modules/c2c-axi-dma.ko
+  coherent=1`. The probe reported engine v1.0, release line 1, page ABI 1, coherent DDR (checked).
+- Tools: `/root/rc1/c2c-pages-test` (page ABI 1.0) and speedtest `test_stand` cmd 21.
+- The IPbus clock is 62.5 MHz, from the application's emp-fwk (`dc9e6763`). This is the test configuration, not
+  a property of CM_FPGA_FW.
+
+| # | Check | FPGA1 | FPGA2 |
+|---|---|---|---|
+| 1 | Programming | success; `C2C1_PROGRAM.STATUS` `0x3C01`, `C2C1_AXILITE_FW.STATUS` `0` | success; `C2C2_PROGRAM.STATUS` `0x3C01`, `C2C2_AXILITE_FW.STATUS` `0` |
+| 2 | Identity | `0x1C41A96F` | `0x1C41A96F` |
+| 3 | Register access over lane A | `status 9 C2C`: every link up, `RUNNING`, 125.00 MHz; `CLK_200_LOCKED` `1` | the same; `CLK_200_LOCKED` `1` |
+| 4 | PicoBlaze console | readable at 115200 Bd (command echo and prompt) | not run |
+| 5 | Clocks | `USER_FREQ` 124,999,999; `C2C_REFCLK_FREQ` 200,000,000 | 124,999,998; 200,000,000 |
+| 6 | Verified DMA, 60 s, `0x83000000`, 1024 words | 371,541 loops, 0 words wrong, 0 timeouts, 0 desyncs; 405.8 Mb/s | 373,024 loops, 0 words wrong, 0 timeouts, 0 desyncs; 407.4 Mb/s |
+| 7 | Both at once, 600 s, BUMonitor active | 3,634,069 loops, 0 words wrong; 396.9 Mb/s | 3,634,306 loops, 0 words wrong; 397.0 Mb/s |
+| 8 | Register windows, both FPGAs loaded | `C2C1_PROGRAM.STATUS` `0x3C01` | `C2C2_PROGRAM.STATUS` `0x3C01` |
+| 9 | Older SM (lane B) | not run | not run |
+
+- **Step 7:** 0 timeouts, 0 desyncs and 0 failed operations on either FPGA or queue.
+- **BUMonitor:** checked active before the run; its restart count was not checked.
+- **Throughput:** the 60 s figures match the SM_ZYNQ_FW v2.3.0 release tests of the same command (2026-10-21:
+  397.6 and 406.8 Mb/s on FPGA1, 407.7 and 403.6 Mb/s on FPGA2).
+- **Still to record:** the FPGA1 package name, both packages' SHA-256, and the CI timing (WNS, WHS).
+
 ### Release order
 
-1. **Run the two manual jobs** on IT-DTC `feature/new_block_ram_jrf_temp` (`8f748e1c`, already pushed).
-2. **Check timing and routing.** Record the packages and checksums.
-3. **The hardware checks above.** Programming needs approval.
+1. **Run the two manual jobs** on IT-DTC `feature/new_block_ram_jrf_temp` (`b6368cb9`). Done.
+2. **Check timing and routing.** Record the packages and checksums. Outstanding.
+3. **The hardware checks above.** Programming needs approval. Passed, 2026-11-12.
 4. **If they pass:**
-   - tag `v4.1.0` (annotated) on `473b251`;
+   - tag `v4.1.0` (annotated) on `09436ad`;
    - open a PR from `feature/c2c_axilite_lane_merge` to `master`, carrying the `SPEC.md` record commits, and merge
      it with a merge commit, so the tagged commit is in `master`'s history.
 5. **Dependencies:** the bu_build and build-scripts tags; protection of the three `128_bit_dma_jrf` branches.
@@ -188,7 +222,7 @@ Afterwards:
 
 | SM_ZYNQ_FW | CM images | Status |
 |---|---|---|
-| v2.3.0 | v4.1.0 candidates (`473b251`) | the release pair: to test |
+| v2.3.0 | v4.1.0 candidates (`09436ad`) | the release pair: tested 2026-11-12, passed |
 | v2.3.0 | experimental (`945951f`) | tested 2026-10-15 to 21: the rollback images for v2.3.0 |
 | v2.2.0 (lane B) | v4.0.0 | the previous release pair: the rollback for the SM |
 | v2.2.0 (lane B) | v4.1.0 | by design only; untested |
