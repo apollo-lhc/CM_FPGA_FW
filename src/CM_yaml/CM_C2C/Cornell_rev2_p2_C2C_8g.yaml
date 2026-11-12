@@ -15,6 +15,11 @@ AXI_SLAVES:
       gt_pll: cpll
       singleend_refclk: True
       addr: ${::AXI_BUS_CTRL}
+      # Connect this core's built-in AXI4-Lite master so the SM can carry FPGA2
+      # register traffic on this lane (SPEC.md work item 3, stage 1). F2_C2CB
+      # stays connected below, so the image also works with SM firmware that
+      # still uses the AXI-Lite lane.
+      addr_lite: ${::AXI_BUS_CTRL}
   F2_C2CB:
     TCL_CALL:
       command: AXI_IP_C2C

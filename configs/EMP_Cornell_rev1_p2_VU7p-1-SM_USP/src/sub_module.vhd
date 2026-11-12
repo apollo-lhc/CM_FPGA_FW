@@ -384,7 +384,7 @@ begin  -- architecture structure
   -- kh jan'23
   rate_counter_1: entity work.rate_counter
     generic map (
-      CLK_A_1_SECOND => 2000000)
+      CLK_A_1_SECOND => 200000000)
     port map (
       clk_A         => clk_200,
       clk_B         => clk_F2_C2C_PHY_user(1),
@@ -455,6 +455,7 @@ begin  -- architecture structure
  -- kh jan'23
   C2C_INTF_1: entity work.C2C_INTF
     generic map (
+      CLKFREQ         => 100000000,      -- AXI_CLK: clk_200 / 2 (AXI_CLK_BUFGCE_DIV_200_TO_100)
       ERROR_WAIT_TIME => 90000000,
       ALLOCATED_MEMORY_RANGE => to_integer(AXI_RANGE_F2_C2C_INTF)
       )

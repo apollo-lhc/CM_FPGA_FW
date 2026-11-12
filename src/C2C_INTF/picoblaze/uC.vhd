@@ -36,10 +36,12 @@ use work.uC_LINK.all;
 
 entity uC is
   generic (
-    LINK_COUNT : integer range 0 to 15 := 1
+    LINK_COUNT     : integer range 0 to 15 := 1;
+    CLKFREQ        : integer := 50000000;      -- frequency of clk in Hz
+    UART_BAUD_RATE : integer := 115200
   );
   port (
-    clk          : in std_logic;               -- 50MHz oscillator input
+    clk          : in std_logic;               -- CLKFREQ Hz
     reset        : in std_logic;               -- reset to picoblaze
 
     reprogram_addr   : in  std_logic_vector(10 downto 0);
@@ -206,7 +208,9 @@ architecture arch of uC is
 --
 -- UART UART baud rate signals
 --
-  signal baud_count   : integer range 0 to 67 := 0;
+  -- clk cycles per en_16_x_baud pulse, rounded to the nearest integer
+  constant BAUD_16X_PERIOD : integer := (CLKFREQ + 8*UART_BAUD_RATE) / (16*UART_BAUD_RATE);
+  signal baud_count   : integer range 0 to BAUD_16X_PERIOD-1 := 0;
   signal en_16_x_baud : std_logic             := '0';
 
 
@@ -342,15 +346,15 @@ begin  -- architecture arch
 -- RS232 (UART) baud rate 
 -----------------------------------------------------------------------------------------
 --
--- To set serial communication baud rate to 115,200 then en_16_x_baud must pulse 
--- High at 1.84MHz which is every 54 cycles at 100Mhz. In this implementation 
--- a pulse is generated every 31 cycles resulting is a baud rate of 126,01 baud (0.8%)
+-- en_16_x_baud must pulse High at 16 times UART_BAUD_RATE. For 115,200 baud
+-- that is 1.8432 MHz: every 27 cycles at 50 MHz or every 54 cycles at 100 MHz,
+-- both giving 115,741 baud (+0.5%).
 --
 
   baud_rate : process(clk)
   begin
     if clk'event and clk = '1' then
-      if baud_count = 26 then           -- counts 54 states including zero
+      if baud_count = BAUD_16X_PERIOD-1 then
         baud_count   <= 0;
         en_16_x_baud <= '1';            -- single cycle enable pulse
       else
