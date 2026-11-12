@@ -22,10 +22,11 @@ Primary branch wiring:
 - F1/F2 IPbus address windows are 16 MiB on the full AXI endpoint path; this does not specify transport buffer depth.
 - F1/F2 scratch RAM endpoints are omitted in production. Their former 1 MiB, 64-bit BRAM-backed implementation is preserved on `backup/c2c-8g-scratch-before-release-20261007` for future native-AXI development.
 
-## Release candidate v4.1.0 (in preparation; updated 2026-11-12)
+## Release v4.1.0 (released 2026-11-12)
 
-Not merged or tagged. The release candidate (`09436ad`) was built and passed its hardware checks on apollo212-1 on
-2026-11-12 ("Release-candidate results", below). Both images meet timing.
+**Released:** annotated tag `v4.1.0` on `09436ad`, merged into `master` by PR #71 (`6bad7f0`), 2026-11-12. The
+release candidate was built and passed its hardware checks on apollo212-1 on 2026-11-12 ("Release-candidate
+results", below). Both images meet timing. The dependency releases are done ("Dependencies", below).
 
 ### Compatibility reference: SM_ZYNQ_FW v2.3.0
 
@@ -105,15 +106,15 @@ SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
 
 The experimental results show that the design works. The release-candidate results validate the release images.
 
-### Dependencies (audit 2026-10-29; pins aligned with SM v2.3.0 in `473b251`, 2026-11-11)
+### Dependencies (audit 2026-10-29; pins aligned with SM v2.3.0 in `473b251`, 2026-11-11; released 2026-11-12)
 
-| Dependency | CM v4.1.0 pin (`473b251`) | SM v2.3.0 pin | CM v4.0.0 and `2c3ba36` pin | Where the v4.1.0 pin is | Open MR |
+| Dependency | CM v4.1.0 pin (`473b251`, `09436ad`) | SM v2.3.0 pin | CM v4.0.0 and `2c3ba36` pin | Where the v4.1.0 pin is (2026-11-12) | MRs |
 |---|---|---|---|---|---|
-| `bd` (bu_build) | `db9af5f` (v3.0.0-106) | `db9af5f` | `da8c683` (v3.0.0-100) | Only `feature/axi_dma_upgrade` (its tip). `develop` (`2a12a67`, 2023, the default) is an ancestor, 90 commits behind | !1 (draft): `feature/c2c-soft-reset` → `develop`, three of the six commits after `da8c683` |
-| `build-scripts` | `b4c8d4d` (v1.1.0-18) | `b4c8d4d` | `b4c8d4d` | Only `c2c_dma_jrf_buildscripts_Unified` (its tip). Fast-forward from both `master` and `develop` | !19: that branch → `master` |
-| `regmap_helper` (uhal_axi_regmap) | `83c6f4b` (v3.0.0-1) | `83c6f4b` | `aa6ec79` (v3.0.0-7) | `master` (its tip). The GitLab default branch is `L0MDT_2024_11_27` (tip `48262eb`, 2023), which does not hold it; `develop` lacks 1 commit of it | none |
-| `regmap_helper/axiReg` (axi-vhdl-package, nested) | `eaa6c5b` (v1.0.0-1) | `eaa6c5b` | `3b5c5d3` (v1.0.0-2) | `master` (its tip). `develop`, the default, lacks 1 commit of it | none |
-| `src/misc` (misc-vhdl) | `47e307e` (v1.0.0-11) | `47e307e` | `60eb0d0` (v1.0.0-2) | `develop` (its tip, the default) | none |
+| `bd` (bu_build) | `db9af5f` (`v3.1.0`) | `db9af5f` | `da8c683` (v3.0.0-100) | `develop` (its tip, the default, protected); tag `v3.1.0` | !1 closed as merged (contained in `develop`) |
+| `build-scripts` | `b4c8d4d` (`v1.2.0`) | `b4c8d4d` | `b4c8d4d` | `develop` (its tip); `master` (protected) through the merge `3cca629`, same tree; tag `v1.2.0` | !20 `develop` → `master` merged; !19 closed |
+| `regmap_helper` (uhal_axi_regmap) | `83c6f4b` (v3.0.0-1) | `83c6f4b` | `aa6ec79` (v3.0.0-7) | `master` (its tip, protected 2026-11-12). The GitLab default branch is `L0MDT_2024_11_27` (tip `48262eb`, 2023), which does not hold it; `develop` lacks 1 commit of it | none |
+| `regmap_helper/axiReg` (axi-vhdl-package, nested) | `eaa6c5b` (v1.0.0-1) | `eaa6c5b` | `3b5c5d3` (v1.0.0-2) | `master` (its tip, protected 2026-11-12). `develop`, the default, lacks 1 commit of it | none |
+| `src/misc` (misc-vhdl) | `47e307e` (v1.0.0-11) | `47e307e` | `60eb0d0` (v1.0.0-2) | `develop` (its tip, the default, protected) | none |
 | `bd/utils/buddyallocation` (nested) | `d3ea718` | `d3ea718` | `d3ea718` | `develop` | |
 | `FPGA_heater` | `04e423d` | | `04e423d` | `master` | |
 
@@ -130,18 +131,21 @@ The experimental results show that the design works. The release-candidate resul
 - **Every pin is on a public remote branch** (checked 2026-11-11 against the fetched remotes). The 2026-10-29
   clean recursive clone was of `2c3ba36`. Builds resolve submodules with `git submodule update --init --recursive`
   (`make init`; `ipbb add git -r` in the IT-DTC CI), so the `.gitmodules` branch fields do not affect them.
-- **`bd` and `build-scripts` still depend on feature branches staying,** for both repositories, until the
-  dependency releases below.
+- **Every pin of SM v2.3.0 and CM v4.1.0 is now on a protected branch or a tag** (checked 2026-11-12, for every
+  SM_ZYNQ_FW and CM_FPGA_FW tag).
 - **CM v4.0.0 still pins the `128_bit_dma_jrf` commits** of uhal_axi_regmap, axi-vhdl-package and misc-vhdl. Those
-  branches must stay.
+  branches are neither protected nor tagged (decision of 2026-11-12) and must not be deleted until work item 5 is
+  done or their three commits are tagged.
+- **SM v1.4.3 pins commits found only on bu_build `test_hog` (`ffcb83b`) and build-scripts `feature/hog_test`
+  (`67b51b9`).** Keep those branches.
 
-Recommended dependency releases, independent of the CM tag:
+Dependency releases (done 2026-11-12):
 
-| Repository | Action | Proposed tag | Why this version |
+| Repository | Done | Tag | Why this version |
 |---|---|---|---|
-| bu_build | Fast-forward `develop` to `db9af5f` (`feature/axi_dma_upgrade`); close or supersede draft !1, which is a subset | `v3.1.0` on `db9af5f` | 106 commits after v3.0.0. They are additive YAML options (128-bit C2C/BRAM, AXIS width converter, interconnect knobs that default to the previous behaviour, `93f88d4`, gearbox aux reset, C2C recovery helpers, the SM DMA implementor). One behavioural change for C2C users, `b4e19fc` (no extra Aurora reset), is validated in both releases. Its other users should know of it, or call it v4.0.0 if they treat it as breaking. The tag is SM v2.3.0's pin exactly, and the CM's pin is in its history |
-| build-scripts | Merge !19 as a fast-forward of `master` and `develop` to `b4c8d4d` | `v1.2.0` on `b4c8d4d` | 18 commits after v1.1.0, the build changes for the wide AXI/C2C work. It is both releases' pin exactly |
-| uhal_axi_regmap, axi-vhdl-package, misc-vhdl | Protect (or tag) the `128_bit_dma_jrf` branches, which CM v4.0.0 pins. v4.1.0's pins are already on `master`, `master` and `develop` | optional: tags on `83c6f4b` and `eaa6c5b`, which are on `master` but not on the default branch | So that v4.0.0 and v4.1.0 both stay reproducible |
+| bu_build | `develop` fast-forwarded `2a12a67` → `db9af5f`; draft !1 closed as merged | `v3.1.0` (annotated) on `db9af5f` | 106 commits after v3.0.0. They are additive YAML options (128-bit C2C/BRAM, AXIS width converter, interconnect knobs that default to the previous behaviour, `93f88d4`, gearbox aux reset, C2C recovery helpers, the SM DMA implementor). One behavioural change for C2C users, `b4e19fc` (no extra Aurora reset), is validated in both releases and named in the tag message. The tag is both releases' pin exactly |
+| build-scripts | `develop` fast-forwarded `b154395` → `b4c8d4d`; `develop` → `master` merged by !20 (`3cca629`, the same tree), as for v1.0.0 and v1.1.0; !19 closed | `v1.2.0` (annotated) on `b4c8d4d` | 18 commits after v1.1.0: Vivado 2023.2 and the build changes for the wide AXI/C2C work. It is both releases' pin exactly |
+| uhal_axi_regmap, axi-vhdl-package, misc-vhdl | `master`, `master` and `main` protected (misc-vhdl `develop` already was) | none | They hold v4.1.0's and SM v2.x's pins |
 
 ### Release-candidate checks (with SM_ZYNQ_FW v2.3.0; programming needs the developer's approval)
 
@@ -222,16 +226,19 @@ Packages and timing (the CI jobs' design timing summaries):
    - tag `v4.1.0` (annotated) on `09436ad`;
    - open a PR from `feature/c2c_axilite_lane_merge` to `master`, carrying the `SPEC.md` record commits, and merge
      it with a merge commit, so the tagged commit is in `master`'s history.
-5. **Dependencies:** the bu_build and build-scripts tags; protection of the three `128_bit_dma_jrf` branches.
-   Recommended before the combined Apollo release documentation, but not a condition of the CM tag.
+
+   Done 2026-11-12: PR #71, merge `6bad7f0`; tag `v4.1.0`.
+5. **Dependencies:** the bu_build and build-scripts tags; protection of the branches holding the pins. Done
+   2026-11-12 ("Dependencies", above). The `128_bit_dma_jrf` branches were left as they are (work item 5).
 6. **SM_ZYNQ_FW:** no change. v2.3.0 is the reference, and step 5 makes it, and v4.1.0, reproducible from the
-   dependencies' main branches as well.
+   dependencies' main branches as well. Its `.gitmodules` still names `feature/vivado_2023_2` as the build-scripts
+   branch; correct it to `develop` in the next SM change (not in v2.3.0).
 
 ### Compatibility set and rollback
 
 | SM_ZYNQ_FW | CM images | Status |
 |---|---|---|
-| v2.3.0 | v4.1.0 candidates (`09436ad`) | the release pair: tested 2026-11-12, passed |
+| v2.3.0 | v4.1.0 (`09436ad`) | the release pair: tested 2026-11-12, passed; released |
 | v2.3.0 | experimental (`945951f`) | tested 2026-10-15 to 21: the rollback images for v2.3.0 |
 | v2.2.0 (lane B) | v4.0.0 | the previous release pair: the rollback for the SM |
 | v2.2.0 (lane B) | v4.1.0 | by design only; untested |
@@ -574,3 +581,33 @@ Reintroducing scratch requires restoring a non-overlapping address layout first.
      `configs/Cornell_rev2_p1_VU13p-1-SM_7s_IBERT_lpGBT/src/c2cBD/createC2CSlaveInterconnect.tcl`,
      which was never in this repository. `p2` keeps its own
      `src/c2cBD/createC2CSlaveInterconnect.tcl`.
+
+5. [ ] Converge the shared HDL submodules onto one pin for SM_ZYNQ_FW and CM_FPGA_FW
+
+   Agreed on 2026-11-12, after the v4.1.0 release; not part of it.
+
+   The lines today (commits only on the first branch / only on the second):
+   - **uhal_axi_regmap:** `master` `83c6f4b` (SM v1.11.0 to v2.3.0, CM v4.1.0) against `develop` `eecbd1a`
+     (1 / 22: the 2023 node-span, `"auto"` address and ILA work, and L0MDT changes; CM v3.0.0 and v3.1.0 pinned
+     `0443cf3`). `128_bit_dma_jrf` `aa6ec79` holds CM v4.0.0's pin. The GitLab default branch is
+     `L0MDT_2024_11_27`, which is its maintainers' choice.
+   - **axi-vhdl-package:** `master` `eaa6c5b` against `develop` `909ed30` (1 / 8, including the ILA option
+     `c93dfcc`). `128_bit_dma_jrf` `3b5c5d3` holds CM v4.0.0's pin.
+   - **misc-vhdl:** `develop` `47e307e` (the default) against `main` `5f4eef6` (7 commits behind `develop`, with 1
+     of its own). `128_bit_dma_jrf` `60eb0d0` holds CM v4.0.0's pin.
+
+   How it happened:
+   - In October 2023 the CM followed the experimental regmap line (`13796dd`), while the SM rolled back to
+     `master` v3.0.0 (SM_ZYNQ_FW `bb8ffd6`).
+   - In April 2026 the 128-bit additions were made twice: on `128_bit_dma_jrf`, started from the CM's old pins,
+     and on `master`/`develop` for the SM. The 128-bit content is the same; the bases differ.
+   - v4.0.0 (`abca14a`) was tagged with the `128_bit_dma_jrf` pins unchanged. v4.1.0 moved to the SM's pins
+     (`473b251`).
+
+   To do:
+   - One new commit per repository on a protected default branch, pinned by both repositories. Keep what is
+     wanted from the experimental line (for example the ILA option) and drop the rest.
+   - Until then, do not delete the `128_bit_dma_jrf` branches: CM v4.0.0 can be rebuilt only while they exist.
+     Tagging their three commits would make the branches deletable.
+   - Add a release check: every submodule pin, nested ones included, is on a protected branch or a tag, and the
+     pins shared with SM_ZYNQ_FW match.
