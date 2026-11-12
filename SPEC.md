@@ -25,7 +25,7 @@ Primary branch wiring:
 ## Release candidate v4.1.0 (in preparation; updated 2026-11-12)
 
 Not merged or tagged. The release candidate (`09436ad`) was built and passed its hardware checks on apollo212-1 on
-2026-11-12 ("Release-candidate results", below). The package checksums and the CI timing are still to record.
+2026-11-12 ("Release-candidate results", below). Both images meet timing.
 
 ### Compatibility reference: SM_ZYNQ_FW v2.3.0
 
@@ -100,7 +100,7 @@ SM_ZYNQ_FW `doc/c2c_axi_dma_1.7_validation.md`, section 5), both FPGAs:
 |---|---|---|
 | CM_FPGA_FW | `945951f` (`GIT_HASH_1` `0x0C8FC832`), without `81dc76a` and `a401d51` | `09436ad` (`0x1C41A96F`) |
 | emp-fwk (the application's pin) | `dc9e6763` | `dc9e6763` (IT-DTC `b6368cb9`); its IPbus clock is 62.5 MHz |
-| Packages | FPGA1: `it_dtc_bram_8G_IPBUS_CLOCK_62_5_MHz_FIX_CLK_MON_MERGE.tgz`; FPGA2: its stage-1 counterpart | FPGA2: `it_dtc_f2_bram_8G_IPBUS_CLOCK_62_5_MHz_V4_1_0.tgz`; FPGA1: its counterpart (name and SHA-256 to record) |
+| Packages | FPGA1: `it_dtc_bram_8G_IPBUS_CLOCK_62_5_MHz_FIX_CLK_MON_MERGE.tgz`; FPGA2: its stage-1 counterpart | FPGA1: `it_dtc_f1_bram_8G_IPBUS_CLOCK_62_5_MHz_V4_1_0.tgz`; FPGA2: `it_dtc_f2_bram_8G_IPBUS_CLOCK_62_5_MHz_V4_1_0.tgz` (SHA-256 below) |
 | Hardware | 2026-10-15 to 21 with SM_ZYNQ_FW `75f66d4` to v2.3.0: lane-A register access, console, IPbus integrity on both FPGAs, a one-hour soak, link loss under traffic, the v2.3.0 release tests (work item 3) | 2026-11-12 with SM_ZYNQ_FW v2.3.0: the release-candidate checks, all passed (below) |
 
 The experimental results show that the design works. The release-candidate results validate the release images.
@@ -202,12 +202,21 @@ Setup:
 - **BUMonitor:** checked active before the run; its restart count was not checked.
 - **Throughput:** the 60 s figures match the SM_ZYNQ_FW v2.3.0 release tests of the same command (2026-10-21:
   397.6 and 406.8 Mb/s on FPGA1, 407.7 and 403.6 Mb/s on FPGA2).
-- **Still to record:** the FPGA1 package name, both packages' SHA-256, and the CI timing (WNS, WHS).
+
+Packages and timing (the CI jobs' design timing summaries):
+
+| FPGA | Package | SHA-256 | WNS / TNS (ns) | WHS / THS (ns) | WPWS / TPWS (ns) | Failing endpoints |
+|---|---|---|---|---|---|---|
+| 1 | `it_dtc_f1_bram_8G_IPBUS_CLOCK_62_5_MHz_V4_1_0.tgz` | `551b13062322a82906ce3a79daef53eef4df6ccf095c2cfd20df1ceebb9bc537` | 0.236 / 0.000 | 0.010 / 0.000 | 0.445 / 0.000 | 0 setup, 0 hold, 0 pulse width |
+| 2 | `it_dtc_f2_bram_8G_IPBUS_CLOCK_62_5_MHz_V4_1_0.tgz` | `c267a6159deda595cfd04a4c2fc668c073092eb6dff5e6dae45102080ab88351` | 0.131 / 0.000 | 0.006 / 0.000 | 0.445 / 0.000 | 0 setup, 0 hold, 0 pulse width |
+
+- Timing is met on both. The hold slack is small (10 ps and 6 ps) but positive.
+- The routing status was not taken from the jobs; the timing summary alone does not show it.
 
 ### Release order
 
 1. **Run the two manual jobs** on IT-DTC `feature/new_block_ram_jrf_temp` (`b6368cb9`). Done.
-2. **Check timing and routing.** Record the packages and checksums. Outstanding.
+2. **Check timing and routing.** Record the packages and checksums. Done: timing met on both (results, above).
 3. **The hardware checks above.** Programming needs approval. Passed, 2026-11-12.
 4. **If they pass:**
    - tag `v4.1.0` (annotated) on `09436ad`;
