@@ -945,7 +945,7 @@ begin
       s_axi_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
       s_axi_wvalid              => ext_AXI_WriteMOSI.data_valid,          
       bram_rst_a                   => open,
-      bram_clk_a                   => AXI_CLK,
+      bram_clk_a                   => bram_clk_a,
       bram_en_a                    => AXI_BRAM_en,
       bram_we_a                    => AXI_BRAM_we,
       bram_addr_a                  => AXI_BRAM_addr,
