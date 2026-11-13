@@ -641,6 +641,7 @@ begin
       F1_C2CB_phy_Tx_txn                     => n_mgt_f_to_sm(2 downto 2),
       F1_C2CB_phy_Tx_txp                     => p_mgt_f_to_sm(2 downto 2),
       F1_C2C_phy_refclk                      => c2c_refclk,
+      F1_C2CB_phy_refclk                       => c2c_refclk,
                                              
                                              
                                              
