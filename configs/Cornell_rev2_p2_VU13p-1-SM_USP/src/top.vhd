@@ -639,6 +639,7 @@ begin
      F2_C2CB_phy_Tx_txn                  => n_mgt_f_to_sm(2 downto 2),
      F2_C2CB_phy_Tx_txp                  => p_mgt_f_to_sm(2 downto 2),
      F2_C2C_phy_refclk                   => c2c_refclk,
+     F2_C2CB_phy_refclk                    => c2c_refclk,
       
 
       F2_C2C_PHY_DEBUG_cplllock(0)         => C2C_Mon.C2C(1).DEBUG.CPLL_LOCK,
@@ -909,7 +910,7 @@ begin
       s_axi_wstrb                  => ext_AXI_WriteMOSI.data_write_strobe,   
       s_axi_wvalid              => ext_AXI_WriteMOSI.data_valid,          
       bram_rst_a                   => open,
-      bram_clk_a                   => AXI_CLK,
+      bram_clk_a                   => bram_clk_a,
       bram_en_a                    => AXI_BRAM_en,
       bram_we_a                    => AXI_BRAM_we,
       bram_addr_a                  => AXI_BRAM_addr,

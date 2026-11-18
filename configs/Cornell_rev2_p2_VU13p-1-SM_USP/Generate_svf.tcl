@@ -1,6 +1,12 @@
 #this has to be called from inside an open session
 source ${apollo_root_path}/configs/${build_name}/settings.tcl
 
+# Raw bitstream (.bin: the .bit without its header) for dma-jtag-tools
+# (convert_tarball_for_dma_jtag.sh). Rewrites the .bit from the same design so
+# the .bit, .bin, .svf and .mcs all come from one write_bitstream.
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]
+write_bitstream -force -bin_file ${apollo_root_path}/bit/top_${build_name}.bit
+
 set SVF_TARGET [format "svf_top%06u" [expr {round(1000000 *rand())}]]
 
 

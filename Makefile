@@ -170,6 +170,7 @@ $(BIT_BASE)%.bit        : $(ADDRESS_TABLE_CREATION_PATH)config_%.yaml
 	$(MAKE) overlays DTSI_PATH=kernel/hw/$*  $(OUTPUT_MARKUP)
 	@rm -f $*.tar.gz
 	$(MAKE) $*.tar.gz  $(OUTPUT_MARKUP)
+	if [ -f bit/top_$*.bin ]; then $(MAKE) $*.tgz $(OUTPUT_MARKUP); fi
 
 SVF	:
 	@$(VIVADO_SETUP) &&\
@@ -191,7 +192,21 @@ make test :
 
 #%.tar.gz : bit/top_%.svf kernel/hw/dtbo/ os/address_table/
 %.tar.gz : bit/top_%.svf 
-	@tar -h -zcf $@ $< -C kernel/hw/$* dtbo -C ../../address_tables address_table_$*
+	@tar -h -zcf $@ $< $(wildcard bit/top_$*.bin) -C kernel/hw/$* dtbo -C ../../address_tables address_table_$*
+
+# Standalone build packaged in the EMP (ipbb) layout, for dma-jtag-tools
+# (convert_tarball_for_dma_jtag.sh) and uio_daemon:
+#   <config>/top_<config>.{bit,bin,svf}
+#   <config>/addrtab/apollo_package.tgz: apollo_package/{address_table,dtbo}, as
+#   made by emp-fwk boards/apollo/cm_v2_v3/vu13p/firmware/cfg/create_dtbo_package.tcl
+%.tgz : bit/top_%.svf bit/top_%.bin bit/top_%.bit
+	@tmp=$$(mktemp -d) && \
+	mkdir -p $$tmp/apollo_package $$tmp/$*/addrtab && \
+	cp -rL kernel/address_tables/address_table_$* $$tmp/apollo_package/address_table && \
+	cp -rL kernel/hw/$*/dtbo $$tmp/apollo_package/ && \
+	tar -C $$tmp -czf $$tmp/$*/addrtab/apollo_package.tgz apollo_package && \
+	cp bit/top_$*.bit bit/top_$*.bin bit/top_$*.svf $$tmp/$*/ && \
+	tar -C $$tmp -czf $@ $* ; rc=$$? ; rm -rf $$tmp ; exit $$rc
 
 EMP%.tar.gz : kernel/config_EMP%.yaml
 	$(MAKE) overlays DTSI_PATH=kernel/hw/EMP$*
